@@ -1,0 +1,46 @@
+{
+  "mappings":[
+    { "priority":1,
+      "name" : "LinkMobilitySuccess",
+      "request" : {
+        "url" : "/link/send/sms",
+        "method" : "POST",
+        "bodyPatterns" : [
+          {"matchesJsonPath" :  "$.platformId"},
+          {"matchesJsonPath" :  "$.platformPartnerId"},
+          {"matchesJsonPath" :  "$.useDeliveryReport"},
+          {"matchesJsonPath" :  "$.sourceTON"},
+          {"matchesJsonPath" :  "$.source"},
+          {"matchesJsonPath" :  "$.destinationTON"},
+          {"matchesJsonPath" :  "$.destination"},
+          {"matchesJsonPath" :  "$.userData"}
+        ]
+      },
+      "response" : {
+        "status" : 200,
+        "jsonBody" :{
+          "resultCode":1000
+        },
+        "headers": {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }
+    },
+    { "priority":2,
+      "name" : "LinkMobilityFail",
+      "request" : {
+        "url" : "/link/send/sms",
+        "method" : "POST"
+      },
+      "response" : {
+        "status" : 400,
+        "jsonBody" :{
+          "resultCode":"0"
+        },
+        "headers": {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }
+    }
+  ]
+}

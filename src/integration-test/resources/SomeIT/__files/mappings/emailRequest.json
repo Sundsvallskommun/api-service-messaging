@@ -1,0 +1,22 @@
+{
+  "name" : "EmailSuccess",
+  "request" : {
+    "url" : "/send/email",
+    "method" : "POST",
+    "bodyPatterns" : [
+      {"matchesJsonPath" :  "$.emailAddress"},
+      {"matchesJsonPath" :  "$.subject"},
+      {"matchesJsonPath" :  "$.message"},
+      {"matchesJsonPath" :  "$.htmlMessage"},
+      {"matchesJsonPath" :  "$.senderName"},
+      {"matchesJsonPath" :  "$.senderEmail"},
+      {"matchesJsonPath" : "$..attachments"}
+    ]
+  },
+  "response" : {
+    "status" : 200,
+    "headers": {
+      "Content-Type": "application/json;charset=UTF-8"
+    }
+  }
+}

@@ -1,0 +1,457 @@
+openapi: 3.0.1
+info:
+  title: messaging
+  contact: {}
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: '@project.version@'
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: Messaging Service Resources
+paths:
+  /messages:
+    post:
+      tags:
+      - Messaging Service Resources
+      summary: Send messages as E-mail or SMS to a list of parties
+      operationId: sendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageBatchResponse'
+  /messages/sms:
+    post:
+      tags:
+      - Messaging Service Resources
+      summary: Send an SMS
+      operationId: sendSms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingSmsRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/email:
+    post:
+      tags:
+      - Messaging Service Resources
+      summary: Send an E-mail
+      operationId: sendEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingEmailRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/{partyId}/conversationHistory:
+    get:
+      tags:
+      - Messaging Service Resources
+      summary: Get the conversation history for a given party ID
+      operationId: getConversationHistory
+      parameters:
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/{messageId}/status:
+    get:
+      tags:
+      - Messaging Service Resources
+      summary: Get status for message by message ID
+      operationId: getMessageStatus
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/status/{messageId}:
+    get:
+      tags:
+      - Messaging Service Resources
+      summary: Get status for message by message ID
+      operationId: getStatus
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/batch/{batchId}/status:
+    get:
+      tags:
+      - Messaging Service Resources
+      summary: Get status for messages by batch ID
+      operationId: getBatchStatus
+      parameters:
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api-docs:
+    get:
+      tags:
+      - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    Message:
+      required:
+      - message
+      - partyId
+      type: object
+      properties:
+        partyId:
+          type: string
+          description: The message party ID
+          example: f427952b-247c-4d3b-b081-675a467b3619
+        subject:
+          type: string
+          description: The message subject (for E-mails)
+        message:
+          type: string
+          description: The message text
+        emailName:
+          type: string
+          description: Sender name for E-mail
+          example: sender
+        smsName:
+          maxLength: 11
+          minLength: 0
+          type: string
+          description: Sender name for SMS
+          example: sender
+        senderEmail:
+          type: string
+          description: Sender E-mail address
+          example: sender@sender.se
+      description: A message to be sent
+    MessageRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          description: The messages to be sent
+          items:
+            $ref: '#/components/schemas/Message'
+      description: Message representation
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        reasonPhrase:
+          type: string
+        statusCode:
+          type: integer
+          format: int32
+    MessageBatchResponse:
+      type: object
+      properties:
+        batchId:
+          type: string
+        messageIds:
+          type: array
+          items:
+            type: string
+    IncomingSmsRequest:
+      required:
+      - message
+      - mobileNumber
+      - partyId
+      - sender
+      type: object
+      properties:
+        sender:
+          maxLength: 11
+          minLength: 0
+          type: string
+          description: The Sender of the SMS
+          example: sender
+        partyId:
+          type: string
+          description: party ID
+          example: cb88e940-bbb4-470d-8908-826021945e4f
+        mobileNumber:
+          pattern: "^\\+467[02369]\\d{7}$"
+          type: string
+          description: Mobile number should start with +467x
+        message:
+          type: string
+      description: SMS representation
+    MessageResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+    Attachment:
+      required:
+      - content
+      - contentType
+      - name
+      type: object
+      properties:
+        content:
+          type: string
+          description: The attachment (file) content as a BASE64-encoded string
+          example: aGVsbG8gd29ybGQK
+        name:
+          type: string
+          description: The attachment filename
+          example: test.txt
+        contentType:
+          type: string
+          description: The attachment content type
+          example: text/plain
+      description: Attachments
+    IncomingEmailRequest:
+      required:
+      - emailAddress
+      - partyId
+      - senderEmail
+      - senderName
+      - subject
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          description: Recipient e-mail address
+          example: recipient@recipient.se
+        partyId:
+          type: string
+          description: Party ID
+          example: f7b379e6-3e0b-4f32-9812-e10279dd3d0a
+        subject:
+          type: string
+          description: E-mail subject
+        message:
+          type: string
+          description: E-mail plain-text body
+        htmlMessage:
+          type: string
+          description: E-mail HTML body (BASE64-encoded)
+        senderName:
+          type: string
+          description: Sender name
+        senderEmail:
+          type: string
+          description: Sender e-mail address
+          example: sender@sender.se
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: '#/components/schemas/Attachment'
+      description: E-mail representation
+    HistoryResponse:
+      type: object
+      properties:
+        sender:
+          type: string
+        partyId:
+          type: string
+        messageType:
+          type: string
+          enum:
+          - EMAIL
+          - SMS
+          - UNDELIVERABLE
+        message:
+          type: string
+        status:
+          type: string
+          enum:
+          - AWAITING_FEEDBACK
+          - PENDING
+          - SENT
+          - FAILED
+          - NO_FEEDBACK_SETTINGS_FOUND
+          - NO_FEEDBACK_WANTED
+        timestamp:
+          type: string
+          format: date-time
+    BatchStatusResponse:
+      type: object
+      properties:
+        messageStatuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageStatusResponse'
+    MessageStatusResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+        status:
+          type: string
+          enum:
+          - AWAITING_FEEDBACK
+          - PENDING
+          - SENT
+          - FAILED
+          - NO_FEEDBACK_SETTINGS_FOUND
+          - NO_FEEDBACK_WANTED
+  securitySchemes: {}

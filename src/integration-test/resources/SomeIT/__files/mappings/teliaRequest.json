@@ -1,0 +1,45 @@
+{
+  "mappings":[
+    { "priority":1,
+      "name" : "TeliaSuccess",
+      "request" : {
+        "url" : "/telia/send/sms",
+        "method" : "POST",
+        "bodyPatterns" : [
+          {"matchesJsonPath" :  "$.originator"},
+          {"matchesJsonPath" :  "$.destinationNumber"},
+          {"matchesJsonPath" :  "$.message"},
+          {"matchesJsonPath" :  "$.deliveryPriority"}
+        ]
+      },
+      "response" : {
+        "status" : 200,
+        "jsonBody" :{
+          "statusCode":"0",
+          "statusMessage":"ok"
+        },
+        "headers": {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }
+    },
+    { "priority":2,
+      "name" : "TeliaFail",
+      "request" : {
+        "url" : "/telia/send/sms",
+        "method" : "POST"
+      },
+      "response" : {
+        "status" : 400,
+        "jsonBody" :{
+          "statusCode":"0",
+          "statusMessage":"error"
+        },
+        "headers": {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }
+    }
+  ]
+}
+
