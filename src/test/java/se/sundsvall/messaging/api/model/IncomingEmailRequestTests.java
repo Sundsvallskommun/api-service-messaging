@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,13 +16,13 @@ class IncomingEmailRequestTests {
     void testBuilderAndGetters() {
         var partyId = UUID.randomUUID().toString();
 
-        var attachment = IncomingEmailRequest.Attachment.builder()
+        var attachment = EmailRequest.Attachment.builder()
             .withContent("content")
             .withContentType("image")
             .withName("name")
             .build();
 
-        var request = IncomingEmailRequest.builder()
+        var request = EmailRequest.builder()
             .withParty(Party.builder()
                 .withPartyId(partyId)
                 .withExternalReferences(List.of(ExternalReference.builder().build()))
@@ -55,7 +55,7 @@ class IncomingEmailRequestTests {
     void testSetters() {
         var partyId = UUID.randomUUID().toString();
 
-        var attachment = new IncomingEmailRequest.Attachment();
+        var attachment = new EmailRequest.Attachment();
         attachment.setContent("content");
         attachment.setContentType("image");
         attachment.setName("name");
@@ -64,7 +64,7 @@ class IncomingEmailRequestTests {
         party.setPartyId(partyId);
         party.setExternalReferences(List.of(new ExternalReference()));
 
-        var request = new IncomingEmailRequest();
+        var request = new EmailRequest();
         request.setParty(party);
         request.setSubject("subject");
         request.setMessage("message");

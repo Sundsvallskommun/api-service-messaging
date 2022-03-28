@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.SmsRepository;
@@ -40,7 +40,7 @@ public class SmsService implements Runnable {
         this.historyService = historyService;
     }
 
-    public SmsDto saveSms(final IncomingSmsRequest sms) {
+    public SmsDto saveSms(final SmsRequest sms) {
         if (StringUtils.isBlank(sms.getSender())) {
             sms.setSender(defaultSettings.getSmsName());
         }

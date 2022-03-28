@@ -4,17 +4,17 @@ import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.dto.SmsDto;
 
-import generated.se.sundsvall.smssender.SmsRequest;
+import generated.se.sundsvall.smssender.SendSmsRequest;
 
 @Component
 class SmsSenderIntegrationMapper {
 
-    SmsRequest toRequest(final SmsDto smsDto) {
+    SendSmsRequest toRequest(final SmsDto smsDto) {
         if (smsDto == null) {
             return null;
         }
 
-        return new SmsRequest()
+        return new SendSmsRequest()
             .message(smsDto.getMessage())
             .mobileNumber(smsDto.getMobileNumber())
             .sender(smsDto.getSender());

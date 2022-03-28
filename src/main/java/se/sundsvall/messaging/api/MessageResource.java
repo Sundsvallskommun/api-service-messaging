@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
-import se.sundsvall.messaging.api.request.MessageRequest;
-import se.sundsvall.messaging.api.response.BatchStatusResponse;
-import se.sundsvall.messaging.api.response.HistoryResponse;
-import se.sundsvall.messaging.api.response.MessageBatchResponse;
-import se.sundsvall.messaging.api.response.MessageResponse;
-import se.sundsvall.messaging.api.response.MessageStatusResponse;
+import se.sundsvall.messaging.api.model.BatchStatusResponse;
+import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.HistoryResponse;
+import se.sundsvall.messaging.api.model.MessageBatchResponse;
+import se.sundsvall.messaging.api.model.MessageRequest;
+import se.sundsvall.messaging.api.model.MessageResponse;
+import se.sundsvall.messaging.api.model.MessageStatusResponse;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.mapper.MessageMapper;
 import se.sundsvall.messaging.model.Party;
@@ -39,14 +39,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Messaging Resources")
 @RestController
 @RequestMapping("/messages")
-public class MessageController {
+public class MessageResource {
 
     private final SmsService smsService;
     private final EmailService emailService;
     private final MessageService messageService;
     private final HistoryService historyService;
 
-    public MessageController(final EmailService emailService, final SmsService smsService,
+    public MessageResource(final EmailService emailService, final SmsService smsService,
             final MessageService messageService, final HistoryService historyService) {
         this.emailService = emailService;
         this.messageService = messageService;
@@ -159,7 +159,7 @@ public class MessageController {
         )
     })
     @PostMapping("/sms")
-    public ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final IncomingSmsRequest request) {
+    public ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final SmsRequest request) {
         var savedSms = smsService.saveSms(request);
 
         return ResponseEntity.ok(new MessageResponse(savedSms.getMessageId()));
@@ -184,7 +184,7 @@ public class MessageController {
         )
     })
     @PostMapping("/email")
-    public ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final IncomingEmailRequest request) {
+    public ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final EmailRequest request) {
         var savedEmail = emailService.saveEmail(request);
 
         return ResponseEntity.ok(new MessageResponse(savedEmail.getMessageId()));

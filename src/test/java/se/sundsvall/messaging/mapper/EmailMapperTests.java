@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
+import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
@@ -25,13 +25,13 @@ class EmailMapperTests {
 
     @Test
     void emailRequest_toEntity_hasSameValues() {
-        var attachment = IncomingEmailRequest.Attachment.builder()
+        var attachment = EmailRequest.Attachment.builder()
             .withContent("Test")
             .withName("Test")
             .withContentType("Test")
             .build();
 
-        var emailRequest = IncomingEmailRequest.builder()
+        var emailRequest = EmailRequest.builder()
             .withSenderName("Test")
             .withSenderEmail("test@hotmail.com")
             .withEmailAddress("test@hotmail.com")
@@ -66,7 +66,7 @@ class EmailMapperTests {
 
     @Test
     void emailRequest_toEntity_receivesBatchIdAndMessageId() {
-        var emailRequest = IncomingEmailRequest.builder().build();
+        var emailRequest = EmailRequest.builder().build();
 
         var emailEntity = EmailMapper.toEntity(emailRequest);
 

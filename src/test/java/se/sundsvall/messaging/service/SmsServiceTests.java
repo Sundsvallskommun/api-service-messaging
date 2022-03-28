@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.SmsRepository;
@@ -149,8 +149,8 @@ class SmsServiceTests {
         return smsEntity;
     }
 
-    private IncomingSmsRequest createSmsRequest(Consumer<IncomingSmsRequest> modifier) {
-        var request = IncomingSmsRequest.builder()
+    private SmsRequest createSmsRequest(Consumer<SmsRequest> modifier) {
+        var request = SmsRequest.builder()
             .withParty(Party.builder()
                 .withPartyId(PARTY_ID)
                 .withExternalReferences(List.of(

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
+import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.EmailRepository;
@@ -37,7 +37,7 @@ public class EmailService implements Runnable {
         this.historyService = historyService;
     }
 
-    public EmailDto saveEmail(final IncomingEmailRequest request) {
+    public EmailDto saveEmail(final EmailRequest request) {
         if (StringUtils.isBlank(request.getSenderEmail())) {
             request.setSenderEmail(defaultSettings.getEmailAddress());
         }

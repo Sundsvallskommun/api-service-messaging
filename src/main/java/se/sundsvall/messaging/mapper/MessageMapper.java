@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import se.sundsvall.messaging.api.request.MessageRequest;
+import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.ExternalReference;

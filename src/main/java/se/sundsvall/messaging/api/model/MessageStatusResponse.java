@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.response;
+package se.sundsvall.messaging.api.model;
 
 import se.sundsvall.messaging.model.MessageStatus;
 
@@ -8,8 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(setterPrefix = "with")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessageStatusResponse {
 
     private final String messageId;
