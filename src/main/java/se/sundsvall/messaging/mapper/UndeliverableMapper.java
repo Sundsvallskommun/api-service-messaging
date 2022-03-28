@@ -8,6 +8,7 @@ import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
+import se.sundsvall.messaging.integration.db.entity.WebMessageEntity;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
@@ -127,5 +128,31 @@ public final class UndeliverableMapper {
             .withStatus(MessageStatus.FAILED)
             .withType(MessageType.SMS)
             .build();
+    }
+
+    public static UndeliverableMessageDto toUndeliverable(final WebMessageEntity webMessageEntity) {
+        if (webMessageEntity == null) {
+            return null;
+        }
+
+        return UndeliverableMessageDto.builder()
+            .withBatchId(webMessageEntity.getBatchId())
+            .withMessageId(webMessageEntity.getMessageId())
+            .withParty(Party.builder()
+                .withPartyId(webMessageEntity.getPartyId())
+                .withExternalReferences(Optional.ofNullable(webMessageEntity.getExternalReferences())
+                    .map(Map::entrySet)
+                    .orElse(Set.of())
+                    .stream()
+                    .map(entry -> ExternalReference.builder()
+                        .withKey(entry.getKey())
+                        .withValue(entry.getValue())
+                        .build())
+                    .toList())
+                    .build())
+                .withContent(webMessageEntity.getMessage())
+                .withStatus(MessageStatus.FAILED)
+                .withType(MessageType.WEB_MESSAGE)
+                .build();
     }
 }

@@ -29,16 +29,13 @@ class SmsSenderIntegrationTests {
     @Mock
     private RestTemplate mockRestTemplate;
     @Mock
-    private SmsSenderIntegrationProperties mockSmsSenderIntegrationProperties;
-    @Mock
     private SmsSenderIntegrationMapper mockSmsSenderIntegrationMapper;
 
     private SmsSenderIntegration smsSenderIntegration;
 
     @BeforeEach
     void setUp() {
-        smsSenderIntegration = new SmsSenderIntegration(mockRestTemplate,
-            mockSmsSenderIntegrationMapper, mockSmsSenderIntegrationProperties);
+        smsSenderIntegration = new SmsSenderIntegration(mockSmsSenderIntegrationMapper, mockRestTemplate);
     }
 
     @Test
@@ -77,13 +74,6 @@ class SmsSenderIntegrationTests {
                 assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
                 assertThat(problem.getCause()).isNull();
             });
-    }
-
-    @Test
-    void getMessageRetries_whenPropertySet_thenReturnsMessageRetriesProperty() {
-        when(mockSmsSenderIntegrationProperties.getMessageRetries()).thenReturn(3);
-
-        assertThat(smsSenderIntegration.getMessageRetries()).isEqualTo(3);
     }
 
     @Test

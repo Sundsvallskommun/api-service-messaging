@@ -41,6 +41,7 @@ import se.sundsvall.messaging.service.EmailService;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.service.SmsService;
+import se.sundsvall.messaging.service.WebMessageService;
 
 @ExtendWith(MockitoExtension.class)
 class MessageResourceTests {
@@ -54,6 +55,8 @@ class MessageResourceTests {
     @Mock
     private SmsService mockSmsService;
     @Mock
+    private WebMessageService mockWebMessageService;
+    @Mock
     private MessageService mockMessageService;
     @Mock
     private HistoryService mockHistoryService;
@@ -63,7 +66,7 @@ class MessageResourceTests {
     @BeforeEach
     void setUp() {
         messageResource = new MessageResource(mockEmailService, mockSmsService,
-            mockMessageService, mockHistoryService);
+            mockWebMessageService, mockMessageService, mockHistoryService);
     }
 
     @Test
