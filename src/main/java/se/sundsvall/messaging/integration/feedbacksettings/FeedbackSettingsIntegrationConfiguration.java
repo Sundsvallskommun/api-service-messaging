@@ -15,18 +15,18 @@ import se.sundsvall.dept44.configuration.resttemplate.RestTemplateBuilder;
 @EnableConfigurationProperties(FeedbackSettingsIntegrationProperties.class)
 class FeedbackSettingsIntegrationConfiguration {
 
-    private final FeedbackSettingsIntegrationProperties feedbackSettingsProperties;
+    private final FeedbackSettingsIntegrationProperties properties;
 
-    FeedbackSettingsIntegrationConfiguration(FeedbackSettingsIntegrationProperties feedbackSettingsProperties) {
-        this.feedbackSettingsProperties = feedbackSettingsProperties;
+    FeedbackSettingsIntegrationConfiguration(final FeedbackSettingsIntegrationProperties properties) {
+        this.properties = properties;
     }
 
     @Bean("integration.feedback-settings.clientregistration")
     ClientRegistration clientRegistration() {
         return ClientRegistration.withRegistrationId("feedback-settings")
-            .tokenUri(feedbackSettingsProperties.getTokenUrl())
-            .clientId(feedbackSettingsProperties.getClientId())
-            .clientSecret(feedbackSettingsProperties.getClientSecret())
+            .tokenUri(properties.getTokenUrl())
+            .clientId(properties.getClientId())
+            .clientSecret(properties.getClientSecret())
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             .build();
     }
@@ -36,7 +36,7 @@ class FeedbackSettingsIntegrationConfiguration {
             @Qualifier("integration.feedback-settings.clientregistration") final ClientRegistration clientRegistration,
             final Logbook logbook) {
         return new RestTemplateBuilder()
-            .withBaseUrl(feedbackSettingsProperties.getBaseUrl())
+            .withBaseUrl(properties.getBaseUrl())
             .withLogbook(logbook)
             .withOAuth2Client(clientRegistration)
             .build();

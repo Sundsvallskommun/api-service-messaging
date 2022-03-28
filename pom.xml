@@ -142,7 +142,7 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/se/sundsvall/messaging/ApiServiceMessagingApplication*</exclude>
+                        <exclude>**/se/sundsvall/messaging/Application*</exclude>
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>

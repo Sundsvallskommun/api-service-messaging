@@ -1,6 +1,6 @@
 package se.sundsvall.messaging.api.response;
 
-import se.sundsvall.messaging.api.MessageStatus;
+import se.sundsvall.messaging.model.MessageStatus;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

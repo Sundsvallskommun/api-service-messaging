@@ -10,8 +10,8 @@ class MessageResponseTest {
 
     @Test
     void testGetter() {
-        String messageId = UUID.randomUUID().toString();
-        MessageResponse messageResponse = new MessageResponse(messageId);
+        var messageId = UUID.randomUUID().toString();
+        var messageResponse = new MessageResponse(messageId);
 
         assertThat(messageResponse.getMessageId()).isEqualTo(messageId);
     }

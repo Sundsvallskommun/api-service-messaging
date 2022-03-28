@@ -1,0 +1,28 @@
+package se.sundsvall.messaging.dto;
+
+import java.time.LocalDateTime;
+
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Party;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder(setterPrefix = "with", toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class HistoryDto {
+    
+    private final String batchId;
+    private final String messageId;
+    private final MessageType messageType;
+    private final String sender;
+    private final Party party;
+    private final String partyContact;
+    private final String message;
+    private final MessageStatus status;
+    private final LocalDateTime createdAt;
+}

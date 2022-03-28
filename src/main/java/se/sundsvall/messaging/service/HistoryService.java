@@ -9,13 +9,12 @@ import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
+import se.sundsvall.messaging.dto.HistoryDto;
+import se.sundsvall.messaging.dto.UndeliverableMessageDto;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.entity.EmailEntity;
+import se.sundsvall.messaging.integration.db.entity.SmsEntity;
 import se.sundsvall.messaging.mapper.HistoryMapper;
-import se.sundsvall.messaging.model.dto.HistoryDto;
-import se.sundsvall.messaging.model.dto.UndeliverableMessageDto;
-import se.sundsvall.messaging.model.entity.EmailEntity;
-import se.sundsvall.messaging.model.entity.HistoryEntity;
-import se.sundsvall.messaging.model.entity.SmsEntity;
-import se.sundsvall.messaging.repository.HistoryRepository;
 
 @Service
 public class HistoryService {
@@ -28,48 +27,48 @@ public class HistoryService {
         this.repository = repository;
     }
 
-    public HistoryDto createHistory(SmsEntity sms) {
+    public HistoryDto createHistory(final SmsEntity sms) {
         LOG.info("Creating history from SMS {}", sms.getMessageId());
-        HistoryEntity history = repository.save(HistoryMapper.toHistory(sms));
+        var history = repository.save(HistoryMapper.toHistory(sms));
 
         return HistoryMapper.toHistoryDto(history);
     }
 
-    public HistoryDto createHistory(EmailEntity email) {
+    public HistoryDto createHistory(final EmailEntity email) {
         LOG.info("Creating history from E-mail {}", email.getMessageId());
-        HistoryEntity history = repository.save(HistoryMapper.toHistory(email));
+        var history = repository.save(HistoryMapper.toHistory(email));
 
         return HistoryMapper.toHistoryDto(history);
     }
 
-    public HistoryDto createHistory(UndeliverableMessageDto undeliverable) {
+    public HistoryDto createHistory(final UndeliverableMessageDto undeliverable) {
         LOG.info("Creating history from undeliverable message {}", undeliverable.getMessageId());
-        HistoryEntity history = repository.save(HistoryMapper.toHistory(undeliverable));
+        var history = repository.save(HistoryMapper.toHistory(undeliverable));
 
         return HistoryMapper.toHistoryDto(history);
     }
 
-    public HistoryDto getHistoryByMessageId(String id) {
+    public HistoryDto getHistoryByMessageId(final String id) {
         return repository.findByMessageIdEquals(id)
-                .map(HistoryMapper::toHistoryDto)
-                .orElseThrow(() -> Problem.builder()
-                        .withStatus(Status.NOT_FOUND)
-                        .withTitle("Resource not found")
-                        .withDetail("No history found for message id '" + id + "'")
-                        .build());
+            .map(HistoryMapper::toHistoryDto)
+            .orElseThrow(() -> Problem.builder()
+                .withStatus(Status.NOT_FOUND)
+                .withTitle("Resource not found")
+                .withDetail("No history found for message id '" + id + "'")
+                .build());
     }
 
-    public List<HistoryDto> getHistoryByBatchId(String batchId) {
+    public List<HistoryDto> getHistoryByBatchId(final String batchId) {
         return repository.findByBatchIdEquals(batchId)
-                .stream()
-                .map(HistoryMapper::toHistoryDto)
-                .collect(Collectors.toList());
+            .stream()
+            .map(HistoryMapper::toHistoryDto)
+            .collect(Collectors.toList());
     }
 
-    public List<HistoryDto> getHistoryForPartyId(String partyId) {
+    public List<HistoryDto> getHistoryForPartyId(final String partyId) {
         return repository.findByPartyIdEquals(partyId)
-                .stream()
-                .map(HistoryMapper::toHistoryDto)
-                .collect(Collectors.toList());
+            .stream()
+            .map(HistoryMapper::toHistoryDto)
+            .collect(Collectors.toList());
     }
 }

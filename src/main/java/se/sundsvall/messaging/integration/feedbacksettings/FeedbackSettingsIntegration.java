@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackSettingDto;
+
 @Component
 public class FeedbackSettingsIntegration {
 
