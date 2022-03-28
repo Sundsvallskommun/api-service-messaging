@@ -10,8 +10,8 @@ class BatchStatusResponseTest {
 
     @Test
     void testGetter() {
-        List<MessageStatusResponse> statusResponses = List.of(MessageStatusResponse.builder().build());
-        BatchStatusResponse batchStatusResponse = new BatchStatusResponse(statusResponses);
+        var statusResponses = List.of(MessageStatusResponse.builder().build());
+        var batchStatusResponse = new BatchStatusResponse(statusResponses);
 
         assertThat(batchStatusResponse.getMessageStatuses()).hasSize(1);
     }

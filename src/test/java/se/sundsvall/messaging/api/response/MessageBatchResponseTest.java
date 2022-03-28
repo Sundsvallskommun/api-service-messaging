@@ -11,17 +11,17 @@ public class MessageBatchResponseTest {
 
     @Test
     void testBuilderAndGetters() {
-        String batchId = UUID.randomUUID().toString();
-        String messageId = UUID.randomUUID().toString();
-        List<String> messageIds = List.of(messageId);
+        var batchId = UUID.randomUUID().toString();
+        var messageId = UUID.randomUUID().toString();
+        var messageIds = List.of(messageId);
 
-        MessageBatchResponse batchResponse = MessageBatchResponse.builder()
-                .withBatchId(batchId)
-                .withMessageIds(messageIds)
-                .build();
+        var batchResponse = MessageBatchResponse.builder()
+            .withBatchId(batchId)
+            .withMessageIds(messageIds)
+            .build();
 
         assertThat(batchResponse.getBatchId()).isEqualTo(batchId);
         assertThat(batchResponse.getMessageIds()).hasSize(1)
-                .allSatisfy(id -> assertThat(id).isEqualTo(messageId));
+            .allSatisfy(id -> assertThat(id).isEqualTo(messageId));
     }
 }

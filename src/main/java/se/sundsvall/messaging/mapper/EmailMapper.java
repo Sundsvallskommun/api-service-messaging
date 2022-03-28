@@ -2,103 +2,94 @@ package se.sundsvall.messaging.mapper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import se.sundsvall.messaging.api.MessageStatus;
 import se.sundsvall.messaging.api.request.IncomingEmailRequest;
-import se.sundsvall.messaging.model.dto.EmailDto;
-import se.sundsvall.messaging.model.entity.EmailEntity;
-
-import generated.se.sundsvall.emailsender.Attachment;
-import generated.se.sundsvall.emailsender.EmailRequest;
+import se.sundsvall.messaging.dto.EmailDto;
+import se.sundsvall.messaging.integration.db.entity.EmailEntity;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.Party;
 
 public final class EmailMapper {
 
-    private EmailMapper() {
-    }
+    private EmailMapper() { }
 
-    public static EmailEntity toEntity(IncomingEmailRequest request) {
+    public static EmailEntity toEntity(final IncomingEmailRequest request) {
         if (request == null) {
             return null;
         }
 
-        List<EmailEntity.Attachment> attachments = Optional.ofNullable(request.getAttachments())
-                .stream()
-                .flatMap(Collection::stream)
-                .map(attachment -> EmailEntity.Attachment.builder()
-                        .withId(UUID.randomUUID().toString())
-                        .withContent(attachment.getContent())
-                        .withContentType(attachment.getContentType())
-                        .withName(attachment.getName())
-                        .build())
-                .collect(Collectors.toList());
+        var attachments = Optional.ofNullable(request.getAttachments()).stream()
+            .flatMap(Collection::stream)
+            .map(attachment -> EmailEntity.Attachment.builder()
+                .withId(UUID.randomUUID().toString())
+                .withContent(attachment.getContent())
+                .withContentType(attachment.getContentType())
+                .withName(attachment.getName())
+                .build())
+            .toList();
 
         return EmailEntity.builder()
-                .withBatchId(UUID.randomUUID().toString())
-                .withMessageId(UUID.randomUUID().toString())
-                .withPartyId(request.getPartyId())
-                .withEmailAddress(request.getEmailAddress())
-                .withSenderName(request.getSenderName())
-                .withSenderEmail(request.getSenderEmail())
-                .withMessage(request.getMessage())
-                .withHtmlMessage(request.getHtmlMessage())
-                .withStatus(MessageStatus.PENDING)
-                .withSubject(request.getSubject())
-                .withAttachments(attachments)
-                .build();
+            .withBatchId(UUID.randomUUID().toString())
+            .withMessageId(UUID.randomUUID().toString())
+            .withPartyId(Optional.ofNullable(request.getParty()).map(Party::getPartyId).orElse(null))
+            .withExternalReferences(Optional.ofNullable(request.getParty())
+                .map(Party::getExternalReferences)
+                .orElse(List.of())
+                .stream()
+                .collect(Collectors.toMap(ExternalReference::getKey, ExternalReference::getValue)))
+            .withEmailAddress(request.getEmailAddress())
+            .withSenderName(request.getSenderName())
+            .withSenderEmail(request.getSenderEmail())
+            .withMessage(request.getMessage())
+            .withHtmlMessage(request.getHtmlMessage())
+            .withStatus(MessageStatus.PENDING)
+            .withSubject(request.getSubject())
+            .withAttachments(attachments)
+            .build();
     }
 
-    public static EmailDto toDto(EmailEntity entity) {
+    public static EmailDto toDto(final EmailEntity entity) {
         if (entity == null) {
             return null;
         }
-        List<EmailDto.AttachmentDto> attachments = entity.getAttachments()
-                .stream()
-                .map(attachment -> EmailDto.AttachmentDto.builder()
-                        .withContent(attachment.getContent())
-                        .withContentType(attachment.getContentType())
-                        .withName(attachment.getName())
-                        .build())
-                .collect(Collectors.toList());
+
+        var attachments = entity.getAttachments().stream()
+            .map(attachment -> EmailDto.AttachmentDto.builder()
+                .withContent(attachment.getContent())
+                .withContentType(attachment.getContentType())
+                .withName(attachment.getName())
+                .build())
+            .toList();
 
         return EmailDto.builder()
-                .withBatchId(entity.getBatchId())
-                .withMessageId(entity.getMessageId())
+            .withBatchId(entity.getBatchId())
+            .withMessageId(entity.getMessageId())
+            .withParty(Party.builder()
                 .withPartyId(entity.getPartyId())
-                .withStatus(entity.getStatus())
-                .withMessage(entity.getMessage())
-                .withHtmlMessage(entity.getHtmlMessage())
-                .withEmailAddress(entity.getEmailAddress())
-                .withSenderName(entity.getSenderName())
-                .withSenderEmail(entity.getSenderEmail())
-                .withSubject(entity.getSubject())
-                .withAttachments(attachments)
-                .build();
-    }
-
-    public static EmailRequest toRequest(EmailEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        List<Attachment> attachments = Optional.ofNullable(entity.getAttachments())
-                .stream()
-                .flatMap(Collection::stream)
-                .map(attachment -> new Attachment()
-                        .content(attachment.getContent())
-                        .contentType(attachment.getContentType())
-                        .name(attachment.getName()))
-                .collect(Collectors.toList());
-
-        return new EmailRequest()
-                .subject(entity.getSubject())
-                .message(entity.getMessage())
-                .emailAddress(entity.getEmailAddress())
-                .senderName(entity.getSenderName())
-                .senderEmail(entity.getSenderEmail())
-                .htmlMessage(entity.getHtmlMessage())
-                .attachments(attachments);
+                .withExternalReferences(Optional.ofNullable(entity.getExternalReferences())
+                    .map(Map::entrySet)
+                    .orElse(Set.of())
+                    .stream()
+                    .map(entry -> ExternalReference.builder()
+                        .withKey(entry.getKey())
+                        .withValue(entry.getValue())
+                        .build())
+                    .toList())
+                .build())
+            .withStatus(entity.getStatus())
+            .withMessage(entity.getMessage())
+            .withHtmlMessage(entity.getHtmlMessage())
+            .withEmailAddress(entity.getEmailAddress())
+            .withSenderName(entity.getSenderName())
+            .withSenderEmail(entity.getSenderEmail())
+            .withSubject(entity.getSubject())
+            .withAttachments(attachments)
+            .build();
     }
 }

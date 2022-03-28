@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import se.sundsvall.messaging.integration.EmailPoller;
-import se.sundsvall.messaging.integration.SmsPoller;
 import se.sundsvall.messaging.service.EmailService;
 import se.sundsvall.messaging.service.SmsService;
 
@@ -19,19 +17,19 @@ class PollingConfiguration {
     private final Duration emailFixedDelay;
     private final Duration smsFixedDelay;
 
-    PollingConfiguration(@Value("${polling.email.fixed-delay}") Duration emailFixedDelay,
-                                @Value("${polling.sms.fixed-delay}") Duration smsFixedDelay) {
+    PollingConfiguration(@Value("${polling.email.fixed-delay}") final Duration emailFixedDelay,
+            @Value("${polling.sms.fixed-delay}") final Duration smsFixedDelay) {
         this.emailFixedDelay = emailFixedDelay;
         this.smsFixedDelay = smsFixedDelay;
     }
 
     @Bean
-    TaskScheduler pollingScheduler(EmailService emailService, SmsService smsService) {
+    TaskScheduler pollingScheduler(final EmailService emailService, final SmsService smsService) {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.initialize();
 
-        scheduler.scheduleWithFixedDelay(new EmailPoller(emailService),emailFixedDelay.toMillis());
-        scheduler.scheduleWithFixedDelay(new SmsPoller(smsService), smsFixedDelay.toMillis());
+        scheduler.scheduleWithFixedDelay(emailService,emailFixedDelay.toMillis());
+        scheduler.scheduleWithFixedDelay(smsService, smsFixedDelay.toMillis());
 
         return scheduler;
     }

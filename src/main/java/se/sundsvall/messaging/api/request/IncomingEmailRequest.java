@@ -5,6 +5,9 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import se.sundsvall.messaging.model.Party;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -13,13 +16,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(setterPrefix = "with")
 @Getter
-@ToString
 @Setter
 @Schema(name = "IncomingEmailRequest", description = "E-mail representation")
 public class IncomingEmailRequest {
@@ -28,8 +29,9 @@ public class IncomingEmailRequest {
     @NotBlank
     private String emailAddress;
 
-    @Schema(description = "Party ID", example = "f7b379e6-3e0b-4f32-9812-e10279dd3d0a")
-    private String partyId;
+    @Valid
+    @NotNull
+    private Party party;
 
     @Schema(description = "E-mail subject")
     @NotBlank
@@ -42,11 +44,9 @@ public class IncomingEmailRequest {
     private String htmlMessage;
 
     @Schema(description = "Sender name")
-    @NotBlank
     private String senderName;
 
     @Schema(description = "Sender e-mail address", example = "sender@sender.se")
-    @NotBlank
     @Email
     private String senderEmail;
 
@@ -59,7 +59,6 @@ public class IncomingEmailRequest {
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(setterPrefix = "with")
-    @ToString
     public static class Attachment {
 
         @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK")

@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.service;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,82 +9,87 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import se.sundsvall.messaging.api.MessageStatus;
 import se.sundsvall.messaging.api.request.IncomingEmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
-import se.sundsvall.messaging.integration.email.EmailIntegration;
+import se.sundsvall.messaging.dto.EmailDto;
+import se.sundsvall.messaging.integration.db.EmailRepository;
+import se.sundsvall.messaging.integration.db.entity.EmailEntity;
+import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
 import se.sundsvall.messaging.mapper.EmailMapper;
 import se.sundsvall.messaging.mapper.UndeliverableMapper;
-import se.sundsvall.messaging.model.dto.EmailDto;
-import se.sundsvall.messaging.model.entity.EmailEntity;
-import se.sundsvall.messaging.repository.EmailRepository;
+import se.sundsvall.messaging.model.MessageStatus;
 
 @Service
-public class EmailService {
+public class EmailService implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
-    private final EmailRepository emailRepository;
     private final DefaultSettings defaultSettings;
-    private final EmailIntegration emailIntegration;
+    private final EmailRepository emailRepository;
+    private final EmailSenderIntegration emailSenderIntegration;
     private final HistoryService historyService;
 
-    public EmailService(EmailRepository emailRepository,
-                        DefaultSettings defaultSettings,
-                        EmailIntegration emailIntegration,
-                        HistoryService historyService) {
+    public EmailService(final DefaultSettings defaultSettings, final EmailRepository emailRepository,
+            final EmailSenderIntegration emailSenderIntegration, final HistoryService historyService) {
         this.emailRepository = emailRepository;
         this.defaultSettings = defaultSettings;
-        this.emailIntegration = emailIntegration;
+        this.emailSenderIntegration = emailSenderIntegration;
         this.historyService = historyService;
     }
 
-    public EmailDto saveEmail(IncomingEmailRequest email) {
-        if (StringUtils.isBlank(email.getSenderEmail())) {
-            email.setSenderEmail(defaultSettings.getEmailAddress());
+    public EmailDto saveEmail(final IncomingEmailRequest request) {
+        if (StringUtils.isBlank(request.getSenderEmail())) {
+            request.setSenderEmail(defaultSettings.getEmailAddress());
         }
 
-        if (StringUtils.isBlank(email.getSenderName())) {
-            email.setSenderName(defaultSettings.getEmailName());
+        if (StringUtils.isBlank(request.getSenderName())) {
+            request.setSenderName(defaultSettings.getEmailName());
         }
 
-        return EmailMapper.toDto(emailRepository.save(EmailMapper.toEntity(email)));
+        return EmailMapper.toDto(emailRepository.save(EmailMapper.toEntity(request)));
     }
 
-    public void sendOldestPendingEmail() {
-        EmailEntity email = getOldestPendingEmail();
+    @Override
+    public void run() {
+        LOG.trace("Polling e-mail");
 
-        if (email == null) {
-            return;
-        }
-
-        if (email.getSendingAttempts() >= emailIntegration.getMessageRetries()) {
-            LOG.info("Exceeded max sending attempts for Email {}", email.getMessageId());
-
-            historyService.createHistory(UndeliverableMapper.toUndeliverable(email));
-            emailRepository.deleteById(email.getMessageId());
-            return;
-        }
-
-        HttpStatus status = emailIntegration.sendEmail(EmailMapper.toRequest(email));
-
-        if (status == HttpStatus.OK) {
-            historyService.createHistory(email);
-            emailRepository.deleteById(email.getMessageId());
-        } else {
-            int sendingAttempts = email.getSendingAttempts() + 1;
-            LOG.info("Unable to send Email, current attempt {}", sendingAttempts);
-
-            email.setSendingAttempts(sendingAttempts);
-            emailRepository.save(email);
-        }
-
+        sendOldestPendingMessages();
     }
 
-    public EmailEntity getOldestPendingEmail() {
-        return emailRepository.findByStatusEquals(MessageStatus.PENDING, Sort.by("createdAt").ascending())
-                .stream()
-                .findFirst()
-                .orElse(null);
+    void sendOldestPendingMessages() {
+        getOldestPendingMessages().forEach(emailEntity -> {
+            if (emailEntity.getSendingAttempts() >= emailSenderIntegration.getMaxMessageRetries()) {
+                LOG.info("Exceeded max send attempts for e-mail {}", emailEntity.getMessageId());
+
+                historyService.createHistory(UndeliverableMapper.toUndeliverable(emailEntity));
+                emailRepository.deleteById(emailEntity.getMessageId());
+                return;
+            }
+
+            try {
+                var status = emailSenderIntegration.sendEmail(EmailMapper.toDto(emailEntity));
+
+                if (status == HttpStatus.OK) {
+                    historyService.createHistory(emailEntity);
+                    emailRepository.deleteById(emailEntity.getMessageId());
+                } else {
+                    updateSendingAttempts(emailEntity);
+                }
+            } catch (Exception e) {
+                updateSendingAttempts(emailEntity);
+            }
+        });
+    }
+
+    void updateSendingAttempts(final EmailEntity emailEntity) {
+        int sendingAttempts = emailEntity.getSendingAttempts() + 1;
+        LOG.info("Unable to send e-mail, current attempt {}", sendingAttempts);
+
+        emailEntity.setSendingAttempts(sendingAttempts);
+        emailRepository.save(emailEntity);
+    }
+
+    List<EmailEntity> getOldestPendingMessages() {
+        return emailRepository.findByStatusEquals(MessageStatus.PENDING, Sort.by("createdAt").ascending());
     }
 }

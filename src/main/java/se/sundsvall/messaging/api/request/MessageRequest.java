@@ -5,7 +5,10 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import se.sundsvall.messaging.model.Party;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -14,7 +17,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -22,7 +24,6 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(setterPrefix = "with")
 @Schema(name = "MessageRequest", description = "Message representation")
-@ToString
 public class MessageRequest {
 
     @Schema(description = "The messages to be sent")
@@ -35,12 +36,11 @@ public class MessageRequest {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(setterPrefix = "with")
     @Schema(name = "Message", description = "A message to be sent")
-    @ToString
     public static class Message {
 
-        @NotBlank
-        @Schema(description = "The message party ID", example = "f427952b-247c-4d3b-b081-675a467b3619")
-        private String partyId;
+        @Valid
+        @NotNull
+        private Party party;
 
         @Schema(description = "The message subject (for E-mails)")
         private String subject;
