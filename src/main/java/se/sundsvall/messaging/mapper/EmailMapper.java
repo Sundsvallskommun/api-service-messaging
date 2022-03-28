@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
+import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -19,7 +19,7 @@ public final class EmailMapper {
 
     private EmailMapper() { }
 
-    public static EmailEntity toEntity(final IncomingEmailRequest request) {
+    public static EmailEntity toEntity(final EmailRequest request) {
         if (request == null) {
             return null;
         }

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.Party;
@@ -16,12 +16,12 @@ class SmsMapperTests {
 
     @Test
     void toEntity_givenSmsRequest_returnsNullWhenSmsRequestIsNull() {
-        assertThat(SmsMapper.toEntity((IncomingSmsRequest) null)).isNull();
+        assertThat(SmsMapper.toEntity((SmsRequest) null)).isNull();
     }
 
     @Test
     void toEntity_givenSmsRequest_returnsSmsEntityWithSameValue() {
-        var request = IncomingSmsRequest.builder()
+        var request = SmsRequest.builder()
             .withParty(Party.builder()
                 .withPartyId("1")
                 .build())

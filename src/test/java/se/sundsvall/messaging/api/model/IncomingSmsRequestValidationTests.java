@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,8 +83,8 @@ class IncomingSmsRequestValidationTests {
             .allMatch(constraint -> constraint.getPropertyPath().toString().equals("message"));
     }
 
-    private IncomingSmsRequest createRequest(Consumer<IncomingSmsRequest> modifier) {
-        var request = IncomingSmsRequest.builder()
+    private SmsRequest createRequest(Consumer<SmsRequest> modifier) {
+        var request = SmsRequest.builder()
             .withParty(Party.builder()
                 .withPartyId(UUID.randomUUID().toString())
                 .withExternalReferences(List.of(ExternalReference.builder().build()))

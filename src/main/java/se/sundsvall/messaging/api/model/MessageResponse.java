@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.response;
+package se.sundsvall.messaging.api.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

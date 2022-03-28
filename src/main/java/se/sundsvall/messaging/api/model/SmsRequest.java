@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -16,17 +16,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(setterPrefix = "with")
 @Getter
 @Setter
-@Schema(name = "IncomingSmsRequest", description = "SMS representation")
-public class IncomingSmsRequest {
+@Builder(setterPrefix = "with")
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class SmsRequest {
 
     @NotBlank
     @Size(max = 11)
-    @Schema(required = true, description = "The Sender of the SMS", maxLength = 11, example = "sender")
+    @Schema(required = true, description = "The sender of the SMS", maxLength = 11, example = "sender")
     private String sender;
 
     @Valid
@@ -34,7 +33,7 @@ public class IncomingSmsRequest {
     private Party party;
 
     @NotBlank
-    @Schema(required = true, description = "Mobile number should start with +467x")
+    @Schema(required = true, description = "Mobile number. Should start with +467x")
     @Pattern(regexp = "^\\+467[02369]\\d{7}$")
     private String mobileNumber;
 

@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import java.util.List;
 
@@ -17,13 +17,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(setterPrefix = "with")
 @Getter
 @Setter
-@Schema(name = "IncomingEmailRequest", description = "E-mail representation")
-public class IncomingEmailRequest {
+@Builder(setterPrefix = "with")
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class EmailRequest {
 
     @Schema(description = "Recipient e-mail address", example = "recipient@recipient.se" )
     @NotBlank

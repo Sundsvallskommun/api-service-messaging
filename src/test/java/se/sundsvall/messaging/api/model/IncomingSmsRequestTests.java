@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +16,7 @@ class IncomingSmsRequestTests {
     void testBuilderAndGetters() {
         var partyId = UUID.randomUUID().toString();
 
-        var request = IncomingSmsRequest.builder()
+        var request = SmsRequest.builder()
             .withParty(Party.builder()
                 .withPartyId(partyId)
                 .withExternalReferences(List.of(ExternalReference.builder().build()))
@@ -41,7 +41,7 @@ class IncomingSmsRequestTests {
         party.setPartyId(partyId);
         party.setExternalReferences(List.of(new ExternalReference()));
 
-        var request = new IncomingSmsRequest();
+        var request = new SmsRequest();
         request.setParty(party);
         request.setMessage("message");
         request.setMobileNumber("+46701234567");

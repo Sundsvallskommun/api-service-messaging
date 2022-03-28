@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
+import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.EmailRepository;
@@ -161,8 +161,8 @@ class EmailServiceTests {
     }
 
 
-    private IncomingEmailRequest createEmailRequest() {
-        return IncomingEmailRequest.builder()
+    private EmailRequest createEmailRequest() {
+        return EmailRequest.builder()
             .withSenderEmail("test@hotmail.com")
             .withSenderName("test name")
             .withMessage("test message")
@@ -177,7 +177,7 @@ class EmailServiceTests {
                 .build())
             .withEmailAddress("test2@hotmail.com")
             .withHtmlMessage("test")
-            .withAttachments(List.of(IncomingEmailRequest.Attachment.builder()
+            .withAttachments(List.of(EmailRequest.Attachment.builder()
                     .withContent("content")
                     .withContentType("content type")
                     .withName("name")

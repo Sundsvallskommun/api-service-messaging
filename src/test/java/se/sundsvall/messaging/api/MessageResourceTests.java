@@ -24,12 +24,12 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
-import se.sundsvall.messaging.api.request.IncomingEmailRequest;
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
-import se.sundsvall.messaging.api.request.MessageRequest;
-import se.sundsvall.messaging.api.response.BatchStatusResponse;
-import se.sundsvall.messaging.api.response.MessageBatchResponse;
-import se.sundsvall.messaging.api.response.MessageResponse;
+import se.sundsvall.messaging.api.model.BatchStatusResponse;
+import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.MessageBatchResponse;
+import se.sundsvall.messaging.api.model.MessageRequest;
+import se.sundsvall.messaging.api.model.MessageResponse;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.dto.HistoryDto;
 import se.sundsvall.messaging.dto.MessageBatchDto;
@@ -43,7 +43,7 @@ import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.service.SmsService;
 
 @ExtendWith(MockitoExtension.class)
-class MessageControllerTests {
+class MessageResourceTests {
 
     private static final String PARTY_ID = UUID.randomUUID().toString();
     private static final String BATCH_ID = UUID.randomUUID().toString();
@@ -58,11 +58,11 @@ class MessageControllerTests {
     @Mock
     private HistoryService mockHistoryService;
 
-    private MessageController messageController;
+    private MessageResource messageResource;
 
     @BeforeEach
     void setUp() {
-        messageController = new MessageController(mockEmailService, mockSmsService,
+        messageResource = new MessageResource(mockEmailService, mockSmsService,
             mockMessageService, mockHistoryService);
     }
 
@@ -82,7 +82,7 @@ class MessageControllerTests {
 
         when(mockSmsService.saveSms(any())).thenReturn(smsDto);
 
-        var response = messageController.sendSms(createIncomingSmsRequest());
+        var response = messageResource.sendSms(createIncomingSmsRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).extracting(MessageResponse::getMessageId).isEqualTo(smsDto.getMessageId());
@@ -109,7 +109,7 @@ class MessageControllerTests {
 
         when(mockEmailService.saveEmail(any())).thenReturn(emailDto);
 
-        var response = messageController.sendEmail(createIncomingEmailRequest());
+        var response = messageResource.sendEmail(createIncomingEmailRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).extracting(MessageResponse::getMessageId).isEqualTo(emailDto.getMessageId());
@@ -135,7 +135,7 @@ class MessageControllerTests {
 
         when(mockMessageService.saveIncomingMessages(any())).thenReturn(batchDto);
 
-        var response = messageController.sendMessage(createMessageRequest());
+        var response = messageResource.sendMessage(createMessageRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).extracting(MessageBatchResponse::getBatchId)
@@ -150,7 +150,7 @@ class MessageControllerTests {
 
         when(mockHistoryService.getHistoryByMessageId(anyString())).thenReturn(historyDto);
 
-        var statusResponse = messageController.getMessageStatus(MESSAGE_ID);
+        var statusResponse = messageResource.getMessageStatus(MESSAGE_ID);
 
         assertThat(statusResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(statusResponse.getBody())
@@ -161,7 +161,7 @@ class MessageControllerTests {
     void getMessageStatus_whenNoHistoryExist_thenThrowsProblem() {
         when(mockHistoryService.getHistoryByMessageId(anyString())).thenThrow(Problem.valueOf(Status.NOT_FOUND));
 
-        assertThatThrownBy(() ->  messageController.getMessageStatus(MESSAGE_ID))
+        assertThatThrownBy(() ->  messageResource.getMessageStatus(MESSAGE_ID))
             .isInstanceOf(ThrowableProblem.class);
     }
 
@@ -171,7 +171,7 @@ class MessageControllerTests {
 
         when(mockHistoryService.getHistoryByBatchId(anyString())).thenReturn(historyDtos);
 
-        var statusResponse = messageController.getBatchStatus(BATCH_ID);
+        var statusResponse = messageResource.getBatchStatus(BATCH_ID);
 
         assertThat(statusResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(statusResponse.getBody())
@@ -183,7 +183,7 @@ class MessageControllerTests {
     void getConversationHistory_whenHistoryExistsForPartyId_thenReturnOk() {
         when(mockHistoryService.getHistoryForPartyId(any())).thenReturn(List.of(createHistoryDto()));
 
-        var response = messageController.getConversationHistory(PARTY_ID);
+        var response = messageResource.getConversationHistory(PARTY_ID);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(1)
@@ -194,22 +194,22 @@ class MessageControllerTests {
     void getConversationHistory_whenNoHistoryExistsForPartyId_thenReturnNoContent() {
         when(mockHistoryService.getHistoryForPartyId(any())).thenReturn(Collections.emptyList());
 
-        var response = messageController.getConversationHistory("123");
+        var response = messageResource.getConversationHistory("123");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEmpty();
     }
 
-    private IncomingSmsRequest createIncomingSmsRequest() {
-        return IncomingSmsRequest.builder()
+    private SmsRequest createIncomingSmsRequest() {
+        return SmsRequest.builder()
             .withMessage("message")
             .withSender("sender")
             .withMobileNumber("+46701234567")
             .build();
     }
 
-    private IncomingEmailRequest createIncomingEmailRequest() {
-        return IncomingEmailRequest.builder()
+    private EmailRequest createIncomingEmailRequest() {
+        return EmailRequest.builder()
             .withAttachments(List.of())
             .withEmailAddress("test@hotmail.com")
             .withHtmlMessage("message")

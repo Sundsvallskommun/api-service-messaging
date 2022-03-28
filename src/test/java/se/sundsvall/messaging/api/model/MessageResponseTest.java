@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.response;
+package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.request;
+package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,10 +71,10 @@ class IncomingEmailRequestValidationTests {
             .allMatch(constraint -> constraint.getPropertyPath().toString().equals("subject"));
     }
 
-    private IncomingEmailRequest createIncomingEmailRequest(final Consumer<IncomingEmailRequest> modifier) {
-        var request = IncomingEmailRequest.builder()
+    private EmailRequest createIncomingEmailRequest(final Consumer<EmailRequest> modifier) {
+        var request = EmailRequest.builder()
             .withEmailAddress("test@hotmail.com")
-            .withAttachments(List.of(IncomingEmailRequest.Attachment.builder()
+            .withAttachments(List.of(EmailRequest.Attachment.builder()
                 .withContent("content")
                 .withContentType("contentType")
                 .withName("name")

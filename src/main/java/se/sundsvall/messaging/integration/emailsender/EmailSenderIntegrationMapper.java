@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.dto.EmailDto;
 
 import generated.se.sundsvall.emailsender.Attachment;
-import generated.se.sundsvall.emailsender.EmailRequest;
+import generated.se.sundsvall.emailsender.SendEmailRequest;
 
 @Component
 class EmailSenderIntegrationMapper {
 
-    EmailRequest toRequest(EmailDto emailDto) {
+    SendEmailRequest toRequest(EmailDto emailDto) {
         if (emailDto == null) {
             return null;
         }
@@ -26,7 +26,7 @@ class EmailSenderIntegrationMapper {
                 .name(attachment.getName()))
             .toList();
 
-        return new EmailRequest()
+        return new SendEmailRequest()
             .subject(emailDto.getSubject())
             .message(emailDto.getMessage())
             .emailAddress(emailDto.getEmailAddress())

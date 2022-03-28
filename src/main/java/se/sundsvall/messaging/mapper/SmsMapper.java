@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import se.sundsvall.messaging.api.request.IncomingSmsRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -18,7 +18,7 @@ public final class SmsMapper {
 
     private SmsMapper() { }
 
-    public static SmsEntity toEntity(final IncomingSmsRequest request) {
+    public static SmsEntity toEntity(final SmsRequest request) {
         if (request == null) {
             return null;
         }

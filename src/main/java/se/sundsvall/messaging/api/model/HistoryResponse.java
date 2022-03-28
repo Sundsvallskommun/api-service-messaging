@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.api.response;
+package se.sundsvall.messaging.api.model;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder(setterPrefix = "with")
 @Getter
+@Builder(setterPrefix = "with")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HistoryResponse {
 
