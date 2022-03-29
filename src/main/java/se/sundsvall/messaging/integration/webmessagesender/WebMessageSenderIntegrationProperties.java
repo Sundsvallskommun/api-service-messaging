@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.integration.smssender;
+package se.sundsvall.messaging.integration.webmessagesender;
 
 import java.time.Duration;
 
@@ -11,8 +11,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "integration.sms-sender")
-public class SmsSenderIntegrationProperties extends AbstractRestIntegrationProperties {
+@ConfigurationProperties(prefix = "integration.web-message-sender")
+public class WebMessageSenderIntegrationProperties extends AbstractRestIntegrationProperties {
 
     private Duration pollDelay = Duration.ofSeconds(5);
     private int maxRetries = 3;

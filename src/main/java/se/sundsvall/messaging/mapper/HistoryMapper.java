@@ -12,6 +12,7 @@ import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
+import se.sundsvall.messaging.integration.db.entity.WebMessageEntity;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
@@ -55,6 +56,23 @@ public final class HistoryMapper {
             .withExternalReferences(sms.getExternalReferences())
             .withMessageType(MessageType.SMS)
             .withPartyContact(sms.getMobileNumber())
+            .withCreatedAt(LocalDateTime.now())
+            .build();
+    }
+
+    public static HistoryEntity toHistory(final WebMessageEntity webMessage) {
+        if (webMessage == null) {
+            return null;
+        }
+
+        return HistoryEntity.builder()
+            .withBatchId(webMessage.getBatchId())
+            .withMessageId(webMessage.getMessageId())
+            .withMessage(webMessage.getMessage())
+            .withStatus(MessageStatus.SENT)
+            .withPartyId(webMessage.getPartyId())
+            .withExternalReferences(webMessage.getExternalReferences())
+            .withMessageType(MessageType.WEB_MESSAGE)
             .withCreatedAt(LocalDateTime.now())
             .build();
     }

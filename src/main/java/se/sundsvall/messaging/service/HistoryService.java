@@ -14,6 +14,7 @@ import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
+import se.sundsvall.messaging.integration.db.entity.WebMessageEntity;
 import se.sundsvall.messaging.mapper.HistoryMapper;
 
 @Service
@@ -37,6 +38,13 @@ public class HistoryService {
     public HistoryDto createHistory(final EmailEntity email) {
         LOG.info("Creating history from E-mail {}", email.getMessageId());
         var history = repository.save(HistoryMapper.toHistory(email));
+
+        return HistoryMapper.toHistoryDto(history);
+    }
+
+    public HistoryDto createHistory(final WebMessageEntity webMessage) {
+        LOG.info("Creating history from WebMessage {}", webMessage.getMessageId());
+        var history = repository.save(HistoryMapper.toHistory(webMessage));
 
         return HistoryMapper.toHistoryDto(history);
     }

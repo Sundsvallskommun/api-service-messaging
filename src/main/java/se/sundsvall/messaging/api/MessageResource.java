@@ -21,6 +21,7 @@ import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.MessageResponse;
 import se.sundsvall.messaging.api.model.MessageStatusResponse;
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.mapper.MessageMapper;
 import se.sundsvall.messaging.model.Party;
@@ -28,6 +29,7 @@ import se.sundsvall.messaging.service.EmailService;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.service.SmsService;
+import se.sundsvall.messaging.service.WebMessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,18 +41,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Messaging Resources")
 @RestController
 @RequestMapping("/messages")
-public class MessageResource {
+class MessageResource {
 
-    private final SmsService smsService;
     private final EmailService emailService;
+    private final SmsService smsService;
+    private final WebMessageService webMessageService;
     private final MessageService messageService;
     private final HistoryService historyService;
 
-    public MessageResource(final EmailService emailService, final SmsService smsService,
-            final MessageService messageService, final HistoryService historyService) {
+    MessageResource(final EmailService emailService, final SmsService smsService,
+            final WebMessageService webMessageService, final MessageService messageService,
+            final HistoryService historyService) {
         this.emailService = emailService;
-        this.messageService = messageService;
         this.smsService = smsService;
+        this.webMessageService = webMessageService;
+        this.messageService = messageService;
         this.historyService = historyService;
     }
 
@@ -74,7 +79,7 @@ public class MessageResource {
     })
     @GetMapping("/status/{messageId}")
     // Temporary endpoint to satisfy the endpoint written in the specification
-    public ResponseEntity<MessageStatusResponse> getStatus(@PathVariable final String messageId) {
+    ResponseEntity<MessageStatusResponse> getStatus(@PathVariable final String messageId) {
         return getMessageStatus(messageId);
     }
 
@@ -97,7 +102,7 @@ public class MessageResource {
         )
     })
     @GetMapping("/{messageId}/status")
-    public ResponseEntity<MessageStatusResponse> getMessageStatus(@PathVariable final String messageId) {
+    ResponseEntity<MessageStatusResponse> getMessageStatus(@PathVariable final String messageId) {
         var history = historyService.getHistoryByMessageId(messageId);
 
         var messageStatusResponse = MessageStatusResponse.builder()
@@ -127,7 +132,7 @@ public class MessageResource {
         )
     })
     @GetMapping("/batch/{batchId}/status")
-    public ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
+    ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
         var historyEntries = historyService.getHistoryByBatchId(batchId);
 
         var messageStatusResponses = historyEntries.stream()
@@ -159,10 +164,35 @@ public class MessageResource {
         )
     })
     @PostMapping("/sms")
-    public ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final SmsRequest request) {
+    ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final SmsRequest request) {
         var savedSms = smsService.saveSms(request);
 
         return ResponseEntity.ok(new MessageResponse(savedSms.getMessageId()));
+    }
+
+    @Operation(summary = "Send a web message")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
+    })
+    @PostMapping("/webmessage")
+    ResponseEntity<MessageResponse> sendWebMessage(@Valid @RequestBody final WebMessageRequest request) {
+        var savedWebMessage = webMessageService.saveWebMessage(request);
+
+        return ResponseEntity.ok(new MessageResponse(savedWebMessage.getMessageId()));
     }
 
     @Operation(summary = "Send an E-mail")
@@ -184,7 +214,7 @@ public class MessageResource {
         )
     })
     @PostMapping("/email")
-    public ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final EmailRequest request) {
+    ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final EmailRequest request) {
         var savedEmail = emailService.saveEmail(request);
 
         return ResponseEntity.ok(new MessageResponse(savedEmail.getMessageId()));
@@ -209,7 +239,7 @@ public class MessageResource {
         )
     })
     @PostMapping
-    public ResponseEntity<MessageBatchResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
+    ResponseEntity<MessageBatchResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
         var messageBatch = messageService.saveIncomingMessages(MessageMapper.toMessageBatch(request));
 
         var messageIds = messageBatch.getMessages().stream()
@@ -236,7 +266,7 @@ public class MessageResource {
         )
     })
     @GetMapping("/{partyId}/conversationHistory")
-    public ResponseEntity<List<HistoryResponse>> getConversationHistory(@PathVariable final String partyId) {
+    ResponseEntity<List<HistoryResponse>> getConversationHistory(@PathVariable final String partyId) {
         var result = historyService.getHistoryForPartyId(partyId).stream()
             .map(dto -> HistoryResponse.builder()
                 .withMessage(dto.getMessage())

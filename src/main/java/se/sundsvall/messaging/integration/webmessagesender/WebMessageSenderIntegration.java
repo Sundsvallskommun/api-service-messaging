@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.integration.smssender;
+package se.sundsvall.messaging.integration.webmessagesender;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -9,29 +9,29 @@ import org.springframework.web.client.RestTemplate;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
-import se.sundsvall.messaging.dto.SmsDto;
+import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.integration.AbstractRestIntegration;
 
 @Component
-public class SmsSenderIntegration extends AbstractRestIntegration {
+public class WebMessageSenderIntegration extends AbstractRestIntegration {
 
+    private final WebMessageSenderIntegrationMapper mapper;
     private final RestTemplate restTemplate;
-    private final SmsSenderIntegrationMapper mapper;
 
-    public SmsSenderIntegration(final SmsSenderIntegrationMapper mapper,
-            @Qualifier("integration.sms-sender.resttemplate") final RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public WebMessageSenderIntegration(final WebMessageSenderIntegrationMapper mapper,
+            @Qualifier("integration.web-message-sender.resttemplate") final RestTemplate restTemplate) {
         this.mapper = mapper;
+        this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity<Boolean> sendSms(final SmsDto smsDto) {
-        var request = mapper.toRequest(smsDto);
+    public ResponseEntity<Void> sendWebMessage(final WebMessageDto webMessageDto) {
+        var request = mapper.toCreateWebMessageRequest(webMessageDto);
 
         try {
-            return restTemplate.postForEntity("/send/sms", createRequestEntity(request), Boolean.class);
+            return restTemplate.postForEntity("/webmessages", createRequestEntity(request), Void.class);
         } catch (HttpStatusCodeException e) {
             throw Problem.builder()
-                .withTitle("Exception when calling SmsSender")
+                .withTitle("Exception when calling WebMessageSender")
                 .withStatus(Status.BAD_GATEWAY)
                 .withCause(Problem.builder()
                     .withStatus(Status.valueOf(e.getRawStatusCode()))
@@ -39,7 +39,7 @@ public class SmsSenderIntegration extends AbstractRestIntegration {
                 .build();
         } catch (RestClientException e) {
             throw Problem.builder()
-                .withTitle("Exception when calling SmsSender")
+                .withTitle("Exception when calling WebMessageSender")
                 .withStatus(Status.BAD_GATEWAY)
                 .build();
         }

@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.EmailRepository;
 import se.sundsvall.messaging.integration.db.entity.EmailEntity;
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
+import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegrationProperties;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.Party;
@@ -42,13 +45,31 @@ class EmailServiceTests {
     private HistoryService mockHistoryService;
     @Mock
     private EmailSenderIntegration mockEmailSenderIntegration;
+    @Mock
+    private EmailSenderIntegrationProperties mockEmailSenderIntegrationProperties;
 
     private EmailService emailService;
 
     @BeforeEach
     void setUp() {
-        emailService = new EmailService(mockDefaultSettings,mockEmailRepository,
-            mockEmailSenderIntegration, mockHistoryService);
+        emailService = new EmailService(mockDefaultSettings, mockEmailRepository,
+            mockEmailSenderIntegrationProperties, mockEmailSenderIntegration, mockHistoryService);
+    }
+
+    @Test
+    void test_getPollDelay() {
+        var pollDelay = Duration.ofSeconds(12);
+
+        when(mockEmailSenderIntegrationProperties.getPollDelay()).thenReturn(pollDelay);
+
+        assertThat(emailService.getPollDelay()).isEqualTo(pollDelay);
+
+        verify(mockEmailSenderIntegrationProperties, times(1)).getPollDelay();
+    }
+
+    @Test
+    void test_run() {
+        assertThatNoException().isThrownBy(() -> emailService.run());
     }
 
     @Test
@@ -86,8 +107,8 @@ class EmailServiceTests {
     void sendOldestPendingEmail_whenEmailSentWithResponseStatus_OK_thenMoveToHistory() {
         var emailEntities = List.of(createEmail(null));
 
-        when(mockEmailRepository.findByStatusEquals(any(), any())).thenReturn(emailEntities);
-        when(mockEmailSenderIntegration.getMaxMessageRetries()).thenReturn(3);
+        when(mockEmailRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(emailEntities);
+        when(mockEmailSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
         when(mockEmailSenderIntegration.sendEmail(any())).thenReturn(HttpStatus.OK);
 
         emailService.sendOldestPendingMessages();
@@ -97,7 +118,7 @@ class EmailServiceTests {
 
     @Test
     void sendOldestPendingEmail_whenNoPendingEmails_thenDoNothing() {
-        when(mockEmailRepository.findByStatusEquals(any(), any())).thenReturn(List.of());
+        when(mockEmailRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(List.of());
 
         emailService.sendOldestPendingMessages();
 
@@ -108,8 +129,8 @@ class EmailServiceTests {
     void sendOldestPendingEmail_whenEmailExceededMaxSendingAttempts_thenMoveToHistoryAsUndeliverable() {
         var emails = List.of(createEmail(message -> message.setSendingAttempts(3)));
 
-        when(mockEmailRepository.findByStatusEquals(any(), any())).thenReturn(emails);
-        when(mockEmailSenderIntegration.getMaxMessageRetries()).thenReturn(3);
+        when(mockEmailRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(emails);
+        when(mockEmailSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
 
         emailService.sendOldestPendingMessages();
 
@@ -122,8 +143,8 @@ class EmailServiceTests {
         var emailEntities = List.of(createEmail(message -> message.setSendingAttempts(0)));
         var emailCaptor = ArgumentCaptor.forClass(EmailEntity.class);
 
-        when(mockEmailRepository.findByStatusEquals(any(), any())).thenReturn(emailEntities);
-        when(mockEmailSenderIntegration.getMaxMessageRetries()).thenReturn(3);
+        when(mockEmailRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(emailEntities);
+        when(mockEmailSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
         when(mockEmailSenderIntegration.sendEmail(any())).thenReturn(HttpStatus.BAD_GATEWAY);
 
         emailService.sendOldestPendingMessages();
@@ -159,7 +180,6 @@ class EmailServiceTests {
 
         return emailEntity;
     }
-
 
     private EmailRequest createEmailRequest() {
         return EmailRequest.builder()

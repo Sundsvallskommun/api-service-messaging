@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.integration.emailsender;
 
+import java.time.Duration;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import se.sundsvall.messaging.integration.AbstractRestIntegrationProperties;
@@ -12,5 +14,6 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "integration.email-sender")
 public class EmailSenderIntegrationProperties extends AbstractRestIntegrationProperties {
 
-    private int messageRetries;
+    private Duration pollDelay = Duration.ofSeconds(5);
+    private int maxRetries = 3;
 }

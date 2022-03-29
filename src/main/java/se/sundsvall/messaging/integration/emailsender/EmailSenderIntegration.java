@@ -13,19 +13,11 @@ public class EmailSenderIntegration extends AbstractRestIntegration {
 
     private final RestTemplate restTemplate;
     private final EmailSenderIntegrationMapper mapper;
-    private final EmailSenderIntegrationProperties properties;
 
-    public EmailSenderIntegration(
-            @Qualifier("integration.email-sender.resttemplate") final RestTemplate restTemplate,
-            final EmailSenderIntegrationMapper mapper,
-            final EmailSenderIntegrationProperties properties) {
-        this.restTemplate = restTemplate;
+    public EmailSenderIntegration(final EmailSenderIntegrationMapper mapper,
+            @Qualifier("integration.email-sender.resttemplate") final RestTemplate restTemplate) {
         this.mapper = mapper;
-        this.properties = properties;
-    }
-
-    public int getMaxMessageRetries() {
-        return properties.getMessageRetries();
+        this.restTemplate = restTemplate;
     }
 
     public HttpStatus sendEmail(final EmailDto emailDto) {

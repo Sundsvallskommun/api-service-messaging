@@ -26,16 +26,13 @@ class EmailIntegrationTests {
     @Mock
     private RestTemplate mockRestTemplate;
     @Mock
-    private EmailSenderIntegrationProperties mockEmailIntegrationProperties;
-    @Mock
     private EmailSenderIntegrationMapper mockEmailIntegrationMapper;
 
     private EmailSenderIntegration emailSenderIntegration;
 
     @BeforeEach
     void setUp() {
-        emailSenderIntegration = new EmailSenderIntegration(mockRestTemplate,
-            mockEmailIntegrationMapper, mockEmailIntegrationProperties);
+        emailSenderIntegration = new EmailSenderIntegration(mockEmailIntegrationMapper, mockRestTemplate);
     }
 
     @Test

@@ -1,22 +1,22 @@
 openapi: 3.0.1
 info:
-  title: messaging
+  title: Messaging
   contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: '@project.version@'
+  version: "2.0"
 servers:
 - url: http://localhost:8080
   description: Generated server url
 tags:
-- name: Messaging Service Resources
+- name: Messaging Resources
 paths:
   /messages:
     post:
       tags:
-      - Messaging Service Resources
-      summary: Send messages as E-mail or SMS to a list of parties
+      - Messaging Resources
+      summary: Send messages as e-mail or SMS to a list of parties
       operationId: sendMessage
       requestBody:
         content:
@@ -25,37 +25,74 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageBatchResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /messages/webmessage:
+    post:
+      tags:
+      - Messaging Resources
+      summary: Send a web message
+      operationId: sendWebMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebMessageRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /messages/sms:
     post:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Send an SMS
       operationId: sendSms
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncomingSmsRequest'
+              $ref: '#/components/schemas/SmsRequest'
         required: true
       responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -68,25 +105,25 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
   /messages/email:
     post:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Send an E-mail
       operationId: sendEmail
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncomingEmailRequest'
+              $ref: '#/components/schemas/EmailRequest'
         required: true
       responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -99,16 +136,10 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
   /messages/{partyId}/conversationHistory:
     get:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Get the conversation history for a given party ID
       operationId: getConversationHistory
       parameters:
@@ -118,22 +149,22 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/HistoryResponse'
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
   /messages/{messageId}/status:
     get:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Get status for message by message ID
       operationId: getMessageStatus
       parameters:
@@ -143,8 +174,8 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
@@ -155,8 +186,8 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BatchStatusResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -164,7 +195,7 @@ paths:
   /messages/status/{messageId}:
     get:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Get status for message by message ID
       operationId: getStatus
       parameters:
@@ -174,8 +205,8 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
@@ -186,8 +217,8 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BatchStatusResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -195,7 +226,7 @@ paths:
   /messages/batch/{batchId}/status:
     get:
       tags:
-      - Messaging Service Resources
+      - Messaging Resources
       summary: Get status for messages by batch ID
       operationId: getBatchStatus
       parameters:
@@ -205,8 +236,8 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
@@ -217,8 +248,8 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BatchStatusResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -241,16 +272,26 @@ paths:
       x-wso2-mutual-ssl: Optional
 components:
   schemas:
+    ExternalReference:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The external reference key
+          example: flowInstanceId
+        value:
+          type: string
+          description: The external reference value
+          example: 356t4r34f
+      description: External references
     Message:
       required:
       - message
-      - partyId
+      - party
       type: object
       properties:
-        partyId:
-          type: string
-          description: The message party ID
-          example: f427952b-247c-4d3b-b081-675a467b3619
+        party:
+          $ref: '#/components/schemas/Party'
         subject:
           type: string
           description: The message subject (for E-mails)
@@ -281,6 +322,29 @@ components:
           items:
             $ref: '#/components/schemas/Message'
       description: Message representation
+    Party:
+      required:
+      - partyId
+      type: object
+      properties:
+        partyId:
+          type: string
+          description: The message party ID
+          example: f427952b-247c-4d3b-b081-675a467b3619
+        externalReferences:
+          type: array
+          description: External references
+          items:
+            $ref: '#/components/schemas/ExternalReference'
+    MessageBatchResponse:
+      type: object
+      properties:
+        batchId:
+          type: string
+        messageIds:
+          type: array
+          items:
+            type: string
     Problem:
       type: object
       properties:
@@ -296,9 +360,9 @@ components:
             type: object
         status:
           $ref: '#/components/schemas/StatusType'
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
@@ -308,20 +372,26 @@ components:
         statusCode:
           type: integer
           format: int32
-    MessageBatchResponse:
+    WebMessageRequest:
+      required:
+      - message
+      - party
       type: object
       properties:
-        batchId:
+        party:
+          $ref: '#/components/schemas/Party'
+        message:
           type: string
-        messageIds:
-          type: array
-          items:
-            type: string
-    IncomingSmsRequest:
+    MessageResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+    SmsRequest:
       required:
       - message
       - mobileNumber
-      - partyId
+      - party
       - sender
       type: object
       properties:
@@ -329,23 +399,15 @@ components:
           maxLength: 11
           minLength: 0
           type: string
-          description: The Sender of the SMS
+          description: The sender of the SMS
           example: sender
-        partyId:
-          type: string
-          description: party ID
-          example: cb88e940-bbb4-470d-8908-826021945e4f
+        party:
+          $ref: '#/components/schemas/Party'
         mobileNumber:
           pattern: "^\\+467[02369]\\d{7}$"
           type: string
-          description: Mobile number should start with +467x
+          description: Mobile number. Should start with +467x
         message:
-          type: string
-      description: SMS representation
-    MessageResponse:
-      type: object
-      properties:
-        messageId:
           type: string
     Attachment:
       required:
@@ -367,12 +429,10 @@ components:
           description: The attachment content type
           example: text/plain
       description: Attachments
-    IncomingEmailRequest:
+    EmailRequest:
       required:
       - emailAddress
-      - partyId
-      - senderEmail
-      - senderName
+      - party
       - subject
       type: object
       properties:
@@ -380,10 +440,8 @@ components:
           type: string
           description: Recipient e-mail address
           example: recipient@recipient.se
-        partyId:
-          type: string
-          description: Party ID
-          example: f7b379e6-3e0b-4f32-9812-e10279dd3d0a
+        party:
+          $ref: '#/components/schemas/Party'
         subject:
           type: string
           description: E-mail subject
@@ -405,19 +463,19 @@ components:
           description: Attachments
           items:
             $ref: '#/components/schemas/Attachment'
-      description: E-mail representation
     HistoryResponse:
       type: object
       properties:
         sender:
           type: string
-        partyId:
-          type: string
+        party:
+          $ref: '#/components/schemas/Party'
         messageType:
           type: string
           enum:
           - EMAIL
           - SMS
+          - WEB_MESSAGE
           - UNDELIVERABLE
         message:
           type: string

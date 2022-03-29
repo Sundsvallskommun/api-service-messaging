@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.SmsRepository;
 import se.sundsvall.messaging.integration.db.entity.SmsEntity;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
+import se.sundsvall.messaging.integration.smssender.SmsSenderIntegrationProperties;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.Party;
@@ -44,7 +47,9 @@ class SmsServiceTests {
     @Mock
     private DefaultSettings mockDefaultSettings;
     @Mock
-    private SmsSenderIntegration mockSmsIntegration;
+    private SmsSenderIntegrationProperties mockSmsSenderIntegrationProperties;
+    @Mock
+    private SmsSenderIntegration mockSmsSenderIntegration;
     @Mock
     private HistoryService mockHistoryService;
 
@@ -52,12 +57,29 @@ class SmsServiceTests {
 
     @BeforeEach
     void setUp() {
-        smsService = new SmsService(mockSmsRepository, mockDefaultSettings, mockSmsIntegration, mockHistoryService);
+        smsService = new SmsService(mockDefaultSettings, mockSmsSenderIntegrationProperties,
+            mockSmsSenderIntegration, mockSmsRepository, mockHistoryService);
+    }
+
+    @Test
+    void test_getPollDelay() {
+        var pollDelay = Duration.ofSeconds(12);
+
+        when(mockSmsSenderIntegrationProperties.getPollDelay()).thenReturn(pollDelay);
+
+        assertThat(smsService.getPollDelay()).isEqualTo(pollDelay);
+
+        verify(mockSmsSenderIntegrationProperties, times(1)).getPollDelay();
+    }
+
+    @Test
+    void test_run() {
+        assertThatNoException().isThrownBy(() -> smsService.run());
     }
 
     @Test
     void saveSms_givenValidSmsRequest_thenSaveSms() {
-        var request = createSmsRequest(null);
+        var request = createSmsRequest();
 
         smsService.saveSms(request);
 
@@ -78,19 +100,19 @@ class SmsServiceTests {
 
     @Test
     void sendOldestPendingSms_whenNoPendingSms_thenNothingToSend() {
-        when(mockSmsRepository.findByStatusEquals(any(), any())).thenReturn(List.of());
+        when(mockSmsRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(List.of());
 
         smsService.sendOldestPendingMessages();
 
-        verifyNoInteractions(mockSmsIntegration, mockHistoryService);
+        verifyNoInteractions(mockSmsSenderIntegration, mockHistoryService);
     }
 
     @Test
     void sendOldestPendingSms_whenSmsExceededMaxSendAttempts_thenMoveUndeliverableToHistory() {
         var smsEntities = List.of(createSms(message -> message.setSendingAttempts(3)));
 
-        when(mockSmsRepository.findByStatusEquals(any(), any())).thenReturn(smsEntities);
-        when(mockSmsIntegration.getMessageRetries()).thenReturn(3);
+        when(mockSmsRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(smsEntities);
+        when(mockSmsSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
 
         smsService.sendOldestPendingMessages();
 
@@ -103,9 +125,9 @@ class SmsServiceTests {
         var smsEntities = List.of(createSms(message -> message.setSendingAttempts(0)));
         var smsCaptor = ArgumentCaptor.forClass(SmsEntity.class);
 
-        when(mockSmsRepository.findByStatusEquals(any(), any())).thenReturn(smsEntities);
-        when(mockSmsIntegration.getMessageRetries()).thenReturn(3);
-        when(mockSmsIntegration.sendSms(any())).thenThrow(new RestClientException("Connection refused"));
+        when(mockSmsRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(smsEntities);
+        when(mockSmsSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
+        when(mockSmsSenderIntegration.sendSms(any())).thenThrow(new RestClientException("Connection refused"));
 
         smsService.sendOldestPendingMessages();
 
@@ -116,11 +138,11 @@ class SmsServiceTests {
 
     @Test
     void sendOldestPendingSms_whenSmsSentAndResponseStatus_OK_thenMoveToHistory() {
-        var smsEntities = List.of(createSms(null));
+        var smsEntities = List.of(createSms());
 
-        when(mockSmsRepository.findByStatusEquals(any(), any())).thenReturn(smsEntities);
-        when(mockSmsIntegration.getMessageRetries()).thenReturn(3);
-        when(mockSmsIntegration.sendSms(any())).thenReturn(ResponseEntity.ok(true));
+        when(mockSmsRepository.findLatestWithStatus(any(MessageStatus.class))).thenReturn(smsEntities);
+        when(mockSmsSenderIntegrationProperties.getMaxRetries()).thenReturn(3);
+        when(mockSmsSenderIntegration.sendSms(any())).thenReturn(ResponseEntity.ok(true));
 
         smsService.sendOldestPendingMessages();
 
@@ -128,7 +150,11 @@ class SmsServiceTests {
         verify(mockSmsRepository, times(1)).deleteById(anyString());
     }
 
-    private SmsEntity createSms(Consumer<SmsEntity> modifier) {
+    private SmsEntity createSms() {
+        return createSms(null);
+    }
+
+    private SmsEntity createSms(final Consumer<SmsEntity> modifier) {
         var smsEntity = SmsEntity.builder()
             .withBatchId(UUID.randomUUID().toString())
             .withMessageId(UUID.randomUUID().toString())
@@ -149,7 +175,11 @@ class SmsServiceTests {
         return smsEntity;
     }
 
-    private SmsRequest createSmsRequest(Consumer<SmsRequest> modifier) {
+    private SmsRequest createSmsRequest() {
+        return createSmsRequest(null);
+    }
+
+    private SmsRequest createSmsRequest(final Consumer<SmsRequest> modifier) {
         var request = SmsRequest.builder()
             .withParty(Party.builder()
                 .withPartyId(PARTY_ID)
