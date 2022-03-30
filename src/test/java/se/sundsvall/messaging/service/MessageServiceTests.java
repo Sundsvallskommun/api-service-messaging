@@ -2,289 +2,129 @@ package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createMessageRequest;
+import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
+import static se.sundsvall.messaging.TestDataFactory.createWebMessageRequest;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
-import se.sundsvall.messaging.configuration.DefaultSettings;
-import se.sundsvall.messaging.dto.MessageBatchDto;
-import se.sundsvall.messaging.dto.UndeliverableMessageDto;
-import se.sundsvall.messaging.integration.db.EmailRepository;
+import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.MessageRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.integration.db.SmsRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.db.entity.SmsEntity;
-import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
-import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackSettingDto;
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+import se.sundsvall.messaging.service.event.IncomingSmsEvent;
+import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
 
 @ExtendWith(MockitoExtension.class)
 class MessageServiceTests {
-    
-    private static final String PARTY_ID = UUID.randomUUID().toString();
-    private static final String BATCH_ID = UUID.randomUUID().toString();
-    private static final String MESSAGE_ID = UUID.randomUUID().toString();
 
     @Mock
-    private MessageRepository mockMessageRepository;
+    private ApplicationEventPublisher mockEventPublisher;
     @Mock
-    private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
-    @Mock
-    private SmsRepository mockSmsRepository;
-    @Mock
-    private EmailRepository mockEmailRepository;
-    @Mock
-    private HistoryService mockHistoryService;
-    @Mock
-    private DefaultSettings mockDefaultSettings;
+    private MessageRepository mockRepository;
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private MessageMapper mockMapper;
 
     private MessageService messageService;
 
     @BeforeEach
     void setUp() {
-        messageService = new MessageService(mockMessageRepository, mockSmsRepository,
-            mockEmailRepository, mockHistoryService, mockDefaultSettings, mockFeedbackSettingsIntegration);
+        messageService = new MessageService(mockEventPublisher, mockRepository, mockMapper);
     }
 
     @Test
-    void saveIncomingMessages_whenThereAreMessagesToSave_thenSaveMessages() {
-        var messageBatch = MessageBatchDto.builder()
-            .withBatchId(BATCH_ID)
-            .withMessages(List.of(createBatchMessage(), createBatchMessage(), createBatchMessage()))
-            .build();
-        var numberOfMessages = messageBatch.getMessages().size();
-
-        when(mockMessageRepository.save(any())).then(answer -> answer.getArgument(0));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyString())).thenReturn(List.of());
-
-        messageService.saveIncomingMessages(messageBatch);
-
-        verify(mockMessageRepository, times(numberOfMessages)).save(any());
-    }
-
-    @Test
-    void saveIncomingMessages_whenNoPartyIdSpecified_thenIgnoreMessage() {
-        var nullPartyId = createBatchMessage().toBuilder()
-            .withParty(Party.builder()
-                .withPartyId(null)
+    void test_saveMessageRequest() {
+        when(mockRepository.save(any(MessageEntity.class)))
+            .thenReturn(MessageEntity.builder()
+                .withMessageId("someMessageId1")
                 .build())
-            .build();
-        var emptyPartyId = createBatchMessage().toBuilder()
-            .withParty(Party.builder()
-                .withPartyId("  ")
-                .build())
-            .build();
+            .thenReturn(MessageEntity.builder()
+                .withMessageId("someMessageId2")
+                .build());
 
-        var messageBatch = MessageBatchDto.builder()
-            .withBatchId(BATCH_ID)
-            .withMessages(List.of(nullPartyId, emptyPartyId))
+        var request = MessageRequest.builder()
+            .withMessages(List.of(createMessageRequest(), createMessageRequest()))
             .build();
 
-        messageService.saveIncomingMessages(messageBatch);
+        var dto = messageService.saveMessageRequest(request);
 
-        verifyNoInteractions(mockMessageRepository);
+        assertThat(dto.getBatchId()).isNotNull();
+        assertThat(dto.getMessageIds()).hasSize(2);
+
+        verify(mockMapper, times(2)).toEntity(any(String.class), any(MessageRequest.Message.class));
+        verify(mockRepository, times(2)).save(any(MessageEntity.class));
+        verify(mockMapper, times(2)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(2)).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void saveIncomingMessages_whenNoFeedbackSettingFound_thenMoveUndeliverableToHistory() {
-        var messageBatch = MessageBatchDto.builder()
-            .withMessages(List.of(createBatchMessage()))
-            .build();
+    void test_saveEmailRequest() {
+        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+            .withMessageId("someMessageId")
+            .build());
 
-        when(mockMessageRepository.save(any())).then(answer -> answer.getArgument(0));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyString())).thenReturn(List.of());
+        var request = createEmailRequest();
 
-        messageService.saveIncomingMessages(messageBatch);
+        var dto = messageService.saveEmailRequest(request);
 
-        verify(mockHistoryService, times(1)).createHistory(any(UndeliverableMessageDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
-    }
-    @Test
-    void saveIncomingMessages_whenIncomingIsSaved_thenMoveMessageAndDeleteFromIncoming() {
-        var messageBatch = MessageBatchDto.builder()
-            .withBatchId(BATCH_ID)
-            .withMessages(List.of(createBatchMessage()))
-            .build();
-        var feedbackSettingDto = createFeedbackSetting(createFeedbackChannel(ContactMethod.EMAIL));
+        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 
-        when(mockMessageRepository.save(any())).then(answer -> answer.getArgument(0));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyString())).thenReturn(List.of(feedbackSettingDto));
-
-        messageService.saveIncomingMessages(messageBatch);
-
-        verify(mockMessageRepository, times(1)).save(any());
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
+        verify(mockRepository, times(1)).save(any(MessageEntity.class));
+        verify(mockMapper, times(1)).toEntity(any(EmailRequest.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingEmailEvent.class));
     }
 
     @Test
-    void moveIncomingMessage_whenNoFeedbackWanted_thenMoveToHistoryWithStatus_NO_FEEDBACK_WANTED() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.EMAIL).toBuilder()
-            .withFeedbackWanted(false)
-            .build();
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-        var undeliverableCaptor = ArgumentCaptor.forClass(UndeliverableMessageDto.class);
+    void test_saveSmsRequest() {
+        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+            .withMessageId("someMessageId")
+            .build());
 
-        messageService.moveIncomingMessage(createMessage(MessageType.EMAIL), feedbackSettingDto);
+        var request = createSmsRequest();
 
-        verify(mockHistoryService, times(1)).createHistory(undeliverableCaptor.capture());
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
+        var dto = messageService.saveSmsRequest(request);
 
-        assertThat(undeliverableCaptor.getValue().getStatus()).isEqualTo(MessageStatus.NO_FEEDBACK_WANTED);
+        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
+
+        verify(mockRepository, times(1)).save(any(MessageEntity.class));
+        verify(mockMapper, times(1)).toEntity(any(SmsRequest.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSmsEvent.class));
     }
 
     @Test
-    void moveIncomingMessage_whenFeedbackChannelIsForEmail_thenMoveToEmailAndDeleteIncoming() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.EMAIL);
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
+    void test_saveWebMessageRequest() {
+        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+            .withMessageId("someMessageId")
+            .build());
 
-        messageService.moveIncomingMessage(createMessage(MessageType.EMAIL), feedbackSettingDto);
+        var request = createWebMessageRequest();
 
-        verify(mockEmailRepository, times(1)).save(any());
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
+        var dto = messageService.saveWebMessageRequest(request);
 
-        verifyNoInteractions(mockSmsRepository, mockHistoryService);
-    }
+        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 
-    @Test
-    void moveIncomingMessage_whenFeedbackChannelIsForSms_thenMoveToSmsAndDeleteIncoming() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.SMS);
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-
-        messageService.moveIncomingMessage(createMessage(MessageType.SMS), feedbackSettingDto);
-
-        verify(mockSmsRepository, times(1)).save(any());
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
-
-        verifyNoInteractions(mockEmailRepository, mockHistoryService);
-    }
-
-    @Test
-    void moveIncomingMessage_whenFeedbackChannelHasUnknownMethod_thenMoveUndeliverableToHistory() {
-        var feedbackChannel = createFeedbackChannel(null);
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-
-        messageService.moveIncomingMessage(createMessage(MessageType.EMAIL), feedbackSettingDto);
-
-        verify(mockHistoryService, times(1)).createHistory(any(UndeliverableMessageDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(anyString());
-    }
-
-    @Test
-    void moveIncomingMessage_whenMovingEmailWithoutSenderInformation_thenUseDefaultSettings() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.EMAIL);
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-
-        var emailWithoutSenderName = createMessage(MessageType.EMAIL).toBuilder()
-            .withEmailName(null)
-            .build();
-        var emailWithoutSenderEmail = createMessage(MessageType.EMAIL).toBuilder()
-            .withSenderEmail(null)
-            .build();
-
-        messageService.moveIncomingMessage(emailWithoutSenderName, feedbackSettingDto);
-        messageService.moveIncomingMessage(emailWithoutSenderEmail, feedbackSettingDto);
-
-        verify(mockDefaultSettings, times(1)).getEmailName();
-        verify(mockDefaultSettings, times(1)).getEmailAddress();
-    }
-
-    @Test
-    void moveIncomingMessage_whenMovingSmsWithoutSenderName_thenUseDefaultSettings() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.SMS);
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-
-        var smsWithoutSenderName = createMessage(MessageType.SMS).toBuilder()
-            .withSmsName(null)
-            .build();
-
-        messageService.moveIncomingMessage(smsWithoutSenderName, feedbackSettingDto);
-
-        verify(mockDefaultSettings, times(1)).getSmsName();
-    }
-
-    @Test
-    void moveIncomingMessage_whenMovingSmsAndChannelDestinationIsMissingAreaCode_thenSetAreaCode() {
-        var feedbackChannel = createFeedbackChannel(ContactMethod.SMS).toBuilder()
-            .withDestination("0701234567")
-            .build();
-        var feedbackSettingDto = createFeedbackSetting(feedbackChannel);
-        var smsWithoutSenderName = createMessage(MessageType.SMS);
-
-        var smsCaptor = ArgumentCaptor.forClass(SmsEntity.class);
-
-        messageService.moveIncomingMessage(smsWithoutSenderName, feedbackSettingDto);
-
-        verify(mockSmsRepository, times(1)).save(smsCaptor.capture());
-        
-        assertThat(smsCaptor.getValue().getMobileNumber()).startsWith("+46");
-    }
-
-    private MessageEntity createMessage(MessageType type) {
-        return MessageEntity.builder()
-            .withBatchId(BATCH_ID)
-            .withMessageId(MESSAGE_ID)
-            .withPartyId(PARTY_ID)
-            .withExternalReferences(Map.of("key", "value"))
-            .withMessage("Message content")
-            .withSubject("Message subject")
-            .withEmailName("Sundsvalls kommun")
-            .withSmsName("Sundsvall")
-            .withSenderEmail("noreply@sundsvall.se")
-            .withMessageType(type)
-            .withMessageStatus(MessageStatus.PENDING)
-            .build();
-    }
-
-    private FeedbackSettingDto.Channel createFeedbackChannel(ContactMethod contactMethod) {
-        return FeedbackSettingDto.Channel.builder()
-            .withDestination(contactMethod == ContactMethod.EMAIL ? "john.doe@example.com" : "+46701234567")
-            .withContactMethod(contactMethod)
-            .withFeedbackWanted(true)
-            .build();
-    }
-
-    private FeedbackSettingDto createFeedbackSetting(FeedbackSettingDto.Channel channel) {
-        return FeedbackSettingDto.builder()
-            .withId(UUID.randomUUID().toString())
-            .withPartyId(PARTY_ID)
-            .withOrganizationId(UUID.randomUUID().toString())
-            .withChannels(List.of(channel))
-            .build();
-    }
-
-    private MessageBatchDto.Message createBatchMessage() {
-        return MessageBatchDto.Message.builder()
-            .withMessageId(MESSAGE_ID)
-            .withParty(Party.builder()
-                .withPartyId(PARTY_ID)
-                .withExternalReferences(List.of(
-                    ExternalReference.builder()
-                        .withKey("key")
-                        .withValue("value")
-                        .build()))
-                .build())
-            .withSubject("Message subject")
-            .withMessage("Message content")
-            .withEmailName("Sundsvalls kommun")
-            .withSmsName("Sundsvall")
-            .withSenderEmail("noreply@sundsvall.se")
-            .build();
+        verify(mockRepository, times(1)).save(any(MessageEntity.class));
+        verify(mockMapper, times(1)).toEntity(any(WebMessageRequest.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingWebMessageEvent.class));
     }
 }

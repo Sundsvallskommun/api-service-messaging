@@ -3,11 +3,9 @@ package se.sundsvall.messaging.api.model;
 import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.Sender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -16,21 +14,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder(setterPrefix = "with")
+@SuperBuilder(setterPrefix = "with")
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class EmailRequest {
+public class EmailRequest extends Request {
 
     @Schema(description = "Recipient e-mail address", example = "recipient@recipient.se" )
     @NotBlank
     private String emailAddress;
-
-    @Valid
-    @NotNull
-    private Party party;
 
     @Schema(description = "E-mail subject")
     @NotBlank
@@ -42,12 +37,8 @@ public class EmailRequest {
     @Schema(description = "E-mail HTML body (BASE64-encoded)")
     private String htmlMessage;
 
-    @Schema(description = "Sender name")
-    private String senderName;
-
-    @Schema(description = "Sender e-mail address", example = "sender@sender.se")
-    @Email
-    private String senderEmail;
+    @Valid
+    private Sender.Email sender;
 
     @Schema(description = "Attachments")
     @Valid
@@ -60,16 +51,15 @@ public class EmailRequest {
     @Builder(setterPrefix = "with")
     public static class Attachment {
 
-        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK")
         @NotBlank
+        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK")
         private String content;
 
-        @Schema(description = "The attachment filename", example = "test.txt")
         @NotBlank
+        @Schema(description = "The attachment filename", example = "test.txt")
         private String name;
 
         @Schema(description = "The attachment content type", example = "text/plain")
-        @NotBlank
         private String contentType;
     }
 }

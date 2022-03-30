@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.16-SNAPSHOT</version>
     </parent>
 
     <groupId>se.sundsvall.messaging</groupId>
@@ -34,11 +34,24 @@
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-resttemplate</artifactId>
         </dependency>
+        <dependency>
+            <groupId>se.sundsvall.dept44</groupId>
+            <artifactId>dept44-common-validators</artifactId>
+        </dependency>
 
         <!-- Spring Boot -->
         <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -54,7 +67,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -171,6 +184,9 @@
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>
+                        <!-- Exclude JPA specifications and metamodels -->
+                        <exclude>**/se/sundsvall/messaging/integration/db/specification/**/**</exclude>
+                        <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*</exclude>
                         <exclude>**/generated/**</exclude>
                     </excludes>
                 </configuration>

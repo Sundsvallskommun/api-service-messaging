@@ -1,6 +1,11 @@
 package se.sundsvall.messaging.configuration;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import se.sundsvall.messaging.model.Sender;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +15,11 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "messaging.default-sender")
 public class DefaultSettings {
 
-    private String smsName;
-    private String emailName;
-    private String emailAddress;
+    @Valid
+    @NotNull
+    private Sender.Sms sms;
+
+    @Valid
+    @NotNull
+    private Sender.Email email;
 }

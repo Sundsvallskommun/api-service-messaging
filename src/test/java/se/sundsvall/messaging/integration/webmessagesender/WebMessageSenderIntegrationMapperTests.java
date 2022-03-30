@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.Party;
 
 class WebMessageSenderIntegrationMapperTests {
@@ -16,15 +15,13 @@ class WebMessageSenderIntegrationMapperTests {
     private final WebMessageSenderIntegrationMapper mapper = new WebMessageSenderIntegrationMapper();
 
     @Test
-    void toCreateWebMessageRequest_givenNullRequest_returnsNull() {
+    void test_toCreateWebMessageRequest_whenDtoIsNull() {
         assertThat(mapper.toCreateWebMessageRequest(null)).isNull();
     }
 
     @Test
-    void toCreateWebMessageRequest_givenWebMessageDto_returnsCreteWebMessageRequestWithSameValues() {
-        var webMessageDto = WebMessageDto.builder()
-            .withMessage("someMessage")
-            .withStatus(MessageStatus.PENDING)
+    void test_toCreateWebMessageRequest() {
+        var dto = WebMessageDto.builder()
             .withParty(Party.builder()
                 .withPartyId("somePartyId")
                 .withExternalReferences(List.of(
@@ -34,12 +31,13 @@ class WebMessageSenderIntegrationMapperTests {
                         .build()
                 ))
                 .build())
+            .withMessage("someMessage")
             .build();
 
-        var request = mapper.toCreateWebMessageRequest(webMessageDto);
+        var request = mapper.toCreateWebMessageRequest(dto);
 
-        assertThat(request.getMessage()).isEqualTo(webMessageDto.getMessage());
-        assertThat(request.getPartyId()).isEqualTo("somePartyId");
-        assertThat(request.getExternalReferences()).hasSameSizeAs(webMessageDto.getParty().getExternalReferences());
+        assertThat(request.getPartyId()).isEqualTo(dto.getParty().getPartyId());
+        assertThat(request.getExternalReferences()).hasSameSizeAs(dto.getParty().getExternalReferences());
+        assertThat(request.getMessage()).isEqualTo(dto.getMessage());
     }
 }
