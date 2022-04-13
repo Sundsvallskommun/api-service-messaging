@@ -15,17 +15,17 @@ import se.sundsvall.messaging.integration.AbstractRestIntegration;
 @Component
 public class SmsSenderIntegration extends AbstractRestIntegration {
 
-    private final RestTemplate restTemplate;
     private final SmsSenderIntegrationMapper mapper;
+    private final RestTemplate restTemplate;
 
     public SmsSenderIntegration(final SmsSenderIntegrationMapper mapper,
             @Qualifier("integration.sms-sender.resttemplate") final RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
         this.mapper = mapper;
+        this.restTemplate = restTemplate;
     }
 
     public ResponseEntity<Boolean> sendSms(final SmsDto smsDto) {
-        var request = mapper.toRequest(smsDto);
+        var request = mapper.toSendSmsRequest(smsDto);
 
         try {
             return restTemplate.postForEntity("/send/sms", createRequestEntity(request), Boolean.class);

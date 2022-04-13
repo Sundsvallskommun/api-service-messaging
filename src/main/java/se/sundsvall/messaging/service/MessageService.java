@@ -1,181 +1,76 @@
 package se.sundsvall.messaging.service;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.MessageRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
-import se.sundsvall.messaging.integration.db.EmailRepository;
+import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.integration.db.SmsRepository;
-import se.sundsvall.messaging.integration.db.entity.EmailEntity;
-import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.db.entity.SmsEntity;
-import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
-import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackSettingDto;
-import se.sundsvall.messaging.mapper.MessageMapper;
-import se.sundsvall.messaging.mapper.UndeliverableMapper;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+import se.sundsvall.messaging.service.event.IncomingSmsEvent;
+import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
 
 @Service
 public class MessageService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
+    private final ApplicationEventPublisher eventPublisher;
+    private final MessageRepository repository;
+    private final MessageMapper mapper;
 
-    private final MessageRepository messageRepository;
-    private final SmsRepository smsRepository;
-    private final EmailRepository emailRepository;
-    private final HistoryService historyService;
-    private final DefaultSettings defaultSettings;
-    private final FeedbackSettingsIntegration feedbackSettings;
-
-    public MessageService(final MessageRepository messageRepository, final SmsRepository smsRepository,
-            final EmailRepository emailRepository, final HistoryService historyService,
-            final DefaultSettings defaultSettings, final FeedbackSettingsIntegration feedbackSettings) {
-        this.messageRepository = messageRepository;
-        this.smsRepository = smsRepository;
-        this.emailRepository = emailRepository;
-        this.historyService = historyService;
-        this.defaultSettings = defaultSettings;
-        this.feedbackSettings = feedbackSettings;
+    public MessageService(final ApplicationEventPublisher eventPublisher,
+            final MessageRepository repository, final MessageMapper mapper) {
+        this.eventPublisher = eventPublisher;
+        this.repository = repository;
+        this.mapper = mapper;
     }
 
-    public MessageBatchDto saveIncomingMessages(MessageBatchDto messageBatch) {
-        var incomingMessages = messageBatch.getMessages();
-        var handledMessages = new ArrayList<MessageEntity>();
+    public MessageBatchDto saveMessageRequest(final MessageRequest request) {
+        var batchId = UUID.randomUUID().toString();
 
-        for (MessageBatchDto.Message message : incomingMessages) {
-            var partyId = message.getParty().getPartyId() == null ? "" : message.getParty().getPartyId();
+        var messageIds = request.getMessages().stream()
+            .map(message -> mapper.toEntity(batchId, message))
+            .map(repository::save)
+            .map(mapper::toMessageDto)
+            .map(MessageDto::getMessageId)
+            .toList();
 
-            if (partyId.isBlank()) {
-                continue;
-            }
+        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingMessageEvent(this,messageId)));
 
-            var incomingMessage = MessageMapper.toEntity(message, messageBatch.getBatchId());
-            var savedMessage = messageRepository.save(incomingMessage);
-
-            var listOfFeedbackSettings = feedbackSettings.getSettingsByPartyId(partyId);
-
-            if (listOfFeedbackSettings.isEmpty()) {
-                var undeliverable = UndeliverableMapper.toUndeliverable(savedMessage)
-                    .toBuilder()
-                    .withStatus(MessageStatus.NO_FEEDBACK_SETTINGS_FOUND)
-                    .build();
-
-                historyService.createHistory(undeliverable);
-                messageRepository.deleteById(savedMessage.getMessageId());
-                continue;
-            }
-
-            for (FeedbackSettingDto feedback : listOfFeedbackSettings) {
-                moveIncomingMessage(savedMessage, feedback);
-                handledMessages.add(savedMessage);
-            }
-
-        }
-        return MessageMapper.toMessageBatch(handledMessages);
-    }
-
-    void moveIncomingMessage(MessageEntity incomingMessage, FeedbackSettingDto feedback) {
-        var channels = feedback.getChannels();
-
-        for (FeedbackSettingDto.Channel channel : channels) {
-            var contactMethod = Optional.ofNullable(channel.getContactMethod())
-                .map(contact -> {
-                    if (!channel.isFeedbackWanted()) {
-                        return ContactMethod.NO_CONTACT;
-                    }
-
-                    return contact;
-                })
-                .orElse(ContactMethod.UNKNOWN);
-
-            switch (contactMethod) {
-                case EMAIL:
-                    LOG.info("Moving incoming message {} to e-mail", incomingMessage.getMessageId());
-
-                    var email = toEmailFromMessageFeedback(incomingMessage, channel);
-
-                    emailRepository.save(email);
-                    break;
-                case SMS:
-                    LOG.info("Moving incoming message {} to SMS", incomingMessage.getMessageId());
-
-                    var sms = toSmsFromMessageFeedback(incomingMessage, channel);
-
-                    smsRepository.save(sms);
-                    break;
-                case NO_CONTACT:
-                    LOG.info("No feedback wanted for party {}, message will not be delivered",
-                            incomingMessage.getPartyId());
-
-                    var undeliverable = UndeliverableMapper
-                        .toUndeliverable(incomingMessage)
-                        .toBuilder()
-                        .withStatus(MessageStatus.NO_FEEDBACK_WANTED)
-                        .build();
-
-                    historyService.createHistory(undeliverable);
-                    break;
-                default:
-                    LOG.warn("Unknown contact method for message {}, will not be delivered",
-                            incomingMessage.getMessageId());
-
-                    var undeliverableMessage = UndeliverableMapper.toUndeliverable(incomingMessage);
-                    historyService.createHistory(undeliverableMessage);
-            }
-        }
-
-        messageRepository.deleteById(incomingMessage.getMessageId());
-    }
-
-    private EmailEntity toEmailFromMessageFeedback(MessageEntity message, FeedbackSettingDto.Channel channel) {
-        var senderEmail = StringUtils.isBlank(message.getSenderEmail())
-                ? defaultSettings.getEmailAddress()
-                : message.getSenderEmail();
-
-        var senderName = StringUtils.isBlank(message.getEmailName())
-                ? defaultSettings.getEmailName()
-                : message.getEmailName();
-
-        return EmailEntity.builder()
-            .withBatchId(message.getBatchId())
-            .withMessageId(message.getMessageId())
-            .withPartyId(message.getPartyId())
-            .withSubject(message.getSubject())
-            .withMessage(message.getMessage())
-            .withStatus(MessageStatus.PENDING)
-            .withEmailAddress(channel.getDestination())
-            .withSenderName(senderName)
-            .withSenderEmail(senderEmail)
+        return MessageBatchDto.builder()
+            .withBatchId(batchId)
+            .withMessageIds(messageIds)
             .build();
     }
 
-    private SmsEntity toSmsFromMessageFeedback(MessageEntity message, FeedbackSettingDto.Channel channel) {
-        var sender = StringUtils.isBlank(message.getSmsName())
-                ? defaultSettings.getSmsName()
-                : message.getSmsName();
+    public MessageDto saveEmailRequest(final EmailRequest request) {
+        var message = repository.save(mapper.toEntity(request));
 
-        var mobileNumber = channel.getDestination();
+        eventPublisher.publishEvent(new IncomingEmailEvent(this, message.getMessageId()));
 
-        if (mobileNumber.startsWith("07")) {
-            mobileNumber = "+467" + mobileNumber.substring(2);
-        }
+        return mapper.toMessageDto(message);
+    }
 
-        return SmsEntity.builder()
-            .withBatchId(message.getBatchId())
-            .withMessageId(message.getMessageId())
-            .withMessage(message.getMessage())
-            .withStatus(MessageStatus.PENDING)
-            .withPartyId(message.getPartyId())
-            .withSender(sender)
-            .withMobileNumber(mobileNumber)
-            .build();
+    public MessageDto saveSmsRequest(final SmsRequest request) {
+        var message = repository.save(mapper.toEntity(request));
+
+        eventPublisher.publishEvent(new IncomingSmsEvent(this, message.getMessageId()));
+
+        return mapper.toMessageDto(message);
+    }
+
+    public MessageDto saveWebMessageRequest(final WebMessageRequest request) {
+        var message = repository.save(mapper.toEntity(request));
+
+        eventPublisher.publishEvent(new IncomingWebMessageEvent(this, message.getMessageId()));
+
+        return mapper.toMessageDto(message);
     }
 }

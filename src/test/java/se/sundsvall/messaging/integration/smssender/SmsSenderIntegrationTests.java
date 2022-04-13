@@ -1,10 +1,11 @@
 package se.sundsvall.messaging.integration.smssender;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -27,71 +27,56 @@ import se.sundsvall.messaging.dto.SmsDto;
 class SmsSenderIntegrationTests {
 
     @Mock
-    private RestTemplate mockRestTemplate;
+    private SmsSenderIntegrationMapper mockMapper;
     @Mock
-    private SmsSenderIntegrationMapper mockSmsSenderIntegrationMapper;
+    private RestTemplate mockRestTemplate;
 
-    private SmsSenderIntegration smsSenderIntegration;
+    private SmsSenderIntegration integration;
 
     @BeforeEach
     void setUp() {
-        smsSenderIntegration = new SmsSenderIntegration(mockSmsSenderIntegrationMapper, mockRestTemplate);
+        integration = new SmsSenderIntegration(mockMapper, mockRestTemplate);
     }
 
     @Test
-    void sendSms_givenValidSmsRequest_thenSentTrueAndResponseStatus200_OK() {
-        when(mockRestTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Boolean.class)))
-            .thenReturn(ResponseEntity.ok(true));
+    void test_sendSms() {
+        integration.sendSms(SmsDto.builder().build());
 
-        var response = smsSenderIntegration.sendSms(createSmsDto());
-
-        assertThat(response.getBody()).isTrue();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(Boolean.class));
     }
 
     @Test
-    void sendSms_whenHttpStatusCodeException_isThrown_thenThrowsProblem() {
-        when(mockRestTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Boolean.class)))
-            .thenThrow(new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+    void test_sendSms_whenHttpStatusCodeExceptionIsThrownByRestTemplate() {
+        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(Boolean.class)))
+            .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> smsSenderIntegration.sendSms(createSmsDto()))
+            .isThrownBy(() -> integration.sendSms(SmsDto.builder().build()))
             .satisfies(problem -> {
                 assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-                assertThat(problem.getCause()).isNotNull();
-                assertThat(problem.getCause().getStatus()).isEqualTo(Status.INTERNAL_SERVER_ERROR);
+                assertThat(problem.getCause()).isNotNull().satisfies(cause ->
+                        assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
+                );
             });
+
+        verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(Boolean.class));
     }
 
     @Test
-    void sendSms_whenRestClientException_isThrown_themThrowsProblem() {
-        when(mockRestTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Boolean.class)))
-            .thenThrow(new RestClientException("dummy"));
+    void test_sendSms_whenRestClientExceptionIsThrownByRestTemplate() {
+        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(Boolean.class)))
+            .thenThrow(new RestClientException("Unknown problem"));
 
         assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> smsSenderIntegration.sendSms(createSmsDto()))
-            .satisfies(problem -> {
-                assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-                assertThat(problem.getCause()).isNull();
-            });
-    }
+                .isThrownBy(() -> integration.sendSms(SmsDto.builder().build()))
+                .satisfies(problem -> {
+                    assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+                    assertThat(problem.getCause()).isNull();
+                });
 
-    @Test
-    void sendSms_whenUnableToSendSms_thenSentFalseAndResponseStatus200_OK() {
-        when(mockRestTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(Boolean.class)))
-            .thenReturn(ResponseEntity.ok(false));
-
-        var response = smsSenderIntegration.sendSms(createSmsDto());
-
-        assertThat(response.getBody()).isFalse();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    private SmsDto createSmsDto() {
-        return SmsDto.builder()
-            .withMessage("message")
-            .withMobileNumber("+46701234567")
-            .withSender("sender")
-            .build();
+        verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(Boolean.class));
     }
 }

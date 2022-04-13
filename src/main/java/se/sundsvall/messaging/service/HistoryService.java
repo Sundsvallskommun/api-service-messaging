@@ -1,82 +1,55 @@
 package se.sundsvall.messaging.service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
 
 import se.sundsvall.messaging.dto.HistoryDto;
-import se.sundsvall.messaging.dto.UndeliverableMessageDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.entity.EmailEntity;
-import se.sundsvall.messaging.integration.db.entity.SmsEntity;
-import se.sundsvall.messaging.integration.db.entity.WebMessageEntity;
-import se.sundsvall.messaging.mapper.HistoryMapper;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.specification.HistoryEntitySpecifications;
 
 @Service
 public class HistoryService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HistoryService.class);
-
     private final HistoryRepository repository;
 
-    public HistoryService(HistoryRepository repository) {
+    public HistoryService(final HistoryRepository repository) {
         this.repository = repository;
     }
 
-    public HistoryDto createHistory(final SmsEntity sms) {
-        LOG.info("Creating history from SMS {}", sms.getMessageId());
-        var history = repository.save(HistoryMapper.toHistory(sms));
-
-        return HistoryMapper.toHistoryDto(history);
-    }
-
-    public HistoryDto createHistory(final EmailEntity email) {
-        LOG.info("Creating history from E-mail {}", email.getMessageId());
-        var history = repository.save(HistoryMapper.toHistory(email));
-
-        return HistoryMapper.toHistoryDto(history);
-    }
-
-    public HistoryDto createHistory(final WebMessageEntity webMessage) {
-        LOG.info("Creating history from WebMessage {}", webMessage.getMessageId());
-        var history = repository.save(HistoryMapper.toHistory(webMessage));
-
-        return HistoryMapper.toHistoryDto(history);
-    }
-
-    public HistoryDto createHistory(final UndeliverableMessageDto undeliverable) {
-        LOG.info("Creating history from undeliverable message {}", undeliverable.getMessageId());
-        var history = repository.save(HistoryMapper.toHistory(undeliverable));
-
-        return HistoryMapper.toHistoryDto(history);
-    }
-
-    public HistoryDto getHistoryByMessageId(final String id) {
-        return repository.findByMessageIdEquals(id)
-            .map(HistoryMapper::toHistoryDto)
-            .orElseThrow(() -> Problem.builder()
-                .withStatus(Status.NOT_FOUND)
-                .withTitle("Resource not found")
-                .withDetail("No history found for message id '" + id + "'")
-                .build());
+    public Optional<HistoryDto> getHistory(final String messageId) {
+        return repository.findById(messageId)
+            .map(this::toHistoryDto);
     }
 
     public List<HistoryDto> getHistoryByBatchId(final String batchId) {
-        return repository.findByBatchIdEquals(batchId)
-            .stream()
-            .map(HistoryMapper::toHistoryDto)
-            .collect(Collectors.toList());
+        return repository.findByBatchIdEquals(batchId).stream()
+            .map(this::toHistoryDto)
+            .toList();
     }
 
-    public List<HistoryDto> getHistoryForPartyId(final String partyId) {
-        return repository.findByPartyIdEquals(partyId)
-            .stream()
-            .map(HistoryMapper::toHistoryDto)
-            .collect(Collectors.toList());
+    public List<HistoryDto> getConversationHistory(final String partyId, final LocalDate from,
+            final LocalDate to) {
+        var specifications = HistoryEntitySpecifications.withPartyId(partyId)
+            .and(HistoryEntitySpecifications.withCreatedAtAfter(from))
+            .and(HistoryEntitySpecifications.withCreatedAtBefore(to));
+
+        return repository.findAll(specifications).stream()
+            .map(this::toHistoryDto)
+            .toList();
+    }
+
+    HistoryDto toHistoryDto(final HistoryEntity historyEntity) {
+        return HistoryDto.builder()
+            .withMessageId(historyEntity.getMessageId())
+            .withBatchId(historyEntity.getBatchId())
+            .withMessageType(historyEntity.getMessageType())
+            .withStatus(historyEntity.getStatus())
+            .withContent(historyEntity.getContent())
+            .withCreatedAt(historyEntity.getCreatedAt())
+            .build();
     }
 }

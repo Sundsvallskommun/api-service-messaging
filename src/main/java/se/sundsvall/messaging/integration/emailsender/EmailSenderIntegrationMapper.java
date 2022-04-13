@@ -9,11 +9,12 @@ import se.sundsvall.messaging.dto.EmailDto;
 
 import generated.se.sundsvall.emailsender.Attachment;
 import generated.se.sundsvall.emailsender.SendEmailRequest;
+import generated.se.sundsvall.emailsender.Sender;
 
 @Component
 class EmailSenderIntegrationMapper {
 
-    SendEmailRequest toRequest(EmailDto emailDto) {
+    SendEmailRequest toSendEmailRequest(final EmailDto emailDto) {
         if (emailDto == null) {
             return null;
         }
@@ -30,8 +31,10 @@ class EmailSenderIntegrationMapper {
             .subject(emailDto.getSubject())
             .message(emailDto.getMessage())
             .emailAddress(emailDto.getEmailAddress())
-            .senderName(emailDto.getSenderName())
-            .senderEmail(emailDto.getSenderEmail())
+            .sender(new Sender()
+                .name(emailDto.getSender().getName())
+                .address(emailDto.getSender().getAddress())
+                .replyTo(emailDto.getSender().getReplyTo()))
             .htmlMessage(emailDto.getHtmlMessage())
             .attachments(attachments);
     }
