@@ -5,7 +5,6 @@ import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
@@ -26,7 +25,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Sending Resources")
 @RestController
-@RequestMapping("/send")
 class MessageResource {
 
     private final MessageService messageService;
@@ -128,7 +126,7 @@ class MessageResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @PostMapping("/batch")
+    @PostMapping("/messages")
     ResponseEntity<MessagesResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
         var messages = messageService.saveMessageRequest(request);
 

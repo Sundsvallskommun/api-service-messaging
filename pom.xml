@@ -16,6 +16,11 @@
     <properties>
 		<docker.image.name>ms-messaging</docker.image.name>
 
+        <exposed.app.port>8080</exposed.app.port>
+        <published.container.port.sandbox>8703</published.container.port.sandbox>
+        <published.container.port.test>9040</published.container.port.test>
+        <published.container.port.production>8787</published.container.port.production>
+
         <openapi-generator-maven-plugin>5.4.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
