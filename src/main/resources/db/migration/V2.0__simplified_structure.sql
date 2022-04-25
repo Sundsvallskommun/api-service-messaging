@@ -41,8 +41,6 @@ ALTER TABLE `messages` MODIFY COLUMN `party_id` varchar(36) NOT NULL;
 ALTER TABLE `messages` MODIFY COLUMN `message_type` varchar(16) DEFAULT NULL;
 ALTER TABLE `messages` ADD COLUMN `content` longtext DEFAULT NULL;
 ALTER TABLE `messages` CHANGE COLUMN `message_status` `status` VARCHAR(32) DEFAULT NULL;
-ALTER TABLE `messages` RENAME COLUMN `message_status` TO `status`;
-ALTER TABLE `messages` MODIFY COLUMN `status` varchar(32) DEFAULT NULL;
 ALTER TABLE `messages` ADD COLUMN `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `messages` DROP COLUMN `email_name`;
 ALTER TABLE `messages` DROP COLUMN `sms_name`;
