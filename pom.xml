@@ -6,6 +6,7 @@
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
         <version>0.16-SNAPSHOT</version>
+        <relativePath />
     </parent>
 
     <groupId>se.sundsvall.messaging</groupId>
