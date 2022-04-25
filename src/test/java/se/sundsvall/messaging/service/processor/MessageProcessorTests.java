@@ -22,7 +22,7 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
-import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackSettingDto;
+import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackChannelDto;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
@@ -41,9 +41,7 @@ class MessageProcessorTests {
     private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
 
     @Mock
-    private FeedbackSettingDto mockFeedbackSetting;
-    @Mock
-    private FeedbackSettingDto.Channel mockFeedbackSettingChannel;
+    private FeedbackChannelDto mockFeedbackChannel;
 
     private MessageProcessor messageProcessor;
 
@@ -93,9 +91,8 @@ class MessageProcessorTests {
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
-            .thenReturn(List.of(mockFeedbackSetting));
-        when(mockFeedbackSetting.getChannels()).thenReturn(List.of(mockFeedbackSettingChannel));
-        when(mockFeedbackSettingChannel.getContactMethod()).thenReturn(null);
+            .thenReturn(List.of(mockFeedbackChannel));
+        when(mockFeedbackChannel.getContactMethod()).thenReturn(null);
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
@@ -115,10 +112,9 @@ class MessageProcessorTests {
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
-                .thenReturn(List.of(mockFeedbackSetting));
-        when(mockFeedbackSetting.getChannels()).thenReturn(List.of(mockFeedbackSettingChannel));
-        when(mockFeedbackSettingChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
-        when(mockFeedbackSettingChannel.isFeedbackWanted()).thenReturn(false);
+            .thenReturn(List.of(mockFeedbackChannel));
+        when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
+        when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(false);
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
@@ -138,10 +134,9 @@ class MessageProcessorTests {
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
-                .thenReturn(List.of(mockFeedbackSetting));
-        when(mockFeedbackSetting.getChannels()).thenReturn(List.of(mockFeedbackSettingChannel));
-        when(mockFeedbackSettingChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
-        when(mockFeedbackSettingChannel.isFeedbackWanted()).thenReturn(true);
+            .thenReturn(List.of(mockFeedbackChannel));
+        when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
+        when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
@@ -162,10 +157,9 @@ class MessageProcessorTests {
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
-                .thenReturn(List.of(mockFeedbackSetting));
-        when(mockFeedbackSetting.getChannels()).thenReturn(List.of(mockFeedbackSettingChannel));
-        when(mockFeedbackSettingChannel.getContactMethod()).thenReturn(ContactMethod.SMS);
-        when(mockFeedbackSettingChannel.isFeedbackWanted()).thenReturn(true);
+                .thenReturn(List.of(mockFeedbackChannel));
+        when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.SMS);
+        when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
