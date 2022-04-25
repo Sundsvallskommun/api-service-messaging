@@ -32,10 +32,10 @@ public class HistoryEntity {
     @Column(name = "message_id")
     private String messageId;
 
-    @Column(name = "batch_id")
+    @Column(name = "batch_id", nullable = false)
     private String batchId;
 
-    @Column(name = "party_id")
+    @Column(name = "party_id", nullable = false)
     private String partyId;
 
     @Enumerated(EnumType.STRING)

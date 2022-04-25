@@ -11,13 +11,16 @@ CREATE TABLE `history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 */
 
+ALTER TABLE `history` DROP PRIMARY KEY;
+ALTER TABLE `history` ADD PRIMARY KEY(`message_id`);
 ALTER TABLE `history` MODIFY COLUMN `message_id` varchar(36) NOT NULL;
-ALTER TABLE `history` MODIFY COLUMN `batch_id` varchar(36) NOT NULL;
-ALTER TABLE `history` MODIFY COLUMN `party_id` varchar(36) NOT NULL;
+ALTER TABLE `history` MODIFY COLUMN `batch_id` varchar(36) DEFAULT NULL;
+ALTER TABLE `history` MODIFY COLUMN `party_id` varchar(36) DEFAULT NULL;
 ALTER TABLE `history` MODIFY COLUMN `message_type` varchar(16) DEFAULT NULL;
 ALTER TABLE `history` ADD COLUMN `content` longtext DEFAULT NULL;
 ALTER TABLE `history` MODIFY COLUMN `status` varchar(32) DEFAULT NULL;
 ALTER TABLE `history` MODIFY COLUMN `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `history` DROP COLUMN `id`;
 ALTER TABLE `history` DROP COLUMN `message`;
 ALTER TABLE `history` DROP COLUMN `party_contact`;
 ALTER TABLE `history` DROP COLUMN `sender`;
@@ -36,8 +39,8 @@ CREATE TABLE `messages` (
 */
 
 ALTER TABLE `messages` MODIFY COLUMN `message_id` varchar(36) NOT NULL;
-ALTER TABLE `messages` MODIFY COLUMN `batch_id` varchar(36) NOT NULL;
-ALTER TABLE `messages` MODIFY COLUMN `party_id` varchar(36) NOT NULL;
+ALTER TABLE `messages` MODIFY COLUMN `batch_id` varchar(36) DEFAULT NULL;
+ALTER TABLE `messages` MODIFY COLUMN `party_id` varchar(36) DEFAULT NULL;
 ALTER TABLE `messages` MODIFY COLUMN `message_type` varchar(16) DEFAULT NULL;
 ALTER TABLE `messages` ADD COLUMN `content` longtext DEFAULT NULL;
 ALTER TABLE `messages` CHANGE COLUMN `message_status` `status` VARCHAR(32) DEFAULT NULL;
