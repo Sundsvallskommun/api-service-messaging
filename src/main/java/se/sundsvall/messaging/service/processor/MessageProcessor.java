@@ -78,17 +78,17 @@ public class MessageProcessor extends Processor {
                         log.info("No feedback wanted for {}. No delivery will be attempted", partyId);
 
                         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.NO_FEEDBACK_WANTED)));
+                        messageRepository.deleteById(message.getMessageId());
                     }
                     default -> {
                         log.warn("Unknown/missing contact method for message {}. Will not be delivered",
                                 message.getMessageId());
 
                         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.FAILED)));
+                        messageRepository.deleteById(message.getMessageId());
                     }
                 }
             }
         }
-
-        messageRepository.deleteById(message.getMessageId());
     }
 }
