@@ -3,6 +3,9 @@ package se.sundsvall.messaging.integration.feedbacksettings;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +20,8 @@ import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
 @Component
 public class FeedbackSettingsIntegration {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FeedbackSettingsIntegration.class);
+
     private final RestTemplate restTemplate;
 
     public FeedbackSettingsIntegration(@Qualifier("integration.feedback-settings.resttemplate") RestTemplate restTemplate) {
@@ -25,13 +30,22 @@ public class FeedbackSettingsIntegration {
 
     public List<FeedbackChannelDto> getSettingsByPartyId(String partyId) {
         var feedbackChannels = searchByPersonId(partyId).stream()
+            // Filter out matches that have organizationId set, to make sure we only process
+            // personal feedback settings at this point
+            .filter(feedbackSetting -> StringUtils.isBlank(feedbackSetting.getOrganizationId()))
             .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
             .toList();
 
         if (feedbackChannels.isEmpty()) {
+            LOG.info("No feedback settings found for personId {}. Checking for matching organizationId", partyId);
+
             feedbackChannels = searchByOrganizationId(partyId).stream()
                 .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
                 .toList();
+        }
+
+        if (feedbackChannels.isEmpty()) {
+            LOG.info("No feedback settings found for organizationId {}", partyId);
         }
 
         return feedbackChannels.stream()
