@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.MessageResponse;
@@ -107,6 +108,32 @@ class MessageResource {
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
+
+    @Operation(summary = "Send a single digital mail")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
+    })
+    @PostMapping("/digitalMail")
+    ResponseEntity<MessageResponse> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
+        var message = messageService.saveDigitalMailRequest(request);
+
+        return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
+    }
+
 
     @Operation(summary = "Send a batch of messages as e-mail or SMS to a list of parties")
     @ApiResponses({

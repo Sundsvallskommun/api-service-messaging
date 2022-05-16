@@ -7,14 +7,14 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:8740
+  - url: http://localhost:8740
 tags:
-- name: Digital Mail
+  - name: Digital Mail
 paths:
   /sendSimpleDigitalMail/:
     post:
       tags:
-      - Digital Mail
+        - Digital Mail
       operationId: sendSimpleDigitalMail
       requestBody:
         content:
@@ -23,8 +23,8 @@ paths:
               $ref: '#/components/schemas/SimpleDigitalMailRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -41,8 +41,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleDigitalMailResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -50,16 +50,16 @@ paths:
   /sendSecureDigitalMail/{partyId}:
     post:
       tags:
-      - Digital Mail
+        - Digital Mail
       operationId: sendSecureDigitalMail
       parameters:
-      - name: partyId
-        in: path
-        required: true
-        schema:
-          type: string
-          description: partyId for a person or organization
-          example: 6a5c3d04-412d-11ec-973a-0242ac130003
+        - name: partyId
+          in: path
+          required: true
+          schema:
+            type: string
+            description: partyId for a person or organization
+            example: 6a5c3d04-412d-11ec-973a-0242ac130003
       requestBody:
         content:
           application/json:
@@ -67,18 +67,6 @@ paths:
               $ref: '#/components/schemas/SecureDigitalMailRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -91,10 +79,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -111,18 +111,18 @@ components:
   schemas:
     BodyInformation:
       required:
-      - body
-      - contentType
+        - body
+        - contentType
       type: object
       properties:
         contentType:
           type: string
           description: "The content type for the message, text/plain for only text,\
             \ text/html for html messages."
-          example: TEXT_PLAIN
+          example: TEXT_HTML
           enum:
-          - text/plain
-          - text/html
+            - text/plain
+            - text/html
         body:
           type: string
           description: "Base64 encoded representation of the message, must be UTF-8\
@@ -131,7 +131,7 @@ components:
       description: "The body of the message, base64 encoded"
     EmailNotification:
       required:
-      - from
+        - from
       type: object
       properties:
         from:
@@ -159,11 +159,11 @@ components:
       description: Setting for notifying the recipient via via sms and/or email.
     SimpleDigitalMailRequest:
       required:
-      - bodyInformation
-      - headerSubject
-      - municipalityId
-      - partyIds
-      - supportInfo
+        - bodyInformation
+        - headerSubject
+        - municipalityId
+        - partyIds
+        - supportInfo
       type: object
       properties:
         municipalityId:
@@ -174,7 +174,7 @@ components:
           type: array
           description: Recipients of the digital mail
           example:
-          - 6a5c3d04-412d-11ec-973a-0242ac130003
+            - 6a5c3d04-412d-11ec-973a-0242ac130003
           items:
             type: string
             description: Recipients of the digital mail
@@ -208,7 +208,7 @@ components:
       description: Sms notification details
     SupportInfo:
       required:
-      - supportText
+        - supportText
       type: object
       properties:
         supportText:
@@ -245,11 +245,11 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
+        title:
           type: string
         status:
           $ref: '#/components/schemas/StatusType'
-        title:
+        detail:
           type: string
     StatusType:
       type: object
@@ -277,23 +277,17 @@ components:
             $ref: '#/components/schemas/DeliveryStatus'
     Attachment:
       required:
-      - body
-      - contentType
-      - filename
+        - body
+        - contentType
+        - filename
       type: object
       properties:
         contentType:
           type: string
-          description: "Contenttype from IANA MIME media types. Allowed types are:\
-            \ application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document,\
-            \ application/vnd.openxmlformats-officedocument.wordprocessingml-template,\
-            \ text/calendar"
+          description: "Allowed type is: application/pdf"
+          example: APPLICATION_PDF
           enum:
-          - application/pdf
-          - application/msword
-          - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-          - application/vnd.openxmlformats-officedocument.wordprocessingml-template
-          - text/calendar
+            - application/pdf
         body:
           type: string
           description: Base64-encoded body
@@ -303,10 +297,10 @@ components:
       description: "An attachment, e.g. pdf, docx etc."
     SecureDigitalMailRequest:
       required:
-      - bodyInformation
-      - headerSubject
-      - municipalityId
-      - supportInfo
+        - bodyInformation
+        - headerSubject
+        - municipalityId
+        - supportInfo
       type: object
       properties:
         municipalityId:

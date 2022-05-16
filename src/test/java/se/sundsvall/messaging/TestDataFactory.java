@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
+import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.Party;
@@ -104,6 +106,42 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withMessage("someMessage")
+            .build();
+
+        if (modifier != null) {
+            modifier.accept(request);
+        }
+
+        return request;
+    }
+
+    public static DigitalMailRequest createDigitalMailRequest() {
+        return createDigitalMailRequest(null);
+    }
+
+    public static DigitalMailRequest createDigitalMailRequest(final Consumer<DigitalMailRequest> modifier) {
+        var request = DigitalMailRequest.builder()
+            .withParty(Party.builder()
+                .withPartyId("somePartyId")
+                .withExternalReferences(List.of(ExternalReference.builder()
+                    .withKey("someKey")
+                    .withValue("someValue")
+                    .build()))
+                .build())
+            .withHeaders(List.of(Header.builder()
+                .withName("someName")
+                .withValues(List.of("someValue1", "someValue2"))
+                .build()))
+            .withSubject("someSubject")
+            .withContentType(ContentType.TEXT_PLAIN.getValue())
+            .withBody("someBody")
+            .withAttachments(List.of(
+                DigitalMailRequest.Attachment.builder()
+                    .withContentType(ContentType.APPLICATION_PDF.getValue())
+                    .withContent("someContent")
+                    .withFilename("someFilename")
+                    .build()
+            ))
             .build();
 
         if (modifier != null) {

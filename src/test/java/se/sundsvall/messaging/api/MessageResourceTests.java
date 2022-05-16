@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -82,6 +83,23 @@ class MessageResourceTests {
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
         verify(mockMessageService, times(1)).saveWebMessageRequest(any(WebMessageRequest.class));
+    }
+
+    @Test
+    void test_sendDigitalMail() {
+        when(mockMessageService.saveDigitalMailRequest(any(DigitalMailRequest.class)))
+            .thenReturn(MessageDto.builder()
+                .withMessageId("someMessageId")
+                .build());
+
+        var response = messageResource.sendDigitalMail(
+            DigitalMailRequest.builder().build());
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+
+        verify(mockMessageService, times(1)).saveDigitalMailRequest(any(DigitalMailRequest.class));
     }
 
     @Test

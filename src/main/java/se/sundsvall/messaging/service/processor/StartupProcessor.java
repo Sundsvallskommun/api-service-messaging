@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
@@ -35,6 +36,7 @@ class StartupProcessor implements CommandLineRunner {
                 case SMS -> new IncomingSmsEvent(this, message.getMessageId());
                 case MESSAGE -> new IncomingMessageEvent(this, message.getMessageId());
                 case WEB_MESSAGE -> new IncomingWebMessageEvent(this, message.getMessageId());
+                case DIGITAL_MAIL -> new IncomingDigitalMailEvent(this, message.getMessageId());
             })
             .forEach(eventPublisher::publishEvent);
     }

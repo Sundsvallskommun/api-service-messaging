@@ -241,6 +241,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/se/sundsvall/messaging/Application*</exclude>
+                        <exclude>**/se/sundsvall/messaging/api/model/validation/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>

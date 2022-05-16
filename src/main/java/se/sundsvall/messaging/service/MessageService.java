@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -12,6 +13,7 @@ import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
@@ -70,6 +72,14 @@ public class MessageService {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingWebMessageEvent(this, message.getMessageId()));
+
+        return mapper.toMessageDto(message);
+    }
+
+    public MessageDto saveDigitalMailRequest(final DigitalMailRequest request) {
+        var message = repository.save(mapper.toEntity(request));
+
+        eventPublisher.publishEvent(new IncomingDigitalMailEvent(this, message.getMessageId()));
 
         return mapper.toMessageDto(message);
     }
