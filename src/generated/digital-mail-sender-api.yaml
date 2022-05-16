@@ -1,0 +1,333 @@
+openapi: 3.0.1
+info:
+  title: api-digitalmailsender
+  contact: {}
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "1.0"
+servers:
+- url: http://localhost:8740
+tags:
+- name: Digital Mail
+paths:
+  /sendSimpleDigitalMail/:
+    post:
+      tags:
+      - Digital Mail
+      operationId: sendSimpleDigitalMail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimpleDigitalMailRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleDigitalMailResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /sendSecureDigitalMail/{partyId}:
+    post:
+      tags:
+      - Digital Mail
+      operationId: sendSecureDigitalMail
+      parameters:
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+          description: partyId for a person or organization
+          example: 6a5c3d04-412d-11ec-973a-0242ac130003
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureDigitalMailRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureDigitalMailResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api-docs:
+    get:
+      tags:
+      - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    BodyInformation:
+      required:
+      - body
+      - contentType
+      type: object
+      properties:
+        contentType:
+          type: string
+          description: "The content type for the message, text/plain for only text,\
+            \ text/html for html messages."
+          example: TEXT_PLAIN
+          enum:
+          - text/plain
+          - text/html
+        body:
+          type: string
+          description: "Base64 encoded representation of the message, must be UTF-8\
+            \ encoded."
+          example: PG5hdj4KICA8dWw+Cgk8bGk+PGEgaHJlZj0iaHR0cDovL2dvb2dsZS5jb20iIHRpdGxlPSJMb3J1bSBpcHN1bSBkb2xvciBzaXQgYW1ldCI+TG9yZW08L2E+PC9saT4KCTxsaT48YSBocmVmPSIjbm93aGVyZSIgdGl0bGU9IkFsaXF1YW0gdGluY2lkdW50IG1hdXJpcyBldSByaXN1cyI+QWxpcXVhbTwvYT48L2xpPgoJPGxpPjxhIGhyZWY9IiNub3doZXJlIiB0aXRsZT0iTW9yYmkgaW4gc2VtIHF1aXMgZHVpIHBsYWNlcmF0IG9ybmFyZSI+TW9yYmk8L2E+PC9saT4KCTxsaT48YSBocmVmPSIjbm93aGVyZSIgdGl0bGU9IlByYWVzZW50IGRhcGlidXMsIG5lcXVlIGlkIGN1cnN1cyBmYXVjaWJ1cyI+UHJhZXNlbnQ8L2E+PC9saT4KCTxsaT48YSBocmVmPSIjbm93aGVyZSIgdGl0bGU9IlBlbGxlbnRlc3F1ZSBmZXJtZW50dW0gZG9sb3IiPlBlbGxlbnRlc3F1ZTwvYT48L2xpPgogIDwvdWw+CjwvbmF2Pg==
+      description: "The body of the message, base64 encoded"
+    EmailNotification:
+      required:
+      - from
+      type: object
+      properties:
+        from:
+          type: string
+          description: Who the digital mail is from
+          example: someone@sundsvall.se
+        subject:
+          maxLength: 254
+          minLength: 0
+          type: string
+          description: Title for notification email
+          example: Du har ett nytt meddelande i Kivra
+        text:
+          type: string
+          description: Notification message in the email
+          example: Du har ett nytt meddelande i Kivra
+      description: Email notification details
+    Notification:
+      type: object
+      properties:
+        emailNotification:
+          $ref: '#/components/schemas/EmailNotification'
+        smsNotification:
+          $ref: '#/components/schemas/SmsNotification'
+      description: Setting for notifying the recipient via via sms and/or email.
+    SimpleDigitalMailRequest:
+      required:
+      - bodyInformation
+      - headerSubject
+      - municipalityId
+      - partyIds
+      - supportInfo
+      type: object
+      properties:
+        municipalityId:
+          type: string
+          description: MunicipalityId
+          example: "2281"
+        partyIds:
+          type: array
+          description: Recipients of the digital mail
+          example:
+          - 6a5c3d04-412d-11ec-973a-0242ac130003
+          items:
+            type: string
+            description: Recipients of the digital mail
+            example: "[\"6a5c3d04-412d-11ec-973a-0242ac130003\"]"
+        headerSubject:
+          type: string
+          description: The subject of the digital mail.
+          example: Viktig information från Sundsvalls kommun
+        supportInfo:
+          $ref: '#/components/schemas/SupportInfo'
+        bodyInformation:
+          $ref: '#/components/schemas/BodyInformation'
+        notification:
+          $ref: '#/components/schemas/Notification'
+      description: Digital mail request
+    SmsNotification:
+      type: object
+      properties:
+        from:
+          maxLength: 11
+          minLength: 0
+          type: string
+          description: Number for notification
+          example: "46701234567"
+        text:
+          maxLength: 160
+          minLength: 0
+          type: string
+          description: Notification message in the sms
+          example: Du har ett nytt meddelande i Kivra
+      description: Sms notification details
+    SupportInfo:
+      required:
+      - supportText
+      type: object
+      properties:
+        supportText:
+          type: string
+          description: Information text describing the different ways the recipient
+            may contact the sender.
+          example: Kontakta oss via epost eller telefon.
+        contactInformationUrl:
+          type: string
+          description: Url where the recipient may find more information.
+          example: https://sundsvall.se/
+        contactInformationPhoneNumber:
+          type: string
+          description: Phone number the recipient may call to get in contact with
+            the sender.
+          example: "46701234567"
+        contactInformationEmail:
+          type: string
+          description: Email address the recipient may use to get in contact with
+            the sender.
+          example: someone@sundsvall.se
+      description: Contains contact information and where the recipient may turn to
+        for questions.
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        detail:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        reasonPhrase:
+          type: string
+        statusCode:
+          type: integer
+          format: int32
+    DeliveryStatus:
+      type: object
+      properties:
+        delivered:
+          type: boolean
+        partyId:
+          type: string
+        transactionId:
+          type: string
+    SimpleDigitalMailResponse:
+      type: object
+      properties:
+        deliveryStatuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryStatus'
+    Attachment:
+      required:
+      - body
+      - contentType
+      - filename
+      type: object
+      properties:
+        contentType:
+          type: string
+          description: "Contenttype from IANA MIME media types. Allowed types are:\
+            \ application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document,\
+            \ application/vnd.openxmlformats-officedocument.wordprocessingml-template,\
+            \ text/calendar"
+          enum:
+          - application/pdf
+          - application/msword
+          - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          - application/vnd.openxmlformats-officedocument.wordprocessingml-template
+          - text/calendar
+        body:
+          type: string
+          description: Base64-encoded body
+        filename:
+          type: string
+          description: The name of the file
+      description: "An attachment, e.g. pdf, docx etc."
+    SecureDigitalMailRequest:
+      required:
+      - bodyInformation
+      - headerSubject
+      - municipalityId
+      - supportInfo
+      type: object
+      properties:
+        municipalityId:
+          type: string
+          description: MunicipalityId
+          example: "2281"
+        headerSubject:
+          type: string
+          description: The subject of the digital mail.
+          example: Viktig information från Sundsvalls kommun
+        supportInfo:
+          $ref: '#/components/schemas/SupportInfo'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        bodyInformation:
+          $ref: '#/components/schemas/BodyInformation'
+    SecureDigitalMailResponse:
+      type: object
+      properties:
+        deliveryStatus:
+          $ref: '#/components/schemas/DeliveryStatus'
+  securitySchemes: {}
