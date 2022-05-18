@@ -29,17 +29,17 @@ public class LocalDateQuery<ENTITY, METAMODEL> extends Query<LocalDate, ENTITY, 
 
     public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> equalTo(
             final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
-        return new LocalDateQuery(attribute, value, Mode.EQUAL_TO);
+        return new LocalDateQuery<>(attribute, value, Mode.EQUAL_TO);
     }
 
     public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> gte(
             final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
-        return new LocalDateQuery(attribute, value, Mode.GREATER_THAN_OR_EQUAL);
+        return new LocalDateQuery<>(attribute, value, Mode.GREATER_THAN_OR_EQUAL);
     }
 
     public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> gt(
             final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
-        return new LocalDateQuery(attribute, value, Mode.GREATER_THAN);
+        return new LocalDateQuery<>(attribute, value, Mode.GREATER_THAN);
     }
 
     @Override

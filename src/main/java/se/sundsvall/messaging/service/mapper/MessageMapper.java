@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -66,6 +67,20 @@ public class MessageMapper {
                 .map(Party::getPartyId)
                 .orElse(null))
             .withType(MessageType.WEB_MESSAGE)
+            .withStatus(MessageStatus.PENDING)
+            .withContent(GSON.toJson(request))
+            .build();
+    }
+
+    public MessageEntity toEntity(final DigitalMailRequest request) {
+        var uuid = UUID.randomUUID().toString();
+
+        return MessageEntity.builder()
+            .withMessageId(uuid)
+            .withPartyId(Optional.ofNullable(request.getParty())
+                .map(Party::getPartyId)
+                .orElse(null))
+            .withType(MessageType.DIGITAL_MAIL)
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(request))
             .build();

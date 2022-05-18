@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.createDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createMessageRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
@@ -20,12 +21,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
@@ -126,5 +129,23 @@ class MessageServiceTests {
         verify(mockMapper, times(1)).toEntity(any(WebMessageRequest.class));
         verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingWebMessageEvent.class));
+    }
+
+    @Test
+    void test_saveDigitalMailRequest() {
+        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+            .withMessageId("someMessageId")
+            .build());
+
+        var request = createDigitalMailRequest();
+
+        var dto = messageService.saveDigitalMailRequest(request);
+
+        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
+
+        verify(mockRepository, times(1)).save(any(MessageEntity.class));
+        verify(mockMapper, times(1)).toEntity(any(DigitalMailRequest.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingDigitalMailEvent.class));
     }
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>0.16-SNAPSHOT</version>
+        <version>1.2</version>
         <relativePath />
     </parent>
 
@@ -187,6 +187,31 @@
                             </configOptions>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>digital-mail-sender-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/generated/digital-mail-sender-api.yaml</inputSpec>
+                            <output>${generated-sources-path}</output>
+                            <generatorName>spring</generatorName>
+                            <generateApis>false</generateApis>
+                            <configOptions>
+                                <sourceFolder>${generated-sources-java-path}</sourceFolder>
+                                <generateSupportingFiles>false</generateSupportingFiles>
+                                <dateLibrary>java8</dateLibrary>
+                                <apiPackage>generated</apiPackage>
+                                <modelPackage>generated.se.sundsvall.digitalmailsender</modelPackage>
+                                <openApiNullable>false</openApiNullable>
+                                <generatePom>false</generatePom>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useSwaggerAnnotations>true</useSwaggerAnnotations>
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -216,6 +241,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/se/sundsvall/messaging/Application*</exclude>
+                        <exclude>**/se/sundsvall/messaging/api/model/validation/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>

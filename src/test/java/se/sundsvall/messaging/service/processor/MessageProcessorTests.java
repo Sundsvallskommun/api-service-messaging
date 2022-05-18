@@ -78,7 +78,6 @@ class MessageProcessorTests {
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
@@ -143,7 +142,6 @@ class MessageProcessorTests {
         verify(mockMessageRepository, times(1)).findById(any(String.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingEmailEvent.class));
     }
@@ -166,7 +164,6 @@ class MessageProcessorTests {
         verify(mockMessageRepository, times(1)).findById(any(String.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSmsEvent.class));
     }

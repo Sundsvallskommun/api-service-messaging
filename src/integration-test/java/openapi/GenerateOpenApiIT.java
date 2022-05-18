@@ -1,3 +1,5 @@
+package openapi;
+
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
