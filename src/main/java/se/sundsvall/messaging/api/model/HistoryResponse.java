@@ -2,6 +2,8 @@ package se.sundsvall.messaging.api.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
@@ -11,7 +13,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder(setterPrefix = "with")
+@Builder(setterPrefix = "with", builderClassName = "Builder")
+@JsonDeserialize(builder = HistoryResponse.Builder.class)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HistoryResponse {
 

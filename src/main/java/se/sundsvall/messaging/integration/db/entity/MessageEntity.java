@@ -33,10 +33,10 @@ public class MessageEntity {
     @Column(name = "message_id")
     private String messageId;
 
-    @Column(name = "batch_id", nullable = false)
+    @Column(name = "batch_id")
     private String batchId;
 
-    @Column(name = "party_id", nullable = false)
+    @Column(name = "party_id")
     private String partyId;
 
     @With

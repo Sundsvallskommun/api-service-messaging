@@ -140,6 +140,8 @@ class StatusAndHistoryResource {
                 .build())
             .toList();
 
-        return ResponseEntity.ok(new BatchStatusResponse(messageStatuses));
+        return ResponseEntity.ok(BatchStatusResponse.builder()
+            .withMessageStatuses(messageStatuses)
+            .build());
     }
 }
