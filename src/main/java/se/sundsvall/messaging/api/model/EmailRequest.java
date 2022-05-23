@@ -3,6 +3,7 @@ package se.sundsvall.messaging.api.model;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import se.sundsvall.messaging.model.Sender;
@@ -24,6 +25,7 @@ import lombok.experimental.SuperBuilder;
 public class EmailRequest extends Request {
 
     @Schema(description = "Recipient e-mail address", example = "recipient@recipient.se" )
+    @Email
     @NotBlank
     private String emailAddress;
 

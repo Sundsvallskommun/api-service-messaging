@@ -1,6 +1,8 @@
 package se.sundsvall.messaging.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.DEFAULT_MOBILE_NUMBER;
+import static se.sundsvall.messaging.TestDataFactory.DEFAULT_PARTY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +14,7 @@ class SmsRequestTests {
         var request = createSmsRequest();
 
         assertThat(request.getParty()).satisfies(party -> {
-            assertThat(party.getPartyId()).isEqualTo("somePartyId");
+            assertThat(party.getPartyId()).isEqualTo(DEFAULT_PARTY_ID);
             assertThat(party.getExternalReferences()).hasSize(1).allSatisfy(externalReference -> {
                 assertThat(externalReference.getKey()).isEqualTo("someKey");
                 assertThat(externalReference.getValue()).isEqualTo("someValue");
@@ -25,7 +27,7 @@ class SmsRequestTests {
             })
         );
         assertThat(request.getSender().getName()).isEqualTo("someSender");
-        assertThat(request.getMobileNumber()).isEqualTo("someMobileNumber");
+        assertThat(request.getMobileNumber()).isEqualTo(DEFAULT_MOBILE_NUMBER);
         assertThat(request.getMessage()).isEqualTo("someMessage");
     }
 }

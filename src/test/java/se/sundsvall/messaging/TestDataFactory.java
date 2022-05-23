@@ -17,6 +17,15 @@ import se.sundsvall.messaging.model.Sender;
 
 public final class TestDataFactory {
 
+    public static final String DEFAULT_PARTY_ID = UUID.randomUUID().toString();
+
+    public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
+
+    public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
+
+    public static final String DEFAULT_SENDER_NAME = "someSender";
+    public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
+    
     private TestDataFactory() { }
 
     public static EmailRequest createEmailRequest() {
@@ -26,7 +35,7 @@ public final class TestDataFactory {
     public static EmailRequest createEmailRequest(final Consumer<EmailRequest> modifier) {
         var request = EmailRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -37,10 +46,11 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Email.builder()
-                .withName("someSender")
-                .withAddress("someAddress")
+                .withName(DEFAULT_SENDER_NAME)
+                .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
                 .build())
-            .withEmailAddress("someEmailAddress")
+            .withEmailAddress(DEFAULT_EMAIL_ADDRESS)
+            .withSubject("someSubject")
             .withMessage("someMessage")
             .withHtmlMessage("someHtmlMessage")
             .withAttachments(List.of(EmailRequest.Attachment.builder()
@@ -64,7 +74,7 @@ public final class TestDataFactory {
     public static SmsRequest createSmsRequest(final Consumer<SmsRequest> modifier) {
         var request = SmsRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -75,9 +85,9 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Sms.builder()
-                .withName("someSender")
+                .withName(DEFAULT_SENDER_NAME)
                 .build())
-            .withMobileNumber("someMobileNumber")
+            .withMobileNumber(DEFAULT_MOBILE_NUMBER)
             .withMessage("someMessage")
             .build();
 
@@ -95,7 +105,7 @@ public final class TestDataFactory {
     public static WebMessageRequest createWebMessageRequest(final Consumer<WebMessageRequest> modifier) {
         var request = WebMessageRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -122,7 +132,7 @@ public final class TestDataFactory {
     public static DigitalMailRequest createDigitalMailRequest(final Consumer<DigitalMailRequest> modifier) {
         var request = DigitalMailRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -158,7 +168,7 @@ public final class TestDataFactory {
     public static MessageRequest.Message createMessageRequest(final Consumer<MessageRequest.Message> modifier) {
         var request = MessageRequest.Message.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")

@@ -9,7 +9,7 @@ import se.sundsvall.messaging.dto.DigitalMailDto;
 
 import generated.se.sundsvall.digitalmailsender.Attachment;
 import generated.se.sundsvall.digitalmailsender.BodyInformation;
-import generated.se.sundsvall.digitalmailsender.SecureDigitalMailRequest;
+import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.SupportInfo;
 
 @Component
@@ -21,12 +21,12 @@ class DigitalMailSenderIntegrationMapper {
         this.properties = properties;
     }
 
-    SecureDigitalMailRequest toDigitalMailRequest(final DigitalMailDto dto) {
+    DigitalMailRequest toDigitalMailRequest(final DigitalMailDto dto) {
         if (dto == null) {
             return null;
         }
 
-        return new SecureDigitalMailRequest()
+        return new DigitalMailRequest()
             .municipalityId(properties.getDefaults().getMunicipalityId())
             .headerSubject(Optional.ofNullable(dto.getSubject()).orElse(properties.getDefaults().getSubject()))
             .supportInfo(new SupportInfo()
@@ -35,11 +35,11 @@ class DigitalMailSenderIntegrationMapper {
                 .contactInformationPhoneNumber(properties.getDefaults().getSupportInfo().getPhoneNumber())
                 .contactInformationUrl(properties.getDefaults().getSupportInfo().getUrl()))
             .bodyInformation(new BodyInformation()
-                .contentType(BodyInformation.ContentTypeEnum.fromValue(dto.getContentType().getValue()))
+                .contentType(dto.getContentType().getValue())
                 .body(dto.getBody()))
             .attachments(Optional.ofNullable(dto.getAttachments()).orElse(List.of()).stream()
                 .map(attachment -> new Attachment()
-                    .contentType(Attachment.ContentTypeEnum.fromValue(attachment.getContentType().getValue()))
+                    .contentType(attachment.getContentType().getValue())
                     .body(attachment.getContent())
                     .filename(attachment.getFilename()))
                 .toList());

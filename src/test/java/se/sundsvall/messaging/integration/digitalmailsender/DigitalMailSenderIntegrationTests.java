@@ -26,7 +26,7 @@ import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
-import generated.se.sundsvall.digitalmailsender.SecureDigitalMailResponse;
+import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTests {
@@ -37,7 +37,7 @@ class DigitalMailSenderIntegrationTests {
     private RestTemplate mockRestTemplate;
 
     @Mock
-    private ResponseEntity<SecureDigitalMailResponse> mockResponseEntity;
+    private ResponseEntity<DigitalMailResponse> mockResponseEntity;
 
     private DigitalMailSenderIntegration integration;
 
@@ -48,10 +48,10 @@ class DigitalMailSenderIntegrationTests {
 
     @Test
     void test_sendDigitalMail() {
-        when(mockResponseEntity.getBody()).thenReturn(new SecureDigitalMailResponse()
+        when(mockResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
             .deliveryStatus(new DeliveryStatus().delivered(true)));
         when(mockResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
-        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap()))
+        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap()))
             .thenReturn(mockResponseEntity);
 
         var response = integration.sendDigitalMail(createDigitalMailDto());
@@ -60,12 +60,12 @@ class DigitalMailSenderIntegrationTests {
         assertThat(response.getBody().booleanValue()).isTrue();
 
         verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap());
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap());
     }
 
     @Test
     void test_sendDigitalMail_whenHttpStatusCodeExceptionIsThrownByRestTemplate() {
-        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap()))
+        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap()))
             .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         assertThatExceptionOfType(ThrowableProblem.class)
@@ -78,12 +78,12 @@ class DigitalMailSenderIntegrationTests {
             });
 
         verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap());
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap());
     }
 
     @Test
     void test_sendDigitalMail_whenRestClientExceptionIsThrownByRestTemplate() {
-        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap()))
+        when(mockRestTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap()))
             .thenThrow(new RestClientException("Unknown problem"));
 
         assertThatExceptionOfType(ThrowableProblem.class)
@@ -94,7 +94,7 @@ class DigitalMailSenderIntegrationTests {
             });
 
         verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(SecureDigitalMailResponse.class), anyMap());
+        verify(mockRestTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(DigitalMailResponse.class), anyMap());
     }
 
     private DigitalMailDto createDigitalMailDto() {

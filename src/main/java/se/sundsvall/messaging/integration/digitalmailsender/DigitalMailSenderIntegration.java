@@ -16,7 +16,7 @@ import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.integration.AbstractRestIntegration;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
-import generated.se.sundsvall.digitalmailsender.SecureDigitalMailResponse;
+import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
 @Component
 public class DigitalMailSenderIntegration extends AbstractRestIntegration {
@@ -36,11 +36,11 @@ public class DigitalMailSenderIntegration extends AbstractRestIntegration {
         try {
             var response = restTemplate.postForEntity(
                 "/sendSecureDigitalMail/{partyId}", createRequestEntity(request),
-                SecureDigitalMailResponse.class, Map.of("partyId", digitalMailDto.getPartyId()));
+                DigitalMailResponse.class, Map.of("partyId", digitalMailDto.getPartyId()));
 
             return ResponseEntity.status(response.getStatusCode())
                 .body(Optional.ofNullable(response.getBody())
-                    .map(SecureDigitalMailResponse::getDeliveryStatus)
+                    .map(DigitalMailResponse::getDeliveryStatus)
                     .map(DeliveryStatus::getDelivered)
                     .orElse(false));
         } catch (HttpStatusCodeException e) {
