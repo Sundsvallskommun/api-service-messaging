@@ -38,7 +38,7 @@ class MessageResourceTests {
 
     @Test
     void test_sendSms() {
-        when(mockMessageService.saveSmsRequest(any(SmsRequest.class)))
+        when(mockMessageService.handleSmsRequest(any(SmsRequest.class)))
             .thenReturn(MessageDto.builder()
                 .withMessageId("someMessageId")
                 .build());
@@ -49,12 +49,12 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
-        verify(mockMessageService, times(1)).saveSmsRequest(any(SmsRequest.class));
+        verify(mockMessageService, times(1)).handleSmsRequest(any(SmsRequest.class));
     }
 
     @Test
     void test_sendEmail() {
-        when(mockMessageService.saveEmailRequest(any(EmailRequest.class)))
+        when(mockMessageService.handleEmailRequest(any(EmailRequest.class)))
             .thenReturn(MessageDto.builder()
                 .withMessageId("someMessageId")
                 .build());
@@ -65,12 +65,12 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
-        verify(mockMessageService, times(1)).saveEmailRequest(any(EmailRequest.class));
+        verify(mockMessageService, times(1)).handleEmailRequest(any(EmailRequest.class));
     }
 
     @Test
     void test_sendWebMessage() {
-        when(mockMessageService.saveWebMessageRequest(any(WebMessageRequest.class)))
+        when(mockMessageService.handleWebMessageRequest(any(WebMessageRequest.class)))
             .thenReturn(MessageDto.builder()
                 .withMessageId("someMessageId")
                 .build());
@@ -82,12 +82,12 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
-        verify(mockMessageService, times(1)).saveWebMessageRequest(any(WebMessageRequest.class));
+        verify(mockMessageService, times(1)).handleWebMessageRequest(any(WebMessageRequest.class));
     }
 
     @Test
     void test_sendDigitalMail() {
-        when(mockMessageService.saveDigitalMailRequest(any(DigitalMailRequest.class)))
+        when(mockMessageService.handleDigitalMailRequest(any(DigitalMailRequest.class)))
             .thenReturn(MessageDto.builder()
                 .withMessageId("someMessageId")
                 .build());
@@ -99,12 +99,12 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
-        verify(mockMessageService, times(1)).saveDigitalMailRequest(any(DigitalMailRequest.class));
+        verify(mockMessageService, times(1)).handleDigitalMailRequest(any(DigitalMailRequest.class));
     }
 
     @Test
     void test_sendMessage() {
-        when(mockMessageService.saveMessageRequest(any(MessageRequest.class)))
+        when(mockMessageService.handleMessageRequest(any(MessageRequest.class)))
             .thenReturn(MessageBatchDto.builder()
                 .withBatchId("someBatchId")
                 .withMessageIds(List.of("someMessageId"))
@@ -118,6 +118,6 @@ class MessageResourceTests {
         assertThat(response.getBody().getBatchId()).isEqualTo("someBatchId");
         assertThat(response.getBody().getMessageIds()).containsExactly("someMessageId");
 
-        verify(mockMessageService, times(1)).saveMessageRequest(any(MessageRequest.class));
+        verify(mockMessageService, times(1)).handleMessageRequest(any(MessageRequest.class));
     }
 }

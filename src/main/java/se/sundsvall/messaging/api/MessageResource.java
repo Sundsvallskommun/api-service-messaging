@@ -54,7 +54,7 @@ class MessageResource {
     })
     @PostMapping("/sms")
     ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final SmsRequest request) {
-        var message = messageService.saveSmsRequest(request);
+        var message = messageService.handleSmsRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -79,7 +79,7 @@ class MessageResource {
     })
     @PostMapping("/webmessage")
     ResponseEntity<MessageResponse> sendWebMessage(@Valid @RequestBody final WebMessageRequest request) {
-        var message = messageService.saveWebMessageRequest(request);
+        var message = messageService.handleWebMessageRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -104,7 +104,7 @@ class MessageResource {
     })
     @PostMapping("/email")
     ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final EmailRequest request) {
-        var message = messageService.saveEmailRequest(request);
+        var message = messageService.handleEmailRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -127,9 +127,9 @@ class MessageResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @PostMapping("/digitalMail")
+    @PostMapping("/digitalmail")
     ResponseEntity<MessageResponse> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
-        var message = messageService.saveDigitalMailRequest(request);
+        var message = messageService.handleDigitalMailRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -155,7 +155,7 @@ class MessageResource {
     })
     @PostMapping("/messages")
     ResponseEntity<MessagesResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
-        var messages = messageService.saveMessageRequest(request);
+        var messages = messageService.handleMessageRequest(request);
 
         return ResponseEntity.ok(MessagesResponse.builder()
             .withBatchId(messages.getBatchId())

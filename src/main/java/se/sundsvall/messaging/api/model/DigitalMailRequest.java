@@ -5,7 +5,9 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.validation.In;
+import se.sundsvall.messaging.model.ExternalReference;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -38,6 +40,21 @@ public class DigitalMailRequest extends Request {
     @Valid
     @Schema(description = "Attachments")
     private List<Attachment> attachments;
+
+    @Getter
+    @Setter
+    @Builder(setterPrefix = "with")
+    @NoArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Schema(name = "DigitalMailParty")
+    public static class Party {
+
+        @Schema(description = "The message party ID:s", example = "[f427952b-247c-4d3b-b081-675a467b3619]")
+        private List<@ValidUuid String> partyIds;
+
+        @Schema(description = "External references")
+        private List<@Valid ExternalReference> externalReferences;
+    }
 
     @Getter
     @Setter

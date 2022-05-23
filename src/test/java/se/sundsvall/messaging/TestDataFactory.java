@@ -19,7 +19,7 @@ public final class TestDataFactory {
 
     public static final String DEFAULT_PARTY_ID = UUID.randomUUID().toString();
 
-    public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
+    public static final String DEFAULT_MOBILE_NUMBER = "0701234567";
 
     public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
 

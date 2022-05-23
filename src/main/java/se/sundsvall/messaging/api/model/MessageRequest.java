@@ -25,8 +25,7 @@ import lombok.experimental.SuperBuilder;
 public class MessageRequest {
 
     @Schema(description = "The messages to be sent")
-    @Valid
-    private List<Message> messages;
+    private List<@Valid Message> messages;
 
     @Getter
     @Setter
@@ -44,7 +43,7 @@ public class MessageRequest {
         private String subject;
 
         @NotBlank
-        @Schema(description = "The message text")
+        @Schema(description = "The message text", required = true)
         private String message;
     }
 }

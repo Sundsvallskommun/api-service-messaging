@@ -53,7 +53,7 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_saveMessageRequest() {
+    void test_handleMessageRequest() {
         when(mockRepository.save(any(MessageEntity.class)))
             .thenReturn(MessageEntity.builder()
                 .withMessageId("someMessageId1")
@@ -66,7 +66,7 @@ class MessageServiceTests {
             .withMessages(List.of(createMessageRequest(), createMessageRequest()))
             .build();
 
-        var dto = messageService.saveMessageRequest(request);
+        var dto = messageService.handleMessageRequest(request);
 
         assertThat(dto.getBatchId()).isNotNull();
         assertThat(dto.getMessageIds()).hasSize(2);
@@ -78,14 +78,14 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_saveEmailRequest() {
+    void test_handleEmailRequest() {
         when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
             .withMessageId("someMessageId")
             .build());
 
         var request = createEmailRequest();
 
-        var dto = messageService.saveEmailRequest(request);
+        var dto = messageService.handleEmailRequest(request);
 
         assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 
@@ -96,14 +96,14 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_saveSmsRequest() {
+    void test_handleSmsRequest() {
         when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
             .withMessageId("someMessageId")
             .build());
 
         var request = createSmsRequest();
 
-        var dto = messageService.saveSmsRequest(request);
+        var dto = messageService.handleSmsRequest(request);
 
         assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 
@@ -114,14 +114,14 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_saveWebMessageRequest() {
+    void test_handleWebMessageRequest() {
         when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
             .withMessageId("someMessageId")
             .build());
 
         var request = createWebMessageRequest();
 
-        var dto = messageService.saveWebMessageRequest(request);
+        var dto = messageService.handleWebMessageRequest(request);
 
         assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 
@@ -132,14 +132,14 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_saveDigitalMailRequest() {
+    void test_handleDigitalMailRequest() {
         when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
             .withMessageId("someMessageId")
             .build());
 
         var request = createDigitalMailRequest();
 
-        var dto = messageService.saveDigitalMailRequest(request);
+        var dto = messageService.handleDigitalMailRequest(request);
 
         assertThat(dto.getMessageId()).isEqualTo("someMessageId");
 

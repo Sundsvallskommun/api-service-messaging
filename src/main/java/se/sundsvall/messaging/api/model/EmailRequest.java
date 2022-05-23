@@ -24,12 +24,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailRequest extends Request {
 
-    @Schema(description = "Recipient e-mail address", example = "recipient@recipient.se" )
+    @Schema(description = "Recipient e-mail address", required = true)
     @Email
     @NotBlank
     private String emailAddress;
 
-    @Schema(description = "E-mail subject")
+    @Schema(description = "E-mail subject", required = true)
     @NotBlank
     private String subject;
 
@@ -40,11 +40,11 @@ public class EmailRequest extends Request {
     private String htmlMessage;
 
     @Valid
+    @Schema(description = "Sender")
     private Sender.Email sender;
 
     @Schema(description = "Attachments")
-    @Valid
-    private List<Attachment> attachments;
+    private List<@Valid Attachment> attachments;
 
     @Getter
     @Setter
@@ -54,11 +54,11 @@ public class EmailRequest extends Request {
     public static class Attachment {
 
         @NotBlank
-        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK")
+        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", required = true)
         private String content;
 
         @NotBlank
-        @Schema(description = "The attachment filename", example = "test.txt")
+        @Schema(description = "The attachment filename", example = "test.txt", required = true)
         private String name;
 
         @Schema(description = "The attachment content type", example = "text/plain")

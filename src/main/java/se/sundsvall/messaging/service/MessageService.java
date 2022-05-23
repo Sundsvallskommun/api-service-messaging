@@ -34,7 +34,7 @@ public class MessageService {
         this.mapper = mapper;
     }
 
-    public MessageBatchDto saveMessageRequest(final MessageRequest request) {
+    public MessageBatchDto handleMessageRequest(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
 
         var messageIds = request.getMessages().stream()
@@ -52,7 +52,7 @@ public class MessageService {
             .build();
     }
 
-    public MessageDto saveEmailRequest(final EmailRequest request) {
+    public MessageDto handleEmailRequest(final EmailRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingEmailEvent(this, message.getMessageId()));
@@ -60,7 +60,7 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto saveSmsRequest(final SmsRequest request) {
+    public MessageDto handleSmsRequest(final SmsRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingSmsEvent(this, message.getMessageId()));
@@ -68,7 +68,7 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto saveWebMessageRequest(final WebMessageRequest request) {
+    public MessageDto handleWebMessageRequest(final WebMessageRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingWebMessageEvent(this, message.getMessageId()));
@@ -76,7 +76,7 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto saveDigitalMailRequest(final DigitalMailRequest request) {
+    public MessageDto handleDigitalMailRequest(final DigitalMailRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingDigitalMailEvent(this, message.getMessageId()));

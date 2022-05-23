@@ -63,16 +63,6 @@ class SmsRequestValidationTests extends AbstractValidationTest {
         assertThat(constraints).hasSize(1);
         assertThat(constraints.get(0)).satisfies(constraintViolation -> {
             assertThat(constraintViolation.getPropertyPath().toString()).isEqualTo("mobileNumber");
-            assertThat(constraintViolation.getMessage()).isEqualTo("must not be blank");
-        });
-
-        request = createSmsRequest(req -> req.setMobileNumber("invalid"));
-
-        constraints = List.copyOf(validator.validate(request));
-
-        assertThat(constraints).hasSize(1);
-        assertThat(constraints.get(0)).satisfies(constraintViolation -> {
-            assertThat(constraintViolation.getPropertyPath().toString()).isEqualTo("mobileNumber");
             assertThat(constraintViolation.getMessage()).startsWith("must match");
         });
     }

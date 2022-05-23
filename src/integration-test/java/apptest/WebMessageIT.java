@@ -55,7 +55,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
         // Make sure that there doesn't exist a message entity
         assertThat(messageRepository.existsById(response.getMessageId())).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getById(response.getMessageId())).satisfies(historyEntry -> {
+        assertThat(historyRepository.getReferenceById(response.getMessageId())).satisfies(historyEntry -> {
             assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
             assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
         });
@@ -78,7 +78,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
         // Make sure that there doesn't exist a message entity
         assertThat(messageRepository.existsById(response.getMessageId())).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getById(response.getMessageId())).satisfies(historyEntry -> {
+        assertThat(historyRepository.getReferenceById(response.getMessageId())).satisfies(historyEntry -> {
             assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
             assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
         });

@@ -17,7 +17,7 @@ class DefaultRetryConfiguration {
 
     @Bean
     RetryTemplate retryTemplate(final RetryConfigurationProperties properties) {
-        LOG.info("Retry configuration set to max {} attempts and {} sec. initial interval",
+        LOG.info("Default retry configuration set to max {} attempts and {} sec. initial interval",
             properties.getMaxAttempts(), properties.getInitialInterval().getSeconds());
 
         var retryPolicy = new SimpleRetryPolicy();

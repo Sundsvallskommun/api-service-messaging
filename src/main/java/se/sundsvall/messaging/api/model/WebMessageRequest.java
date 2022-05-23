@@ -2,6 +2,7 @@ package se.sundsvall.messaging.api.model;
 
 import javax.validation.constraints.NotBlank;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +18,6 @@ import lombok.experimental.SuperBuilder;
 public class WebMessageRequest extends Request {
 
     @NotBlank
+    @Schema(description = "Message", required = true)
     private String message;
 }
