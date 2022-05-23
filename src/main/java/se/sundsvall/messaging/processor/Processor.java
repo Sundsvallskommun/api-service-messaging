@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.processor;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 
-abstract class Processor {
+public abstract class Processor {
 
     protected static final Gson GSON = new GsonBuilder().create();
 
@@ -60,8 +60,8 @@ abstract class Processor {
     /**
      * Internal exception class used to force retry attempts.
      */
-    static class ProcessingException extends RuntimeException {
+    public static final class ProcessingException extends RuntimeException {
 
-        ProcessingException() { }
+        public ProcessingException() { }
     }
 }

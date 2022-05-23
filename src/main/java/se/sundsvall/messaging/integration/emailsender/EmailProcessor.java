@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.integration.emailsender;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,15 +13,15 @@ import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
+import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
 @Component
-public class EmailProcessor extends Processor {
+class EmailProcessor extends Processor {
 
     private final EmailSenderIntegration emailSenderIntegration;
 
-    public EmailProcessor(final RetryTemplate retryTemplate,
+    EmailProcessor(final RetryTemplate retryTemplate,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final EmailSenderIntegration emailSenderIntegration) {
@@ -31,7 +31,7 @@ public class EmailProcessor extends Processor {
     }
 
     @EventListener(IncomingEmailEvent.class)
-    public void handleIncomingEmailEvent(final IncomingEmailEvent event) {
+    void handleIncomingEmailEvent(final IncomingEmailEvent event) {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {

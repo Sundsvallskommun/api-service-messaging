@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.processor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;

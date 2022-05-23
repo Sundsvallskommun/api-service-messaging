@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,18 +26,18 @@ import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
 @ExtendWith(MockitoExtension.class)
-class StartupProcessorTests {
+class StartupHandlerTests {
 
     @Mock
     private ApplicationEventPublisher mockEventPublisher;
     @Mock
     private MessageRepository mockMessageRepository;
 
-    private StartupProcessor startupProcessor;
+    private StartupHandler startupProcessor;
 
     @BeforeEach
     void setUp() {
-        startupProcessor = new StartupProcessor(mockEventPublisher, mockMessageRepository);
+        startupProcessor = new StartupHandler(mockEventPublisher, mockMessageRepository);
     }
 
     @Test

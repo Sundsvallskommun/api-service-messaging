@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.integration.smssender;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.context.event.EventListener;
@@ -11,15 +11,15 @@ import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
+import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 @Component
-public class SmsProcessor extends Processor {
+class SmsProcessor extends Processor {
 
     private final SmsSenderIntegration smsSenderIntegration;
 
-    public SmsProcessor(final RetryTemplate retryTemplate,
+    SmsProcessor(final RetryTemplate retryTemplate,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final SmsSenderIntegration smsSenderIntegration) {
@@ -29,7 +29,7 @@ public class SmsProcessor extends Processor {
     }
 
     @EventListener(IncomingSmsEvent.class)
-    public void handleIncomingSmsEvent(final IncomingSmsEvent event) {
+    void handleIncomingSmsEvent(final IncomingSmsEvent event) {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {

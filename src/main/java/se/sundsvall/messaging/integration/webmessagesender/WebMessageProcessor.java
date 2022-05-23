@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.integration.webmessagesender;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
@@ -10,15 +10,15 @@ import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
+import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
 @Component
-public class WebMessageProcessor extends Processor {
+class WebMessageProcessor extends Processor {
 
     private final WebMessageSenderIntegration webMessageSenderIntegration;
 
-    public WebMessageProcessor(final RetryTemplate retryTemplate,
+    WebMessageProcessor(final RetryTemplate retryTemplate,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final WebMessageSenderIntegration webMessageSenderIntegration) {
@@ -28,7 +28,7 @@ public class WebMessageProcessor extends Processor {
     }
 
     @EventListener(IncomingWebMessageEvent.class)
-    public void handleIncomingWebMessageEvent(final IncomingWebMessageEvent event) {
+    void handleIncomingWebMessageEvent(final IncomingWebMessageEvent event) {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {

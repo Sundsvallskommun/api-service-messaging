@@ -11,9 +11,9 @@ import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 @EnableConfigurationProperties(RetryConfigurationProperties.class)
-class RetryConfiguration {
+class DefaultRetryConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RetryConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultRetryConfiguration.class);
 
     @Bean
     RetryTemplate retryTemplate(final RetryConfigurationProperties properties) {

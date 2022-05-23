@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +15,14 @@ import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
 @Component
-class StartupProcessor implements CommandLineRunner {
+class StartupHandler implements CommandLineRunner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StartupProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StartupHandler.class);
 
     private final ApplicationEventPublisher eventPublisher;
     private final MessageRepository messageRepository;
 
-    StartupProcessor(final ApplicationEventPublisher eventPublisher, final MessageRepository messageRepository) {
+    StartupHandler(final ApplicationEventPublisher eventPublisher, final MessageRepository messageRepository) {
         this.eventPublisher = eventPublisher;
         this.messageRepository = messageRepository;
     }

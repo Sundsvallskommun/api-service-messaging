@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.integration.digitalmailsender;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,16 +14,16 @@ import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.model.ContentType;
+import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 
 @Component
-public class DigitalMailProcessor extends Processor {
+class DigitalMailProcessor extends Processor {
 
     private final DigitalMailSenderIntegration digitalMailSenderIntegration;
 
-    public DigitalMailProcessor(final RetryTemplate retryTemplate,
+    DigitalMailProcessor(final RetryTemplate retryTemplate,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final DigitalMailSenderIntegration digitalMailSenderIntegration) {
@@ -33,7 +33,7 @@ public class DigitalMailProcessor extends Processor {
     }
 
     @EventListener(IncomingDigitalMailEvent.class)
-    public void handleIncomingDigitalMailEvent(final IncomingDigitalMailEvent event) {
+    void handleIncomingDigitalMailEvent(final IncomingDigitalMailEvent event) {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {

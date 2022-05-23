@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.service.processor;
+package se.sundsvall.messaging.processor;
 
 import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
 
@@ -19,12 +19,12 @@ import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 @Component
-public class MessageProcessor extends Processor {
+class MessageProcessor extends Processor {
 
     private final ApplicationEventPublisher eventPublisher;
     private final FeedbackSettingsIntegration feedbackSettingsIntegration;
 
-    public MessageProcessor(final ApplicationEventPublisher eventPublisher,
+    MessageProcessor(final ApplicationEventPublisher eventPublisher,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final FeedbackSettingsIntegration feedbackSettingsIntegration) {
@@ -35,7 +35,7 @@ public class MessageProcessor extends Processor {
     }
 
     @EventListener(IncomingMessageEvent.class)
-    public void handleIncomingMessageEvent(final IncomingMessageEvent event) {
+    void handleIncomingMessageEvent(final IncomingMessageEvent event) {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {
