@@ -109,7 +109,7 @@ class MessageResource {
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
 
-    @Operation(summary = "Send a single digital mail")
+    @Operation(summary = "Send a single digital mail to one or more parties")
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
@@ -128,10 +128,13 @@ class MessageResource {
         )
     })
     @PostMapping("/digitalmail")
-    ResponseEntity<MessageResponse> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
-        var message = messageService.handleDigitalMailRequest(request);
+    ResponseEntity<MessagesResponse> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
+        var messages = messageService.handleDigitalMailRequest(request);
 
-        return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
+        return ResponseEntity.ok(MessagesResponse.builder()
+            .withBatchId(messages.getBatchId())
+            .withMessageIds(messages.getMessageIds())
+            .build());
     }
 
 

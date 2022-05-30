@@ -27,6 +27,7 @@ class DigitalMailSenderIntegrationMapper {
         }
 
         return new DigitalMailRequest()
+            .partyId(dto.getPartyId())
             .municipalityId(properties.getDefaults().getMunicipalityId())
             .headerSubject(Optional.ofNullable(dto.getSubject()).orElse(properties.getDefaults().getSubject()))
             .supportInfo(new SupportInfo()

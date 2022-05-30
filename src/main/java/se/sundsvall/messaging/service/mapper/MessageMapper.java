@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,18 +73,19 @@ public class MessageMapper {
             .build();
     }
 
-    public MessageEntity toEntity(final DigitalMailRequest request) {
+    public List<MessageEntity> toEntities(final DigitalMailRequest request, final String batchId) {
         var uuid = UUID.randomUUID().toString();
 
-        return MessageEntity.builder()
-            .withMessageId(uuid)
-            .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
-                .orElse(null))
-            .withType(MessageType.DIGITAL_MAIL)
-            .withStatus(MessageStatus.PENDING)
-            .withContent(GSON.toJson(request))
-            .build();
+        return request.getParty().getPartyIds().stream()
+            .map(partyId -> MessageEntity.builder()
+                .withMessageId(uuid)
+                .withBatchId(batchId)
+                .withPartyId(partyId)
+                .withType(MessageType.DIGITAL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build())
+            .toList();
     }
 
     public MessageEntity toEntity(final String batchId, final MessageRequest.Message request) {

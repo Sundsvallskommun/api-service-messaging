@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,8 +34,7 @@ public class DigitalMailSenderIntegration extends AbstractRestIntegration {
 
         try {
             var response = restTemplate.postForEntity(
-                "/sendSecureDigitalMail/{partyId}", createRequestEntity(request),
-                DigitalMailResponse.class, Map.of("partyId", digitalMailDto.getPartyId()));
+                "/sendDigitalMail", createRequestEntity(request), DigitalMailResponse.class);
 
             return ResponseEntity.status(response.getStatusCode())
                 .body(Optional.ofNullable(response.getBody())

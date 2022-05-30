@@ -12,6 +12,7 @@ import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.Header;
+import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
@@ -131,8 +132,8 @@ public final class TestDataFactory {
 
     public static DigitalMailRequest createDigitalMailRequest(final Consumer<DigitalMailRequest> modifier) {
         var request = DigitalMailRequest.builder()
-            .withParty(Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
+            .withParty(Parties.builder()
+                .withPartyIds(List.of(DEFAULT_PARTY_ID))
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")

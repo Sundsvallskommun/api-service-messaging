@@ -76,11 +76,19 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto handleDigitalMailRequest(final DigitalMailRequest request) {
-        var message = repository.save(mapper.toEntity(request));
+    public MessageBatchDto handleDigitalMailRequest(final DigitalMailRequest request) {
+        var batchId = UUID.randomUUID().toString();
 
-        eventPublisher.publishEvent(new IncomingDigitalMailEvent(this, message.getMessageId()));
+        var messageIds = repository.saveAll(mapper.toEntities(request, batchId)).stream()
+            .map(mapper::toMessageDto)
+            .map(MessageDto::getMessageId)
+            .toList();
 
-        return mapper.toMessageDto(message);
+        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingDigitalMailEvent(this,messageId)));
+
+        return MessageBatchDto.builder()
+            .withBatchId(batchId)
+            .withMessageIds(messageIds)
+            .build();
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import se.sundsvall.messaging.model.Header;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.Parties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -18,11 +18,11 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder(setterPrefix = "with")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-abstract class Request {
+abstract class BatchRequest {
 
     @Valid
-    @Schema(description = "Party")
-    private Party party;
+    @Schema(description = "Parties")
+    private Parties party;
 
     @Schema(description = "Headers")
     private List<@Valid Header> headers;

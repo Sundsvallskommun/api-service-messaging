@@ -82,7 +82,7 @@ class DigitalMailProcessorTests {
         when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageId)
-                .withPartyId(digitalMailRequest.getParty().getPartyId())
+                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(digitalMailRequest))
@@ -105,7 +105,7 @@ class DigitalMailProcessorTests {
         when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageId)
-                .withPartyId(digitalMailRequest.getParty().getPartyId())
+                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(digitalMailRequest))
@@ -128,7 +128,7 @@ class DigitalMailProcessorTests {
         when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageId)
-                .withPartyId(digitalMailRequest.getParty().getPartyId())
+                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(digitalMailRequest))
@@ -152,7 +152,7 @@ class DigitalMailProcessorTests {
         when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageId)
-                .withPartyId(digitalMailRequest.getParty().getPartyId())
+                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(digitalMailRequest))
@@ -173,7 +173,7 @@ class DigitalMailProcessorTests {
 
         var message = MessageEntity.builder()
             .withMessageId(UUID.randomUUID().toString())
-            .withPartyId(digitalMailRequest.getParty().getPartyId())
+            .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
             .withType(MessageType.DIGITAL_MAIL)
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(digitalMailRequest))
@@ -182,7 +182,7 @@ class DigitalMailProcessorTests {
         var dto = digitalMailProcessor.mapToDto(message);
 
         assertThat(dto.getSubject()).isEqualTo(digitalMailRequest.getSubject());
-        assertThat(dto.getPartyId()).isEqualTo(digitalMailRequest.getParty().getPartyId());
+        assertThat(dto.getPartyId()).isEqualTo(digitalMailRequest.getParty().getPartyIds().get(0));
         assertThat(dto.getContentType()).isEqualTo(ContentType.fromString(digitalMailRequest.getContentType()));
         assertThat(dto.getBody()).isEqualTo(digitalMailRequest.getBody());
         assertThat(dto.getAttachments()).hasSameSizeAs(digitalMailRequest.getAttachments());

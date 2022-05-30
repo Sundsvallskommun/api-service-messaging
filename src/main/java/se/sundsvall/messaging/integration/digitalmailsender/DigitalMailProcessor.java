@@ -68,7 +68,7 @@ class DigitalMailProcessor extends Processor {
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
 
         return DigitalMailDto.builder()
-            .withPartyId(request.getParty().getPartyId())
+            .withPartyId(message.getPartyId())
             .withSubject(request.getSubject())
             .withContentType(ContentType.fromString(request.getContentType()))
             .withBody(request.getBody())

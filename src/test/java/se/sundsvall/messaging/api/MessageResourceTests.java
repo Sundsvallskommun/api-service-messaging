@@ -88,8 +88,8 @@ class MessageResourceTests {
     @Test
     void test_sendDigitalMail() {
         when(mockMessageService.handleDigitalMailRequest(any(DigitalMailRequest.class)))
-            .thenReturn(MessageDto.builder()
-                .withMessageId("someMessageId")
+            .thenReturn(MessageBatchDto.builder()
+                .withMessageIds(List.of("someMessageId"))
                 .build());
 
         var response = messageResource.sendDigitalMail(
@@ -97,7 +97,7 @@ class MessageResourceTests {
 
         assertThat(response).isNotNull();
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().getMessageIds()).contains("someMessageId");
 
         verify(mockMessageService, times(1)).handleDigitalMailRequest(any(DigitalMailRequest.class));
     }

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -133,18 +134,20 @@ class MessageServiceTests {
 
     @Test
     void test_handleDigitalMailRequest() {
-        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+        var message = MessageEntity.builder()
             .withMessageId("someMessageId")
-            .build());
+            .build();
+
+        when(mockRepository.saveAll(Mockito.<List<MessageEntity>>any())).thenReturn(List.of(message));
 
         var request = createDigitalMailRequest();
 
         var dto = messageService.handleDigitalMailRequest(request);
 
-        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
+        assertThat(dto.getMessageIds()).contains("someMessageId");
 
-        verify(mockRepository, times(1)).save(any(MessageEntity.class));
-        verify(mockMapper, times(1)).toEntity(any(DigitalMailRequest.class));
+        verify(mockRepository, times(1)).saveAll(Mockito.<List<MessageEntity>>any());
+        verify(mockMapper, times(1)).toEntities(any(DigitalMailRequest.class), any(String.class));
         verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingDigitalMailEvent.class));
     }

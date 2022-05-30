@@ -78,10 +78,13 @@ class MessageMapperTests {
     void test_toEntity_withDigitalMailRequest() {
         var request = createDigitalMailRequest();
 
-        var message = messageMapper.toEntity(request);
+        var messages = messageMapper.toEntities(request, "someBatchId");
 
+        assertThat(messages).hasSize(1);
+
+        var message = messages.get(0);
         assertThat(message.getMessageId()).isNotNull();
-        assertThat(message.getBatchId()).isNull();
+        assertThat(message.getBatchId()).isEqualTo("someBatchId");
         assertThat(message.getType()).isEqualTo(MessageType.DIGITAL_MAIL);
         assertThat(message.getStatus()).isEqualTo(MessageStatus.PENDING);
         assertThat(message.getContent()).isEqualTo(MessageMapper.GSON.toJson(request));
