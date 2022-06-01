@@ -4,16 +4,24 @@ import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactM
 
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.MessageRequest;
+import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Sender;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
@@ -21,16 +29,21 @@ import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 @Component
 class MessageProcessor extends Processor {
 
+    private static final Gson GSON = new GsonBuilder().create();
+
     private final ApplicationEventPublisher eventPublisher;
+    private final DefaultSettings defaultSettings;
     private final FeedbackSettingsIntegration feedbackSettingsIntegration;
 
     MessageProcessor(final ApplicationEventPublisher eventPublisher,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
+            final DefaultSettings defaultSettings,
             final FeedbackSettingsIntegration feedbackSettingsIntegration) {
         super(null, messageRepository, historyRepository);
 
         this.eventPublisher = eventPublisher;
+        this.defaultSettings = defaultSettings;
         this.feedbackSettingsIntegration = feedbackSettingsIntegration;
     }
 
@@ -65,13 +78,17 @@ class MessageProcessor extends Processor {
                     case EMAIL -> {
                         log.info("Handling incoming message {} as e-mail", message.getMessageId());
 
-                        messageRepository.save(message.withType(MessageType.EMAIL));
+                        messageRepository.save(message
+                            .withType(MessageType.EMAIL)
+                            .withContent(mapToEmailRequest(message, feedbackChannel.getDestination())));
                         eventPublisher.publishEvent(new IncomingEmailEvent(this, message.getMessageId()));
                     }
                     case SMS -> {
                         log.info("Handling incoming message {} as SMS", message.getMessageId());
 
-                        messageRepository.save(message.withType(MessageType.SMS));
+                        messageRepository.save(message
+                            .withType(MessageType.SMS)
+                            .withContent(mapToSmsRequest(message, feedbackChannel.getDestination())));
                         eventPublisher.publishEvent(new IncomingSmsEvent(this, message.getMessageId()));
                     }
                     case NO_CONTACT -> {
@@ -90,5 +107,41 @@ class MessageProcessor extends Processor {
                 }
             }
         }
+    }
+
+    private String mapToEmailRequest(final MessageEntity messageEntity, final String emailAddress) {
+        var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
+
+        var sender = Optional.ofNullable(message.getSender())
+            .map(Sender::getEmail)
+            .orElse(defaultSettings.getEmail());
+
+        var emailRequest = EmailRequest.builder()
+            .withParty(message.getParty())
+            .withHeaders(message.getHeaders())
+            .withSender(sender)
+            .withEmailAddress(emailAddress)
+            .withMessage(message.getMessage())
+            .build();
+
+        return GSON.toJson(emailRequest);
+    }
+
+    private String mapToSmsRequest(final MessageEntity messageEntity, final String mobileNumber) {
+        var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
+
+        var sender = Optional.ofNullable(message.getSender())
+            .map(Sender::getSms)
+            .orElse(defaultSettings.getSms());
+
+        var smsRequest = SmsRequest.builder()
+            .withParty(message.getParty())
+            .withHeaders(message.getHeaders())
+            .withSender(sender)
+            .withMobileNumber(mobileNumber)
+            .withMessage(message.getMessage())
+            .build();
+
+        return GSON.toJson(smsRequest);
     }
 }

@@ -1,0 +1,13 @@
+{
+  "id": "0d64c132-3aea-11ec-8d3d-0242ac130003",
+  "personId": "f427952b-247c-4d3b-b081-675a467b3619",
+  "channels": [
+    {
+      "contactMethod": "SMS",
+      "destination": "0701234567",
+      "sendFeedback": true
+    }
+  ],
+  "created": "2022-01-20T10:30:09.469+01:00",
+  "modified": "2022-01-20T10:30:09.469+01:00"
+}
