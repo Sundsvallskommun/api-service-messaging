@@ -5,10 +5,11 @@ import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -16,18 +17,32 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
+
 @Component
 class EmailProcessor extends Processor {
 
     private final EmailSenderIntegration emailSenderIntegration;
 
-    EmailProcessor(final RetryTemplate retryTemplate,
+    private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
+
+    EmailProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final EmailSenderIntegration emailSenderIntegration) {
-        super(retryTemplate, messageRepository, historyRepository);
+        super(messageRepository, historyRepository);
 
         this.emailSenderIntegration = emailSenderIntegration;
+
+        retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
+            .withMaxAttempts(retryProperties.getMaxAttempts())
+            .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
+            .handle(Exception.class)
+            .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK)
+            .onFailedAttempt(event -> log.debug("Unable to send e-mail ({}/{}): {}",
+                event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
+            .build();
     }
 
     @EventListener(IncomingEmailEvent.class)
@@ -35,31 +50,22 @@ class EmailProcessor extends Processor {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {
+            log.warn("Unable to process missing e-mail {}", event.getMessageId());
+
             return;
         }
 
-        retryTemplate.execute(retryContext -> {
-            try {
-                var emailDto = mapToDto(message);
-                var response = emailSenderIntegration.sendEmail(emailDto);
+        var emailDto = mapToDto(message);
 
-                if (response.getStatusCode() == HttpStatus.OK) {
-                    // Success - we're done
-                    handleSuccessfulDelivery(message);
-                    retryContext.setExhaustedOnly();
-
-                    return null;
-                }
-            } catch (Exception e) {
-                log.info("Unable to send e-mail: " + e.getMessage());
-            }
-
-            throw new ProcessingException();
-        }, retryContext -> {
-            handleMaximumDeliveryAttemptsExceeded(message);
-
-            return null;
-        });
+        try {
+            Failsafe
+                .with(retryPolicy)
+                .onSuccess(successEvent -> handleSuccessfulDelivery(message))
+                .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
+                .get(() -> emailSenderIntegration.sendEmail(emailDto));
+        } catch (Exception e) {
+            log.warn("Unable to send e-mail {}: {}", event.getMessageId(), e.getMessage());
+        }
     }
 
     EmailDto mapToDto(final MessageEntity message) {

@@ -2,10 +2,11 @@ package se.sundsvall.messaging.integration.webmessagesender;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.WebMessageRequest;
+import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -13,18 +14,32 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
+
 @Component
 class WebMessageProcessor extends Processor {
 
     private final WebMessageSenderIntegration webMessageSenderIntegration;
 
-    WebMessageProcessor(final RetryTemplate retryTemplate,
+    private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
+
+    WebMessageProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final WebMessageSenderIntegration webMessageSenderIntegration) {
-        super(retryTemplate, messageRepository, historyRepository);
+        super(messageRepository, historyRepository);
 
         this.webMessageSenderIntegration = webMessageSenderIntegration;
+
+        retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
+            .withMaxAttempts(retryProperties.getMaxAttempts())
+            .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
+            .handle(Exception.class)
+            .handleResultIf(response -> response.getStatusCode() != HttpStatus.CREATED)
+            .onFailedAttempt(event -> log.debug("Unable to send web message ({}/{}): {}",
+                event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
+            .build();
     }
 
     @EventListener(IncomingWebMessageEvent.class)
@@ -32,31 +47,22 @@ class WebMessageProcessor extends Processor {
         var message = messageRepository.findById(event.getMessageId()).orElse(null);
 
         if (message == null) {
+            log.warn("Unable to process missing web message {}", event.getMessageId());
+
             return;
         }
 
-        retryTemplate.execute(retryContext -> {
-            try {
-                var webMessageDto = mapToDto(message);
-                var response = webMessageSenderIntegration.sendWebMessage(webMessageDto);
+        var webMessageDto = mapToDto(message);
 
-                if (response.getStatusCode() == HttpStatus.CREATED) {
-                    // Success - we're done
-                    handleSuccessfulDelivery(message);
-                    retryContext.setExhaustedOnly();
-
-                    return null;
-                }
-            } catch (Exception e) {
-                log.info("Unable to send web message: " + e.getMessage());
-            }
-
-            throw new ProcessingException();
-        }, retryContext -> {
-            handleMaximumDeliveryAttemptsExceeded(message);
-
-            return null;
-        });
+        try {
+            Failsafe
+                .with(retryPolicy)
+                .onSuccess(successEvent -> handleSuccessfulDelivery(message))
+                .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
+                .get(() -> webMessageSenderIntegration.sendWebMessage(webMessageDto));
+        } catch (Exception e) {
+            log.warn("Unable to send web message {}: {}", event.getMessageId(), e.getMessage());
+        }
     }
 
     WebMessageDto mapToDto(final MessageEntity message) {

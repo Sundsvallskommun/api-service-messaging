@@ -10,8 +10,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "retry")
-class RetryConfigurationProperties {
+public class RetryProperties {
 
-    private int maxAttempts = 5;
-    private Duration initialInterval = Duration.ofSeconds(1);
+    private int maxAttempts = 3;
+
+    private Duration initialDelay = Duration.ofSeconds(2);
+
+    private Duration maxDelay = Duration.ofSeconds(20);
 }

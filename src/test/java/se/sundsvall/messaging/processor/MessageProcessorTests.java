@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -38,6 +39,8 @@ class MessageProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private DefaultSettings mockDefaultSettings;
+    @Mock
     private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
 
     @Mock
@@ -48,7 +51,7 @@ class MessageProcessorTests {
     @BeforeEach
     void setUp() {
         messageProcessor = new MessageProcessor(mockEventPublisher, mockMessageRepository,
-            mockHistoryRepository, mockFeedbackSettingsIntegration);
+            mockHistoryRepository, mockDefaultSettings, mockFeedbackSettingsIntegration);
     }
 
     @Test
@@ -130,6 +133,7 @@ class MessageProcessorTests {
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
+            .withContent("{}")
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
@@ -152,6 +156,7 @@ class MessageProcessorTests {
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
+            .withContent("{}")
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))

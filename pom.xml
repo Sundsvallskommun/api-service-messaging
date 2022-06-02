@@ -22,6 +22,8 @@
         <published.container.port.test>9040</published.container.port.test>
         <published.container.port.production>8787</published.container.port.production>
 
+        <failsafe.version>3.2.4</failsafe.version>
+
         <openapi-generator-maven-plugin>5.4.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
@@ -43,12 +45,6 @@
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-common-validators</artifactId>
-        </dependency>
-
-        <!-- Spring Boot -->
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
         </dependency>
 
         <dependency>
@@ -78,6 +74,11 @@
         </dependency>
 
         <!-- Other -->
+        <dependency>
+            <groupId>dev.failsafe</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${failsafe.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

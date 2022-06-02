@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.retry.support.RetryTemplate;
 
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -20,13 +19,11 @@ public abstract class Processor {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    protected RetryTemplate retryTemplate;
     protected final MessageRepository messageRepository;
     protected final HistoryRepository historyRepository;
 
-    protected Processor(final RetryTemplate retryTemplate, final MessageRepository messageRepository,
+    protected Processor(final MessageRepository messageRepository,
             final HistoryRepository historyRepository) {
-        this.retryTemplate = retryTemplate;
         this.messageRepository = messageRepository;
         this.historyRepository = historyRepository;
     }
@@ -55,13 +52,5 @@ public abstract class Processor {
             .withContent(message.getContent())
             .withCreatedAt(LocalDateTime.now())
             .build();
-    }
-
-    /**
-     * Internal exception class used to force retry attempts.
-     */
-    public static final class ProcessingException extends RuntimeException {
-
-        public ProcessingException() { }
     }
 }

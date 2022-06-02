@@ -40,7 +40,7 @@ class MessageProcessor extends Processor {
             final HistoryRepository historyRepository,
             final DefaultSettings defaultSettings,
             final FeedbackSettingsIntegration feedbackSettingsIntegration) {
-        super(null, messageRepository, historyRepository);
+        super(messageRepository, historyRepository);
 
         this.eventPublisher = eventPublisher;
         this.defaultSettings = defaultSettings;

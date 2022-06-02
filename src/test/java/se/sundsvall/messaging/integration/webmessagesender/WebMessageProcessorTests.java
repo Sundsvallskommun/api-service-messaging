@@ -11,6 +11,7 @@ import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createWebMessageRequest;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,10 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 
+import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -41,6 +40,8 @@ class WebMessageProcessorTests {
     private static final Gson GSON = new GsonBuilder().create();
 
     @Mock
+    private RetryProperties mockRetryProperties;
+    @Mock
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
@@ -51,16 +52,12 @@ class WebMessageProcessorTests {
 
     @BeforeEach
     void setUp() {
-        var backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(10);
-        backOffPolicy.setMultiplier(2);
+        when(mockRetryProperties.getMaxAttempts()).thenReturn(3);
+        when(mockRetryProperties.getInitialDelay()).thenReturn(Duration.ofMillis(1));
+        when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
-        var retryTemplate = new RetryTemplate();
-        retryTemplate.setRetryPolicy(new SimpleRetryPolicy(5));
-        retryTemplate.setBackOffPolicy(backOffPolicy);
-
-        webMessageProcessor = new WebMessageProcessor(retryTemplate, mockMessageRepository,
-            mockHistoryRepository, mockWebMessageSenderIntegration);
+        webMessageProcessor = new WebMessageProcessor(mockRetryProperties,
+            mockMessageRepository, mockHistoryRepository, mockWebMessageSenderIntegration);
     }
 
     @Test
@@ -117,7 +114,7 @@ class WebMessageProcessorTests {
         webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageId));
 
         verify(mockMessageRepository, times(1)).findById(eq(messageId));
-        verify(mockWebMessageSenderIntegration, times(5)).sendWebMessage(any(WebMessageDto.class));
+        verify(mockWebMessageSenderIntegration, times(3)).sendWebMessage(any(WebMessageDto.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
@@ -141,7 +138,7 @@ class WebMessageProcessorTests {
         webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageId));
 
         verify(mockMessageRepository, times(1)).findById(eq(messageId));
-        verify(mockWebMessageSenderIntegration, times(5)).sendWebMessage(any(WebMessageDto.class));
+        verify(mockWebMessageSenderIntegration, times(3)).sendWebMessage(any(WebMessageDto.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }

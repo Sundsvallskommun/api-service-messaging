@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,10 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 
+import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -40,6 +39,8 @@ class SmsProcessorTests {
     private static final Gson GSON = new GsonBuilder().create();
 
     @Mock
+    private RetryProperties mockRetryProperties;
+    @Mock
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
@@ -50,15 +51,11 @@ class SmsProcessorTests {
 
     @BeforeEach
     void setUp() {
-        var backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(10);
-        backOffPolicy.setMultiplier(2);
+        when(mockRetryProperties.getMaxAttempts()).thenReturn(3);
+        when(mockRetryProperties.getInitialDelay()).thenReturn(Duration.ofMillis(1));
+        when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
-        var retryTemplate = new RetryTemplate();
-        retryTemplate.setRetryPolicy(new SimpleRetryPolicy(5));
-        retryTemplate.setBackOffPolicy(backOffPolicy);
-
-        smsProcessor = new SmsProcessor(retryTemplate, mockMessageRepository,
+        smsProcessor = new SmsProcessor(mockRetryProperties, mockMessageRepository,
             mockHistoryRepository, mockSmsSenderIntegration);
     }
 
@@ -115,7 +112,7 @@ class SmsProcessorTests {
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
 
         verify(mockMessageRepository, times(1)).findById(eq(messageId));
-        verify(mockSmsSenderIntegration, times(5)).sendSms(any(SmsDto.class));
+        verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
@@ -138,7 +135,7 @@ class SmsProcessorTests {
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
 
         verify(mockMessageRepository, times(1)).findById(eq(messageId));
-        verify(mockSmsSenderIntegration, times(5)).sendSms(any(SmsDto.class));
+        verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
@@ -161,7 +158,7 @@ class SmsProcessorTests {
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
 
         verify(mockMessageRepository, times(1)).findById(eq(messageId));
-        verify(mockSmsSenderIntegration, times(5)).sendSms(any(SmsDto.class));
+        verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
