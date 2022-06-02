@@ -62,6 +62,7 @@ class MessageProcessor extends Processor {
             log.info("No feedback settings found for {}", partyId);
 
             historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.NO_FEEDBACK_SETTINGS_FOUND)));
+            messageRepository.deleteById(message.getMessageId());
         } else {
             for (var feedbackChannel : feedbackChannels) {
                 var actualContactMethod = Optional.ofNullable(feedbackChannel.getContactMethod())

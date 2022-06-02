@@ -2,6 +2,7 @@ package se.sundsvall.messaging.integration.feedbacksettings;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackChannelDto;
 
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
-import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
+import generated.se.sundsvall.feedbacksettings.SearchResult;
 
 @Component
 public class FeedbackSettingsIntegration {
@@ -29,18 +30,34 @@ public class FeedbackSettingsIntegration {
 
     public List<FeedbackChannelDto> getSettingsByPartyId(String partyId) {
         var feedbackChannels = Optional.ofNullable(searchByPersonId(partyId))
-                .stream()
-                // Filter out matches that have organizationId set, to make sure we only process
-                // personal feedback settings at this point
-                .filter(feedbackSetting -> StringUtils.isBlank(feedbackSetting.getOrganizationId()))
-                .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
-                .toList();
+            .stream()
+            .map(SearchResult::getFeedbackSettings)
+            .flatMap(feedbackSettings -> {
+                if (feedbackSettings != null) {
+                    return feedbackSettings.stream();
+                }
+
+                return Stream.empty();
+            })
+            // Filter out matches that have organizationId set, to make sure we only process
+            // personal feedback settings at this point
+            .filter(feedbackSetting -> StringUtils.isBlank(feedbackSetting.getOrganizationId()))
+            .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
+            .toList();
 
         if (feedbackChannels.isEmpty()) {
             LOG.info("No feedback settings found for personId {}. Checking for matching organizationId", partyId);
 
             feedbackChannels = Optional.ofNullable(searchByOrganizationId(partyId))
                 .stream()
+                .map(SearchResult::getFeedbackSettings)
+                .flatMap(feedbackSettings -> {
+                    if (feedbackSettings != null) {
+                        return feedbackSettings.stream();
+                    }
+
+                    return Stream.empty();
+                })
                 .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
                 .toList();
         }
@@ -50,8 +67,8 @@ public class FeedbackSettingsIntegration {
         }
 
         return feedbackChannels.stream()
-                .map(this::toDto)
-                .toList();
+            .map(this::toDto)
+            .toList();
     }
 
     FeedbackChannelDto toDto(final FeedbackChannel feedbackChannel) {
@@ -67,16 +84,16 @@ public class FeedbackSettingsIntegration {
             .build();
     }
 
-    WeightedFeedbackSetting searchByPersonId(final String partyIdAsPersonId) {
+    SearchResult searchByPersonId(final String partyIdAsPersonId) {
         var url = String.format("/settings?personId=%s", partyIdAsPersonId);
 
-        return restTemplate.getForObject(url, WeightedFeedbackSetting.class);
+        return restTemplate.getForObject(url, SearchResult.class);
     }
 
-    WeightedFeedbackSetting searchByOrganizationId(final String partyIdAsOrganizationId) {
+    SearchResult searchByOrganizationId(final String partyIdAsOrganizationId) {
         String url = String.format("/settings?organizationId=%s", partyIdAsOrganizationId);
 
-        return restTemplate.getForObject(url, WeightedFeedbackSetting.class);
+        return restTemplate.getForObject(url, SearchResult.class);
     }
 }
 

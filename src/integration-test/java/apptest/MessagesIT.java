@@ -39,7 +39,7 @@ class MessagesIT extends AbstractMessagingAppTest {
     }
 
     @Test
-    void test1_successfulRequest() throws Exception {
+    void test1_successfulRequest_bySms() throws Exception {
         var response = setupCall()
             .withServicePath(SERVICE_PATH)
             .withRequest("request.json")
@@ -64,9 +64,10 @@ class MessagesIT extends AbstractMessagingAppTest {
             assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
         });
     }
-/*
+
+
     @Test
-    void test2_internalServerErrorFromDigitalMailSender() throws Exception {
+    void test2_successfulRequest_byEmail() throws Exception {
         var response = setupCall()
             .withServicePath(SERVICE_PATH)
             .withRequest("request.json")
@@ -88,7 +89,61 @@ class MessagesIT extends AbstractMessagingAppTest {
         // Make sure that there exists a history entry with the correct id and status
         assertThat(historyRepository.getReferenceById(messageId)).satisfies(historyEntry -> {
             assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
+            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
         });
-    }*/
+    }
+
+    @Test
+    void test3_noFeedbackSettingsFound() throws Exception {
+        var response = setupCall()
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(HttpMethod.POST)
+            .withExpectedResponseStatus(HttpStatus.OK)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessagesResponse.class);
+
+        assertThat(response.getMessageIds()).hasSize(1);
+
+        var messageId = response.getMessageIds().get(0);
+
+        // Make sure we received a message id and a batch id as proper UUID:s
+        assertThat(new ValidUuidConstraintValidator().isValid(messageId)).isTrue();
+        assertThat(new ValidUuidConstraintValidator().isValid(response.getBatchId())).isTrue();
+
+        // Make sure that there doesn't exist a message entity
+        assertThat(messageRepository.existsById(messageId)).isFalse();
+        // Make sure that there exists a history entry with the correct id and status
+        assertThat(historyRepository.getReferenceById(messageId)).satisfies(historyEntry -> {
+            assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.NO_FEEDBACK_SETTINGS_FOUND);
+        });
+    }
+
+    @Test
+    void test4_noFeedbackWanted() throws Exception {
+        var response = setupCall()
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(HttpMethod.POST)
+            .withExpectedResponseStatus(HttpStatus.OK)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessagesResponse.class);
+
+        assertThat(response.getMessageIds()).hasSize(1);
+
+        var messageId = response.getMessageIds().get(0);
+
+        // Make sure we received a message id and a batch id as proper UUID:s
+        assertThat(new ValidUuidConstraintValidator().isValid(messageId)).isTrue();
+        assertThat(new ValidUuidConstraintValidator().isValid(response.getBatchId())).isTrue();
+
+        // Make sure that there doesn't exist a message entity
+        assertThat(messageRepository.existsById(messageId)).isFalse();
+        // Make sure that there exists a history entry with the correct id and status
+        assertThat(historyRepository.getReferenceById(messageId)).satisfies(historyEntry -> {
+            assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.NO_FEEDBACK_WANTED);
+        });
+    }
 }

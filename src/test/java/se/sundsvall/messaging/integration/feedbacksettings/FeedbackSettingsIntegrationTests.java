@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
+import generated.se.sundsvall.feedbacksettings.SearchResult;
 import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,14 +41,14 @@ class FeedbackSettingsIntegrationTests {
             .id("someId")
             .channels(List.of(new FeedbackChannel()));
 
-        when(mockRestTemplate.getForObject(any(String.class), eq(WeightedFeedbackSetting.class)))
-            .thenReturn(setting);
+        when(mockRestTemplate.getForObject(any(String.class), eq(SearchResult.class)))
+            .thenReturn(new SearchResult().feedbackSettings(List.of(setting)));
 
         var feedbackChannels = integration.getSettingsByPartyId("somePartyId");
 
         assertThat(feedbackChannels).hasSize(1);
 
-        verify(mockRestTemplate, times(1)).getForObject(any(String.class), eq(WeightedFeedbackSetting.class));
+        verify(mockRestTemplate, times(1)).getForObject(any(String.class), eq(SearchResult.class));
     }
 
     @Test
@@ -56,15 +57,15 @@ class FeedbackSettingsIntegrationTests {
             .id("someId")
             .channels(List.of(new FeedbackChannel()));
 
-        when(mockRestTemplate.getForObject(any(String.class), eq(WeightedFeedbackSetting.class)))
-            .thenReturn(null)
-            .thenReturn(setting);
+        when(mockRestTemplate.getForObject(any(String.class), eq(SearchResult.class)))
+            .thenReturn(new SearchResult())
+            .thenReturn(new SearchResult().feedbackSettings(List.of(setting)));
 
         var feedbackSettings = integration.getSettingsByPartyId("somePartyId");
 
         assertThat(feedbackSettings).hasSize(1);
 
-        verify(mockRestTemplate, times(2)).getForObject(any(String.class), eq(WeightedFeedbackSetting.class));
+        verify(mockRestTemplate, times(2)).getForObject(any(String.class), eq(SearchResult.class));
     }
 
     @Test

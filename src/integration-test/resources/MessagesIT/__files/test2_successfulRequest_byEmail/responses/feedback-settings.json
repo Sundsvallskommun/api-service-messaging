@@ -1,0 +1,25 @@
+{
+  "feedbackSettings": [
+    {
+      "id": "0d64c132-3aea-11ec-8d3d-0242ac130003",
+      "personId": "15aee472-46ab-4f03-9605-68bd64ebc73f",
+      "channels": [
+        {
+          "contactMethod": "EMAIL",
+          "destination": "someone@somehost.com",
+          "sendFeedback": true
+        }
+      ],
+      "created": "2022-01-20T10:30:09.469+01:00",
+      "modified": "2022-01-20T10:30:09.469+01:00",
+      "matchingPercent": 37
+    }
+  ],
+  "_meta": {
+    "page": 5,
+    "limit": 20,
+    "count": 13,
+    "totalRecords": 98,
+    "totalPages": 23
+  }
+}
