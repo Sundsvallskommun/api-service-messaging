@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.4</version>
+        <version>1.7</version>
         <relativePath />
     </parent>
 
@@ -20,7 +20,7 @@
         <exposed.app.port>8080</exposed.app.port>
         <published.container.port.sandbox>8703</published.container.port.sandbox>
         <published.container.port.test>9040</published.container.port.test>
-        <published.container.port.production>8787</published.container.port.production>
+        <published.container.port.production>9040</published.container.port.production>
 
         <failsafe.version>3.2.4</failsafe.version>
 
