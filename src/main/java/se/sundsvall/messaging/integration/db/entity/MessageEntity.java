@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.With;
 
 @Entity
@@ -27,16 +28,17 @@ import lombok.With;
 @NoArgsConstructor
 @Builder(setterPrefix = "with")
 @Getter
+@ToString
 public class MessageEntity {
 
     @Id
     @Column(name = "message_id")
     private String messageId;
 
-    @Column(name = "batch_id", nullable = false)
+    @Column(name = "batch_id")
     private String batchId;
 
-    @Column(name = "party_id", nullable = false)
+    @Column(name = "party_id")
     private String partyId;
 
     @With
@@ -49,6 +51,7 @@ public class MessageEntity {
     @Column(name = "status")
     private MessageStatus status;
 
+    @With
     @Column(name = "content", columnDefinition = "LONGTEXT NOT NULL")
     private String content;
 

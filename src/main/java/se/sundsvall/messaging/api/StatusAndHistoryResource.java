@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
 import se.sundsvall.messaging.api.model.BatchStatusResponse;
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.HistoryResponse;
 import se.sundsvall.messaging.api.model.MessageRequest;
@@ -74,6 +75,7 @@ class StatusAndHistoryResource {
                     case EMAIL -> EmailRequest.class;
                     case SMS -> SmsRequest.class;
                     case WEB_MESSAGE -> WebMessageRequest.class;
+                    case DIGITAL_MAIL -> DigitalMailRequest.class;
                     case MESSAGE -> MessageRequest.Message.class;
                 }))
                 .withContent(GSON.fromJson(historyDto.getContent(), EmailRequest.class))
@@ -138,6 +140,8 @@ class StatusAndHistoryResource {
                 .build())
             .toList();
 
-        return ResponseEntity.ok(new BatchStatusResponse(messageStatuses));
+        return ResponseEntity.ok(BatchStatusResponse.builder()
+            .withMessageStatuses(messageStatuses)
+            .build());
     }
 }

@@ -2,6 +2,7 @@ package se.sundsvall.messaging.integration.feedbacksettings;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,7 +16,6 @@ import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackChannel
 
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
 import generated.se.sundsvall.feedbacksettings.SearchResult;
-import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
 
 @Component
 public class FeedbackSettingsIntegration {
@@ -29,7 +29,16 @@ public class FeedbackSettingsIntegration {
     }
 
     public List<FeedbackChannelDto> getSettingsByPartyId(String partyId) {
-        var feedbackChannels = searchByPersonId(partyId).stream()
+        var feedbackChannels = Optional.ofNullable(searchByPersonId(partyId))
+            .stream()
+            .map(SearchResult::getFeedbackSettings)
+            .flatMap(feedbackSettings -> {
+                if (feedbackSettings != null) {
+                    return feedbackSettings.stream();
+                }
+
+                return Stream.empty();
+            })
             // Filter out matches that have organizationId set, to make sure we only process
             // personal feedback settings at this point
             .filter(feedbackSetting -> StringUtils.isBlank(feedbackSetting.getOrganizationId()))
@@ -39,7 +48,16 @@ public class FeedbackSettingsIntegration {
         if (feedbackChannels.isEmpty()) {
             LOG.info("No feedback settings found for personId {}. Checking for matching organizationId", partyId);
 
-            feedbackChannels = searchByOrganizationId(partyId).stream()
+            feedbackChannels = Optional.ofNullable(searchByOrganizationId(partyId))
+                .stream()
+                .map(SearchResult::getFeedbackSettings)
+                .flatMap(feedbackSettings -> {
+                    if (feedbackSettings != null) {
+                        return feedbackSettings.stream();
+                    }
+
+                    return Stream.empty();
+                })
                 .flatMap(feedbackSetting -> feedbackSetting.getChannels().stream())
                 .toList();
         }
@@ -66,20 +84,17 @@ public class FeedbackSettingsIntegration {
             .build();
     }
 
-    List<WeightedFeedbackSetting> searchByPersonId(final String partyIdAsPersonId) {
+    SearchResult searchByPersonId(final String partyIdAsPersonId) {
         var url = String.format("/settings?personId=%s", partyIdAsPersonId);
 
-        return Optional.ofNullable(restTemplate.getForObject(url, SearchResult.class))
-            .map(SearchResult::getFeedbackSettings)
-            .orElse(List.of());
+        return restTemplate.getForObject(url, SearchResult.class);
     }
 
-    List<WeightedFeedbackSetting> searchByOrganizationId(final String partyIdAsOrganizationId) {
+    SearchResult searchByOrganizationId(final String partyIdAsOrganizationId) {
         String url = String.format("/settings?organizationId=%s", partyIdAsOrganizationId);
 
-        return Optional.ofNullable(restTemplate.getForObject(url, SearchResult.class))
-            .map(SearchResult::getFeedbackSettings)
-            .orElse(List.of());
+        return restTemplate.getForObject(url, SearchResult.class);
     }
 }
+
 

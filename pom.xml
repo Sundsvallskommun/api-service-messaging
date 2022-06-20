@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>0.16-SNAPSHOT</version>
+        <version>1.7</version>
         <relativePath />
     </parent>
 
@@ -20,7 +20,9 @@
         <exposed.app.port>8080</exposed.app.port>
         <published.container.port.sandbox>8703</published.container.port.sandbox>
         <published.container.port.test>9040</published.container.port.test>
-        <published.container.port.production>8787</published.container.port.production>
+        <published.container.port.production>9040</published.container.port.production>
+
+        <failsafe.version>3.2.4</failsafe.version>
 
         <openapi-generator-maven-plugin>5.4.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
@@ -45,12 +47,6 @@
             <artifactId>dept44-common-validators</artifactId>
         </dependency>
 
-        <!-- Spring Boot -->
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -72,8 +68,17 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
 
         <!-- Other -->
+        <dependency>
+            <groupId>dev.failsafe</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>${failsafe.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -187,6 +192,31 @@
                             </configOptions>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>digital-mail-sender-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/generated/digital-mail-sender-api.yaml</inputSpec>
+                            <output>${generated-sources-path}</output>
+                            <generatorName>spring</generatorName>
+                            <generateApis>false</generateApis>
+                            <configOptions>
+                                <sourceFolder>${generated-sources-java-path}</sourceFolder>
+                                <generateSupportingFiles>false</generateSupportingFiles>
+                                <dateLibrary>java8</dateLibrary>
+                                <apiPackage>generated</apiPackage>
+                                <modelPackage>generated.se.sundsvall.digitalmailsender</modelPackage>
+                                <openApiNullable>false</openApiNullable>
+                                <generatePom>false</generatePom>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useSwaggerAnnotations>true</useSwaggerAnnotations>
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -216,6 +246,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/se/sundsvall/messaging/Application*</exclude>
+                        <exclude>**/se/sundsvall/messaging/api/model/validation/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>

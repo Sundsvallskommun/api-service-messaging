@@ -5,13 +5,10 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.0"
+  version: '@project.version@'
 servers:
 - url: http://localhost:8080
   description: Generated server url
-tags:
-- name: Sending Resources
-- name: Status and History Resources
 paths:
   /webmessage:
     post:
@@ -26,12 +23,6 @@ paths:
               $ref: '#/components/schemas/WebMessageRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -44,6 +35,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /sms:
     post:
       tags:
@@ -57,12 +54,6 @@ paths:
               $ref: '#/components/schemas/SmsRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -75,6 +66,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /messages:
     post:
       tags:
@@ -88,12 +85,6 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -106,6 +97,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessagesResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /email:
     post:
       tags:
@@ -119,12 +116,6 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -137,6 +128,43 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /digitalmail:
+    post:
+      tags:
+      - Sending Resources
+      summary: Send a single digital mail to one or more parties
+      operationId: sendDigitalMail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigitalMailRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /status/{messageId}:
     get:
       tags:
@@ -156,18 +184,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageStatusResponse'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /conversationHistory/{partyId}:
     get:
       tags:
@@ -220,18 +248,18 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BatchStatusResponse'
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
         "404":
           description: Not Found
           content:
@@ -286,6 +314,7 @@ components:
           items:
             type: string
             description: The header values
+      description: Headers
     Party:
       type: object
       properties:
@@ -298,6 +327,7 @@ components:
           description: External references
           items:
             $ref: '#/components/schemas/ExternalReference'
+      description: Party
     WebMessageRequest:
       required:
       - message
@@ -307,10 +337,12 @@ components:
           $ref: '#/components/schemas/Party'
         headers:
           type: array
+          description: Headers
           items:
             $ref: '#/components/schemas/Header'
         message:
           type: string
+          description: Message
     Problem:
       type: object
       properties:
@@ -324,10 +356,10 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: '#/components/schemas/StatusType'
         title:
           type: string
+        status:
+          $ref: '#/components/schemas/StatusType'
         detail:
           type: string
     StatusType:
@@ -354,6 +386,7 @@ components:
           type: string
           description: The sender of the SMS
           example: sender
+      description: Sender
     SmsRequest:
       required:
       - message
@@ -364,16 +397,17 @@ components:
           $ref: '#/components/schemas/Party'
         headers:
           type: array
+          description: Headers
           items:
             $ref: '#/components/schemas/Header'
         sender:
           $ref: '#/components/schemas/Sms'
         mobileNumber:
-          pattern: "^\\+467[02369]\\d{7}$"
           type: string
           description: Mobile number. Should start with +467x
         message:
           type: string
+          description: Message
     Email:
       required:
       - address
@@ -400,6 +434,7 @@ components:
           $ref: '#/components/schemas/Party'
         headers:
           type: array
+          description: Headers
           items:
             $ref: '#/components/schemas/Header'
         sender:
@@ -466,12 +501,12 @@ components:
           $ref: '#/components/schemas/Party'
         headers:
           type: array
+          description: Headers
           items:
             $ref: '#/components/schemas/Header'
         emailAddress:
           type: string
           description: Recipient e-mail address
-          example: recipient@recipient.se
         subject:
           type: string
           description: E-mail subject
@@ -488,6 +523,72 @@ components:
           description: Attachments
           items:
             $ref: '#/components/schemas/Attachment'
+    DigitalMailAttachment:
+      required:
+      - content
+      - filename
+      type: object
+      properties:
+        contentType:
+          type: string
+          description: Content type
+          enum:
+          - application/pdf
+        content:
+          type: string
+          description: Content (BASE64-encoded)
+        filename:
+          type: string
+          description: Filename
+      description: Attachments
+    DigitalMailRequest:
+      required:
+      - body
+      - contentType
+      type: object
+      properties:
+        party:
+          $ref: '#/components/schemas/Parties'
+        headers:
+          type: array
+          description: Headers
+          items:
+            $ref: '#/components/schemas/Header'
+        subject:
+          type: string
+          description: Subject
+          nullable: true
+        contentType:
+          type: string
+          description: Content type
+          enum:
+          - text/plain
+          - text/html
+        body:
+          type: string
+          description: Body (BASE64-encoded)
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: '#/components/schemas/DigitalMailAttachment'
+    Parties:
+      required:
+      - partyIds
+      type: object
+      properties:
+        partyIds:
+          type: array
+          description: The message party ID:s
+          items:
+            type: string
+            description: The message party ID:s
+        externalReferences:
+          type: array
+          description: External references
+          items:
+            $ref: '#/components/schemas/ExternalReference'
+      description: Parties
     MessageStatusResponse:
       type: object
       properties:
@@ -512,6 +613,7 @@ components:
           - EMAIL
           - SMS
           - WEB_MESSAGE
+          - DIGITAL_MAIL
         status:
           type: string
           enum:

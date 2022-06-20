@@ -1,0 +1,13 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "/digital-mail-sender/sendDigitalMail"
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "test1_successfulRequest/responses/digital-mail-sender.json",
+        "status": 200
+    }
+}

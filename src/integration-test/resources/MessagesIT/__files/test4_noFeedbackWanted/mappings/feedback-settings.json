@@ -1,0 +1,13 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "/feedback-settings/settings?personId=f427952b-247c-4d3b-b081-675a467b3619"
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "test4_noFeedbackWanted/responses/feedback-settings.json",
+        "status": 200
+    }
+}

@@ -4,5 +4,6 @@ public enum MessageType {
     MESSAGE,
     EMAIL,
     SMS,
-    WEB_MESSAGE
+    WEB_MESSAGE,
+    DIGITAL_MAIL
 }

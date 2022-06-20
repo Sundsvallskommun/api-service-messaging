@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.MessageResponse;
@@ -53,7 +54,7 @@ class MessageResource {
     })
     @PostMapping("/sms")
     ResponseEntity<MessageResponse> sendSms(@Valid @RequestBody final SmsRequest request) {
-        var message = messageService.saveSmsRequest(request);
+        var message = messageService.handleSmsRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -78,7 +79,7 @@ class MessageResource {
     })
     @PostMapping("/webmessage")
     ResponseEntity<MessageResponse> sendWebMessage(@Valid @RequestBody final WebMessageRequest request) {
-        var message = messageService.saveWebMessageRequest(request);
+        var message = messageService.handleWebMessageRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
@@ -103,10 +104,39 @@ class MessageResource {
     })
     @PostMapping("/email")
     ResponseEntity<MessageResponse> sendEmail(@Valid @RequestBody final EmailRequest request) {
-        var message = messageService.saveEmailRequest(request);
+        var message = messageService.handleEmailRequest(request);
 
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
+
+    @Operation(summary = "Send a single digital mail to one or more parties")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
+    })
+    @PostMapping("/digitalmail")
+    ResponseEntity<MessagesResponse> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
+        var messages = messageService.handleDigitalMailRequest(request);
+
+        return ResponseEntity.ok(MessagesResponse.builder()
+            .withBatchId(messages.getBatchId())
+            .withMessageIds(messages.getMessageIds())
+            .build());
+    }
+
 
     @Operation(summary = "Send a batch of messages as e-mail or SMS to a list of parties")
     @ApiResponses({
@@ -128,7 +158,7 @@ class MessageResource {
     })
     @PostMapping("/messages")
     ResponseEntity<MessagesResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
-        var messages = messageService.saveMessageRequest(request);
+        var messages = messageService.handleMessageRequest(request);
 
         return ResponseEntity.ok(MessagesResponse.builder()
             .withBatchId(messages.getBatchId())

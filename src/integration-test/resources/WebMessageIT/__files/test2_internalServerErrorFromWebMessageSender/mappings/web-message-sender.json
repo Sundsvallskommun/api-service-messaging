@@ -1,0 +1,13 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "/web-message-sender/webmessages"
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "test2_internalServerErrorFromWebMessageSender/responses/web-message-sender.json",
+        "status": 500
+    }
+}

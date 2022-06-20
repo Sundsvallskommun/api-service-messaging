@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -69,6 +71,21 @@ public class MessageMapper {
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(request))
             .build();
+    }
+
+    public List<MessageEntity> toEntities(final DigitalMailRequest request, final String batchId) {
+        var uuid = UUID.randomUUID().toString();
+
+        return request.getParty().getPartyIds().stream()
+            .map(partyId -> MessageEntity.builder()
+                .withMessageId(uuid)
+                .withBatchId(batchId)
+                .withPartyId(partyId)
+                .withType(MessageType.DIGITAL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build())
+            .toList();
     }
 
     public MessageEntity toEntity(final String batchId, final MessageRequest.Message request) {

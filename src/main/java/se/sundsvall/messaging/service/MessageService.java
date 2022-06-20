@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -12,6 +13,7 @@ import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
@@ -32,7 +34,7 @@ public class MessageService {
         this.mapper = mapper;
     }
 
-    public MessageBatchDto saveMessageRequest(final MessageRequest request) {
+    public MessageBatchDto handleMessageRequest(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
 
         var messageIds = request.getMessages().stream()
@@ -50,7 +52,7 @@ public class MessageService {
             .build();
     }
 
-    public MessageDto saveEmailRequest(final EmailRequest request) {
+    public MessageDto handleEmailRequest(final EmailRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingEmailEvent(this, message.getMessageId()));
@@ -58,7 +60,7 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto saveSmsRequest(final SmsRequest request) {
+    public MessageDto handleSmsRequest(final SmsRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingSmsEvent(this, message.getMessageId()));
@@ -66,11 +68,27 @@ public class MessageService {
         return mapper.toMessageDto(message);
     }
 
-    public MessageDto saveWebMessageRequest(final WebMessageRequest request) {
+    public MessageDto handleWebMessageRequest(final WebMessageRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
         eventPublisher.publishEvent(new IncomingWebMessageEvent(this, message.getMessageId()));
 
         return mapper.toMessageDto(message);
+    }
+
+    public MessageBatchDto handleDigitalMailRequest(final DigitalMailRequest request) {
+        var batchId = UUID.randomUUID().toString();
+
+        var messageIds = repository.saveAll(mapper.toEntities(request, batchId)).stream()
+            .map(mapper::toMessageDto)
+            .map(MessageDto::getMessageId)
+            .toList();
+
+        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingDigitalMailEvent(this,messageId)));
+
+        return MessageBatchDto.builder()
+            .withBatchId(batchId)
+            .withMessageIds(messageIds)
+            .build();
     }
 }

@@ -4,17 +4,29 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
+import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.Header;
+import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
 public final class TestDataFactory {
 
+    public static final String DEFAULT_PARTY_ID = UUID.randomUUID().toString();
+
+    public static final String DEFAULT_MOBILE_NUMBER = "0701234567";
+
+    public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
+
+    public static final String DEFAULT_SENDER_NAME = "someSender";
+    public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
+    
     private TestDataFactory() { }
 
     public static EmailRequest createEmailRequest() {
@@ -24,7 +36,7 @@ public final class TestDataFactory {
     public static EmailRequest createEmailRequest(final Consumer<EmailRequest> modifier) {
         var request = EmailRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -35,10 +47,11 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Email.builder()
-                .withName("someSender")
-                .withAddress("someAddress")
+                .withName(DEFAULT_SENDER_NAME)
+                .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
                 .build())
-            .withEmailAddress("someEmailAddress")
+            .withEmailAddress(DEFAULT_EMAIL_ADDRESS)
+            .withSubject("someSubject")
             .withMessage("someMessage")
             .withHtmlMessage("someHtmlMessage")
             .withAttachments(List.of(EmailRequest.Attachment.builder()
@@ -62,7 +75,7 @@ public final class TestDataFactory {
     public static SmsRequest createSmsRequest(final Consumer<SmsRequest> modifier) {
         var request = SmsRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -73,9 +86,9 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Sms.builder()
-                .withName("someSender")
+                .withName(DEFAULT_SENDER_NAME)
                 .build())
-            .withMobileNumber("someMobileNumber")
+            .withMobileNumber(DEFAULT_MOBILE_NUMBER)
             .withMessage("someMessage")
             .build();
 
@@ -93,7 +106,7 @@ public final class TestDataFactory {
     public static WebMessageRequest createWebMessageRequest(final Consumer<WebMessageRequest> modifier) {
         var request = WebMessageRequest.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")
@@ -113,6 +126,42 @@ public final class TestDataFactory {
         return request;
     }
 
+    public static DigitalMailRequest createDigitalMailRequest() {
+        return createDigitalMailRequest(null);
+    }
+
+    public static DigitalMailRequest createDigitalMailRequest(final Consumer<DigitalMailRequest> modifier) {
+        var request = DigitalMailRequest.builder()
+            .withParty(Parties.builder()
+                .withPartyIds(List.of(DEFAULT_PARTY_ID))
+                .withExternalReferences(List.of(ExternalReference.builder()
+                    .withKey("someKey")
+                    .withValue("someValue")
+                    .build()))
+                .build())
+            .withHeaders(List.of(Header.builder()
+                .withName("someName")
+                .withValues(List.of("someValue1", "someValue2"))
+                .build()))
+            .withSubject("someSubject")
+            .withContentType(ContentType.TEXT_PLAIN.getValue())
+            .withBody("someBody")
+            .withAttachments(List.of(
+                DigitalMailRequest.Attachment.builder()
+                    .withContentType(ContentType.APPLICATION_PDF.getValue())
+                    .withContent("someContent")
+                    .withFilename("someFilename")
+                    .build()
+            ))
+            .build();
+
+        if (modifier != null) {
+            modifier.accept(request);
+        }
+
+        return request;
+    }
+
     public static MessageRequest.Message createMessageRequest() {
         return createMessageRequest(null);
     }
@@ -120,7 +169,7 @@ public final class TestDataFactory {
     public static MessageRequest.Message createMessageRequest(final Consumer<MessageRequest.Message> modifier) {
         var request = MessageRequest.Message.builder()
             .withParty(Party.builder()
-                .withPartyId("somePartyId")
+                .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(ExternalReference.builder()
                     .withKey("someKey")
                     .withValue("someValue")

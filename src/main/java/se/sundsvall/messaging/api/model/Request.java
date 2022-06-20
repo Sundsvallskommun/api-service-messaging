@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.Party;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,12 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder(setterPrefix = "with")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class Request {
+abstract class Request {
 
     @Valid
+    @Schema(description = "Party")
     private Party party;
 
+    @Schema(description = "Headers")
     private List<@Valid Header> headers;
 }
