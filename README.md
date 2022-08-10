@@ -88,7 +88,7 @@ mvn spring-boot:build-image
 Starta en Docker-container:
 
 ```
-docker run -i --rm -p 8080:8080 evil.sundsvall.se/ms-messaging:latest
+docker run -i --rm -p 8080:8080 evil.sundsvall.se/ms-messaging-v2:latest
 ```
 
 Copyright &copy; 2022 Sundsvalls kommun
