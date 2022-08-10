@@ -5,9 +5,7 @@
 Sundsvalls kommun
 
 ## Beskrivning
-Messaging är en tjänst som hanterar utgående kommunikation via e-post, SMS och som meddelanden i Open-E-plattformen.
-
-Kommande version kan dessutom komma att innehålla stöd för utskick via digitala brevlådor såsom exempelvis Kivra.
+Messaging är en tjänst som hanterar utgående kommunikation via e-post, SMS, digitala brevlådor och som meddelanden i Open-E-plattformen.
 
 Utöver denna funktionalitet sparas, för identifierade mottagare, historik över utgående kommunikation.
 
@@ -21,6 +19,7 @@ Tjänsten integrerar mot:
 * [SmsSender](https://github.com/OpenSundsvall/api-service-sms-sender)
 * [EmailSender](https://github.com/OpenSundsvall/api-service-email-sender)
 * [WebMessageSender](https://github.com/OpenSundsvall/api-service-web-message-sender)
+* [DigitalMailSender](https://github.com/Sundsvallskommun/api-service-digital-mail-sender)
 
 ### Konfiguration
 
@@ -52,6 +51,11 @@ Konfiguration sker i filen `src/main/resources/application.properties` genom att
 |`integration.web-message-sender.token-url`| URL för att hämta OAuth2-token för WebMessageSender-tjänsten |
 |`integration.web-message-sender.client-id`| OAuth2-klient-id för WebMessageSender-tjänsten |
 |`integration.web-message-sender.client-secret`| OAuth2-klient-nyckel WebMessageSender-tjänsten |
+|**Inställningar för DigitalMailSender**|
+|`integration.digital-mail-sender.base-urlL`| API-URL till DigitalMailSender-tjänsten|
+|`integration.digital-mail-sender.token-url`| URL för att hämta OAuth2-token för DigitalMailSender-tjänsten |
+|`integration.digital-mail-sender.client-id`| OAuth2-klient-id för DigitalMailSender-tjänsten |
+|`integration.digital-mail-sender.client-secret`| OAuth2-klient-nyckel DigitalMailSender-tjänsten |
 |**Inställningar för FeedbackSettings**|
 |`integration.feedback-settings.base-urlL`| API-URL till FeedbackSettings-tjänsten|
 |`integration.feedback-settings.token-url`| URL för att hämta OAuth2-token för FeedbackSettings-tjänsten |
@@ -84,7 +88,7 @@ mvn spring-boot:build-image
 Starta en Docker-container:
 
 ```
-docker run -i --rm -p 8080:8080 evil.sundsvall.se/ms-sms-sender:latest
+docker run -i --rm -p 8080:8080 evil.sundsvall.se/ms-messaging:latest
 ```
 
 Copyright &copy; 2022 Sundsvalls kommun
