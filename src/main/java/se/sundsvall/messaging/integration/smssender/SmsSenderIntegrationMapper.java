@@ -16,9 +16,9 @@ class SmsSenderIntegrationMapper {
         }
 
         return new SendSmsRequest()
-            .message(smsDto.getMessage())
-            .mobileNumber(smsDto.getMobileNumber())
             .sender(new Sender()
-                .name(smsDto.getSender().getName()));
+                .name(smsDto.getSender().getName()))
+            .mobileNumber(smsDto.getMobileNumber())
+            .message(smsDto.getMessage());
     }
 }

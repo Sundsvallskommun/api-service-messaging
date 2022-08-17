@@ -122,6 +122,7 @@ class MessageProcessor extends Processor {
             .withHeaders(message.getHeaders())
             .withSender(sender)
             .withEmailAddress(emailAddress)
+            .withSubject(message.getSubject())
             .withMessage(message.getMessage())
             .build();
 

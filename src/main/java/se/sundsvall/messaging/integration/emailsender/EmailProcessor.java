@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -24,16 +25,19 @@ import dev.failsafe.RetryPolicy;
 class EmailProcessor extends Processor {
 
     private final EmailSenderIntegration emailSenderIntegration;
+    private final DefaultSettings defaultSettings;
 
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     EmailProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
-            final EmailSenderIntegration emailSenderIntegration) {
+            final EmailSenderIntegration emailSenderIntegration,
+            final DefaultSettings defaultSettings) {
         super(messageRepository, historyRepository);
 
         this.emailSenderIntegration = emailSenderIntegration;
+        this.defaultSettings = defaultSettings;
 
         retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -71,8 +75,10 @@ class EmailProcessor extends Processor {
     EmailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), EmailRequest.class);
 
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaultSettings::getEmail);
+
         return EmailDto.builder()
-            .withSender(request.getSender())
+            .withSender(sender)
             .withEmailAddress(request.getEmailAddress())
             .withSubject(request.getSubject())
             .withMessage(request.getMessage())
