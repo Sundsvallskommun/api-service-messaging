@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.integration.smssender;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -22,16 +25,19 @@ import dev.failsafe.RetryPolicy;
 class SmsProcessor extends Processor {
 
     private final SmsSenderIntegration smsSenderIntegration;
+    private final DefaultSettings defaultSettings;
 
     private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
 
     SmsProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
-            final SmsSenderIntegration smsSenderIntegration) {
+            final SmsSenderIntegration smsSenderIntegration,
+            final DefaultSettings defaultSettings) {
         super(messageRepository, historyRepository);
 
         this.smsSenderIntegration = smsSenderIntegration;
+        this.defaultSettings = defaultSettings;
 
         retryPolicy = RetryPolicy.<ResponseEntity<Boolean>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -69,8 +75,10 @@ class SmsProcessor extends Processor {
     SmsDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), SmsRequest.class);
 
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaultSettings::getSms);
+
         return SmsDto.builder()
-            .withSender(request.getSender())
+            .withSender(sender)
             .withMobileNumber(request.getMobileNumber())
             .withMessage(request.getMessage())
             .build();
