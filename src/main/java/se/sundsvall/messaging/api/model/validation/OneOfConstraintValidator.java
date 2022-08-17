@@ -8,19 +8,23 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 
-class InConstraintValidator implements ConstraintValidator<In, String> {
+class OneOfConstraintValidator implements ConstraintValidator<OneOf, String> {
 
     private List<String> value;
 
     @Override
-    public void initialize(final In inAnnotation) {
-        value = Arrays.asList(inAnnotation.value());
+    public void initialize(final OneOf annotation) {
+        value = Arrays.asList(annotation.value());
     }
 
     @Override
     public boolean isValid(final String s, final ConstraintValidatorContext context) {
         if (null == s) {
             return false;
+        }
+
+        if (value.isEmpty()) {
+            return true;
         }
 
         boolean valid = value.contains(s);

@@ -2,6 +2,7 @@ package se.sundsvall.messaging.processor;
 
 import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.Gson;
@@ -19,6 +20,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
+import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Sender;
@@ -56,8 +58,9 @@ class MessageProcessor extends Processor {
         }
 
         var partyId = message.getPartyId();
+        var headers = getHeaders(message);
 
-        var feedbackChannels = feedbackSettingsIntegration.getSettingsByPartyId(partyId);
+        var feedbackChannels = feedbackSettingsIntegration.getSettingsByPartyId(headers, partyId);
         if (feedbackChannels.isEmpty()) {
             log.info("No feedback settings found for {}", partyId);
 
@@ -110,7 +113,7 @@ class MessageProcessor extends Processor {
         }
     }
 
-    private String mapToEmailRequest(final MessageEntity messageEntity, final String emailAddress) {
+    String mapToEmailRequest(final MessageEntity messageEntity, final String emailAddress) {
         var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
 
         var sender = Optional.ofNullable(message.getSender())
@@ -129,7 +132,7 @@ class MessageProcessor extends Processor {
         return GSON.toJson(emailRequest);
     }
 
-    private String mapToSmsRequest(final MessageEntity messageEntity, final String mobileNumber) {
+    String mapToSmsRequest(final MessageEntity messageEntity, final String mobileNumber) {
         var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
 
         var sender = Optional.ofNullable(message.getSender())
@@ -145,5 +148,11 @@ class MessageProcessor extends Processor {
             .build();
 
         return GSON.toJson(smsRequest);
+    }
+
+    List<Header> getHeaders(final MessageEntity messageEntity) {
+        var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
+
+        return message.getHeaders();
     }
 }

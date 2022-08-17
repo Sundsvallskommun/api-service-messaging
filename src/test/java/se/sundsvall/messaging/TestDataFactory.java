@@ -16,6 +16,8 @@ import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
+import generated.se.sundsvall.messagingrules.HeaderName;
+
 public final class TestDataFactory {
 
     public static final String DEFAULT_PARTY_ID = UUID.randomUUID().toString();
@@ -43,7 +45,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName("someName")
+                .withName(HeaderName.CATEGORY)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Email.builder()
@@ -82,7 +84,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName("someName")
+                .withName(HeaderName.CATEGORY)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSender(Sender.Sms.builder()
@@ -113,7 +115,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName("someName")
+                .withName(HeaderName.CATEGORY)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withMessage("someMessage")
@@ -140,7 +142,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName("someName")
+                .withName(HeaderName.TYPE)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSubject("someSubject")
@@ -176,7 +178,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName("someName")
+                .withName(HeaderName.DISTRIBUTION_RULE)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSubject("someSubject")
@@ -213,7 +215,7 @@ public final class TestDataFactory {
 
     public static Header createHeader(final Consumer<Header> modifier) {
         var header = Header.builder()
-                .withName("someName")
+                .withName(HeaderName.TYPE)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build();
 

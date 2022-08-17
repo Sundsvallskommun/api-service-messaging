@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -61,7 +62,7 @@ class MessageProcessorTests {
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, never()).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, never()).getSettingsByPartyId(ArgumentMatchers.any(), any(String.class));
         verify(mockMessageRepository, never()).deleteById(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
@@ -74,13 +75,13 @@ class MessageProcessorTests {
             .withType(MessageType.EMAIL)
             .build()));
 
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
+        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
             .thenReturn(List.of());
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
@@ -92,14 +93,14 @@ class MessageProcessorTests {
             .withType(MessageType.EMAIL)
             .build()));
 
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
+        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
             .thenReturn(List.of(mockFeedbackChannel));
         when(mockFeedbackChannel.getContactMethod()).thenReturn(null);
 
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, never()).save(any(MessageEntity.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -113,7 +114,7 @@ class MessageProcessorTests {
             .withType(MessageType.EMAIL)
             .build()));
 
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
+        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
             .thenReturn(List.of(mockFeedbackChannel));
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(false);
@@ -121,7 +122,7 @@ class MessageProcessorTests {
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, never()).save(any(MessageEntity.class));
         verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -136,7 +137,7 @@ class MessageProcessorTests {
             .withContent("{}")
             .build()));
 
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
+        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
             .thenReturn(List.of(mockFeedbackChannel));
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
@@ -144,7 +145,7 @@ class MessageProcessorTests {
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingEmailEvent.class));
@@ -159,7 +160,7 @@ class MessageProcessorTests {
             .withContent("{}")
             .build()));
 
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(String.class)))
+        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
                 .thenReturn(List.of(mockFeedbackChannel));
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.SMS);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
@@ -167,7 +168,7 @@ class MessageProcessorTests {
         messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
 
         verify(mockMessageRepository, times(1)).findById(any(String.class));
-        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(String.class));
+        verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSmsEvent.class));

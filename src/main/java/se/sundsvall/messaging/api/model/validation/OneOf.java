@@ -12,8 +12,8 @@ import javax.validation.Payload;
 @Documented
 @Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = InConstraintValidator.class)
-public @interface In {
+@Constraint(validatedBy = OneOfConstraintValidator.class)
+public @interface OneOf {
 
     String message() default "must be one of: {allowedValues}";
 
