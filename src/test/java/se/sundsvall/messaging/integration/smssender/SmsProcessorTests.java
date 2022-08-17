@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -46,6 +47,8 @@ class SmsProcessorTests {
     private HistoryRepository mockHistoryRepository;
     @Mock
     private SmsSenderIntegration mockSmsSenderIntegration;
+    @Mock
+    private DefaultSettings mockDefaultSettings;
 
     private SmsProcessor smsProcessor;
 
@@ -56,7 +59,7 @@ class SmsProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         smsProcessor = new SmsProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockSmsSenderIntegration);
+            mockHistoryRepository, mockSmsSenderIntegration, mockDefaultSettings);
     }
 
     @Test
