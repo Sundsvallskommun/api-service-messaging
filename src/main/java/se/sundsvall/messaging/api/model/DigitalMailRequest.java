@@ -5,7 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
-import se.sundsvall.messaging.api.model.validation.In;
+import se.sundsvall.messaging.api.model.validation.OneOf;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -27,7 +27,7 @@ public class DigitalMailRequest extends BatchRequest {
     private String subject;
 
     @NotBlank
-    @In({"text/plain", "text/html"})
+    @OneOf({"text/plain", "text/html"})
     @Schema(description = "Content type", allowableValues = {"text/plain", "text/html"})
     private String contentType;
 
@@ -47,7 +47,7 @@ public class DigitalMailRequest extends BatchRequest {
     @Schema(name = "DigitalMailAttachment")
     public static class Attachment {
 
-        @In("application/pdf")
+        @OneOf("application/pdf")
         @Schema(description = "Content type", allowableValues = {"application/pdf"})
         private String contentType;
 

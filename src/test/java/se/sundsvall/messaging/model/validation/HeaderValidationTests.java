@@ -37,19 +37,6 @@ class HeaderValidationTests {
     }
 
     @Test
-    void test_withBlankName() {
-        var header = createHeader(hdr -> hdr.setName(" "));
-
-        var constraintViolations = validator.validate(header);
-
-        assertThat(constraintViolations).hasSize(1);
-        assertThat(constraintViolations.iterator().next()).satisfies(constraintViolation -> {
-            assertThat(constraintViolation.getMessage()).startsWith("must not be blank");
-            assertThat(constraintViolation.getPropertyPath().toString()).isEqualTo("name");
-        });
-    }
-
-    @Test
     void test_withNullValues() {
         var header = createHeader(hdr -> hdr.setValues(null));
 
