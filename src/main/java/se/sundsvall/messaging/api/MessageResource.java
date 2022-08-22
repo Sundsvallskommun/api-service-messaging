@@ -59,7 +59,9 @@ class MessageResource {
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
 
-    @Operation(summary = "Send a single web message")
+    @Operation(
+        summary = "Send a single web message"
+    )
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",

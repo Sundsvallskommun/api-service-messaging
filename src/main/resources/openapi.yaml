@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: '@project.version@'
+  version: "2.1"
 servers:
 - url: http://localhost:8080
   description: Generated server url
@@ -29,18 +29,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /sms:
     post:
       tags:
@@ -60,18 +60,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /messages:
     post:
       tags:
@@ -85,18 +85,18 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessagesResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
@@ -122,18 +122,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /digitalmail:
     post:
       tags:
@@ -153,18 +153,18 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /status/{messageId}:
     get:
       tags:
@@ -248,18 +248,18 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BatchStatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
         "404":
           description: Not Found
           content:
@@ -301,13 +301,17 @@ components:
       description: External references
     Header:
       required:
-      - name
       - values
       type: object
       properties:
         name:
           type: string
           description: The header name
+          enum:
+          - DISTRIBUTION_RULE
+          - CATEGORY
+          - FACILITY_ID
+          - TYPE
         values:
           type: array
           description: The header values
@@ -356,10 +360,10 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
         status:
           $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
         detail:
           type: string
     StatusType:

@@ -34,6 +34,8 @@ import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
+import generated.se.sundsvall.smssender.SendSmsResponse;
+
 @ExtendWith(MockitoExtension.class)
 class SmsProcessorTests {
 
@@ -87,7 +89,8 @@ class SmsProcessorTests {
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(emailRequest))
                 .build()));
-        when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(ResponseEntity.ok(true));
+        when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
+            .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
 
@@ -156,7 +159,8 @@ class SmsProcessorTests {
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(emailRequest))
                 .build()));
-        when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(ResponseEntity.ok(false));
+        when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
+            .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(false)));
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
 

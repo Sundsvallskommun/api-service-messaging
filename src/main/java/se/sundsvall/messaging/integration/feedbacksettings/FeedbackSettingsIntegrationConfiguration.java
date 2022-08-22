@@ -27,25 +27,24 @@ class FeedbackSettingsIntegrationConfiguration {
     @Bean
     RequestInterceptor oAuth2RequestInterceptor() {
         return FeignHelper.oAuth2RequestInterceptor(ClientRegistration
-                .withRegistrationId(FeedbackSettingsIntegration.INTEGRATION_NAME)
-                .tokenUri(properties.getTokenUrl())
-                .clientId(properties.getClientId())
-                .clientSecret(properties.getClientSecret())
-                .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-                .build());
+            .withRegistrationId(FeedbackSettingsIntegration.INTEGRATION_NAME)
+            .tokenUri(properties.getTokenUrl())
+            .clientId(properties.getClientId())
+            .clientSecret(properties.getClientSecret())
+            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+            .build());
     }
 
     @Bean
     FeignBuilderCustomizer customizer() {
         return FeignHelper.customizeRequestOptions()
-                .withConnectTimeout(properties.getConnectTimeout())
-                .withReadTimeout(properties.getReadTimeout())
-                .build();
+            .withConnectTimeout(properties.getConnectTimeout())
+            .withReadTimeout(properties.getReadTimeout())
+            .build();
     }
 
     @Bean
     ErrorDecoder errorDecoder() {
         return new ProblemErrorDecoder(FeedbackSettingsIntegration.INTEGRATION_NAME);
     }
-
 }

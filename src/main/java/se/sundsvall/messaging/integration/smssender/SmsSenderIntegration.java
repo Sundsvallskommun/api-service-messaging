@@ -1,47 +1,28 @@
 package se.sundsvall.messaging.integration.smssender;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
 
 import se.sundsvall.messaging.dto.SmsDto;
-import se.sundsvall.messaging.integration.AbstractRestIntegration;
+
+import generated.se.sundsvall.smssender.SendSmsResponse;
 
 @Component
-public class SmsSenderIntegration extends AbstractRestIntegration {
+public class SmsSenderIntegration {
 
+    static final String INTEGRATION_NAME = "SmsSender";
+
+    private final SmsSenderClient client;
     private final SmsSenderIntegrationMapper mapper;
-    private final RestTemplate restTemplate;
 
-    public SmsSenderIntegration(final SmsSenderIntegrationMapper mapper,
-            @Qualifier("integration.sms-sender.resttemplate") final RestTemplate restTemplate) {
+    public SmsSenderIntegration(final SmsSenderClient client, final SmsSenderIntegrationMapper mapper) {
+        this.client = client;
         this.mapper = mapper;
-        this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity<Boolean> sendSms(final SmsDto smsDto) {
+    public ResponseEntity<SendSmsResponse> sendSms(final SmsDto smsDto) {
         var request = mapper.toSendSmsRequest(smsDto);
 
-        try {
-            return restTemplate.postForEntity("/send/sms", createRequestEntity(request), Boolean.class);
-        } catch (HttpStatusCodeException e) {
-            throw Problem.builder()
-                .withTitle("Exception when calling SmsSender")
-                .withStatus(Status.BAD_GATEWAY)
-                .withCause(Problem.builder()
-                    .withStatus(Status.valueOf(e.getRawStatusCode()))
-                    .build())
-                .build();
-        } catch (RestClientException e) {
-            throw Problem.builder()
-                .withTitle("Exception when calling SmsSender")
-                .withStatus(Status.BAD_GATEWAY)
-                .build();
-        }
+        return client.sendSms(request);
     }
 }

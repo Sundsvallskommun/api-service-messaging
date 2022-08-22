@@ -31,7 +31,7 @@ class HeaderValidationTests {
 
         assertThat(constraintViolations).hasSize(1);
         assertThat(constraintViolations.iterator().next()).satisfies(constraintViolation -> {
-            assertThat(constraintViolation.getMessage()).startsWith("must not be blank");
+            assertThat(constraintViolation.getMessage()).startsWith("must be one of");
             assertThat(constraintViolation.getPropertyPath().toString()).isEqualTo("name");
         });
     }

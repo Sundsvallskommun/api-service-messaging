@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -32,6 +35,8 @@ import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 @ExtendWith(MockitoExtension.class)
 class MessageProcessorTests {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
     private ApplicationEventPublisher mockEventPublisher;
@@ -68,11 +73,14 @@ class MessageProcessorTests {
     }
 
     @Test
-    void testHandleIncomingMessageEvent_whenNoFeedbackSettingsExist() {
+    void testHandleIncomingMessageEvent_whenNoFeedbackSettingsExist() throws JsonProcessingException {
         when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
+            .withContent(objectMapper.writeValueAsString(EmailRequest.builder()
+                .withHeaders(List.of())
+                .build()))
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
@@ -86,11 +94,14 @@ class MessageProcessorTests {
     }
 
     @Test
-    void testHandleIncomingMessageEvent_whenFeedbackSettingsHasNoContactMethod() {
+    void testHandleIncomingMessageEvent_whenFeedbackSettingsHasNoContactMethod() throws JsonProcessingException {
         when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
+            .withContent(objectMapper.writeValueAsString(EmailRequest.builder()
+                .withHeaders(List.of())
+                .build()))
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
@@ -107,11 +118,14 @@ class MessageProcessorTests {
     }
 
     @Test
-    void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateNoContactIsWanted() {
+    void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateNoContactIsWanted() throws JsonProcessingException {
         when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
+            .withContent(objectMapper.writeValueAsString(EmailRequest.builder()
+                .withHeaders(List.of())
+                .build()))
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
@@ -129,12 +143,14 @@ class MessageProcessorTests {
     }
 
     @Test
-    void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateEmailAsContactMethod() {
+    void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateEmailAsContactMethod() throws JsonProcessingException {
         when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
-            .withContent("{}")
+            .withContent(objectMapper.writeValueAsString(EmailRequest.builder()
+                .withHeaders(List.of())
+                .build()))
             .build()));
 
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))

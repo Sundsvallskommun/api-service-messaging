@@ -7,6 +7,8 @@ import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 
 import org.junit.jupiter.api.Test;
 
+import generated.se.sundsvall.messagingrules.HeaderName;
+
 class SmsRequestTests {
 
     @Test
@@ -22,7 +24,7 @@ class SmsRequestTests {
         });
         assertThat(request.getHeaders()).satisfies(headers ->
             assertThat(headers).hasSize(1).allSatisfy(header -> {
-                assertThat(header.getName()).isEqualTo("someName");
+                assertThat(header.getName()).isEqualTo(HeaderName.CATEGORY);
                 assertThat(header.getValues()).containsExactlyInAnyOrder("someValue1", "someValue2");
             })
         );

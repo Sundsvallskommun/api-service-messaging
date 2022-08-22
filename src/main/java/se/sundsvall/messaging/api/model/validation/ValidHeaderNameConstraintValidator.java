@@ -10,7 +10,7 @@ import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintVa
 
 import generated.se.sundsvall.messagingrules.HeaderName;
 
-class ValidHeaderNameConstraintValidator implements ConstraintValidator<ValidHeaderName, HeaderName> {
+public class ValidHeaderNameConstraintValidator implements ConstraintValidator<ValidHeaderName, HeaderName> {
 
     private final String headerNames;
 
