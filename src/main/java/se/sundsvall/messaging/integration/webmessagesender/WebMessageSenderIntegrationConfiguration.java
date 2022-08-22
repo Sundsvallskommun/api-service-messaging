@@ -1,18 +1,19 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.web.client.RestTemplate;
-import org.zalando.logbook.Logbook;
 
-import se.sundsvall.dept44.configuration.resttemplate.RestTemplateBuilder;
+import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
+import se.sundsvall.dept44.configuration.feign.FeignHelper;
+import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
-@Configuration
-@EnableConfigurationProperties(WebMessageSenderIntegrationProperties.class)
+import feign.RequestInterceptor;
+import feign.codec.ErrorDecoder;
+
+@Import(FeignConfiguration.class)
 class WebMessageSenderIntegrationConfiguration {
 
     private final WebMessageSenderIntegrationProperties properties;
@@ -20,25 +21,27 @@ class WebMessageSenderIntegrationConfiguration {
     WebMessageSenderIntegrationConfiguration(final WebMessageSenderIntegrationProperties properties) {
         this.properties = properties;
     }
-
-    @Bean("integration.web-message-sender.clientregistration")
-    ClientRegistration clientRegistration() {
-        return ClientRegistration.withRegistrationId("web-message-sender")
+    @Bean
+    RequestInterceptor oAuth2RequestInterceptor() {
+        return FeignHelper.oAuth2RequestInterceptor(ClientRegistration
+            .withRegistrationId(WebMessageSenderIntegration.INTEGRATION_NAME)
             .tokenUri(properties.getTokenUrl())
             .clientId(properties.getClientId())
             .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+            .build());
+    }
+
+    @Bean
+    FeignBuilderCustomizer customizer() {
+        return FeignHelper.customizeRequestOptions()
+            .withConnectTimeout(properties.getConnectTimeout())
+            .withReadTimeout(properties.getReadTimeout())
             .build();
     }
 
-    @Bean("integration.web-message-sender.resttemplate")
-    RestTemplate restTemplate(
-            @Qualifier("integration.web-message-sender.clientregistration") final ClientRegistration clientRegistration,
-            final Logbook logbook) {
-        return new RestTemplateBuilder()
-                .withBaseUrl(properties.getBaseUrl())
-                .withLogbook(logbook)
-                .withOAuth2Client(clientRegistration)
-                .build();
+    @Bean
+    ErrorDecoder errorDecoder() {
+        return new ProblemErrorDecoder(WebMessageSenderIntegration.INTEGRATION_NAME);
     }
 }

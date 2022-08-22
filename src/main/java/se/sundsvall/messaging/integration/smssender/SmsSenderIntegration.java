@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.smssender;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import se.sundsvall.messaging.dto.SmsDto;
 import generated.se.sundsvall.smssender.SendSmsResponse;
 
 @Component
+@EnableConfigurationProperties(SmsSenderIntegrationProperties.class)
 public class SmsSenderIntegration {
 
     static final String INTEGRATION_NAME = "SmsSender";
