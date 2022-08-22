@@ -1,13 +1,14 @@
 package se.sundsvall.messaging.integration.emailsender;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.dto.EmailDto;
-import se.sundsvall.messaging.integration.AbstractRestIntegration;
 
 @Component
-public class EmailSenderIntegration extends AbstractRestIntegration {
+@EnableConfigurationProperties(EmailSenderIntegrationProperties.class)
+public class EmailSenderIntegration {
 
     static final String INTEGRATION_NAME = "EmailSender";
 

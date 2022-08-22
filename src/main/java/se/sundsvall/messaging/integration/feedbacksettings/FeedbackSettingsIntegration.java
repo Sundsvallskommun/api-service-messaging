@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import generated.se.sundsvall.feedbacksettings.SearchResult;
 import generated.se.sundsvall.messagingrules.HeaderName;
 
 @Component
+@EnableConfigurationProperties(FeedbackSettingsIntegrationProperties.class)
 public class FeedbackSettingsIntegration {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeedbackSettingsIntegration.class);
