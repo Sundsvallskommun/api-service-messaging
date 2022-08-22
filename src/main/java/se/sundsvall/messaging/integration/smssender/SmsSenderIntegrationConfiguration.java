@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.smssender;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -15,7 +14,6 @@ import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(SmsSenderIntegrationProperties.class)
 class SmsSenderIntegrationConfiguration {
 
     private final SmsSenderIntegrationProperties properties;
