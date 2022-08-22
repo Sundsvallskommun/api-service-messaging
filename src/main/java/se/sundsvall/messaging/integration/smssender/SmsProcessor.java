@@ -20,6 +20,7 @@ import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
+import generated.se.sundsvall.smssender.SendSmsResponse;
 
 @Component
 class SmsProcessor extends Processor {
@@ -27,7 +28,7 @@ class SmsProcessor extends Processor {
     private final SmsSenderIntegration smsSenderIntegration;
     private final DefaultSettings defaultSettings;
 
-    private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
+    private final RetryPolicy<ResponseEntity<SendSmsResponse>> retryPolicy;
 
     SmsProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
@@ -39,11 +40,11 @@ class SmsProcessor extends Processor {
         this.smsSenderIntegration = smsSenderIntegration;
         this.defaultSettings = defaultSettings;
 
-        retryPolicy = RetryPolicy.<ResponseEntity<Boolean>>builder()
+        retryPolicy = RetryPolicy.<ResponseEntity<SendSmsResponse>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
             .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
             .handle(Exception.class)
-            .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK || !BooleanUtils.isTrue(response.getBody()))
+            .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK || !BooleanUtils.isTrue(response.getBody().getSent()))
             .onFailedAttempt(event -> log.info("Unable to send SMS ({}/{}): {}",
                 event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
             .build();

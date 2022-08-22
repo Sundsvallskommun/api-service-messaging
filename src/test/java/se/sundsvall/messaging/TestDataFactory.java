@@ -215,9 +215,9 @@ public final class TestDataFactory {
 
     public static Header createHeader(final Consumer<Header> modifier) {
         var header = Header.builder()
-                .withName(HeaderName.TYPE)
-                .withValues(List.of("someValue1", "someValue2"))
-                .build();
+            .withName(HeaderName.TYPE)
+            .withValues(List.of("someValue1", "someValue2"))
+            .build();
 
         if (modifier != null) {
             modifier.accept(header);

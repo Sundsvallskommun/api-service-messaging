@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -9,6 +10,7 @@ import se.sundsvall.messaging.model.Party;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +26,7 @@ abstract class Request {
     @Schema(description = "Party")
     private Party party;
 
+    @Builder.Default
     @Schema(description = "Headers")
-    private List<@Valid Header> headers;
+    private List<@Valid Header> headers = new ArrayList<>();
 }

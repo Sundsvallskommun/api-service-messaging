@@ -29,7 +29,7 @@ import net.javacrumbs.jsonunit.core.internal.Options;
         "logging.level.se.sundsvall.dept44.payload=OFF"
     }
 )
-class GenerateOpenApiIT {
+class OpenApiSpecificationIT {
 
     private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 

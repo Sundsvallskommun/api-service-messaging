@@ -1,17 +1,20 @@
 package se.sundsvall.messaging.integration.smssender;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.web.client.RestTemplate;
-import org.zalando.logbook.Logbook;
 
-import se.sundsvall.dept44.configuration.resttemplate.RestTemplateBuilder;
+import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
+import se.sundsvall.dept44.configuration.feign.FeignHelper;
+import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
-@Configuration
+import feign.RequestInterceptor;
+import feign.codec.ErrorDecoder;
+
+@Import(FeignConfiguration.class)
 @EnableConfigurationProperties(SmsSenderIntegrationProperties.class)
 class SmsSenderIntegrationConfiguration {
 
@@ -21,24 +24,27 @@ class SmsSenderIntegrationConfiguration {
         this.properties = properties;
     }
 
-    @Bean("integration.sms-sender.clientregistration")
-    ClientRegistration clientRegistration() {
-        return ClientRegistration.withRegistrationId("sms-sender")
+    @Bean
+    RequestInterceptor oAuth2RequestInterceptor() {
+        return FeignHelper.oAuth2RequestInterceptor(ClientRegistration
+            .withRegistrationId(SmsSenderIntegration.INTEGRATION_NAME)
             .tokenUri(properties.getTokenUrl())
             .clientId(properties.getClientId())
             .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+            .build());
+    }
+
+    @Bean
+    FeignBuilderCustomizer customizer() {
+        return FeignHelper.customizeRequestOptions()
+            .withConnectTimeout(properties.getConnectTimeout())
+            .withReadTimeout(properties.getReadTimeout())
             .build();
     }
 
-    @Bean("integration.sms-sender.resttemplate")
-    RestTemplate restTemplate(
-            @Qualifier("integration.sms-sender.clientregistration") final ClientRegistration clientRegistration,
-            final Logbook logbook) {
-        return new RestTemplateBuilder()
-            .withBaseUrl(properties.getBaseUrl())
-            .withLogbook(logbook)
-            .withOAuth2Client(clientRegistration)
-            .build();
+    @Bean
+    ErrorDecoder errorDecoder() {
+        return new ProblemErrorDecoder(SmsSenderIntegration.INTEGRATION_NAME);
     }
 }
