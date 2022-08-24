@@ -1,0 +1,253 @@
+openapi: 3.0.1
+info:
+  title: BusinessRules
+  contact: {}
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "1.0"
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /distribution-rules/{name}:
+    get:
+      tags:
+      - Distribution rule resources
+      summary: Get details on a distribution rule
+      operationId: getDistributionRule
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "404":
+          description: Not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DistributionRuleResponse'
+    post:
+      tags:
+      - Distribution rule resources
+      summary: Evaluate a distribution rule
+      operationId: evaluateDistributionRule
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "404":
+          description: Not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DistributionRuleEvaluationResponse'
+  /domain/issue-types:
+    get:
+      tags:
+      - Domain resources
+      summary: Get all available issue types
+      operationId: getAvailableIssueTypes
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueType'
+  /domain/header-names:
+    get:
+      tags:
+      - Domain resources
+      summary: Get all available header names
+      operationId: getAvailableHeaderNames
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HeaderName'
+  /domain/delivery-methods:
+    get:
+      tags:
+      - Domain resources
+      summary: Get all available delivery methods
+      operationId: getAvailableDeliveryMethods
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryMethod'
+  /domain/categories:
+    get:
+      tags:
+      - Domain resources
+      summary: Get all available categories
+      operationId: getAvailableCategories
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /distribution-rules:
+    get:
+      tags:
+      - Distribution rule resources
+      summary: Get all available distribution rule names and descriptions
+      operationId: getAvailableDistributionRuleNames
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /api-docs:
+    get:
+      tags:
+      - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    Problem:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+    DistributionRuleEvaluationResponse:
+      type: object
+      properties:
+        empty:
+          type: boolean
+      additionalProperties:
+        type: boolean
+        description: Distribution rule evaluation response
+        example: false
+      description: Distribution rule evaluation response
+      example:
+        SMS: true
+        EMAIL: false
+    IssueType:
+      type: string
+      description: Issue type
+      enum:
+      - CASE
+      - DISTURBANCE
+      - ERROR_REPORT
+      - REMINDER
+    HeaderName:
+      type: string
+      description: Header name
+      enum:
+      - DISTRIBUTION_RULE
+      - CATEGORY
+      - FACILITY_ID
+      - ISSUE_TYPE
+    DeliveryMethod:
+      type: string
+      description: Delivery method
+      enum:
+      - SMS
+      - EMAIL
+    Category:
+      type: string
+      description: Category
+      enum:
+      - COMMUNICATION
+      - DISTRICT_COOLING
+      - DISTRICT_HEATING
+      - ELECTRICITY
+      - ELECTRICITY_TRADE
+      - WASTE_MANAGEMENT
+      - WATER
+    DistributionRuleResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        rules:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Rule'
+      description: Bla bla bla
+    Rule:
+      type: object
+      properties:
+        deliver:
+          type: string
+          enum:
+          - ALWAYS
+          - NEVER
+          - CUSTOM
+        only:
+          type: array
+          items:
+            type: string
+  securitySchemes: {}

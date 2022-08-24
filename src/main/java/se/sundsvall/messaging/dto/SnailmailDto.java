@@ -1,12 +1,11 @@
 package se.sundsvall.messaging.dto;
 
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @Builder(setterPrefix = "with")

@@ -8,7 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import generated.se.sundsvall.businessrules.HeaderName;
 
 public class ValidHeaderNameConstraintValidator implements ConstraintValidator<ValidHeaderName, HeaderName> {
 

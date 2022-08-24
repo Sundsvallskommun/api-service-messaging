@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import se.sundsvall.messaging.api.model.validation.ValidHeaderName;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import generated.se.sundsvall.businessrules.HeaderName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

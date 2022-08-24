@@ -1,6 +1,9 @@
 package se.sundsvall.messaging;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
@@ -14,9 +17,7 @@ import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
+import generated.se.sundsvall.businessrules.HeaderName;
 
 public final class TestDataFactory {
 
@@ -178,7 +179,7 @@ public final class TestDataFactory {
                     .build()))
                 .build())
             .withHeaders(List.of(Header.builder()
-                .withName(HeaderName.TYPE)
+                .withName(HeaderName.ISSUE_TYPE)
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withSubject("someSubject")
@@ -251,7 +252,7 @@ public final class TestDataFactory {
 
     public static Header createHeader(final Consumer<Header> modifier) {
         var header = Header.builder()
-            .withName(HeaderName.TYPE)
+            .withName(HeaderName.ISSUE_TYPE)
             .withValues(List.of("someValue1", "someValue2"))
             .build();
 

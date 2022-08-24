@@ -1,7 +1,10 @@
 package se.sundsvall.messaging.service;
 
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
@@ -20,8 +23,6 @@ import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 
-import java.util.UUID;
-
 @Service
 public class MessageService {
 
@@ -30,7 +31,7 @@ public class MessageService {
     private final MessageMapper mapper;
 
     public MessageService(final ApplicationEventPublisher eventPublisher,
-                          final MessageRepository repository, final MessageMapper mapper) {
+            final MessageRepository repository, final MessageMapper mapper) {
         this.eventPublisher = eventPublisher;
         this.repository = repository;
         this.mapper = mapper;
@@ -80,9 +81,9 @@ public class MessageService {
         var batchId = UUID.randomUUID().toString();
 
         var messageIds = repository.saveAll(mapper.toEntities(request, batchId)).stream()
-                .map(mapper::toMessageDto)
-                .map(MessageDto::getMessageId)
-                .toList();
+            .map(mapper::toMessageDto)
+            .map(MessageDto::getMessageId)
+            .toList();
 
         messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingDigitalMailEvent(this, messageId)));
 
@@ -99,5 +100,4 @@ public class MessageService {
 
         return mapper.toMessageDto(message);
     }
-
 }

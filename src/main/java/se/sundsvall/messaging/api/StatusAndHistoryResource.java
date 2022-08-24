@@ -36,6 +36,13 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
 @Tag(name = "Status and History Resources")
 @RestController
+@ApiResponses({
+    @ApiResponse(
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(schema = @Schema(implementation = Problem.class))
+    )
+})
 class StatusAndHistoryResource {
 
     private static final Gson GSON = new GsonBuilder().create();
@@ -46,19 +53,14 @@ class StatusAndHistoryResource {
         this.historyService = historyService;
     }
 
-    @Operation(summary = "Get the entire conversation history for a given party")
-    @ApiResponses({
-        @ApiResponse(
+    @Operation(
+        summary = "Get the entire conversation history for a given party",
+        responses = @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
             content = @Content(schema = @Schema(implementation = HistoryResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
         )
-    })
+    )
     @GetMapping(
         value = "/conversation-history/{partyId}",
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }

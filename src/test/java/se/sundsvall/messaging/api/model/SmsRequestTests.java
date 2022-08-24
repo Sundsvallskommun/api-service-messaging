@@ -7,7 +7,7 @@ import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 
 import org.junit.jupiter.api.Test;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import generated.se.sundsvall.businessrules.HeaderName;
 
 class SmsRequestTests {
 

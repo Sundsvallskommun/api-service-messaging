@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.integration.businessrules.BusinessRulesIntegration;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -48,6 +49,8 @@ class MessageProcessorTests {
     private DefaultSettings mockDefaultSettings;
     @Mock
     private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
+    @Mock
+    private BusinessRulesIntegration mockBusinessRulesIntegration;
 
     @Mock
     private FeedbackChannelDto mockFeedbackChannel;
@@ -57,7 +60,8 @@ class MessageProcessorTests {
     @BeforeEach
     void setUp() {
         messageProcessor = new MessageProcessor(mockEventPublisher, mockMessageRepository,
-            mockHistoryRepository, mockDefaultSettings, mockFeedbackSettingsIntegration);
+            mockHistoryRepository, mockDefaultSettings, mockFeedbackSettingsIntegration,
+            mockBusinessRulesIntegration);
     }
 
     @Test

@@ -5,13 +5,13 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.9</version>
+        <version>1.11</version>
         <relativePath />
     </parent>
 
     <groupId>se.sundsvall.messaging</groupId>
     <artifactId>api-service-messaging</artifactId>
-    <version>2.3</version>
+    <version>2.4</version>
     <name>api-service-messaging</name>
 
     <properties>
@@ -99,7 +99,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/messaging-rules-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/business-rules-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -108,7 +108,7 @@
                                 <generateSupportingFiles>false</generateSupportingFiles>
                                 <dateLibrary>java8</dateLibrary>
                                 <apiPackage>generated</apiPackage>
-                                <modelPackage>generated.se.sundsvall.messagingrules</modelPackage>
+                                <modelPackage>generated.se.sundsvall.businessrules</modelPackage>
                                 <openApiNullable>false</openApiNullable>
                                 <generatePom>false</generatePom>
                                 <useBeanValidation>true</useBeanValidation>
@@ -124,7 +124,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/feedback-settings-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/feedback-settings-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -149,7 +149,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/email-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/email-sender-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -174,7 +174,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/snailmail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -199,7 +199,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/sms-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -224,7 +224,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/web-message-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
@@ -249,7 +249,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/digital-mail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/digital-mail-sender-api.yml</inputSpec>
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>

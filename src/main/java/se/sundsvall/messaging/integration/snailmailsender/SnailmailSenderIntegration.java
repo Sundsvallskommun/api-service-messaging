@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.snailmailsender;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.messaging.dto.SnailmailDto;
 
 @Component
@@ -15,7 +16,7 @@ public class SnailmailSenderIntegration {
     private final SnailmailSenderIntegrationMapper mapper;
 
     public SnailmailSenderIntegration(final SnailmailSenderClient client,
-                                      final SnailmailSenderIntegrationMapper mapper) {
+            final SnailmailSenderIntegrationMapper mapper) {
         this.client = client;
         this.mapper = mapper;
     }

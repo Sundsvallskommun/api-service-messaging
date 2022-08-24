@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.integration.snailmailsender;
+package se.sundsvall.messaging.integration.businessrules;
 
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -14,18 +14,18 @@ import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 
 @Import(FeignConfiguration.class)
-public class SnailmailSenderIntegrationConfiguration {
+class BusinessRulesIntegrationConfiguration {
 
-    private final SnailmailSenderIntegrationProperties properties;
+    private final BusinessRulesIntegrationProperties properties;
 
-    SnailmailSenderIntegrationConfiguration(final SnailmailSenderIntegrationProperties properties) {
+    BusinessRulesIntegrationConfiguration(final BusinessRulesIntegrationProperties properties) {
         this.properties = properties;
     }
 
     @Bean
     RequestInterceptor oAuth2RequestInterceptor() {
         return FeignHelper.oAuth2RequestInterceptor(ClientRegistration
-            .withRegistrationId(SnailmailSenderIntegration.INTEGRATION_NAME)
+            .withRegistrationId(BusinessRulesIntegration.INTEGRATION_NAME)
             .tokenUri(properties.getTokenUrl())
             .clientId(properties.getClientId())
             .clientSecret(properties.getClientSecret())
@@ -43,6 +43,6 @@ public class SnailmailSenderIntegrationConfiguration {
 
     @Bean
     ErrorDecoder errorDecoder() {
-        return new ProblemErrorDecoder(SnailmailSenderIntegration.INTEGRATION_NAME);
+        return new ProblemErrorDecoder(BusinessRulesIntegration.INTEGRATION_NAME);
     }
 }

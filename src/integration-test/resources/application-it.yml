@@ -1,0 +1,90 @@
+spring:
+  main:
+    # No banner
+    banner-mode: off
+
+  # Disable Flyway
+  flyway:
+    enabled: false
+
+  # Database
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# Retry
+retry:
+  max-attempts: 3
+  initial-delay: 500ms
+  max-delay: 5s
+
+# Sender defaults
+messaging:
+  default-sender:
+    sms-name: Sender
+    email-name: Longer Sender
+    email-address: longer.sender@somehost.com
+
+integration:
+  # SmsSender
+  sms-sender:
+    base-url: http://localhost:${wiremock.server.port}/sms-sender
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # EmailSender
+  email-sender:
+    base-url: http://localhost:${wiremock.server.port}/email-sender
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # SnailmailSender
+  snailmail-sender:
+    base-url: http://localhost:${wiremock.server.port}/snailmail-sender
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # WebMessageSender
+  web-message-sender:
+    base-url: http://localhost:${wiremock.server.port}/web-message-sender
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # DigitalMailSender
+  digital-mail-sender:
+    base-url: http://localhost:${wiremock.server.port}/digital-mail-sender
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    # Defaults
+    defaults:
+      municipality-id: someMunicipalityId
+      subject: someSubject
+      support-info:
+        text: someInfoText
+        email-address: someEmailAddress
+        phone-number: somePhoneNumber
+        url: someUrl
+
+  # FeedbackSettings
+  feedback-settings:
+    base-url: http://localhost:${wiremock.server.port}/feedback-settings
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # BusinessRules
+  business-rules:
+    base-url: http://localhost:${wiremock.server.port}/business-rules
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret

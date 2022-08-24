@@ -19,10 +19,10 @@ import org.springframework.http.HttpHeaders;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.model.Header;
 
+import generated.se.sundsvall.businessrules.HeaderName;
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
 import generated.se.sundsvall.feedbacksettings.SearchResult;
 import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
-import generated.se.sundsvall.messagingrules.HeaderName;
 
 @ExtendWith(MockitoExtension.class)
 class FeedbackSettingsIntegrationTests {

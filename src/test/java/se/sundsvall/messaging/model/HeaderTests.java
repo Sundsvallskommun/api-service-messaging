@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import generated.se.sundsvall.businessrules.HeaderName;
 
 class HeaderTests {
 
@@ -25,7 +25,7 @@ class HeaderTests {
     void testBuilderAndGetters() {
         var header = createHeader();
 
-        assertThat(header.getName()).isEqualTo(HeaderName.TYPE);
+        assertThat(header.getName()).isEqualTo(HeaderName.ISSUE_TYPE);
         assertThat(header.getValues()).containsExactlyInAnyOrder("someValue1", "someValue2");
     }
 

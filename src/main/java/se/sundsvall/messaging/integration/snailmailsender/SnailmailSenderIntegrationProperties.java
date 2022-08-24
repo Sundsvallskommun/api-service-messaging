@@ -1,11 +1,13 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Duration;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import se.sundsvall.messaging.integration.AbstractRestIntegrationProperties;
 
-import java.time.Duration;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

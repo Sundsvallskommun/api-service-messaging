@@ -1,5 +1,12 @@
 package se.sundsvall.messaging.api.model;
 
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
+import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -9,11 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SnailmailRequest extends Request {
+
     @NotBlank
     @ValidUuid
     @Schema(description = "PersonId for the person to send snailmail to")

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: api-messaging
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  flyway:
+    enabled: true
+    group: true
+
+openapi:
+  title: Messaging
+  name: messaging
+  version: '@project.version@'
+

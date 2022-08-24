@@ -71,16 +71,6 @@ class MessageResource {
             responseCode = "200",
             description = "Successful Operation",
             content = @Content(schema = @Schema(implementation = MessageResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Bad Request",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
     @PostMapping(
@@ -94,24 +84,14 @@ class MessageResource {
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
 
-    @Operation(summary = "Send a single e-mail")
-    @ApiResponses({
-        @ApiResponse(
+    @Operation(
+        summary = "Send a single e-mail",
+        responses = @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
             content = @Content(schema = @Schema(implementation = MessageResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Bad Request",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
         )
-    })
+    )
     @PostMapping(
         value = "/email",
         consumes = APPLICATION_JSON_VALUE,
@@ -123,24 +103,14 @@ class MessageResource {
         return ResponseEntity.ok(new MessageResponse(message.getMessageId()));
     }
 
-    @Operation(summary = "Send a single digital mail to one or more parties")
-    @ApiResponses({
-        @ApiResponse(
+    @Operation(
+        summary = "Send a single digital mail to one or more parties",
+        responses = @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Bad Request",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
+            content = @Content(schema = @Schema(implementation = MessagesResponse.class))
         )
-    })
+    )
     @PostMapping(
         value = "/digitalmail",
         consumes = APPLICATION_JSON_VALUE,
@@ -161,16 +131,6 @@ class MessageResource {
             responseCode = "200",
             description = "Successful Operation",
             content = @Content(schema = @Schema(implementation = MessagesResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Bad Request",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
     @PostMapping(

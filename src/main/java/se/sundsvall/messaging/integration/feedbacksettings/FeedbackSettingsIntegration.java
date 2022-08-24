@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.feedbacksettings;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,9 +17,9 @@ import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackChannelDto;
 import se.sundsvall.messaging.model.Header;
 
+import generated.se.sundsvall.businessrules.HeaderName;
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
 import generated.se.sundsvall.feedbacksettings.SearchResult;
-import generated.se.sundsvall.messagingrules.HeaderName;
 
 @Component
 @EnableConfigurationProperties(FeedbackSettingsIntegrationProperties.class)
@@ -36,7 +37,7 @@ public class FeedbackSettingsIntegration {
         this.client = client;
     }
 
-    public List<FeedbackChannelDto> getSettingsByPartyId(final List<Header> headers, final String partyId) {
+    public List<FeedbackChannelDto> getSettingsByPartyId(final Collection<Header> headers, final String partyId) {
         var httpHeaders = toHttpHeaders(headers, Set.of(HeaderName.DISTRIBUTION_RULE));
 
         var feedbackChannels = Optional.ofNullable(client.searchByPersonId(httpHeaders, partyId))
@@ -94,7 +95,7 @@ public class FeedbackSettingsIntegration {
             .build();
     }
 
-    HttpHeaders toHttpHeaders(final List<Header> headers, final Set<HeaderName> skipHeaders) {
+    HttpHeaders toHttpHeaders(final Collection<Header> headers, final Set<HeaderName> skipHeaders) {
         var httpHeaders = new HttpHeaders();
         headers.stream()
             .filter(header -> skipHeaders.isEmpty() || !skipHeaders.contains(header.getName()))

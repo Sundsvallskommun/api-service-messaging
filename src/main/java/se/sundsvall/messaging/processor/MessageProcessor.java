@@ -1,10 +1,14 @@
 package se.sundsvall.messaging.processor;
 
+import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.EMAIL;
 import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
+import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.SMS;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,6 +21,8 @@ import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.integration.businessrules.BusinessRulesIntegration;
+import se.sundsvall.messaging.integration.businessrules.domain.DistributionRuleEvaluationDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
@@ -30,6 +36,8 @@ import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
+import generated.se.sundsvall.businessrules.HeaderName;
+
 @Component
 class MessageProcessor extends Processor {
 
@@ -38,17 +46,20 @@ class MessageProcessor extends Processor {
     private final ApplicationEventPublisher eventPublisher;
     private final DefaultSettings defaultSettings;
     private final FeedbackSettingsIntegration feedbackSettingsIntegration;
+    private final BusinessRulesIntegration businessRulesIntegration;
 
     MessageProcessor(final ApplicationEventPublisher eventPublisher,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final DefaultSettings defaultSettings,
-            final FeedbackSettingsIntegration feedbackSettingsIntegration) {
+            final FeedbackSettingsIntegration feedbackSettingsIntegration,
+            final BusinessRulesIntegration businessRulesIntegration) {
         super(messageRepository, historyRepository);
 
         this.eventPublisher = eventPublisher;
         this.defaultSettings = defaultSettings;
         this.feedbackSettingsIntegration = feedbackSettingsIntegration;
+        this.businessRulesIntegration = businessRulesIntegration;
     }
 
     @Transactional
@@ -61,9 +72,9 @@ class MessageProcessor extends Processor {
         }
 
         var partyId = message.getPartyId();
-        var headers = getHeaders(message);
+        var headerMap = getHeaders(message);
 
-        var feedbackChannels = feedbackSettingsIntegration.getSettingsByPartyId(headers, partyId);
+        var feedbackChannels = feedbackSettingsIntegration.getSettingsByPartyId(headerMap.values(), partyId);
         if (feedbackChannels.isEmpty()) {
             log.info("No feedback settings found for {}", partyId);
 
@@ -79,6 +90,23 @@ class MessageProcessor extends Processor {
                         return contactMethod;
                     })
                     .orElse(ContactMethod.UNKNOWN);
+
+                var shouldSend = Optional.of(actualContactMethod)
+                    // Filter on contact method being EMAIL or SMS to avoid calling the business-rules
+                    // service unless needed
+                    .filter(contactMethod -> contactMethod == EMAIL || contactMethod == SMS)
+                    // Extract the distribution rule header
+                    .map(ignored -> headerMap.get(HeaderName.DISTRIBUTION_RULE))
+                    .map(Header::getValues)
+                    .map(values -> values.get(0))// TODO: handle if there are multiple distribution rule headers ??
+                    .stream().peek(distributionRule ->
+                        log.info("Evaluating distribution rule {}", distributionRule)
+                    ).findFirst()
+                    // Call the business-rules service to evaluate the distribution rule
+                    .map(businessRulesIntegration::evaluate)
+                    .map(DistributionRuleEvaluationDto::getResult)
+                    .map(distributionRuleEvaluationResult -> distributionRuleEvaluationResult.get(actualContactMethod))
+                    .orElse(true);
 
                 switch (actualContactMethod) {
                     case EMAIL -> {
@@ -177,9 +205,9 @@ class MessageProcessor extends Processor {
         return GSON.toJson(smsRequest);
     }
 
-    List<Header> getHeaders(final MessageEntity messageEntity) {
+    Map<HeaderName, Header> getHeaders(final MessageEntity messageEntity) {
         var message = GSON.fromJson(messageEntity.getContent(), MessageRequest.Message.class);
 
-        return message.getHeaders();
+        return message.getHeaders().stream().collect(Collectors.toMap(Header::getName, Function.identity()));
     }
 }

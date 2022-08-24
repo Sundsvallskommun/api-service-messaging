@@ -1,0 +1,86 @@
+spring:
+  main:
+    # No banner
+    banner-mode: off
+  flyway:
+    # Disable Flyway
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# Sender defaults
+messaging:
+  default-sender:
+    sms-name: Sender
+    email-name: Longer Sender
+    email-address: longer.sender@somehost.com
+
+integration:
+  # SmsSender
+  sms-sender:
+    base-url: http://sms-sender/api
+    token-url: http://sms-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    poll-delay: 1s
+    max-retries: 3
+
+  # EmailSender
+  email-sender:
+    base-url: http://email-sender/api
+    token-url: http://email-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    poll-delay: 30s
+    max-retries: 3
+
+  # WebMessageSender
+  web-message-sender:
+    base-url: http://web-message-sender/api
+    token-url: http://web-message-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    poll-delay: 3s
+    max-retries: 3
+
+  # DigitalMailSender
+  digital-mail-sender:
+    base-url: http://digital-mail-sender/api
+    token-url: http://digital-mail-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    poll-delay: 2s
+    max-retries: 3
+    # DigitalMailSender defaults
+    defaults:
+      municipality-id: someMunicipalityId
+      subject: someSubject
+      support-info:
+        text: someInfoText
+        email-address: someEmailAddress
+        phone-number: somePhoneNumber
+        url: someUrl
+
+  # SnailmailSender
+  snailmail-sender:
+    base-url: http://snailmail-sender/api
+    token-url: http://snailmail-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    poll-delay: 3s
+    max-retries: 3
+
+  # FeedbackSettings
+  feedback-settings:
+    base-url: http://feedback-settings/api
+    token-url: http://feedback-settings/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # BusinessRules
+  business-rules:
+    base-url: http://business-rules/api
+    token-url: http://business-rules/token
+    client-id: someClientId
+    client-secret: someClientSecret
