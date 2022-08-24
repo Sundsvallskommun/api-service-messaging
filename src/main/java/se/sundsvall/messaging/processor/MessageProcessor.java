@@ -127,6 +127,7 @@ class MessageProcessor extends Processor {
             .withEmailAddress(emailAddress)
             .withSubject(message.getSubject())
             .withMessage(message.getMessage())
+            .withHtmlMessage(message.getHtmlMessage())
             .build();
 
         return GSON.toJson(emailRequest);

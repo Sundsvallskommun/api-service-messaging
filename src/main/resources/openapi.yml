@@ -23,24 +23,24 @@ paths:
               $ref: '#/components/schemas/WebMessageRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /sms:
     post:
       tags:
@@ -54,30 +54,30 @@ paths:
               $ref: '#/components/schemas/SmsRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /messages:
     post:
       tags:
       - Sending Resources
       summary: Send a batch of messages as e-mail or SMS to a list of parties
-      operationId: sendMessage
+      operationId: sendMessages
       requestBody:
         content:
           application/json:
@@ -91,14 +91,14 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessagesResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -116,24 +116,24 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /digitalmail:
     post:
       tags:
@@ -147,24 +147,24 @@ paths:
               $ref: '#/components/schemas/DigitalMailRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /status/{messageId}:
     get:
       tags:
@@ -178,8 +178,8 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
@@ -190,8 +190,8 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageStatusResponse'
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -223,18 +223,18 @@ paths:
           type: string
           format: date
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/HistoryResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
   /batchStatus/{batchId}:
     get:
       tags:
@@ -248,6 +248,12 @@ paths:
         schema:
           type: string
       responses:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -256,12 +262,6 @@ paths:
                 $ref: '#/components/schemas/BatchStatusResponse'
         "500":
           description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not Found
           content:
             '*/*':
               schema:
@@ -347,6 +347,11 @@ components:
         message:
           type: string
           description: Message
+    MessageResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
     Problem:
       type: object
       properties:
@@ -369,15 +374,10 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
-    MessageResponse:
-      type: object
-      properties:
-        messageId:
+        reasonPhrase:
           type: string
     Sms:
       required:
@@ -448,7 +448,10 @@ components:
           description: The message subject (for E-mails)
         message:
           type: string
-          description: The message text
+          description: Plain-text message text
+        htmlMessage:
+          type: string
+          description: "HTML message text, for e-mails (BASE64-encoded)"
       description: A message to be sent
     MessageRequest:
       type: object

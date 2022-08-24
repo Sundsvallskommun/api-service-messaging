@@ -103,14 +103,14 @@ class MessageResourceTests {
     }
 
     @Test
-    void test_sendMessage() {
+    void test_sendMessages() {
         when(mockMessageService.handleMessageRequest(any(MessageRequest.class)))
             .thenReturn(MessageBatchDto.builder()
                 .withBatchId("someBatchId")
                 .withMessageIds(List.of("someMessageId"))
                 .build());
 
-        var response = messageResource.sendMessage(
+        var response = messageResource.sendMessages(
             MessageRequest.builder().build());
 
         assertThat(response).isNotNull();

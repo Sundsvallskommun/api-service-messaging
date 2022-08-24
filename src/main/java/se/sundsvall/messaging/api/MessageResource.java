@@ -159,7 +159,7 @@ class MessageResource {
         )
     })
     @PostMapping("/messages")
-    ResponseEntity<MessagesResponse> sendMessage(@Valid @RequestBody final MessageRequest request) {
+    ResponseEntity<MessagesResponse> sendMessages(@Valid @RequestBody final MessageRequest request) {
         var messages = messageService.handleMessageRequest(request);
 
         return ResponseEntity.ok(MessagesResponse.builder()

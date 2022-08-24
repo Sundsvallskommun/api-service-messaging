@@ -43,7 +43,10 @@ public class MessageRequest {
         private String subject;
 
         @NotBlank
-        @Schema(description = "The message text", required = true)
+        @Schema(description = "Plain-text message text", required = true)
         private String message;
+
+        @Schema(description = "HTML message text, for e-mails (BASE64-encoded)")
+        private String htmlMessage;
     }
 }

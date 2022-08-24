@@ -38,7 +38,7 @@ class OpenApiSpecificationIT {
     @Value("${openapi.version}")
     private String openApiVersion;
 
-    @Value("classpath:/openapi.yaml")
+    @Value("classpath:/openapi.yml")
     private Resource openApiResource;
 
     @Autowired
