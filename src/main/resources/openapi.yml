@@ -23,12 +23,6 @@ paths:
               $ref: '#/components/schemas/WebMessageRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
@@ -41,6 +35,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /sms:
     post:
       tags:
@@ -54,12 +54,6 @@ paths:
               $ref: '#/components/schemas/SmsRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
@@ -72,6 +66,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /messages:
     post:
       tags:
@@ -85,12 +85,6 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessagesResponse'
         "400":
           description: Bad Request
           content:
@@ -103,6 +97,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
   /email:
     post:
       tags:
@@ -116,12 +116,6 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
@@ -134,6 +128,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /digitalmail:
     post:
       tags:
@@ -147,12 +147,6 @@ paths:
               $ref: '#/components/schemas/DigitalMailRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
           content:
@@ -165,11 +159,17 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /status/{messageId}:
     get:
       tags:
       - Status and History Resources
-      summary: Get the status for a single message
+      summary: Get the status for a single message and its deliveries
       operationId: getMessageStatus
       parameters:
       - name: messageId
@@ -178,12 +178,6 @@ paths:
         schema:
           type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -196,7 +190,44 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-  /conversationHistory/{partyId}:
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /message/{messageId}:
+    get:
+      tags:
+      - Status and History Resources
+      summary: Get a message and all its deliveries
+      operationId: getMessage
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /conversation-history/{partyId}:
     get:
       tags:
       - Status and History Resources
@@ -208,16 +239,16 @@ paths:
         required: true
         schema:
           type: string
-      - name: fromDate
+      - name: from
         in: query
-        description: "Format: yyyy-MM-dd (ISO8601)"
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
         required: false
         schema:
           type: string
           format: date
-      - name: toDate
+      - name: to
         in: query
-        description: "Format: yyyy-MM-dd (ISO8601)"
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
         required: false
         schema:
           type: string
@@ -235,11 +266,11 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-  /batchStatus/{batchId}:
+  /batch-status/{batchId}:
     get:
       tags:
       - Status and History Resources
-      summary: Get the status for a message batch
+      summary: "Get the status for a message batch, its messages and their deliveries"
       operationId: getBatchStatus
       parameters:
       - name: batchId
@@ -248,12 +279,6 @@ paths:
         schema:
           type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -262,6 +287,12 @@ paths:
                 $ref: '#/components/schemas/BatchStatusResponse'
         "500":
           description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
@@ -347,11 +378,6 @@ components:
         message:
           type: string
           description: Message
-    MessageResponse:
-      type: object
-      properties:
-        messageId:
-          type: string
     Problem:
       type: object
       properties:
@@ -378,6 +404,11 @@ components:
           type: integer
           format: int32
         reasonPhrase:
+          type: string
+    MessageResponse:
+      type: object
+      properties:
+        messageId:
           type: string
     Sms:
       required:
@@ -601,6 +632,8 @@ components:
       properties:
         messageId:
           type: string
+        deliveryId:
+          type: string
         status:
           type: string
           enum:
@@ -613,6 +646,8 @@ components:
     HistoryResponse:
       type: object
       properties:
+        content:
+          type: object
         messageType:
           type: string
           enum:
@@ -630,15 +665,15 @@ components:
           - FAILED
           - NO_FEEDBACK_SETTINGS_FOUND
           - NO_FEEDBACK_WANTED
-        content:
-          type: object
         timestamp:
           type: string
           format: date-time
     BatchStatusResponse:
       type: object
       properties:
-        messageStatuses:
+        batchId:
+          type: string
+        messages:
           type: array
           items:
             $ref: '#/components/schemas/MessageStatusResponse'

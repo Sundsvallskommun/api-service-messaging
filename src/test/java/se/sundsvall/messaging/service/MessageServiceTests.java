@@ -74,7 +74,6 @@ class MessageServiceTests {
 
         verify(mockMapper, times(2)).toEntity(any(String.class), any(MessageRequest.Message.class));
         verify(mockRepository, times(2)).save(any(MessageEntity.class));
-        verify(mockMapper, times(2)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(2)).publishEvent(any(IncomingMessageEvent.class));
     }
 

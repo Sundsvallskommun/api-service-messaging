@@ -11,6 +11,6 @@ class IncomingDigitalMailEventTests {
         var event = new IncomingDigitalMailEvent("someSource", "someMessageId");
 
         assertThat(event.getSource()).isEqualTo("someSource");
-        assertThat(event.getMessageId()).isEqualTo("someMessageId");
+        assertThat(event.getPayload()).isEqualTo("someMessageId");
     }
 }

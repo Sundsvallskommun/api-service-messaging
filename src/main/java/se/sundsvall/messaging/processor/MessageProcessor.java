@@ -4,12 +4,14 @@ import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactM
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
@@ -49,9 +51,10 @@ class MessageProcessor extends Processor {
         this.feedbackSettingsIntegration = feedbackSettingsIntegration;
     }
 
+    @Transactional
     @EventListener(IncomingMessageEvent.class)
     void handleIncomingMessageEvent(final IncomingMessageEvent event) {
-        var message = messageRepository.findById(event.getMessageId()).orElse(null);
+        var message = messageRepository.findById(event.getPayload()).orElse(null);
 
         if (message == null) {
             return;
@@ -65,7 +68,6 @@ class MessageProcessor extends Processor {
             log.info("No feedback settings found for {}", partyId);
 
             historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.NO_FEEDBACK_SETTINGS_FOUND)));
-            messageRepository.deleteById(message.getMessageId());
         } else {
             for (var feedbackChannel : feedbackChannels) {
                 var actualContactMethod = Optional.ofNullable(feedbackChannel.getContactMethod())
@@ -80,37 +82,61 @@ class MessageProcessor extends Processor {
 
                 switch (actualContactMethod) {
                     case EMAIL -> {
-                        log.info("Handling incoming message {} as e-mail", message.getMessageId());
+                        var deliveryId = UUID.randomUUID().toString();
 
-                        messageRepository.save(message
+                        log.info("Handling incoming message {} as e-mail with delivery id {}", message.getMessageId(), deliveryId);
+
+                        var delivery = MessageEntity.builder()
+                            .withMessageId(message.getMessageId())
+                            .withBatchId(message.getBatchId())
+                            .withDeliveryId(deliveryId)
+                            .withPartyId(message.getPartyId())
                             .withType(MessageType.EMAIL)
-                            .withContent(mapToEmailRequest(message, feedbackChannel.getDestination())));
-                        eventPublisher.publishEvent(new IncomingEmailEvent(this, message.getMessageId()));
+                            .withStatus(message.getStatus())
+                            .withContent(mapToEmailRequest(message, feedbackChannel.getDestination()))
+                            .withCreatedAt(message.getCreatedAt())
+                            .build();
+
+                        messageRepository.save(delivery);
+
+                        eventPublisher.publishEvent(new IncomingEmailEvent(this, deliveryId));
                     }
                     case SMS -> {
-                        log.info("Handling incoming message {} as SMS", message.getMessageId());
+                        var deliveryId = UUID.randomUUID().toString();
 
-                        messageRepository.save(message
+                        log.info("Handling incoming message {} as SMS with delivery id {}", message.getMessageId(), deliveryId);
+
+                        var delivery = MessageEntity.builder()
+                            .withMessageId(message.getMessageId())
+                            .withBatchId(message.getBatchId())
+                            .withDeliveryId(deliveryId)
+                            .withPartyId(message.getPartyId())
                             .withType(MessageType.SMS)
-                            .withContent(mapToSmsRequest(message, feedbackChannel.getDestination())));
-                        eventPublisher.publishEvent(new IncomingSmsEvent(this, message.getMessageId()));
+                            .withStatus(message.getStatus())
+                            .withContent(mapToSmsRequest(message, feedbackChannel.getDestination()))
+                            .withCreatedAt(message.getCreatedAt())
+                            .build();
+
+                        messageRepository.save(delivery);
+
+                        eventPublisher.publishEvent(new IncomingSmsEvent(this, deliveryId));
                     }
                     case NO_CONTACT -> {
                         log.info("No feedback wanted for {}. No delivery will be attempted", partyId);
 
                         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.NO_FEEDBACK_WANTED)));
-                        messageRepository.deleteById(message.getMessageId());
                     }
                     default -> {
                         log.warn("Unknown/missing contact method for message {}. Will not be delivered",
                                 message.getMessageId());
 
                         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.FAILED)));
-                        messageRepository.deleteById(message.getMessageId());
                     }
                 }
             }
         }
+
+        messageRepository.deleteById(message.getId());
     }
 
     String mapToEmailRequest(final MessageEntity messageEntity, final String emailAddress) {

@@ -4,6 +4,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
@@ -42,12 +43,13 @@ class WebMessageProcessor extends Processor {
             .build();
     }
 
+    @Transactional
     @EventListener(IncomingWebMessageEvent.class)
     void handleIncomingWebMessageEvent(final IncomingWebMessageEvent event) {
-        var message = messageRepository.findById(event.getMessageId()).orElse(null);
+        var message = messageRepository.findByDeliveryId(event.getPayload()).orElse(null);
 
         if (message == null) {
-            log.warn("Unable to process missing web message {}", event.getMessageId());
+            log.warn("Unable to process missing web message {}", event.getPayload());
 
             return;
         }
@@ -61,7 +63,7 @@ class WebMessageProcessor extends Processor {
                 .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                 .get(() -> webMessageSenderIntegration.sendWebMessage(webMessageDto));
         } catch (Exception e) {
-            log.warn("Unable to send web message {}: {}", event.getMessageId(), e.getMessage());
+            log.warn("Unable to send web message {}: {}", event.getPayload(), e.getMessage());
         }
     }
 

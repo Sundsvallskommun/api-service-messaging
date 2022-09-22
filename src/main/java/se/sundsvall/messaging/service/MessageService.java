@@ -13,6 +13,7 @@ import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
@@ -37,18 +38,16 @@ public class MessageService {
     public MessageBatchDto handleMessageRequest(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
 
-        var messageIds = request.getMessages().stream()
+        var messages = request.getMessages().stream()
             .map(message -> mapper.toEntity(batchId, message))
             .map(repository::save)
-            .map(mapper::toMessageDto)
-            .map(MessageDto::getMessageId)
             .toList();
 
-        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingMessageEvent(this,messageId)));
+        messages.forEach(message -> eventPublisher.publishEvent(new IncomingMessageEvent(this, message.getId())));
 
         return MessageBatchDto.builder()
             .withBatchId(batchId)
-            .withMessageIds(messageIds)
+            .withMessageIds(messages.stream().map(MessageEntity::getMessageId).toList())
             .build();
     }
 

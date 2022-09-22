@@ -57,12 +57,14 @@ class DigitalMailIT extends AbstractMessagingAppTest {
         assertThat(new ValidUuidConstraintValidator().isValid(response.getBatchId())).isTrue();
 
         // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsById(messageId)).isFalse();
+        assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getReferenceById(messageId)).satisfies(historyEntry -> {
-            assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
-        });
+        assertThat(historyRepository.findByMessageId(messageId))
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
+            });
     }
 
     @Test
@@ -84,11 +86,13 @@ class DigitalMailIT extends AbstractMessagingAppTest {
         assertThat(new ValidUuidConstraintValidator().isValid(response.getBatchId())).isTrue();
 
         // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsById(messageId)).isFalse();
+        assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getReferenceById(messageId)).satisfies(historyEntry -> {
-            assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
-        });
+        assertThat(historyRepository.findByMessageId(messageId))
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
+            });
     }
 }

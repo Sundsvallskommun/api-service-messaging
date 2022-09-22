@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
@@ -28,24 +29,29 @@ public abstract class Processor {
         this.historyRepository = historyRepository;
     }
 
+    @Transactional
     protected void handleSuccessfulDelivery(final MessageEntity message) {
-        log.info("Successful delivery for {} {}", message.getType(), message.getMessageId());
+        log.info("Successful delivery for {} (message id {}, delivery id {})",
+            message.getType(), message.getMessageId(), message.getDeliveryId());
 
         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.SENT)));
-        messageRepository.deleteById(message.getMessageId());
+        messageRepository.deleteByDeliveryId(message.getDeliveryId());
     }
 
+    @Transactional
     protected void handleMaximumDeliveryAttemptsExceeded(final MessageEntity message) {
-        log.info("Exceeded max sending attempts for {} {}", message.getType(), message.getMessageId());
+        log.info("Exceeded max sending attempts for {} (message id {}, delivery id {})",
+            message.getType(), message.getMessageId(), message.getDeliveryId());
 
         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.FAILED)));
-        messageRepository.deleteById(message.getMessageId());
+        messageRepository.deleteByDeliveryId(message.getDeliveryId());
     }
 
     protected HistoryEntity mapToHistoryEntity(final MessageEntity message) {
         return HistoryEntity.builder()
             .withMessageId(message.getMessageId())
             .withBatchId(message.getBatchId())
+            .withDeliveryId(message.getDeliveryId())
             .withPartyId(message.getPartyId())
             .withMessageType(message.getType())
             .withStatus(message.getStatus())

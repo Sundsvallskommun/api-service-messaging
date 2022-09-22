@@ -8,9 +8,9 @@ class IncomingMessageEventTests {
 
     @Test
     void testConstructorAndGetter() {
-        var event = new IncomingMessageEvent("someSource", "someMessageId");
+        var event = new IncomingMessageEvent("someSource", 12345L);
 
         assertThat(event.getSource()).isEqualTo("someSource");
-        assertThat(event.getMessageId()).isEqualTo("someMessageId");
+        assertThat(event.getPayload()).isEqualTo(12345L);
     }
 }

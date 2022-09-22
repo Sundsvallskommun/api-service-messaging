@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -29,13 +31,20 @@ import lombok.NoArgsConstructor;
 public class HistoryEntity {
 
     @Id
-    @Column(name = "message_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "message_id", nullable = false, length = 36)
     private String messageId;
 
-    @Column(name = "batch_id")
+    @Column(name = "batch_id", length = 36)
     private String batchId;
 
-    @Column(name = "party_id")
+    @Column(name = "delivery_id", length = 36)
+    private String deliveryId;
+
+    @Column(name = "party_id", length = 36)
     private String partyId;
 
     @Enumerated(EnumType.STRING)

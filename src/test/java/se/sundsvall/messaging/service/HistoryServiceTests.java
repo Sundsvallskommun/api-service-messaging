@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,38 +37,38 @@ class HistoryServiceTests {
 
     @Test
     void test_getHistory() {
-        when(mockHistoryRepository.findById(any(String.class)))
-            .thenReturn(Optional.of(HistoryEntity.builder().build()));
+        when(mockHistoryRepository.findByMessageId(any(String.class)))
+            .thenReturn(List.of(HistoryEntity.builder().build()));
 
         var result = historyService.getHistory("someMessageId");
 
-        assertThat(result).isPresent();
+        assertThat(result).isNotEmpty();
 
-        verify(mockHistoryRepository, times(1)).findById(any(String.class));
+        verify(mockHistoryRepository, times(1)).findByMessageId(any(String.class));
     }
 
     @Test
     void test_getHistory_whenNoEntityExists() {
-        when(mockHistoryRepository.findById(any(String.class)))
-            .thenReturn(Optional.empty());
+        when(mockHistoryRepository.findByMessageId(any(String.class)))
+            .thenReturn(List.of());
 
         var result = historyService.getHistory("someMessageId");
 
         assertThat(result).isEmpty();
 
-        verify(mockHistoryRepository, times(1)).findById(any(String.class));
+        verify(mockHistoryRepository, times(1)).findByMessageId(any(String.class));
     }
 
     @Test
     void test_getHistoryByBatchId() {
-        when(mockHistoryRepository.findByBatchIdEquals(any(String.class)))
+        when(mockHistoryRepository.findByBatchId(any(String.class)))
             .thenReturn(List.of(HistoryEntity.builder().build()));
 
         var result = historyService.getHistoryByBatchId("someBatchId");
 
         assertThat(result).hasSize(1);
 
-        verify(mockHistoryRepository, times(1)).findByBatchIdEquals(any(String.class));
+        verify(mockHistoryRepository, times(1)).findByBatchId(any(String.class));
     }
 
     @Test

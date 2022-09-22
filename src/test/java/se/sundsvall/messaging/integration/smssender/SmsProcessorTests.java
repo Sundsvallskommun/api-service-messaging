@@ -66,24 +66,25 @@ class SmsProcessorTests {
 
     @Test
     void testHandleIncomingSmsEvent_whenMessageIsNotFound() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.empty());
+        when(mockMessageRepository.findByDeliveryId(any(String.class))).thenReturn(Optional.empty());
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, "someMessageId"));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(any(String.class));
         verify(mockSmsSenderIntegration, never()).sendSms(any(SmsDto.class));
-        verify(mockMessageRepository, never()).deleteById(any(String.class));
+        verify(mockMessageRepository, never()).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingSmsEvent() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -92,22 +93,23 @@ class SmsProcessorTests {
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
             .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
 
-        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
+        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockSmsSenderIntegration, times(1)).sendSms(any(SmsDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationThrowsException() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -115,22 +117,23 @@ class SmsProcessorTests {
                 .build()));
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenThrow(RuntimeException.class);
 
-        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
+        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationReturnsOtherThanOk() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -138,22 +141,23 @@ class SmsProcessorTests {
                 .build()));
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
-        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
+        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationReturnsOkButFalse() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -162,11 +166,11 @@ class SmsProcessorTests {
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
             .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(false)));
 
-        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageId));
+        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 

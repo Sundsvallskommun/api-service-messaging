@@ -1,8 +1,8 @@
 package se.sundsvall.messaging.service.event;
 
-public class IncomingMessageEvent extends Event {
+public class IncomingMessageEvent extends Event<Long> {
 
-    public IncomingMessageEvent(Object source, final String messageId) {
-        super(source, messageId);
+    public IncomingMessageEvent(final Object source, final Long id) {
+        super(source, id);
     }
 }

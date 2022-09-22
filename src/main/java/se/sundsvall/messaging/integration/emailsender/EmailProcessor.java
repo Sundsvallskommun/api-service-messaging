@@ -7,6 +7,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
@@ -49,12 +50,13 @@ class EmailProcessor extends Processor {
             .build();
     }
 
+    @Transactional
     @EventListener(IncomingEmailEvent.class)
     void handleIncomingEmailEvent(final IncomingEmailEvent event) {
-        var message = messageRepository.findById(event.getMessageId()).orElse(null);
+        var message = messageRepository.findByDeliveryId(event.getPayload()).orElse(null);
 
         if (message == null) {
-            log.warn("Unable to process missing e-mail {}", event.getMessageId());
+            log.warn("Unable to process missing e-mail {}", event.getPayload());
 
             return;
         }
@@ -68,7 +70,7 @@ class EmailProcessor extends Processor {
                 .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                 .get(() -> emailSenderIntegration.sendEmail(emailDto));
         } catch (Exception e) {
-            log.warn("Unable to send e-mail {}: {}", event.getMessageId(), e.getMessage());
+            log.warn("Unable to send e-mail {}: {}", event.getPayload(), e.getMessage());
         }
     }
 

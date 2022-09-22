@@ -5,13 +5,13 @@ import org.springframework.context.ApplicationEvent;
 import lombok.Getter;
 
 @Getter
-public abstract class Event extends ApplicationEvent {
+public abstract class Event<T> extends ApplicationEvent {
 
-    private final String messageId;
+    private final T payload;
 
-    protected Event(final Object source, final String messageId) {
+    protected Event(final Object source, final T payload) {
         super(source);
 
-        this.messageId = messageId;
+        this.payload = payload;
     }
 }
