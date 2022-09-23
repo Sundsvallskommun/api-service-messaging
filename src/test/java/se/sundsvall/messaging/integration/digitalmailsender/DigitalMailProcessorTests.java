@@ -61,24 +61,25 @@ class DigitalMailProcessorTests {
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenMessageIsNotFound() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.empty());
+        when(mockMessageRepository.findByDeliveryId(any(String.class))).thenReturn(Optional.empty());
 
         digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, "someMessageId"));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(any(String.class));
         verify(mockDigitalMailSenderIntegration, never()).sendDigitalMail(any(DigitalMailDto.class));
-        verify(mockMessageRepository, never()).deleteById(any(String.class));
+        verify(mockMessageRepository, never()).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingDigitalMailEvent() {
         var digitalMailRequest = createDigitalMailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -86,22 +87,23 @@ class DigitalMailProcessorTests {
                 .build()));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(ResponseEntity.ok(true));
 
-        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageId));
+        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockDigitalMailSenderIntegration, times(1)).sendDigitalMail(any(DigitalMailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationThrowsException() {
         var digitalMailRequest = createDigitalMailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -109,22 +111,23 @@ class DigitalMailProcessorTests {
                 .build()));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenThrow(RuntimeException.class);
 
-        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageId));
+        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOtherThanOk() {
         var digitalMailRequest = createDigitalMailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -133,22 +136,23 @@ class DigitalMailProcessorTests {
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class)))
             .thenReturn(ResponseEntity.internalServerError().build());
 
-        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageId));
+        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOkButFalse() {
         var digitalMailRequest = createDigitalMailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -156,11 +160,11 @@ class DigitalMailProcessorTests {
                 .build()));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(ResponseEntity.ok(false));
 
-        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageId));
+        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 

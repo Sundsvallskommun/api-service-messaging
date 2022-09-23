@@ -11,6 +11,6 @@ class IncomingEmailEventTests {
         var event = new IncomingEmailEvent("someSource", "someMessageId");
 
         assertThat(event.getSource()).isEqualTo("someSource");
-        assertThat(event.getMessageId()).isEqualTo("someMessageId");
+        assertThat(event.getPayload()).isEqualTo("someMessageId");
     }
 }

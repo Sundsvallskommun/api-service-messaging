@@ -34,7 +34,7 @@ class StartupHandler implements CommandLineRunner {
             .map(message -> switch (message.getType()) {
                 case EMAIL -> new IncomingEmailEvent(this, message.getMessageId());
                 case SMS -> new IncomingSmsEvent(this, message.getMessageId());
-                case MESSAGE -> new IncomingMessageEvent(this, message.getMessageId());
+                case MESSAGE -> new IncomingMessageEvent(this, message.getId());
                 case WEB_MESSAGE -> new IncomingWebMessageEvent(this, message.getMessageId());
                 case DIGITAL_MAIL -> new IncomingDigitalMailEvent(this, message.getMessageId());
             })

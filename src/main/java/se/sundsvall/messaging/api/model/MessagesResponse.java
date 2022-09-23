@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @Builder(setterPrefix = "with", builderClassName = "Builder")
-@JsonDeserialize(builder = MessagesResponse.Builder.class)
+@JsonDeserialize(builder = MessagesResponse.Builder.class) // FOR TESTS
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessagesResponse {
 

@@ -11,6 +11,6 @@ class IncomingWebMessageEventTests {
         var event = new IncomingWebMessageEvent("someSource", "someMessageId");
 
         assertThat(event.getSource()).isEqualTo("someSource");
-        assertThat(event.getMessageId()).isEqualTo("someMessageId");
+        assertThat(event.getPayload()).isEqualTo("someMessageId");
     }
 }

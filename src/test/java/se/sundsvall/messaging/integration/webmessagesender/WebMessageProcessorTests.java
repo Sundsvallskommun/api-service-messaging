@@ -62,24 +62,25 @@ class WebMessageProcessorTests {
 
     @Test
     void testHandleIncomingWebMessageEvent_whenMessageIsNotFound() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.empty());
+        when(mockMessageRepository.findByDeliveryId(any(String.class))).thenReturn(Optional.empty());
 
         webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, "someMessageId"));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(any(String.class));
         verify(mockWebMessageSenderIntegration, never()).sendWebMessage(any(WebMessageDto.class));
-        verify(mockMessageRepository, never()).deleteById(any(String.class));
+        verify(mockMessageRepository, never()).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingWebMessageEvent() {
         var webMessageRequest = createWebMessageRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(webMessageRequest.getParty().getPartyId())
                 .withType(MessageType.WEB_MESSAGE)
                 .withStatus(MessageStatus.PENDING)
@@ -88,22 +89,23 @@ class WebMessageProcessorTests {
         when(mockWebMessageSenderIntegration.sendWebMessage(any(WebMessageDto.class)))
             .thenReturn(ResponseEntity.created(URI.create("some-uri")).build());
 
-        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageId));
+        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockWebMessageSenderIntegration, times(1)).sendWebMessage(any(WebMessageDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingWebMessageEvent_whenWebMessageSenderIntegrationThrowsException() {
         var webMessageRequest = createWebMessageRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(webMessageRequest.getParty().getPartyId())
                 .withType(MessageType.WEB_MESSAGE)
                 .withStatus(MessageStatus.PENDING)
@@ -111,22 +113,23 @@ class WebMessageProcessorTests {
                 .build()));
         when(mockWebMessageSenderIntegration.sendWebMessage(any(WebMessageDto.class))).thenThrow(RuntimeException.class);
 
-        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageId));
+        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockWebMessageSenderIntegration, times(3)).sendWebMessage(any(WebMessageDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingWebMessageEvent_whenWebMessageSenderIntegrationReturnsOtherThanOk() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -135,11 +138,11 @@ class WebMessageProcessorTests {
         when(mockWebMessageSenderIntegration.sendWebMessage(any(WebMessageDto.class)))
             .thenReturn(ResponseEntity.internalServerError().build());
 
-        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageId));
+        webMessageProcessor.handleIncomingWebMessageEvent(new IncomingWebMessageEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockWebMessageSenderIntegration, times(3)).sendWebMessage(any(WebMessageDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 

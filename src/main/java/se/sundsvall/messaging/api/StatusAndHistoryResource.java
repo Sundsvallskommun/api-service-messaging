@@ -21,6 +21,7 @@ import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.MessageStatusResponse;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
+import se.sundsvall.messaging.dto.HistoryDto;
 import se.sundsvall.messaging.service.HistoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,35 +57,23 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/conversationHistory/{partyId}")
+    @GetMapping("/conversation-history/{partyId}")
     ResponseEntity<List<HistoryResponse>> getConversationHistory(@PathVariable final String partyId,
-            @RequestParam(name = "fromDate", required = false)
+            @RequestParam(name = "from", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "Format: yyyy-MM-dd (ISO8601)")
+            @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
             final LocalDate from,
 
-            @RequestParam(name = "toDate", required = false)
+            @RequestParam(name = "to", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "Format: yyyy-MM-dd (ISO8601)")
+            @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
             final LocalDate to) {
         return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
-            .map(historyDto -> HistoryResponse.builder()
-                .withMessageType(historyDto.getMessageType())
-                .withStatus(historyDto.getStatus())
-                .withContent(GSON.fromJson(historyDto.getContent(), switch (historyDto.getMessageType()) {
-                    case EMAIL -> EmailRequest.class;
-                    case SMS -> SmsRequest.class;
-                    case WEB_MESSAGE -> WebMessageRequest.class;
-                    case DIGITAL_MAIL -> DigitalMailRequest.class;
-                    case MESSAGE -> MessageRequest.Message.class;
-                }))
-                .withContent(GSON.fromJson(historyDto.getContent(), EmailRequest.class))
-                .withTimestamp(historyDto.getCreatedAt())
-                .build())
+            .map(this::mapToHistoryResponse)
             .toList());
     }
 
-    @Operation(summary = "Get the status for a single message")
+    @Operation(summary = "Get the status for a single message and its deliveries")
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
@@ -103,17 +92,23 @@ class StatusAndHistoryResource {
         )
     })
     @GetMapping("/status/{messageId}")
-    ResponseEntity<MessageStatusResponse> getMessageStatus(@PathVariable final String messageId) {
-        return historyService.getHistory(messageId)
+    ResponseEntity<List<MessageStatusResponse>> getMessageStatus(@PathVariable final String messageId) {
+        var history = historyService.getHistory(messageId).stream()
             .map(historyDto -> MessageStatusResponse.builder()
                 .withMessageId(historyDto.getMessageId())
+                .withDeliveryId(historyDto.getDeliveryId())
                 .withStatus(historyDto.getStatus())
                 .build())
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+            .toList();
+
+        if (history.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(history);
     }
 
-    @Operation(summary = "Get the status for a message batch")
+    @Operation(summary = "Get the status for a message batch, its messages and their deliveries")
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
@@ -131,17 +126,69 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/batchStatus/{batchId}")
+    @GetMapping("/batch-status/{batchId}")
     ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
-        var messageStatuses = historyService.getHistoryByBatchId(batchId).stream()
+        var statuses = historyService.getHistoryByBatchId(batchId).stream()
             .map(historyDto -> MessageStatusResponse.builder()
                 .withMessageId(historyDto.getMessageId())
+                .withDeliveryId(historyDto.getDeliveryId())
                 .withStatus(historyDto.getStatus())
                 .build())
             .toList();
 
+        if (statuses.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(BatchStatusResponse.builder()
-            .withMessageStatuses(messageStatuses)
+            .withBatchId(batchId)
+            .withMessages(statuses)
             .build());
+    }
+
+    @Operation(summary = "Get a message and all its deliveries")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = HistoryResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
+    })
+    @GetMapping("/message/{messageId}")
+    ResponseEntity<List<HistoryResponse>> getMessage(@PathVariable final String messageId) {
+        var history = historyService.getHistory(messageId).stream()
+            .map(this::mapToHistoryResponse)
+            .toList();
+
+        if (history.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(history);
+    }
+
+    HistoryResponse mapToHistoryResponse(final HistoryDto historyDto) {
+        return HistoryResponse.builder()
+            .withMessageType(historyDto.getMessageType())
+            .withStatus(historyDto.getStatus())
+            .withContent(GSON.fromJson(historyDto.getContent(), switch (historyDto.getMessageType()) {
+                case EMAIL -> EmailRequest.class;
+                case SMS -> SmsRequest.class;
+                case WEB_MESSAGE -> WebMessageRequest.class;
+                case DIGITAL_MAIL -> DigitalMailRequest.class;
+                case MESSAGE -> MessageRequest.Message.class;
+            }))
+            .withTimestamp(historyDto.getCreatedAt())
+            .build();
     }
 }

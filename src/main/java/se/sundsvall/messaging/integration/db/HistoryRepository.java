@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 @Repository
-public interface HistoryRepository extends JpaRepository<HistoryEntity, String>,
+public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>,
         JpaSpecificationExecutor<HistoryEntity> {
 
-    List<HistoryEntity> findByBatchIdEquals(String batchId);
+    List<HistoryEntity> findByMessageId(String messageId);
 
-    List<HistoryEntity> findByPartyIdEquals(String partyId);
+    List<HistoryEntity> findByBatchId(String batchId);
 }

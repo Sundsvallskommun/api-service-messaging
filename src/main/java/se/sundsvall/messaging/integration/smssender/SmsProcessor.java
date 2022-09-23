@@ -7,6 +7,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.DefaultSettings;
@@ -50,12 +51,13 @@ class SmsProcessor extends Processor {
             .build();
     }
 
+    @Transactional
     @EventListener(IncomingSmsEvent.class)
     void handleIncomingSmsEvent(final IncomingSmsEvent event) {
-        var message = messageRepository.findById(event.getMessageId()).orElse(null);
+        var message = messageRepository.findByDeliveryId(event.getPayload()).orElse(null);
 
         if (message == null) {
-            log.warn("Unable to process missing SMS {}", event.getMessageId());
+            log.warn("Unable to process missing SMS {}", event.getPayload());
 
             return;
         }
@@ -69,7 +71,7 @@ class SmsProcessor extends Processor {
                 .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                 .get(() -> smsSenderIntegration.sendSms(smsDto));
         } catch (Exception e) {
-            log.warn("Unable to send SMS {}: {}", event.getMessageId(), e.getMessage());
+            log.warn("Unable to send SMS {}: {}", event.getPayload(), e.getMessage());
         }
     }
 

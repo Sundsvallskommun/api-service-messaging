@@ -62,19 +62,19 @@ class MessageProcessorTests {
 
     @Test
     void testHandleIncomingMessageEvent_whenMessageIsNotFound() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.empty());
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, never()).getSettingsByPartyId(ArgumentMatchers.any(), any(String.class));
-        verify(mockMessageRepository, never()).deleteById(any(String.class));
+        verify(mockMessageRepository, never()).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingMessageEvent_whenNoFeedbackSettingsExist() throws JsonProcessingException {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
@@ -86,16 +86,16 @@ class MessageProcessorTests {
         when(mockFeedbackSettingsIntegration.getSettingsByPartyId(any(), any(String.class)))
             .thenReturn(List.of());
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingMessageEvent_whenFeedbackSettingsHasNoContactMethod() throws JsonProcessingException {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
@@ -108,18 +108,17 @@ class MessageProcessorTests {
             .thenReturn(List.of(mockFeedbackChannel));
         when(mockFeedbackChannel.getContactMethod()).thenReturn(null);
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, never()).save(any(MessageEntity.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateNoContactIsWanted() throws JsonProcessingException {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
@@ -133,18 +132,17 @@ class MessageProcessorTests {
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(false);
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, never()).save(any(MessageEntity.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateEmailAsContactMethod() throws JsonProcessingException {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
@@ -158,9 +156,9 @@ class MessageProcessorTests {
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.EMAIL);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
@@ -169,7 +167,7 @@ class MessageProcessorTests {
 
     @Test
     void testHandleIncomingMessageEvent_whenFeedbackSettingsIndicateSmsAsContactMethod() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.of(MessageEntity.builder()
+        when(mockMessageRepository.findById(any(Long.class))).thenReturn(Optional.of(MessageEntity.builder()
             .withMessageId("someMessageId")
             .withPartyId("somePartyId")
             .withType(MessageType.EMAIL)
@@ -181,9 +179,9 @@ class MessageProcessorTests {
         when(mockFeedbackChannel.getContactMethod()).thenReturn(ContactMethod.SMS);
         when(mockFeedbackChannel.isFeedbackWanted()).thenReturn(true);
 
-        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, "someMessageId"));
+        messageProcessor.handleIncomingMessageEvent(new IncomingMessageEvent(this, 12345L));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findById(any(Long.class));
         verify(mockFeedbackSettingsIntegration, times(1)).getSettingsByPartyId(any(), any(String.class));
         verify(mockMessageRepository, times(1)).save(any(MessageEntity.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));

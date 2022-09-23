@@ -11,10 +11,11 @@ import lombok.Getter;
 
 @Getter
 @Builder(setterPrefix = "with", builderClassName = "Builder")
-@JsonDeserialize(builder = MessageStatusResponse.Builder.class)
+@JsonDeserialize(builder = MessageStatusResponse.Builder.class) // FOR TESTS
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MessageStatusResponse {
 
     private final String messageId;
+    private final String deliveryId;
     private final MessageStatus status;
 }

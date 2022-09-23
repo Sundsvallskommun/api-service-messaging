@@ -36,6 +36,7 @@ public class MessageMapper {
 
         return MessageEntity.builder()
             .withMessageId(uuid)
+            .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
                 .map(Party::getPartyId)
                 .orElse(null))
@@ -50,6 +51,7 @@ public class MessageMapper {
 
         return MessageEntity.builder()
             .withMessageId(uuid)
+            .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
                 .map(Party::getPartyId)
                 .orElse(null))
@@ -64,6 +66,7 @@ public class MessageMapper {
 
         return MessageEntity.builder()
             .withMessageId(uuid)
+            .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
                 .map(Party::getPartyId)
                 .orElse(null))
@@ -79,6 +82,7 @@ public class MessageMapper {
         return request.getParty().getPartyIds().stream()
             .map(partyId -> MessageEntity.builder()
                 .withMessageId(uuid)
+                .withDeliveryId(uuid)
                 .withBatchId(batchId)
                 .withPartyId(partyId)
                 .withType(MessageType.DIGITAL_MAIL)
@@ -93,6 +97,7 @@ public class MessageMapper {
 
         return MessageEntity.builder()
             .withMessageId(uuid)
+            .withDeliveryId(uuid)
             .withBatchId(batchId)
             .withPartyId(Optional.ofNullable(request.getParty())
                 .map(Party::getPartyId)

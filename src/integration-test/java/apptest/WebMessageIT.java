@@ -53,12 +53,14 @@ class WebMessageIT extends AbstractMessagingAppTest {
             .satisfies(messageId -> new ValidUuidConstraintValidator().isValid(messageId));
 
         // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsById(response.getMessageId())).isFalse();
+        assertThat(messageRepository.existsByMessageId(response.getMessageId())).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getReferenceById(response.getMessageId())).satisfies(historyEntry -> {
-            assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
-            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
-        });
+        assertThat(historyRepository.findByMessageId(response.getMessageId()))
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
+            });
     }
 
     @Test
@@ -76,11 +78,13 @@ class WebMessageIT extends AbstractMessagingAppTest {
             .satisfies(messageId -> new ValidUuidConstraintValidator().isValid(messageId));
 
         // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsById(response.getMessageId())).isFalse();
+        assertThat(messageRepository.existsByMessageId(response.getMessageId())).isFalse();
         // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.getReferenceById(response.getMessageId())).satisfies(historyEntry -> {
-            assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
-            assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
+        assertThat(historyRepository.findByMessageId(response.getMessageId()))
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(response.getMessageId());
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
         });
     }
 }

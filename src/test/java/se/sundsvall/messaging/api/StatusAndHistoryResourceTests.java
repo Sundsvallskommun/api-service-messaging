@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +58,7 @@ class StatusAndHistoryResourceTests {
     @Test
     void test_getMessageStatus() {
         when(mockHistoryService.getHistory(any(String.class)))
-            .thenReturn(Optional.of(HistoryDto.builder().build()));
+            .thenReturn(List.of(HistoryDto.builder().build()));
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
@@ -72,7 +71,7 @@ class StatusAndHistoryResourceTests {
 
     @Test
     void test_getMessageStatus_whenMessageDoesNotExist() {
-        when(mockHistoryService.getHistory(any(String.class))).thenReturn(Optional.empty());
+        when(mockHistoryService.getHistory(any(String.class))).thenReturn(List.of());
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
@@ -93,6 +92,6 @@ class StatusAndHistoryResourceTests {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageStatuses()).hasSize(1);
+        assertThat(response.getBody().getMessages()).hasSize(1);
     }
 }

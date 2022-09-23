@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -32,11 +34,19 @@ import lombok.With;
 public class MessageEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "message_id")
     private String messageId;
 
     @Column(name = "batch_id")
     private String batchId;
+
+    @With
+    @Column(name = "delivery_id")
+    private String deliveryId;
 
     @Column(name = "party_id")
     private String partyId;

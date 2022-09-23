@@ -17,6 +17,7 @@ public class HistoryDto {
     
     private final String messageId;
     private final String batchId;
+    private final String deliveryId;
     private final MessageType messageType;
     private final MessageStatus status;
     private final String content;

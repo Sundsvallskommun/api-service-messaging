@@ -1,8 +1,8 @@
 package se.sundsvall.messaging.service.event;
 
-public class IncomingDigitalMailEvent extends Event {
+public class IncomingDigitalMailEvent extends Event<String> {
 
-    public IncomingDigitalMailEvent(Object source, final String messageId) {
+    public IncomingDigitalMailEvent(final Object source, final String messageId) {
         super(source, messageId);
     }
 }

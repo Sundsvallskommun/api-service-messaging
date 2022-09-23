@@ -63,24 +63,25 @@ class EmailProcessorTests {
 
     @Test
     void testHandleIncomingEmailEvent_whenMessageIsNotFound() {
-        when(mockMessageRepository.findById(any(String.class))).thenReturn(Optional.empty());
+        when(mockMessageRepository.findByDeliveryId(any(String.class))).thenReturn(Optional.empty());
 
         emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, "someMessageId"));
 
-        verify(mockMessageRepository, times(1)).findById(any(String.class));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(any(String.class));
         verify(mockEmailSenderIntegration, never()).sendEmail(any(EmailDto.class));
-        verify(mockMessageRepository, never()).deleteById(any(String.class));
+        verify(mockMessageRepository, never()).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, never()).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingEmailEvent() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -88,22 +89,23 @@ class EmailProcessorTests {
                 .build()));
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(ResponseEntity.ok().build());
 
-        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageId));
+        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockEmailSenderIntegration, times(1)).sendEmail(any(EmailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingEmailEvent_whenEmailSenderIntegrationThrowsException() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -111,22 +113,23 @@ class EmailProcessorTests {
                 .build()));
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenThrow(RuntimeException.class);
 
-        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageId));
+        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockEmailSenderIntegration, times(3)).sendEmail(any(EmailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
     void testHandleIncomingEmailEvent_whenEmailSenderIntegrationReturnsFailure() {
         var emailRequest = createEmailRequest();
-        var messageId = UUID.randomUUID().toString();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
 
-        when(mockMessageRepository.findById(eq(messageId))).thenReturn(Optional.of(
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
-                .withMessageId(messageId)
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
                 .withPartyId(emailRequest.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
@@ -134,11 +137,11 @@ class EmailProcessorTests {
                 .build()));
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
-        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageId));
+        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
-        verify(mockMessageRepository, times(1)).findById(eq(messageId));
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
         verify(mockEmailSenderIntegration, times(3)).sendEmail(any(EmailDto.class));
-        verify(mockMessageRepository, times(1)).deleteById(any(String.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 

@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder(setterPrefix = "with", builderClassName = "Builder")
-@JsonDeserialize(builder = MessageResponse.Builder.class)
+@JsonDeserialize(builder = MessageResponse.Builder.class) // FOR TESTS
 @AllArgsConstructor
 public class MessageResponse {
 

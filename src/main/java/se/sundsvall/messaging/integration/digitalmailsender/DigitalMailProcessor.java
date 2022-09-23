@@ -8,6 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
@@ -47,12 +48,13 @@ class DigitalMailProcessor extends Processor {
             .build();
     }
 
+    @Transactional
     @EventListener(IncomingDigitalMailEvent.class)
     void handleIncomingDigitalMailEvent(final IncomingDigitalMailEvent event) {
-        var message = messageRepository.findById(event.getMessageId()).orElse(null);
+        var message = messageRepository.findByDeliveryId(event.getPayload()).orElse(null);
 
         if (message == null) {
-            log.warn("Unable to process missing digital mail {}", event.getMessageId());
+            log.warn("Unable to process missing digital mail {}", event.getPayload());
 
             return;
         }
@@ -66,7 +68,7 @@ class DigitalMailProcessor extends Processor {
                 .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                 .get(() -> digitalMailSenderIntegration.sendDigitalMail(digitalMailDto));
         } catch (Exception e) {
-            log.warn("Unable to send digital mail {}: {}", event.getMessageId(), e.getMessage());
+            log.warn("Unable to send digital mail {}: {}", event.getPayload(), e.getMessage());
         }
     }
 

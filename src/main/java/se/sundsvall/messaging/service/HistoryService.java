@@ -2,7 +2,6 @@ package se.sundsvall.messaging.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -20,13 +19,14 @@ public class HistoryService {
         this.repository = repository;
     }
 
-    public Optional<HistoryDto> getHistory(final String messageId) {
-        return repository.findById(messageId)
-            .map(this::toHistoryDto);
+    public List<HistoryDto> getHistory(final String messageId) {
+        return repository.findByMessageId(messageId).stream()
+            .map(this::toHistoryDto)
+            .toList();
     }
 
     public List<HistoryDto> getHistoryByBatchId(final String batchId) {
-        return repository.findByBatchIdEquals(batchId).stream()
+        return repository.findByBatchId(batchId).stream()
             .map(this::toHistoryDto)
             .toList();
     }
@@ -46,6 +46,7 @@ public class HistoryService {
         return HistoryDto.builder()
             .withMessageId(historyEntity.getMessageId())
             .withBatchId(historyEntity.getBatchId())
+            .withDeliveryId(historyEntity.getDeliveryId())
             .withMessageType(historyEntity.getMessageType())
             .withStatus(historyEntity.getStatus())
             .withContent(historyEntity.getContent())
