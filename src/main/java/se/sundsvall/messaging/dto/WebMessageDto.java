@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.dto;
 
+import java.util.List;
+
 import se.sundsvall.messaging.model.Party;
 
 import lombok.AccessLevel;
@@ -14,4 +16,15 @@ public class WebMessageDto {
 
     private Party party;
     private String message;
+    private final List<AttachmentDto> attachments;
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(setterPrefix = "with")
+    public static class AttachmentDto {
+
+        private final String fileName;
+        private final String base64Data;
+        private final String mimeType;
+    }
 }

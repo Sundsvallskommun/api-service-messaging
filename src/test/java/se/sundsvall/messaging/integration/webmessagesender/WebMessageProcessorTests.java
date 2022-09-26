@@ -162,5 +162,6 @@ class WebMessageProcessorTests {
 
         assertThat(dto.getParty()).isEqualTo(webMessageRequest.getParty());
         assertThat(dto.getMessage()).isEqualTo(webMessageRequest.getMessage());
+        assertThat(dto.getAttachments()).hasSize(1);
     }
 }
