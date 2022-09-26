@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +76,13 @@ class WebMessageProcessor extends Processor {
         return WebMessageDto.builder()
             .withParty(request.getParty())
             .withMessage(request.getMessage())
+            .withAttachments(Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
+                .map(attachment -> WebMessageDto.AttachmentDto.builder()
+                    .withFileName(attachment.getFileName())
+                    .withMimeType(attachment.getMimeType())
+                    .withBase64Data(attachment.getBase64Data())
+                    .build())
+                .toList())
             .build();
     }
 }

@@ -5,10 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: '@project.version@'
+  version: '1.1'
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+- url: /
 tags:
 - name: WebMessages
   description: Web messages
@@ -26,19 +25,20 @@ paths:
               $ref: '#/components/schemas/CreateWebMessageRequest'
         required: true
       responses:
-        "201":
-          description: Successful operation
-          headers:
-            Location:
-              style: simple
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                oneOf:
+                - $ref: '#/components/schemas/Problem'
+                - $ref: '#/components/schemas/ConstraintViolationProblem'
         "404":
           description: Not found
           content:
@@ -51,6 +51,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "201":
+          description: Successful operation
+          headers:
+            Location:
+              style: simple
+              schema:
+                type: string
   /webmessages/{id}:
     get:
       tags:
@@ -66,30 +73,29 @@ paths:
           type: string
         example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "400":
-          description: Bad request
+        "502":
+          description: Bad gateway
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/Problem'
+                - $ref: '#/components/schemas/ConstraintViolationProblem'
         "404":
           description: Not found
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server error
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
@@ -118,22 +124,30 @@ paths:
       responses:
         "204":
           description: Successful operation
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad request
           content:
-            '*/*':
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                oneOf:
+                - $ref: '#/components/schemas/Problem'
+                - $ref: '#/components/schemas/ConstraintViolationProblem'
         "404":
           description: Not found
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server error
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
   /webmessages/recipients/{partyId}:
@@ -151,12 +165,29 @@ paths:
           type: string
         example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/Problem'
+                - $ref: '#/components/schemas/ConstraintViolationProblem'
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server error
+          content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
@@ -168,29 +199,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WebMessage'
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/WebMessage'
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
   /webmessages/external-references/{key}/{value}:
     get:
       tags:
@@ -217,12 +225,29 @@ paths:
           type: string
         example: 356t4r34f
       responses:
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/Problem'
+                - $ref: '#/components/schemas/ConstraintViolationProblem'
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server error
+          content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
@@ -234,29 +259,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WebMessage'
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/WebMessage'
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
   /api-docs:
     get:
       tags:
@@ -275,6 +277,21 @@ paths:
       x-wso2-mutual-ssl: Optional
 components:
   schemas:
+    Attachment:
+      type: object
+      properties:
+        fileName:
+          type: string
+          description: Name of file
+        mimeType:
+          type: string
+          description: mimeType of file
+          readOnly: true
+        base64Data:
+          type: string
+          description: "Base 64 encoded file, max size 10 mb"
+          format: base64
+      description: File attachment
     CreateWebMessageRequest:
       type: object
       properties:
@@ -290,6 +307,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExternalReference'
+        attachments:
+          maxItems: 10
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
       description: CreateWebMessageRequest model
     ExternalReference:
       type: object
@@ -301,7 +323,7 @@ components:
         value:
           type: string
           description: The external reference value
-          example: 356t4r34f
+          example: "356746349"
       description: ExternalReference model
     Problem:
       type: object
@@ -316,10 +338,10 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
         status:
           $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
         detail:
           type: string
     StatusType:
@@ -329,6 +351,231 @@ components:
           type: integer
           format: int32
         reasonPhrase:
+          type: string
+    ConstraintViolationProblem:
+      type: object
+      properties:
+        cause:
+          $ref: '#/components/schemas/ThrowableProblem'
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              nativeMethod:
+                type: boolean
+              className:
+                type: string
+        type:
+          type: string
+          format: uri
+        status:
+          $ref: '#/components/schemas/StatusType'
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Violation'
+        title:
+          type: string
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        detail:
+          type: string
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              cause:
+                type: object
+                properties:
+                  stackTrace:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        classLoaderName:
+                          type: string
+                        moduleName:
+                          type: string
+                        moduleVersion:
+                          type: string
+                        methodName:
+                          type: string
+                        fileName:
+                          type: string
+                        lineNumber:
+                          type: integer
+                          format: int32
+                        nativeMethod:
+                          type: boolean
+                        className:
+                          type: string
+                  message:
+                    type: string
+                  localizedMessage:
+                    type: string
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    nativeMethod:
+                      type: boolean
+                    className:
+                      type: string
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    ThrowableProblem:
+      type: object
+      properties:
+        cause:
+          $ref: '#/components/schemas/ThrowableProblem'
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              nativeMethod:
+                type: boolean
+              className:
+                type: string
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              cause:
+                type: object
+                properties:
+                  stackTrace:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        classLoaderName:
+                          type: string
+                        moduleName:
+                          type: string
+                        moduleVersion:
+                          type: string
+                        methodName:
+                          type: string
+                        fileName:
+                          type: string
+                        lineNumber:
+                          type: integer
+                          format: int32
+                        nativeMethod:
+                          type: boolean
+                        className:
+                          type: string
+                  message:
+                    type: string
+                  localizedMessage:
+                    type: string
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    nativeMethod:
+                      type: boolean
+                    className:
+                      type: string
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
           type: string
     WebMessage:
       type: object
@@ -354,5 +601,9 @@ components:
           description: Created timestamp
           format: date-time
           readOnly: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
       description: WebMessage model
   securitySchemes: {}
