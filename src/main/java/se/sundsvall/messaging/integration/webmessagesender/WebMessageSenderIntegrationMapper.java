@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.model.Party;
 
+import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 import generated.se.sundsvall.webmessagesender.ExternalReference;
 
@@ -31,6 +32,12 @@ class WebMessageSenderIntegrationMapper {
                     .key(externalReference.getKey())
                     .value(externalReference.getValue()))
                 .toList())
-            .message(webMessageDto.getMessage());
+            .message(webMessageDto.getMessage())
+            .attachments(Optional.ofNullable(webMessageDto.getAttachments()).orElse(List.of()).stream()
+                .map(attachment -> new Attachment()
+                    .fileName(attachment.getFileName())
+                    .mimeType(attachment.getMimeType())
+                    .base64Data(attachment.getBase64Data()))
+                .toList());
     }
 }

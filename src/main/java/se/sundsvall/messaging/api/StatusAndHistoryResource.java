@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.api;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -57,7 +60,11 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/conversation-history/{partyId}")
+    @GetMapping(
+        value = "/conversation-history/{partyId}",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
     ResponseEntity<List<HistoryResponse>> getConversationHistory(@PathVariable final String partyId,
             @RequestParam(name = "from", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -91,7 +98,11 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/status/{messageId}")
+    @GetMapping(
+        value = "/status/{messageId}",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
     ResponseEntity<List<MessageStatusResponse>> getMessageStatus(@PathVariable final String messageId) {
         var history = historyService.getHistory(messageId).stream()
             .map(historyDto -> MessageStatusResponse.builder()
@@ -126,7 +137,11 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/batch-status/{batchId}")
+    @GetMapping(
+        value = "/batch-status/{batchId}",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
     ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
         var statuses = historyService.getHistoryByBatchId(batchId).stream()
             .map(historyDto -> MessageStatusResponse.builder()
@@ -164,7 +179,11 @@ class StatusAndHistoryResource {
             content = @Content(schema = @Schema(implementation = Problem.class))
         )
     })
-    @GetMapping("/message/{messageId}")
+    @GetMapping(
+        value = "/message/{messageId}",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
     ResponseEntity<List<HistoryResponse>> getMessage(@PathVariable final String messageId) {
         var history = historyService.getHistory(messageId).stream()
             .map(this::mapToHistoryResponse)

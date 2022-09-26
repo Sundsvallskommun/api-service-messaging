@@ -119,6 +119,11 @@ public final class TestDataFactory {
                 .withValues(List.of("someValue1", "someValue2"))
                 .build()))
             .withMessage("someMessage")
+            .withAttachments(List.of(WebMessageRequest.Attachment.builder()
+                .withFileName("someFileName")
+                .withMimeType("text/plain")
+                .withBase64Data("bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK")
+                .build()))
             .build();
 
         if (modifier != null) {
