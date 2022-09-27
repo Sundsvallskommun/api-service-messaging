@@ -33,7 +33,7 @@ public class WebMessageRequest extends Request {
     @Builder(setterPrefix = "with")
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @Schema(description = "Attachment")
+    @Schema(name = "WebMessageAttachment", description = "Attachment")
     public static class Attachment {
 
         @Schema(description = "File name")
@@ -42,7 +42,7 @@ public class WebMessageRequest extends Request {
         @Schema(description = "Mime-type")
         private String mimeType;
 
-        @Schema(description = "BASE64-encoded file, max size 10 mb")
+        @Schema(description = "BASE64-encoded file, max size 10 MB")
         private String base64Data;
     }
 }
