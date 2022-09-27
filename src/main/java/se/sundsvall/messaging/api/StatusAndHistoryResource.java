@@ -62,7 +62,6 @@ class StatusAndHistoryResource {
     })
     @GetMapping(
         value = "/conversation-history/{partyId}",
-        consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
     ResponseEntity<List<HistoryResponse>> getConversationHistory(@PathVariable final String partyId,
@@ -100,7 +99,6 @@ class StatusAndHistoryResource {
     })
     @GetMapping(
         value = "/status/{messageId}",
-        consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
     ResponseEntity<List<MessageStatusResponse>> getMessageStatus(@PathVariable final String messageId) {
@@ -139,7 +137,6 @@ class StatusAndHistoryResource {
     })
     @GetMapping(
         value = "/batch-status/{batchId}",
-        consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
     ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
@@ -181,7 +178,6 @@ class StatusAndHistoryResource {
     })
     @GetMapping(
         value = "/message/{messageId}",
-        consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
     ResponseEntity<List<HistoryResponse>> getMessage(@PathVariable final String messageId) {
