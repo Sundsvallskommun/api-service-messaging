@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 import se.sundsvall.messaging.model.Sender;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,7 @@ public class EmailRequest extends Request {
     @Schema(description = "Sender")
     private Sender.Email sender;
 
-    @Schema(description = "Attachments")
+    @ArraySchema(schema = @Schema(implementation = Attachment.class))
     private List<@Valid Attachment> attachments;
 
     @Getter
@@ -51,6 +52,7 @@ public class EmailRequest extends Request {
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(setterPrefix = "with")
+    @Schema(name = "EmailAttachment", description = "Attachment")
     public static class Attachment {
 
         @NotBlank
