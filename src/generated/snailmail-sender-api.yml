@@ -1,0 +1,144 @@
+openapi: 3.0.1
+info:
+  title: SnailMailSender
+  contact: { }
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: 0.0.1-SNAPSHOT
+servers:
+  - url: http://127.0.0.1:8080
+    description: Generated server url
+tags:
+  - name: SnailMailSender
+    description: SnailMailSender
+paths:
+  /snailmail:
+    post:
+      tags:
+        - SnailMailSender
+      summary: Create snailmail
+      operationId: sendSnailMail
+      parameters:
+        - name: department
+          in: header
+          description: Department and unit that should be billed
+          required: true
+          schema:
+            type: string
+            description: Department and unit that should be billed
+            example: "SBK(Gatuavdelningen, Trafiksektionen)"
+          example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        - name: deviation
+          in: header
+          description: If the letter to send deviates from the standard
+          required: false
+          schema:
+            type: string
+            description: If the letter to send deviates from the standard
+            example: A3 Ritning
+          example: A3 Ritning
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSnailMailRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api-docs:
+    get:
+      tags:
+        - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    Attachment:
+      required:
+        - content
+        - contentType
+        - name
+      type: object
+      properties:
+        content:
+          type: string
+          description: The attachment (file) content as a BASE64-encoded string
+          example: aGVsbG8gd29ybGQK
+        name:
+          type: string
+          description: The attachment filename
+          example: test.txt
+        contentType:
+          type: string
+          description: The attachment content type
+          example: text/plain
+      description: Attachments
+    SendSnailMailRequest:
+      required:
+        - personId
+      type: object
+      properties:
+        personId:
+          type: string
+          description: PersonId for the person to send mail to
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: '#/components/schemas/Attachment'
+    Problem:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusType'
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+  securitySchemes: { }

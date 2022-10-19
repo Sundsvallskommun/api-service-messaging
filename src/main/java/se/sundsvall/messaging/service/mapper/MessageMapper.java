@@ -1,23 +1,23 @@
 package se.sundsvall.messaging.service.mapper;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Party;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class MessageMapper {
@@ -50,26 +50,42 @@ public class MessageMapper {
         var uuid = UUID.randomUUID().toString();
 
         return MessageEntity.builder()
-            .withMessageId(uuid)
-            .withDeliveryId(uuid)
-            .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
-                .orElse(null))
-            .withType(MessageType.SMS)
-            .withStatus(MessageStatus.PENDING)
-            .withContent(GSON.toJson(request))
-            .build();
+                .withMessageId(uuid)
+                .withDeliveryId(uuid)
+                .withPartyId(Optional.ofNullable(request.getParty())
+                        .map(Party::getPartyId)
+                        .orElse(null))
+                .withType(MessageType.SMS)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build();
     }
+
+    public MessageEntity toEntity(final SnailmailRequest request) {
+        var uuid = UUID.randomUUID().toString();
+
+        return MessageEntity.builder()
+                .withMessageId(uuid)
+                .withDeliveryId(uuid)
+                .withPartyId(Optional.ofNullable(request.getParty())
+                        .map(Party::getPartyId)
+                        .orElse(null))
+                .withType(MessageType.SNAIL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build();
+    }
+
 
     public MessageEntity toEntity(final WebMessageRequest request) {
         var uuid = UUID.randomUUID().toString();
 
         return MessageEntity.builder()
-            .withMessageId(uuid)
-            .withDeliveryId(uuid)
-            .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
-                .orElse(null))
+                .withMessageId(uuid)
+                .withDeliveryId(uuid)
+                .withPartyId(Optional.ofNullable(request.getParty())
+                        .map(Party::getPartyId)
+                        .orElse(null))
             .withType(MessageType.WEB_MESSAGE)
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(request))

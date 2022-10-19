@@ -1,13 +1,11 @@
 package se.sundsvall.messaging;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
+import generated.se.sundsvall.messagingrules.HeaderName;
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -16,7 +14,9 @@ import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class TestDataFactory {
 
@@ -37,36 +37,67 @@ public final class TestDataFactory {
 
     public static EmailRequest createEmailRequest(final Consumer<EmailRequest> modifier) {
         var request = EmailRequest.builder()
-            .withParty(Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
-                .withExternalReferences(List.of(ExternalReference.builder()
-                    .withKey("someKey")
-                    .withValue("someValue")
-                    .build()))
-                .build())
-            .withHeaders(List.of(Header.builder()
-                .withName(HeaderName.CATEGORY)
-                .withValues(List.of("someValue1", "someValue2"))
-                .build()))
-            .withSender(Sender.Email.builder()
-                .withName(DEFAULT_SENDER_NAME)
-                .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
-                .build())
-            .withEmailAddress(DEFAULT_EMAIL_ADDRESS)
-            .withSubject("someSubject")
-            .withMessage("someMessage")
-            .withHtmlMessage("someHtmlMessage")
-            .withAttachments(List.of(EmailRequest.Attachment.builder()
-                .withName("someName")
-                .withContentType("someContentType")
-                .withContent("someContent")
-                .build()))
-            .build();
+                .withParty(Party.builder()
+                        .withPartyId(DEFAULT_PARTY_ID)
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
+                .withHeaders(List.of(Header.builder()
+                        .withName(HeaderName.CATEGORY)
+                        .withValues(List.of("someValue1", "someValue2"))
+                        .build()))
+                .withSender(Sender.Email.builder()
+                        .withName(DEFAULT_SENDER_NAME)
+                        .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
+                        .build())
+                .withEmailAddress(DEFAULT_EMAIL_ADDRESS)
+                .withSubject("someSubject")
+                .withMessage("someMessage")
+                .withHtmlMessage("someHtmlMessage")
+                .withAttachments(List.of(EmailRequest.Attachment.builder()
+                        .withName("someName")
+                        .withContentType("someContentType")
+                        .withContent("someContent")
+                        .build()))
+                .build();
 
         if (modifier != null) {
             modifier.accept(request);
         }
 
+        return request;
+    }
+
+
+    public static SnailmailRequest createSnailmailRequest() {
+        return createSnailmailRequest(null);
+    }
+
+    public static SnailmailRequest createSnailmailRequest(final Consumer<SnailmailRequest> modifier) {
+        var request = SnailmailRequest.builder()
+                .withParty(Party.builder()
+                        .withPartyId(DEFAULT_PARTY_ID)
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
+                .withHeaders(List.of(Header.builder()
+                        .withName(HeaderName.CATEGORY)
+                        .withValues(List.of("someValue1", "someValue2"))
+                        .build()))
+                .withPersonId("somePersonId")
+                .withAttachments(List.of(SnailmailRequest.Attachment.builder()
+                        .withName("someName")
+                        .withContentType("someContentType")
+                        .withContent("someContent")
+                        .build()))
+                .build();
+        if (modifier != null) {
+            modifier.accept(request);
+        }
         return request;
     }
 
@@ -76,13 +107,13 @@ public final class TestDataFactory {
 
     public static SmsRequest createSmsRequest(final Consumer<SmsRequest> modifier) {
         var request = SmsRequest.builder()
-            .withParty(Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
-                .withExternalReferences(List.of(ExternalReference.builder()
-                    .withKey("someKey")
-                    .withValue("someValue")
-                    .build()))
-                .build())
+                .withParty(Party.builder()
+                        .withPartyId(DEFAULT_PARTY_ID)
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
             .withHeaders(List.of(Header.builder()
                 .withName(HeaderName.CATEGORY)
                 .withValues(List.of("someValue1", "someValue2"))
