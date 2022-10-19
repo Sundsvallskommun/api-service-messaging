@@ -39,7 +39,7 @@ class SnailmailProcessor extends Processor {
                 .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
                 .handle(Exception.class)
                 .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK)
-                .onFailedAttempt(event -> log.debug("Unable to send e-mail ({}/{}): {}",
+                .onFailedAttempt(event -> log.debug("Unable to send snailmail ({}/{}): {}",
                         event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
                 .build();
     }
@@ -50,7 +50,7 @@ class SnailmailProcessor extends Processor {
         var message = messageRepository.findByDeliveryId(event.getPayload()).orElse(null);
 
         if (message == null) {
-            log.warn("Unable to process missing e-mail {}", event.getPayload());
+            log.warn("Unable to process missing snailmail {}", event.getPayload());
 
             return;
         }
@@ -64,7 +64,7 @@ class SnailmailProcessor extends Processor {
                     .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                     .get(() -> snailmailSenderIntegration.sendSnailmail(snailmailDto));
         } catch (Exception e) {
-            log.warn("Unable to send e-mail {}: {}", event.getPayload(), e.getMessage());
+            log.warn("Unable to send snailmail {}: {}", event.getPayload(), e.getMessage());
         }
     }
 

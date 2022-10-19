@@ -80,7 +80,7 @@ public class SnailmailProcessorTests {
                         .withMessageId(messageAndDeliveryId)
                         .withDeliveryId(messageAndDeliveryId)
                         .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.EMAIL)
+                        .withType(MessageType.SNAIL_MAIL)
                         .withStatus(MessageStatus.PENDING)
                         .withContent(GSON.toJson(snailmailRequest))
                         .build()));
@@ -104,7 +104,7 @@ public class SnailmailProcessorTests {
                         .withMessageId(messageAndDeliveryId)
                         .withDeliveryId(messageAndDeliveryId)
                         .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.EMAIL)
+                        .withType(MessageType.SNAIL_MAIL)
                         .withStatus(MessageStatus.PENDING)
                         .withContent(GSON.toJson(snailmailRequest))
                         .build()));
@@ -128,7 +128,7 @@ public class SnailmailProcessorTests {
                         .withMessageId(messageAndDeliveryId)
                         .withDeliveryId(messageAndDeliveryId)
                         .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.EMAIL)
+                        .withType(MessageType.SNAIL_MAIL)
                         .withStatus(MessageStatus.PENDING)
                         .withContent(GSON.toJson(snailmailRequest))
                         .build()));
@@ -149,7 +149,7 @@ public class SnailmailProcessorTests {
         var message = MessageEntity.builder()
                 .withMessageId(UUID.randomUUID().toString())
                 .withPartyId(snailmailRequest.getParty().getPartyId())
-                .withType(MessageType.EMAIL)
+                .withType(MessageType.SNAIL_MAIL)
                 .withStatus(MessageStatus.PENDING)
                 .withContent(GSON.toJson(snailmailRequest))
                 .build();
