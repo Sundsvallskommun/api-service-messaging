@@ -5,13 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
+import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
 @Component
@@ -37,6 +37,7 @@ class StartupHandler implements CommandLineRunner {
                 case MESSAGE -> new IncomingMessageEvent(this, message.getId());
                 case WEB_MESSAGE -> new IncomingWebMessageEvent(this, message.getMessageId());
                 case DIGITAL_MAIL -> new IncomingDigitalMailEvent(this, message.getMessageId());
+                case SNAIL_MAIL -> new IncomingSnailmailEvent(this, message.getMessageId());
             })
             .forEach(eventPublisher::publishEvent);
     }

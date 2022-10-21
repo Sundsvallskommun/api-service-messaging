@@ -1,0 +1,12 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "/snailmail-sender/send/snailmail"
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "status": 200
+    }
+}
