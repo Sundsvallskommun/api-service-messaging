@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.0"
+  version: "1.1"
 servers:
   - url: http://127.0.0.1:8080
     description: Generated server url
@@ -19,25 +19,6 @@ paths:
         - SnailMailSender
       summary: Create snailmail
       operationId: sendSnailMail
-      parameters:
-        - name: department
-          in: header
-          description: Department and unit that should be billed
-          required: true
-          schema:
-            type: string
-            description: Department and unit that should be billed
-            example: "SBK(Gatuavdelningen, Trafiksektionen)"
-          example: "SBK(Gatuavdelningen, Trafiksektionen)"
-        - name: deviation
-          in: header
-          description: If the letter to send deviates from the standard
-          required: false
-          schema:
-            type: string
-            description: If the letter to send deviates from the standard
-            example: A3 Ritning
-          example: A3 Ritning
       requestBody:
         content:
           application/json:
@@ -45,14 +26,14 @@ paths:
               $ref: '#/components/schemas/SendSnailMailRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -103,9 +84,18 @@ components:
       description: Attachments
     SendSnailMailRequest:
       required:
+        - department
         - personId
       type: object
       properties:
+        department:
+          type: string
+          description: Department and unit that should be billed
+          example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        deviation:
+          type: string
+          description: If the letter to send deviates from the standard
+          example: A3 Ritning
         personId:
           type: string
           description: PersonId for the person to send mail to
@@ -117,8 +107,6 @@ components:
     Problem:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/StatusType'
         instance:
           type: string
           format: uri
@@ -129,6 +117,8 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
         title:
           type: string
         detail:
@@ -136,9 +126,9 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
   securitySchemes: { }

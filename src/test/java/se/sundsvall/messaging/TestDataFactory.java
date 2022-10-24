@@ -1,6 +1,9 @@
 package se.sundsvall.messaging;
 
-import generated.se.sundsvall.messagingrules.HeaderName;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
@@ -14,9 +17,7 @@ import se.sundsvall.messaging.model.Parties;
 import se.sundsvall.messaging.model.Party;
 import se.sundsvall.messaging.model.Sender;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
+import generated.se.sundsvall.messagingrules.HeaderName;
 
 public final class TestDataFactory {
 
@@ -88,7 +89,9 @@ public final class TestDataFactory {
                         .withName(HeaderName.CATEGORY)
                         .withValues(List.of("someValue1", "someValue2"))
                         .build()))
-                .withPersonId("somePersonId")
+                .withPersonId("58f96da8-6d76-4fa6-bb92-64f71fdc6aa5")
+                .withDepartment("someDepartment")
+                .withDeviation("someDeviation")
                 .withAttachments(List.of(SnailmailRequest.Attachment.builder()
                         .withName("someName")
                         .withContentType("someContentType")

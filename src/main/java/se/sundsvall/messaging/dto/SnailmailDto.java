@@ -1,18 +1,20 @@
 package se.sundsvall.messaging.dto;
 
 
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @Builder(setterPrefix = "with")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SnailmailDto {
 
+    private String department;
+    private String deviation;
     private final String personId;
     private final List<AttachmentDto> attachments;
 

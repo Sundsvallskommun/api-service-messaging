@@ -3,6 +3,8 @@
     "partyId": "f427952b-247c-4d3b-b081-675a467b3619"
   },
   "personId": "58f96da8-6d76-4fa6-bb92-64f71fdc6aa5",
+  "department": "dummy",
+  "deviation": "dummy deviation",
   "attachments": [
     {
       "content": "aGVsbG8gd29ybGQK",
