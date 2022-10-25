@@ -5,6 +5,7 @@ import static se.sundsvall.messaging.TestDataFactory.createDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createMessageRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
+import static se.sundsvall.messaging.TestDataFactory.createSnailmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createWebMessageRequest;
 
 import java.util.UUID;
@@ -44,6 +45,19 @@ class MessageMapperTests {
         assertThat(message.getMessageId()).isNotNull();
         assertThat(message.getBatchId()).isNull();
         assertThat(message.getType()).isEqualTo(MessageType.EMAIL);
+        assertThat(message.getStatus()).isEqualTo(MessageStatus.PENDING);
+        assertThat(message.getContent()).isEqualTo(MessageMapper.GSON.toJson(request));
+    }
+
+    @Test
+    void test_toEntity_withSnailMailRequest() {
+        var request = createSnailmailRequest();
+
+        var message = messageMapper.toEntity(request);
+
+        assertThat(message.getMessageId()).isNotNull();
+        assertThat(message.getBatchId()).isNull();
+        assertThat(message.getType()).isEqualTo(MessageType.SNAIL_MAIL);
         assertThat(message.getStatus()).isEqualTo(MessageStatus.PENDING);
         assertThat(message.getContent()).isEqualTo(MessageMapper.GSON.toJson(request));
     }

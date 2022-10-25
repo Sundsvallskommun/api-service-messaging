@@ -1,12 +1,14 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import dev.failsafe.Failsafe;
-import dev.failsafe.RetryPolicy;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SnailmailDto;
@@ -16,8 +18,8 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 
-import java.util.List;
-import java.util.Optional;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 
 @Component
 class SnailmailProcessor extends Processor {
@@ -73,6 +75,8 @@ class SnailmailProcessor extends Processor {
 
 
         return SnailmailDto.builder()
+                .withDepartment(request.getDepartment())
+                .withDeviation(request.getDeviation())
                 .withPersonId(request.getPersonId())
                 .withAttachments(Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
                         .map(attachment -> SnailmailDto.AttachmentDto.builder()

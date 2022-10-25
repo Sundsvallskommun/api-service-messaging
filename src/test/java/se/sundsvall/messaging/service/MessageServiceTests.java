@@ -9,6 +9,7 @@ import static se.sundsvall.messaging.TestDataFactory.createDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createMessageRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
+import static se.sundsvall.messaging.TestDataFactory.createSnailmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createWebMessageRequest;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
@@ -33,6 +35,7 @@ import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
+import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 
@@ -149,5 +152,23 @@ class MessageServiceTests {
         verify(mockMapper, times(1)).toEntities(any(DigitalMailRequest.class), any(String.class));
         verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingDigitalMailEvent.class));
+    }
+
+    @Test
+    void test_handleSnailmailRequest() {
+        when(mockRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder()
+                .withMessageId("someMessageId")
+                .build());
+
+        var request = createSnailmailRequest();
+
+        var dto = messageService.handleSnailmailRequest(request);
+
+        assertThat(dto.getMessageId()).isEqualTo("someMessageId");
+
+        verify(mockRepository, times(1)).save(any(MessageEntity.class));
+        verify(mockMapper, times(1)).toEntity(any(SnailmailRequest.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSnailmailEvent.class));
     }
 }

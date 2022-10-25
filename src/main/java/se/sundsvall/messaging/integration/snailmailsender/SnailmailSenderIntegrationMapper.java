@@ -1,13 +1,15 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
 
-import generated.se.sundsvall.snailmail.Attachment;
-import generated.se.sundsvall.snailmail.SendSnailMailRequest;
-import org.springframework.stereotype.Component;
-import se.sundsvall.messaging.dto.SnailmailDto;
-
 import java.util.Collection;
 import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
+import se.sundsvall.messaging.dto.SnailmailDto;
+
+import generated.se.sundsvall.snailmail.Attachment;
+import generated.se.sundsvall.snailmail.SendSnailMailRequest;
 
 @Component
 public class SnailmailSenderIntegrationMapper {
@@ -26,6 +28,8 @@ public class SnailmailSenderIntegrationMapper {
                 .toList();
 
         return new SendSnailMailRequest()
+                .department(dto.getDepartment())
+                .deviation(dto.getDeviation())
                 .personId(dto.getPersonId())
                 .attachments(attachments);
     }
