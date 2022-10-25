@@ -13,8 +13,8 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SnailmailDto {
 
-    private String department;
-    private String deviation;
+    private final String department;
+    private final String deviation;
     private final String personId;
     private final List<AttachmentDto> attachments;
 
