@@ -18,6 +18,7 @@ import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
+import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.MessageBatchDto;
 import se.sundsvall.messaging.dto.MessageDto;
@@ -111,7 +112,7 @@ class MessageResourceTests {
                 .build());
 
         var response = messageResource.sendMessages(
-            MessageRequest.builder().build());
+                MessageRequest.builder().build());
 
         assertThat(response).isNotNull();
         assertThat(response.getBody()).isNotNull();
@@ -119,5 +120,21 @@ class MessageResourceTests {
         assertThat(response.getBody().getMessageIds()).containsExactly("someMessageId");
 
         verify(mockMessageService, times(1)).handleMessageRequest(any(MessageRequest.class));
+    }
+
+    @Test
+    void test_sendSnailMail() {
+        when(mockMessageService.handleSnailmailRequest(any(SnailmailRequest.class)))
+                .thenReturn(MessageDto.builder()
+                        .withMessageId("someMessageId")
+                        .build());
+
+        var response = messageResource.sendSnailmail(SnailmailRequest.builder().build());
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+
+        verify(mockMessageService, times(1)).handleSnailmailRequest(any(SnailmailRequest.class));
     }
 }

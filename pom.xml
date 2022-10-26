@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.9</version>
+        <version>1.18</version>
         <relativePath />
     </parent>
 
@@ -159,6 +159,31 @@
                                 <dateLibrary>java8</dateLibrary>
                                 <apiPackage>generated</apiPackage>
                                 <modelPackage>generated.se.sundsvall.emailsender</modelPackage>
+                                <openApiNullable>false</openApiNullable>
+                                <generatePom>false</generatePom>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useSwaggerAnnotations>true</useSwaggerAnnotations>
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>snailmail-sender-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/generated/snailmail-sender-api.yml</inputSpec>
+                            <output>${generated-sources-path}</output>
+                            <generatorName>spring</generatorName>
+                            <generateApis>false</generateApis>
+                            <configOptions>
+                                <sourceFolder>${generated-sources-java-path}</sourceFolder>
+                                <generateSupportingFiles>false</generateSupportingFiles>
+                                <dateLibrary>java8</dateLibrary>
+                                <apiPackage>generated</apiPackage>
+                                <modelPackage>generated.se.sundsvall.snailmail</modelPackage>
                                 <openApiNullable>false</openApiNullable>
                                 <generatePom>false</generatePom>
                                 <useBeanValidation>true</useBeanValidation>
