@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
@@ -75,18 +77,23 @@ class DigitalMailProcessor extends Processor {
     DigitalMailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
 
+        List<DigitalMailDto.AttachmentDto> attachments = null;
+        if (!CollectionUtils.isEmpty(request.getAttachments())) {
+            attachments = Optional.ofNullable(request.getAttachments()).stream()
+                    .flatMap(Collection::stream)
+                    .map(attachment -> DigitalMailDto.AttachmentDto.builder()
+                            .withContentType(ContentType.fromString(attachment.getContentType()))
+                            .withContent(attachment.getContent())
+                            .withFilename(attachment.getFilename())
+                            .build())
+                    .toList();
+        }
         return DigitalMailDto.builder()
-            .withPartyId(message.getPartyId())
-            .withSubject(request.getSubject())
-            .withContentType(ContentType.fromString(request.getContentType()))
-            .withBody(request.getBody())
-            .withAttachments(Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
-                .map(attachment -> DigitalMailDto.AttachmentDto.builder()
-                    .withContentType(ContentType.fromString(attachment.getContentType()))
-                    .withContent(attachment.getContent())
-                    .withFilename(attachment.getFilename())
-                    .build())
-                .toList())
-            .build();
+                .withPartyId(message.getPartyId())
+                .withSubject(request.getSubject())
+                .withContentType(ContentType.fromString(request.getContentType()))
+                .withBody(request.getBody())
+                .withAttachments(attachments)
+                .build();
     }
 }

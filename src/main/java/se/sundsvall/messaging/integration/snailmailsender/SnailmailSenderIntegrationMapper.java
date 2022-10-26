@@ -2,9 +2,11 @@ package se.sundsvall.messaging.integration.snailmailsender;
 
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.dto.SnailmailDto;
 
@@ -19,13 +21,16 @@ public class SnailmailSenderIntegrationMapper {
             return null;
         }
 
-        var attachments = Optional.ofNullable(dto.getAttachments()).stream()
-                .flatMap(Collection::stream)
-                .map(attachment -> new Attachment()
-                        .content(attachment.getContent())
-                        .contentType(attachment.getContentType())
-                        .name(attachment.getName()))
-                .toList();
+        List<Attachment> attachments = null;
+        if (!CollectionUtils.isEmpty(dto.getAttachments())) {
+            attachments = Optional.ofNullable(dto.getAttachments()).stream()
+                    .flatMap(Collection::stream)
+                    .map(attachment -> new Attachment()
+                            .content(attachment.getContent())
+                            .contentType(attachment.getContentType())
+                            .name(attachment.getName()))
+                    .toList();
+        }
 
         return new SendSnailMailRequest()
                 .department(dto.getDepartment())

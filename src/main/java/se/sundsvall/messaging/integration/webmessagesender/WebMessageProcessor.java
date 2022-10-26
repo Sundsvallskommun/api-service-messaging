@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,16 +74,22 @@ class WebMessageProcessor extends Processor {
     WebMessageDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), WebMessageRequest.class);
 
+        List<WebMessageDto.AttachmentDto> attachments = null;
+        if (request.getAttachments() != null) {
+            attachments = Optional.of(request.getAttachments()).stream()
+                    .flatMap(Collection::stream)
+                    .map(attachment -> WebMessageDto.AttachmentDto.builder()
+                            .withFileName(attachment.getFileName())
+                            .withMimeType(attachment.getMimeType())
+                            .withBase64Data(attachment.getBase64Data())
+                            .build())
+                    .toList();
+        }
+
         return WebMessageDto.builder()
-            .withParty(request.getParty())
-            .withMessage(request.getMessage())
-            .withAttachments(Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
-                .map(attachment -> WebMessageDto.AttachmentDto.builder()
-                    .withFileName(attachment.getFileName())
-                    .withMimeType(attachment.getMimeType())
-                    .withBase64Data(attachment.getBase64Data())
-                    .build())
-                .toList())
-            .build();
+                .withParty(request.getParty())
+                .withMessage(request.getMessage())
+                .withAttachments(attachments)
+                .build();
     }
 }

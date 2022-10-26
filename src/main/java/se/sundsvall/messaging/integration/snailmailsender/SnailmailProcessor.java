@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
@@ -73,18 +75,23 @@ class SnailmailProcessor extends Processor {
     SnailmailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), SnailmailRequest.class);
 
+        List<SnailmailDto.AttachmentDto> attachments = null;
+        if (!CollectionUtils.isEmpty(request.getAttachments())) {
+            attachments = Optional.ofNullable(request.getAttachments()).stream()
+                    .flatMap(Collection::stream)
+                    .map(attachment -> SnailmailDto.AttachmentDto.builder()
+                            .withName(attachment.getName())
+                            .withContentType(attachment.getContentType())
+                            .withContent(attachment.getContent())
+                            .build())
+                    .toList();
+        }
 
         return SnailmailDto.builder()
                 .withDepartment(request.getDepartment())
                 .withDeviation(request.getDeviation())
                 .withPersonId(request.getPersonId())
-                .withAttachments(Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
-                        .map(attachment -> SnailmailDto.AttachmentDto.builder()
-                                .withName(attachment.getName())
-                                .withContentType(attachment.getContentType())
-                                .withContent(attachment.getContent())
-                                .build())
-                        .toList())
+                .withAttachments(attachments)
                 .build();
     }
 }
