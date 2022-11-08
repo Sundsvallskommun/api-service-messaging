@@ -128,7 +128,7 @@ class MessageResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+            content = @Content(schema = @Schema(implementation = MessagesResponse.class))
         ),
         @ApiResponse(
             responseCode = "400",

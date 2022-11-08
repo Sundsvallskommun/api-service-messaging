@@ -7,13 +7,13 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "2.3"
 servers:
-- url: http://localhost:60073
-  description: Generated server url
+  - url: http://localhost:60073
+    description: Generated server url
 paths:
   /webmessage:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a single web message
       operationId: sendWebMessage
       requestBody:
@@ -53,7 +53,7 @@ paths:
   /snailmail:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a single snailmail
       operationId: sendSnailmail
       requestBody:
@@ -93,7 +93,7 @@ paths:
   /sms:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a single SMS
       operationId: sendSms
       requestBody:
@@ -133,7 +133,7 @@ paths:
   /messages:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a batch of messages as e-mail or SMS to a list of parties
       operationId: sendMessages
       requestBody:
@@ -173,7 +173,7 @@ paths:
   /email:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a single e-mail
       operationId: sendEmail
       requestBody:
@@ -213,7 +213,7 @@ paths:
   /digitalmail:
     post:
       tags:
-      - Sending Resources
+        - Sending Resources
       summary: Send a single digital mail to one or more parties
       operationId: sendDigitalMail
       requestBody:
@@ -228,10 +228,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/MessagesResponse'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/MessagesResponse'
         "400":
           description: Bad Request
           content:
@@ -253,15 +253,15 @@ paths:
   /status/{messageId}:
     get:
       tags:
-      - Status and History Resources
+        - Status and History Resources
       summary: Get the status for a single message and its deliveries
       operationId: getMessageStatus
       parameters:
-      - name: messageId
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "404":
           description: Not Found
@@ -293,15 +293,15 @@ paths:
   /message/{messageId}:
     get:
       tags:
-      - Status and History Resources
+        - Status and History Resources
       summary: Get a message and all its deliveries
       operationId: getMessage
       parameters:
-      - name: messageId
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "404":
           description: Not Found
@@ -333,29 +333,29 @@ paths:
   /conversation-history/{partyId}:
     get:
       tags:
-      - Status and History Resources
+        - Status and History Resources
       summary: Get the entire conversation history for a given party
       operationId: getConversationHistory
       parameters:
-      - name: partyId
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: from
-        in: query
-        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: to
-        in: query
-        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-        required: false
-        schema:
-          type: string
-          format: date
+        - name: partyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+          required: false
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           description: Successful Operation
@@ -378,15 +378,15 @@ paths:
   /batch-status/{batchId}:
     get:
       tags:
-      - Status and History Resources
+        - Status and History Resources
       summary: "Get the status for a message batch, its messages and their deliveries"
       operationId: getBatchStatus
       parameters:
-      - name: batchId
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "404":
           description: Not Found
@@ -418,7 +418,7 @@ paths:
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -435,8 +435,8 @@ components:
   schemas:
     ExternalReference:
       required:
-      - key
-      - value
+        - key
+        - value
       type: object
       properties:
         key:
@@ -450,17 +450,17 @@ components:
       description: External references
     Header:
       required:
-      - values
+        - values
       type: object
       properties:
         name:
           type: string
           description: The header name
           enum:
-          - DISTRIBUTION_RULE
-          - CATEGORY
-          - FACILITY_ID
-          - TYPE
+            - DISTRIBUTION_RULE
+            - CATEGORY
+            - FACILITY_ID
+            - TYPE
         values:
           type: array
           description: The header values
@@ -496,7 +496,7 @@ components:
       description: Attachment
     WebMessageRequest:
       required:
-      - message
+        - message
       type: object
       properties:
         party:
@@ -548,8 +548,8 @@ components:
           type: string
     SnailmailAttachment:
       required:
-      - content
-      - name
+        - content
+        - name
       type: object
       properties:
         content:
@@ -567,8 +567,8 @@ components:
       description: Attachment
     SnailmailRequest:
       required:
-      - department
-      - personId
+        - department
+        - personId
       type: object
       properties:
         party:
@@ -595,7 +595,7 @@ components:
             $ref: '#/components/schemas/SnailmailAttachment'
     Sms:
       required:
-      - name
+        - name
       type: object
       properties:
         name:
@@ -607,8 +607,8 @@ components:
       description: Sender
     SmsRequest:
       required:
-      - message
-      - mobileNumber
+        - message
+        - mobileNumber
       type: object
       properties:
         party:
@@ -628,8 +628,8 @@ components:
           description: Message
     Email:
       required:
-      - address
-      - name
+        - address
+        - name
       type: object
       properties:
         name:
@@ -645,7 +645,7 @@ components:
           example: sender@sender.se
     Message:
       required:
-      - message
+        - message
       type: object
       properties:
         party:
@@ -695,8 +695,8 @@ components:
             type: string
     EmailAttachment:
       required:
-      - content
-      - name
+        - content
+        - name
       type: object
       properties:
         content:
@@ -714,8 +714,8 @@ components:
       description: Attachment
     EmailRequest:
       required:
-      - emailAddress
-      - subject
+        - emailAddress
+        - subject
       type: object
       properties:
         party:
@@ -745,15 +745,15 @@ components:
             $ref: '#/components/schemas/EmailAttachment'
     DigitalMailAttachment:
       required:
-      - content
-      - filename
+        - content
+        - filename
       type: object
       properties:
         contentType:
           type: string
           description: Content type
           enum:
-          - application/pdf
+            - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
@@ -763,8 +763,8 @@ components:
       description: Attachments
     DigitalMailRequest:
       required:
-      - body
-      - contentType
+        - body
+        - contentType
       type: object
       properties:
         party:
@@ -782,8 +782,8 @@ components:
           type: string
           description: Content type
           enum:
-          - text/plain
-          - text/html
+            - text/plain
+            - text/html
         body:
           type: string
           description: Body (BASE64-encoded)
@@ -794,7 +794,7 @@ components:
             $ref: '#/components/schemas/DigitalMailAttachment'
     Parties:
       required:
-      - partyIds
+        - partyIds
       type: object
       properties:
         partyIds:
@@ -819,12 +819,12 @@ components:
         status:
           type: string
           enum:
-          - AWAITING_FEEDBACK
-          - PENDING
-          - SENT
-          - FAILED
-          - NO_FEEDBACK_SETTINGS_FOUND
-          - NO_FEEDBACK_WANTED
+            - AWAITING_FEEDBACK
+            - PENDING
+            - SENT
+            - FAILED
+            - NO_FEEDBACK_SETTINGS_FOUND
+            - NO_FEEDBACK_WANTED
     HistoryResponse:
       type: object
       properties:
@@ -833,21 +833,21 @@ components:
         messageType:
           type: string
           enum:
-          - MESSAGE
-          - EMAIL
-          - SMS
-          - WEB_MESSAGE
-          - DIGITAL_MAIL
-          - SNAIL_MAIL
+            - MESSAGE
+            - EMAIL
+            - SMS
+            - WEB_MESSAGE
+            - DIGITAL_MAIL
+            - SNAIL_MAIL
         status:
           type: string
           enum:
-          - AWAITING_FEEDBACK
-          - PENDING
-          - SENT
-          - FAILED
-          - NO_FEEDBACK_SETTINGS_FOUND
-          - NO_FEEDBACK_WANTED
+            - AWAITING_FEEDBACK
+            - PENDING
+            - SENT
+            - FAILED
+            - NO_FEEDBACK_SETTINGS_FOUND
+            - NO_FEEDBACK_WANTED
         timestamp:
           type: string
           format: date-time
