@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
@@ -29,8 +27,7 @@ class WebMessageProcessor extends Processor {
 
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
-    WebMessageProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository,
+    WebMessageProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final WebMessageSenderIntegration webMessageSenderIntegration) {
         super(messageRepository, historyRepository);
@@ -74,17 +71,15 @@ class WebMessageProcessor extends Processor {
     WebMessageDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), WebMessageRequest.class);
 
-        List<WebMessageDto.AttachmentDto> attachments = null;
-        if (request.getAttachments() != null) {
-            attachments = Optional.of(request.getAttachments()).stream()
-                    .flatMap(Collection::stream)
-                    .map(attachment -> WebMessageDto.AttachmentDto.builder()
-                            .withFileName(attachment.getFileName())
-                            .withMimeType(attachment.getMimeType())
-                            .withBase64Data(attachment.getBase64Data())
-                            .build())
-                    .toList();
-        }
+        var attachments = Optional.ofNullable(request.getAttachments())
+            .map(requestAttachments -> requestAttachments.stream()
+                .map(attachment -> WebMessageDto.AttachmentDto.builder()
+                    .withFileName(attachment.getFileName())
+                    .withMimeType(attachment.getMimeType())
+                    .withBase64Data(attachment.getBase64Data())
+                    .build())
+                .toList())
+            .orElse(null);
 
         return WebMessageDto.builder()
                 .withParty(request.getParty())

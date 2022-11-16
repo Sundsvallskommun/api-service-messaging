@@ -2,7 +2,10 @@ package se.sundsvall.messaging.model;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -26,6 +29,9 @@ public class Sender {
 
     @Valid
     private Sender.Email email;
+
+    @Valid
+    private Sender.DigitalMail digitalMail;
 
     @Getter
     @Setter
@@ -61,5 +67,44 @@ public class Sender {
         @Schema(description = "Reply-to e-mail address", example = "sender@sender.se")
         @javax.validation.constraints.Email
         private String replyTo;
+    }
+
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(setterPrefix = "with")
+    public static class DigitalMail {
+
+        @NotBlank
+        @JsonIgnore // Since this shouldn't be possible to set in requests
+        private String municipalityId;
+
+        @Valid
+        @NotNull
+        private SupportInfo supportInfo;
+
+        @Getter
+        @Setter
+        @EqualsAndHashCode
+        @NoArgsConstructor
+        @AllArgsConstructor(access = AccessLevel.PRIVATE)
+        @Builder(setterPrefix = "with")
+        public static class SupportInfo {
+
+            @NotBlank
+            private String text;
+
+            @javax.validation.constraints.Email
+            @NotBlank
+            private String emailAddress;
+
+            @NotBlank
+            private String phoneNumber;
+
+            @NotBlank
+            private String url;
+        }
     }
 }
