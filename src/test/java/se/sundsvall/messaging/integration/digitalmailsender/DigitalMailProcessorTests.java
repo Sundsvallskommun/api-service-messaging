@@ -84,6 +84,9 @@ class DigitalMailProcessorTests {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
@@ -108,6 +111,9 @@ class DigitalMailProcessorTests {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
@@ -131,6 +137,9 @@ class DigitalMailProcessorTests {
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOtherThanOk() {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
@@ -157,6 +166,9 @@ class DigitalMailProcessorTests {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
@@ -178,6 +190,9 @@ class DigitalMailProcessorTests {
 
     @Test
     void test_mapToDto() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         var digitalMailRequest = createDigitalMailRequest();
 
         var message = MessageEntity.builder()

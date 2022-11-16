@@ -78,9 +78,11 @@ class DigitalMailProcessor extends Processor {
     DigitalMailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
 
-        // Use sender from thr original request, or use default sender as fallback
+        // Use sender from the original request, or use default sender as fallback
         var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getDigitalMail);
-        // Use subject from thr original request, or use default subject as fallback
+        // Always use the municipality id from the defaults
+        sender.setMunicipalityId(defaults.getDigitalMail().getMunicipalityId());
+        // Use subject from the original request, or use default subject as fallback
         var subject = Optional.ofNullable(request.getSubject())
             .orElseGet(() -> defaults.getDigitalMail().getSubject());
 

@@ -5,6 +5,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -76,6 +78,7 @@ public class Sender {
     public static class DigitalMail {
 
         @NotBlank
+        @JsonIgnore // Since this shouldn't be possible to set in requests
         private String municipalityId;
 
         @Valid
