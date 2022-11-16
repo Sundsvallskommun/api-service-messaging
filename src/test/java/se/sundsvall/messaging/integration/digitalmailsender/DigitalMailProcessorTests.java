@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -46,6 +47,12 @@ class DigitalMailProcessorTests {
     private HistoryRepository mockHistoryRepository;
     @Mock
     private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
+    @Mock
+    private Defaults mockDefaults;
+    @Mock
+    private Defaults.DigitalMail mockDefaultsDigitalMailSettings;
+    @Mock
+    private Defaults.DigitalMail.SupportInfo mockDefaultsDigitalMailSettingsSupportInfo;
 
     private DigitalMailProcessor digitalMailProcessor;
 
@@ -56,7 +63,8 @@ class DigitalMailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         digitalMailProcessor = new DigitalMailProcessor(mockRetryProperties,
-            mockMessageRepository, mockHistoryRepository, mockDigitalMailSenderIntegration);
+            mockMessageRepository, mockHistoryRepository, mockDigitalMailSenderIntegration,
+            mockDefaults);
     }
 
     @Test
@@ -75,6 +83,9 @@ class DigitalMailProcessorTests {
     void testHandleIncomingDigitalMailEvent() {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
@@ -100,6 +111,9 @@ class DigitalMailProcessorTests {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
@@ -123,6 +137,9 @@ class DigitalMailProcessorTests {
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOtherThanOk() {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
@@ -149,6 +166,9 @@ class DigitalMailProcessorTests {
         var digitalMailRequest = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
@@ -170,6 +190,9 @@ class DigitalMailProcessorTests {
 
     @Test
     void test_mapToDto() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
         var digitalMailRequest = createDigitalMailRequest();
 
         var message = MessageEntity.builder()
@@ -187,5 +210,66 @@ class DigitalMailProcessorTests {
         assertThat(dto.getContentType()).isEqualTo(ContentType.fromString(digitalMailRequest.getContentType()));
         assertThat(dto.getBody()).isEqualTo(digitalMailRequest.getBody());
         assertThat(dto.getAttachments()).hasSameSizeAs(digitalMailRequest.getAttachments());
+    }
+
+    @Test
+    void test_mapToDto_whenSenderIsMissing() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someDefaultMunicipalityId");
+        when(mockDefaultsDigitalMailSettings.getSupportInfo()).thenReturn(mockDefaultsDigitalMailSettingsSupportInfo);
+        when(mockDefaultsDigitalMailSettingsSupportInfo.getText()).thenReturn("someDefaultSupportInfoText");
+        when(mockDefaultsDigitalMailSettingsSupportInfo.getUrl()).thenReturn("someDefaultSupportInfoUrl");
+        when(mockDefaultsDigitalMailSettingsSupportInfo.getEmailAddress()).thenReturn("someDefaultSupportInfoEmailAddress");
+        when(mockDefaultsDigitalMailSettingsSupportInfo.getPhoneNumber()).thenReturn("someDefaultSupportInfoPhoneNumber");
+
+        var request = createDigitalMailRequest();
+
+        var message = MessageEntity.builder()
+            .withMessageId(UUID.randomUUID().toString())
+            .withPartyId(request.getParty().getPartyIds().get(0))
+            .withType(MessageType.DIGITAL_MAIL)
+            .withStatus(MessageStatus.PENDING)
+            .withContent(GSON.toJson(request))
+            .build();
+        var dto = digitalMailProcessor.mapToDto(message);
+
+        assertThat(dto.getSubject()).isEqualTo("someSubject");
+        assertThat(dto.getSender()).satisfies(sender -> {
+            assertThat(sender.getMunicipalityId()).isEqualTo("someDefaultMunicipalityId");
+            assertThat(sender.getSupportInfo()).satisfies(supportInfo -> {
+                assertThat(supportInfo.getText()).isEqualTo("someDefaultSupportInfoText");
+                assertThat(supportInfo.getUrl()).isEqualTo("someDefaultSupportInfoUrl");
+                assertThat(supportInfo.getEmailAddress()).isEqualTo("someDefaultSupportInfoEmailAddress");
+                assertThat(supportInfo.getPhoneNumber()).isEqualTo("someDefaultSupportInfoPhoneNumber");
+            });
+        });
+        assertThat(dto.getPartyId()).isEqualTo(request.getParty().getPartyIds().get(0));
+        assertThat(dto.getContentType()).isEqualTo(ContentType.fromString(request.getContentType()));
+        assertThat(dto.getBody()).isEqualTo(request.getBody());
+        assertThat(dto.getAttachments()).hasSameSizeAs(request.getAttachments());
+
+    }
+
+    @Test
+    void test_mapToDto_whenSubjectIsMissing() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getSubject()).thenReturn("someDefaultSubject");
+
+        var request = createDigitalMailRequest(req -> req.setSubject(null));
+
+        var message = MessageEntity.builder()
+            .withMessageId(UUID.randomUUID().toString())
+            .withPartyId(request.getParty().getPartyIds().get(0))
+            .withType(MessageType.DIGITAL_MAIL)
+            .withStatus(MessageStatus.PENDING)
+            .withContent(GSON.toJson(request))
+            .build();
+        var dto = digitalMailProcessor.mapToDto(message);
+
+        assertThat(dto.getSubject()).isEqualTo("someDefaultSubject");
+        assertThat(dto.getPartyId()).isEqualTo(request.getParty().getPartyIds().get(0));
+        assertThat(dto.getContentType()).isEqualTo(ContentType.fromString(request.getContentType()));
+        assertThat(dto.getBody()).isEqualTo(request.getBody());
+        assertThat(dto.getAttachments()).hasSameSizeAs(request.getAttachments());
     }
 }

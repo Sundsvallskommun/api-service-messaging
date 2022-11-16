@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -45,7 +45,7 @@ class MessageProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
-    private DefaultSettings mockDefaultSettings;
+    private Defaults mockDefaults;
     @Mock
     private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
 
@@ -57,7 +57,7 @@ class MessageProcessorTests {
     @BeforeEach
     void setUp() {
         messageProcessor = new MessageProcessor(mockEventPublisher, mockMessageRepository,
-            mockHistoryRepository, mockDefaultSettings, mockFeedbackSettingsIntegration);
+            mockHistoryRepository, mockDefaults, mockFeedbackSettingsIntegration);
     }
 
     @Test

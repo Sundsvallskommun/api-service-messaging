@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
@@ -8,10 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -27,19 +25,18 @@ import dev.failsafe.RetryPolicy;
 class EmailProcessor extends Processor {
 
     private final EmailSenderIntegration emailSenderIntegration;
-    private final DefaultSettings defaultSettings;
+    private final Defaults defaults;
 
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
-    EmailProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository,
+    EmailProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final EmailSenderIntegration emailSenderIntegration,
-            final DefaultSettings defaultSettings) {
+            final Defaults defaults) {
         super(messageRepository, historyRepository);
 
         this.emailSenderIntegration = emailSenderIntegration;
-        this.defaultSettings = defaultSettings;
+        this.defaults = defaults;
 
         retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -78,27 +75,26 @@ class EmailProcessor extends Processor {
     EmailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), EmailRequest.class);
 
-        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaultSettings::getEmail);
+        // Use sender from the original request, or use default sender as fallback
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getEmail);
 
+        var attachments = Optional.ofNullable(request.getAttachments())
+            .map(requestAttachments -> requestAttachments.stream()
+                .map(attachment -> EmailDto.AttachmentDto.builder()
+                    .withName(attachment.getName())
+                    .withContentType(attachment.getContentType())
+                    .withContent(attachment.getContent())
+                    .build())
+                .toList())
+            .orElse(null);
 
-        List<EmailDto.AttachmentDto> attachments = null;
-        if (!CollectionUtils.isEmpty(request.getAttachments())) {
-            attachments = Optional.ofNullable(request.getAttachments()).orElse(List.of()).stream()
-                    .map(attachment -> EmailDto.AttachmentDto.builder()
-                            .withName(attachment.getName())
-                            .withContentType(attachment.getContentType())
-                            .withContent(attachment.getContent())
-                            .build())
-                    .toList();
-        }
-        
         return EmailDto.builder()
-                .withSender(sender)
-                .withEmailAddress(request.getEmailAddress())
-                .withSubject(request.getSubject())
-                .withMessage(request.getMessage())
-                .withHtmlMessage(request.getHtmlMessage())
-                .withAttachments(attachments)
-                .build();
+            .withSender(sender)
+            .withEmailAddress(request.getEmailAddress())
+            .withSubject(request.getSubject())
+            .withMessage(request.getMessage())
+            .withHtmlMessage(request.getHtmlMessage())
+            .withAttachments(attachments)
+            .build();
     }
 }

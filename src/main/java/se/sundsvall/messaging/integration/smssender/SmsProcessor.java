@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.api.model.SmsRequest;
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -27,19 +27,17 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
 class SmsProcessor extends Processor {
 
     private final SmsSenderIntegration smsSenderIntegration;
-    private final DefaultSettings defaultSettings;
+    private final Defaults defaults;
 
     private final RetryPolicy<ResponseEntity<SendSmsResponse>> retryPolicy;
 
-    SmsProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository,
-            final HistoryRepository historyRepository,
-            final SmsSenderIntegration smsSenderIntegration,
-            final DefaultSettings defaultSettings) {
+    SmsProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
+            final HistoryRepository historyRepository, final SmsSenderIntegration smsSenderIntegration,
+            final Defaults defaults) {
         super(messageRepository, historyRepository);
 
         this.smsSenderIntegration = smsSenderIntegration;
-        this.defaultSettings = defaultSettings;
+        this.defaults = defaults;
 
         retryPolicy = RetryPolicy.<ResponseEntity<SendSmsResponse>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -78,7 +76,8 @@ class SmsProcessor extends Processor {
     SmsDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), SmsRequest.class);
 
-        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaultSettings::getSms);
+        // Use sender from the original request, or use default sender as fallback
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getSms);
 
         return SmsDto.builder()
             .withSender(sender)

@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
@@ -9,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
@@ -30,22 +27,20 @@ class SnailmailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     SnailmailProcessor(final RetryProperties retryProperties,
-                       final MessageRepository messageRepository,
-                       final HistoryRepository historyRepository,
-                       final SnailmailSenderIntegration snailmailSenderIntegration) {
+            final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final SnailmailSenderIntegration snailmailSenderIntegration) {
         super(messageRepository, historyRepository);
 
         this.snailmailSenderIntegration = snailmailSenderIntegration;
 
-
         retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
-                .withMaxAttempts(retryProperties.getMaxAttempts())
-                .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
-                .handle(Exception.class)
-                .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK)
-                .onFailedAttempt(event -> log.debug("Unable to send snailmail ({}/{}): {}",
-                        event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
-                .build();
+            .withMaxAttempts(retryProperties.getMaxAttempts())
+            .withBackoff(retryProperties.getInitialDelay(), retryProperties.getMaxDelay())
+            .handle(Exception.class)
+            .handleResultIf(response -> response.getStatusCode() != HttpStatus.OK)
+            .onFailedAttempt(event -> log.debug("Unable to send snailmail ({}/{}): {}",
+                event.getAttemptCount(), retryProperties.getMaxAttempts(), event.getLastException().getMessage()))
+            .build();
     }
 
     @Transactional
@@ -63,10 +58,10 @@ class SnailmailProcessor extends Processor {
 
         try {
             Failsafe
-                    .with(retryPolicy)
-                    .onSuccess(successEvent -> handleSuccessfulDelivery(message))
-                    .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
-                    .get(() -> snailmailSenderIntegration.sendSnailmail(snailmailDto));
+                .with(retryPolicy)
+                .onSuccess(successEvent -> handleSuccessfulDelivery(message))
+                .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
+                .get(() -> snailmailSenderIntegration.sendSnailmail(snailmailDto));
         } catch (Exception e) {
             log.warn("Unable to send snailmail {}: {}", event.getPayload(), e.getMessage());
         }
@@ -75,23 +70,21 @@ class SnailmailProcessor extends Processor {
     SnailmailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), SnailmailRequest.class);
 
-        List<SnailmailDto.AttachmentDto> attachments = null;
-        if (!CollectionUtils.isEmpty(request.getAttachments())) {
-            attachments = Optional.ofNullable(request.getAttachments()).stream()
-                    .flatMap(Collection::stream)
-                    .map(attachment -> SnailmailDto.AttachmentDto.builder()
-                            .withName(attachment.getName())
-                            .withContentType(attachment.getContentType())
-                            .withContent(attachment.getContent())
-                            .build())
-                    .toList();
-        }
+        var attachments = Optional.ofNullable(request.getAttachments())
+            .map(requestAttachments -> requestAttachments.stream()
+                .map(attachment -> SnailmailDto.AttachmentDto.builder()
+                    .withName(attachment.getName())
+                    .withContentType(attachment.getContentType())
+                    .withContent(attachment.getContent())
+                    .build())
+                .toList())
+            .orElse(null);
 
         return SnailmailDto.builder()
-                .withDepartment(request.getDepartment())
-                .withDeviation(request.getDeviation())
-                .withPersonId(request.getPersonId())
-                .withAttachments(attachments)
-                .build();
+            .withDepartment(request.getDepartment())
+            .withDeviation(request.getDeviation())
+            .withPersonId(request.getPersonId())
+            .withAttachments(attachments)
+            .build();
     }
 }
