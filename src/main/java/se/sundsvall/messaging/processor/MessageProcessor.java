@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
@@ -36,18 +36,18 @@ class MessageProcessor extends Processor {
     private static final Gson GSON = new GsonBuilder().create();
 
     private final ApplicationEventPublisher eventPublisher;
-    private final DefaultSettings defaultSettings;
+    private final Defaults defaults;
     private final FeedbackSettingsIntegration feedbackSettingsIntegration;
 
     MessageProcessor(final ApplicationEventPublisher eventPublisher,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
-            final DefaultSettings defaultSettings,
+            final Defaults defaults,
             final FeedbackSettingsIntegration feedbackSettingsIntegration) {
         super(messageRepository, historyRepository);
 
         this.eventPublisher = eventPublisher;
-        this.defaultSettings = defaultSettings;
+        this.defaults = defaults;
         this.feedbackSettingsIntegration = feedbackSettingsIntegration;
     }
 
@@ -144,7 +144,7 @@ class MessageProcessor extends Processor {
 
         var sender = Optional.ofNullable(message.getSender())
             .map(Sender::getEmail)
-            .orElse(defaultSettings.getEmail());
+            .orElse(defaults.getEmail());
 
         var emailRequest = EmailRequest.builder()
             .withParty(message.getParty())
@@ -164,7 +164,7 @@ class MessageProcessor extends Processor {
 
         var sender = Optional.ofNullable(message.getSender())
             .map(Sender::getSms)
-            .orElse(defaultSettings.getSms());
+            .orElse(defaults.getSms());
 
         var smsRequest = SmsRequest.builder()
             .withParty(message.getParty())

@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import se.sundsvall.messaging.configuration.DefaultSettings;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -47,7 +47,7 @@ class EmailProcessorTests {
     @Mock
     private EmailSenderIntegration mockEmailSenderIntegration;
     @Mock
-    private DefaultSettings mockDefaultSettings;
+    private Defaults mockDefaults;
 
     private EmailProcessor emailProcessor;
 
@@ -58,7 +58,7 @@ class EmailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         emailProcessor = new EmailProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockEmailSenderIntegration, mockDefaultSettings);
+            mockHistoryRepository, mockEmailSenderIntegration, mockDefaults);
     }
 
     @Test

@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -10,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
@@ -29,16 +27,19 @@ import dev.failsafe.RetryPolicy;
 class DigitalMailProcessor extends Processor {
 
     private final DigitalMailSenderIntegration digitalMailSenderIntegration;
+    private final Defaults defaults;
 
     private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
 
     DigitalMailProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
-            final DigitalMailSenderIntegration digitalMailSenderIntegration) {
+            final DigitalMailSenderIntegration digitalMailSenderIntegration,
+            final Defaults defaults) {
         super(messageRepository, historyRepository);
 
         this.digitalMailSenderIntegration = digitalMailSenderIntegration;
+        this.defaults = defaults;
 
         retryPolicy = RetryPolicy.<ResponseEntity<Boolean>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -77,23 +78,29 @@ class DigitalMailProcessor extends Processor {
     DigitalMailDto mapToDto(final MessageEntity message) {
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
 
-        List<DigitalMailDto.AttachmentDto> attachments = null;
-        if (!CollectionUtils.isEmpty(request.getAttachments())) {
-            attachments = Optional.ofNullable(request.getAttachments()).stream()
-                    .flatMap(Collection::stream)
-                    .map(attachment -> DigitalMailDto.AttachmentDto.builder()
-                            .withContentType(ContentType.fromString(attachment.getContentType()))
-                            .withContent(attachment.getContent())
-                            .withFilename(attachment.getFilename())
-                            .build())
-                    .toList();
-        }
+        // Use sender from thr original request, or use default sender as fallback
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getDigitalMail);
+        // Use subject from thr original request, or use default subject as fallback
+        var subject = Optional.ofNullable(request.getSubject())
+            .orElseGet(() -> defaults.getDigitalMail().getSubject());
+
+        var attachments = Optional.ofNullable(request.getAttachments())
+            .map(requestAttachments -> requestAttachments.stream()
+                .map(attachment -> DigitalMailDto.AttachmentDto.builder()
+                    .withContentType(ContentType.fromString(attachment.getContentType()))
+                    .withContent(attachment.getContent())
+                    .withFilename(attachment.getFilename())
+                    .build())
+                .toList())
+            .orElse(null);
+
         return DigitalMailDto.builder()
-                .withPartyId(message.getPartyId())
-                .withSubject(request.getSubject())
-                .withContentType(ContentType.fromString(request.getContentType()))
-                .withBody(request.getBody())
-                .withAttachments(attachments)
-                .build();
+            .withSender(sender)
+            .withPartyId(message.getPartyId())
+            .withSubject(subject)
+            .withContentType(ContentType.fromString(request.getContentType()))
+            .withBody(request.getBody())
+            .withAttachments(attachments)
+            .build();
     }
 }

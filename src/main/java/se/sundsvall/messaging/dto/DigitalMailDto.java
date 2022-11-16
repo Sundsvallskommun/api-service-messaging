@@ -3,6 +3,7 @@ package se.sundsvall.messaging.dto;
 import java.util.List;
 
 import se.sundsvall.messaging.model.ContentType;
+import se.sundsvall.messaging.model.Sender;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DigitalMailDto {
 
+    private final Sender.DigitalMail sender;
     private final String partyId;
     private final String subject;
     private final ContentType contentType;

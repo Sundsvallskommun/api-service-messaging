@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 import se.sundsvall.messaging.api.model.validation.OneOf;
+import se.sundsvall.messaging.model.Sender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -22,6 +23,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DigitalMailRequest extends BatchRequest {
+
+    @Valid
+    @Schema(description = "Sender")
+    private Sender.DigitalMail sender;
 
     @Schema(description = "Subject", nullable = true)
     private String subject;

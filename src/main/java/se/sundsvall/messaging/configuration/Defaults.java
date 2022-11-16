@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.configuration;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,8 +13,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "messaging.default-sender")
-public class DefaultSettings {
+@ConfigurationProperties(prefix = "messaging.defaults")
+public class Defaults {
 
     @Valid
     @NotNull
@@ -22,4 +23,16 @@ public class DefaultSettings {
     @Valid
     @NotNull
     private Sender.Email email;
+
+    @Valid
+    @NotNull
+    private DigitalMail digitalMail;
+
+    @Getter
+    @Setter
+    public static class DigitalMail extends Sender.DigitalMail {
+
+        @NotBlank
+        private String subject;
+    }
 }
