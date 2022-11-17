@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createLetterRequest;
 import static se.sundsvall.messaging.TestDataFactory.createMessageRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSnailmailRequest;
@@ -25,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -33,6 +35,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingLetterEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
@@ -169,5 +172,25 @@ class MessageServiceTests {
         verify(mockMapper, times(1)).toEntity(any(SnailmailRequest.class));
         verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSnailmailEvent.class));
+    }
+
+    @Test
+    void test_handleLetterRequest() {
+        var message = MessageEntity.builder()
+                .withMessageId("someMessageId")
+                .build();
+
+        when(mockRepository.saveAll(Mockito.<List<MessageEntity>>any())).thenReturn(List.of(message));
+
+        var request = createLetterRequest();
+
+        var dto = messageService.handleLetterRequest(request);
+
+        assertThat(dto.getMessageIds()).contains("someMessageId");
+
+        verify(mockRepository, times(1)).saveAll(Mockito.<List<MessageEntity>>any());
+        verify(mockMapper, times(1)).toEntities(any(LetterRequest.class), any(String.class));
+        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingLetterEvent.class));
     }
 }
