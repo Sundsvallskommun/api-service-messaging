@@ -1,10 +1,16 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -14,10 +20,6 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Party;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class MessageMapper {
@@ -86,38 +88,54 @@ public class MessageMapper {
                 .withPartyId(Optional.ofNullable(request.getParty())
                         .map(Party::getPartyId)
                         .orElse(null))
-            .withType(MessageType.WEB_MESSAGE)
-            .withStatus(MessageStatus.PENDING)
-            .withContent(GSON.toJson(request))
-            .build();
+                .withType(MessageType.WEB_MESSAGE)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build();
     }
 
     public List<MessageEntity> toEntities(final DigitalMailRequest request, final String batchId) {
         var uuid = UUID.randomUUID().toString();
 
         return request.getParty().getPartyIds().stream()
-            .map(partyId -> MessageEntity.builder()
-                .withMessageId(uuid)
-                .withDeliveryId(uuid)
-                .withBatchId(batchId)
-                .withPartyId(partyId)
-                .withType(MessageType.DIGITAL_MAIL)
-                .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(request))
-                .build())
-            .toList();
+                .map(partyId -> MessageEntity.builder()
+                        .withMessageId(uuid)
+                        .withDeliveryId(uuid)
+                        .withBatchId(batchId)
+                        .withPartyId(partyId)
+                        .withType(MessageType.DIGITAL_MAIL)
+                        .withStatus(MessageStatus.PENDING)
+                        .withContent(GSON.toJson(request))
+                        .build())
+                .toList();
+    }
+
+    public List<MessageEntity> toEntities(final LetterRequest request, final String batchId) {
+        var uuid = UUID.randomUUID().toString();
+
+        return request.getParty().getPartyIds().stream()
+                .map(partyId -> MessageEntity.builder()
+                        .withMessageId(uuid)
+                        .withDeliveryId(uuid)
+                        .withBatchId(batchId)
+                        .withPartyId(partyId)
+                        .withType(MessageType.LETTER)
+                        .withStatus(MessageStatus.PENDING)
+                        .withContent(GSON.toJson(request))
+                        .build())
+                .toList();
     }
 
     public MessageEntity toEntity(final String batchId, final MessageRequest.Message request) {
         var uuid = UUID.randomUUID().toString();
 
         return MessageEntity.builder()
-            .withMessageId(uuid)
-            .withDeliveryId(uuid)
-            .withBatchId(batchId)
-            .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
-                .orElse(null))
+                .withMessageId(uuid)
+                .withDeliveryId(uuid)
+                .withBatchId(batchId)
+                .withPartyId(Optional.ofNullable(request.getParty())
+                        .map(Party::getPartyId)
+                        .orElse(null))
             .withType(MessageType.MESSAGE)
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(request))

@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -136,5 +137,24 @@ class MessageResourceTests {
         assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
 
         verify(mockMessageService, times(1)).handleSnailmailRequest(any(SnailmailRequest.class));
+    }
+
+    @Test
+    void test_sendLetter() {
+        when(mockMessageService.handleLetterRequest(any(LetterRequest.class)))
+                .thenReturn(MessageBatchDto.builder()
+                        .withBatchId("someBatchId")
+                        .withMessageIds(List.of("someMessageId"))
+                        .build());
+
+        var response = messageResource.sendLetter(
+                LetterRequest.builder().build());
+
+        assertThat(response).isNotNull();
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getBatchId()).isEqualTo("someBatchId");
+        assertThat(response.getBody().getMessageIds()).containsExactly("someMessageId");
+
+        verify(mockMessageService, times(1)).handleLetterRequest(any(LetterRequest.class));
     }
 }

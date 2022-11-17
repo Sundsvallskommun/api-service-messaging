@@ -1,9 +1,13 @@
 package se.sundsvall.messaging.service;
 
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -14,13 +18,12 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingLetterEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
-
-import java.util.UUID;
 
 @Service
 public class MessageService {
@@ -98,6 +101,21 @@ public class MessageService {
         eventPublisher.publishEvent(new IncomingSnailmailEvent(this, message.getMessageId()));
 
         return mapper.toMessageDto(message);
+    }
+
+    public MessageBatchDto handleLetterRequest(final LetterRequest request) {
+        var batchId = UUID.randomUUID().toString();
+        var messageIds = repository.saveAll(mapper.toEntities(request, batchId)).stream()
+                .map(mapper::toMessageDto)
+                .map(MessageDto::getMessageId)
+                .toList();
+        
+        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingLetterEvent(this, messageId)));
+
+        return MessageBatchDto.builder()
+                .withBatchId(batchId)
+                .withMessageIds(messageIds)
+                .build();
     }
 
 }
