@@ -2,7 +2,7 @@ package se.sundsvall.messaging.service;
 
 import java.util.UUID;
 
-˜import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
@@ -99,7 +99,7 @@ public class MessageService {
     public MessageDto handleSnailmailRequest(final SnailmailRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
-        eventPublisher.publishEvent(new IncomingSnailmailEvent(this, message.getDeliveryId()));
+        eventPublisher.publishEvent(new IncomingSnailmailEvent(this, message.getMessageId()));
 
         return mapper.toMessageDto(message);
     }
@@ -118,5 +118,4 @@ public class MessageService {
                 .withMessageIds(messageIds)
                 .build();
     }
-
 }
