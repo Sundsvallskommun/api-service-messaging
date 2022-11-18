@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -17,6 +18,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingLetterEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
@@ -97,8 +99,25 @@ public class MessageService {
     public MessageDto handleSnailmailRequest(final SnailmailRequest request) {
         var message = repository.save(mapper.toEntity(request));
 
-        eventPublisher.publishEvent(new IncomingSnailmailEvent(this, message.getDeliveryId()));
+        eventPublisher.publishEvent(new IncomingSnailmailEvent(this, message.getMessageId()));
 
         return mapper.toMessageDto(message);
+    }
+
+    public MessageBatchDto handleLetterRequest(final LetterRequest request) {
+        var batchId = UUID.randomUUID().toString();
+
+        var entities = repository.saveAll(mapper.toEntities(request, batchId));
+
+        entities.stream()
+                .map(MessageEntity::getDeliveryId)
+                .forEach(deliveryId -> eventPublisher.publishEvent(new IncomingLetterEvent(this, deliveryId)));
+
+        return MessageBatchDto.builder()
+                .withBatchId(batchId)
+                .withMessageIds(entities.stream()
+                        .map(MessageEntity::getMessageId)
+                        .toList())
+                .build();
     }
 }
