@@ -1,7 +1,8 @@
 package se.sundsvall.messaging.processor;
 
-import static se.sundsvall.messaging.model.DeliveryMode.DIGITAL;
-import static se.sundsvall.messaging.model.DeliveryMode.SNAIL;
+
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.dto.SnailmailDto;
@@ -33,19 +35,26 @@ import dev.failsafe.RetryPolicy;
 @Component
 public class LetterProcessor extends Processor {
 
+    private final Defaults defaults;
     private final RetryProperties retryProperties;
     private final DigitalMailSenderIntegration digitalMailSenderIntegration;
     private final SnailmailSenderIntegration snailmailSenderIntegration;
+    private final RetryPolicy<ResponseEntity<Boolean>> retryPolicyBoolean;
+    private final RetryPolicy<ResponseEntity<Void>> retryPolicyVoid;
 
     protected LetterProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
-            final DigitalMailSenderIntegration digitalMailSenderIntegration,
+            Defaults defaults, final DigitalMailSenderIntegration digitalMailSenderIntegration,
             final SnailmailSenderIntegration snailmailSenderIntegration) {
         super(messageRepository, historyRepository);
         this.retryProperties = retryProperties;
+        this.defaults = defaults;
         this.digitalMailSenderIntegration = digitalMailSenderIntegration;
         this.snailmailSenderIntegration = snailmailSenderIntegration;
+        this.retryPolicyBoolean = createRetryPolicy(Boolean.class);
+        this.retryPolicyVoid = createRetryPolicy(Void.class);
+
     }
 
     @Transactional
@@ -75,7 +84,7 @@ public class LetterProcessor extends Processor {
 
         try {
             Failsafe
-                    .with(createRetryPolicy(Boolean.class))
+                    .with(retryPolicyBoolean)
                     .onSuccess(successEvent -> handleSuccessfulDelivery(message))
                     .onFailure(failureEvent -> digitalFailTrySnail(message, event))
                     .get(() -> digitalMailSenderIntegration.sendDigitalMail(dto));
@@ -107,7 +116,7 @@ public class LetterProcessor extends Processor {
 
         try {
             Failsafe
-                    .with(createRetryPolicy(Void.class))
+                    .with(retryPolicyVoid)
                     .onSuccess(successEvent -> handleSuccessfulDelivery(message))
                     .onFailure(failureEvent -> handleMaximumDeliveryAttemptsExceeded(message))
                     .get(() -> snailmailSenderIntegration.sendSnailmail(dto));
@@ -120,10 +129,19 @@ public class LetterProcessor extends Processor {
             List<LetterRequest.Attachment> digitalAttachments) {
 
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
+        // Use sender from the original request, or use default sender as fallback
+        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getDigitalMail);
+        // Always use the municipality id from the defaults
+        sender.setMunicipalityId(defaults.getDigitalMail().getMunicipalityId());
+        // Use subject from the original request, or use default subject as fallback
+        var subject = Optional.ofNullable(request.getSubject())
+                .orElseGet(() -> defaults.getDigitalMail().getSubject());
+
 
         return DigitalMailDto.builder()
                 .withPartyId(message.getPartyId())
-                .withSubject(request.getSubject())
+                .withSubject(subject)
+                .withSender(sender)
                 .withContentType(ContentType.fromString(request.getContentType()))
                 .withBody(request.getBody())
                 .withAttachments(Optional.ofNullable(digitalAttachments)

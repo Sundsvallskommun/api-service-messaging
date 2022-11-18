@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import se.sundsvall.messaging.api.model.validation.OneOf;
-import se.sundsvall.messaging.model.DeliveryMode;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -69,6 +68,10 @@ public class LetterRequest extends BatchRequest {
         @NotBlank
         @Schema(name = "filename", description = "Filename")
         private String filename;
+    }
+
+    public enum DeliveryMode {
+        DIGITAL, SNAIL
     }
 
 

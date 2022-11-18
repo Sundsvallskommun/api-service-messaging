@@ -1,5 +1,8 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,7 +15,6 @@ import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.model.ContentType;
-import se.sundsvall.messaging.model.DeliveryMode;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.Parties;
@@ -228,13 +230,13 @@ public final class TestDataFactory {
                 .withDepartment("someDepartment")
                 .withAttachments(List.of(
                         LetterRequest.Attachment.builder()
-                                .withDeliveryMode(DeliveryMode.DIGITAL)
+                                .withDeliveryMode(DIGITAL)
                                 .withContentType(ContentType.APPLICATION_PDF.getValue())
                                 .withContent("someContent")
                                 .withFilename("someFilename")
                                 .build(),
                         LetterRequest.Attachment.builder()
-                                .withDeliveryMode(DeliveryMode.SNAIL)
+                                .withDeliveryMode(SNAIL)
                                 .withContentType(ContentType.APPLICATION_PDF.getValue())
                                 .withContent("someContent")
                                 .withFilename("someFilename")

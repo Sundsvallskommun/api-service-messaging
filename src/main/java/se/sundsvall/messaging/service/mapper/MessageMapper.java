@@ -116,7 +116,7 @@ public class MessageMapper {
         return request.getParty().getPartyIds().stream()
                 .map(partyId -> MessageEntity.builder()
                         .withMessageId(uuid)
-                        .withDeliveryId(uuid)
+                        .withDeliveryId(UUID.randomUUID().toString())
                         .withBatchId(batchId)
                         .withPartyId(partyId)
                         .withType(MessageType.LETTER)

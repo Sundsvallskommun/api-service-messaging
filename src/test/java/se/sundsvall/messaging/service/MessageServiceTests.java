@@ -190,7 +190,6 @@ class MessageServiceTests {
 
         verify(mockRepository, times(1)).saveAll(Mockito.<List<MessageEntity>>any());
         verify(mockMapper, times(1)).toEntities(any(LetterRequest.class), any(String.class));
-        verify(mockMapper, times(1)).toMessageDto(any(MessageEntity.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingLetterEvent.class));
     }
 }

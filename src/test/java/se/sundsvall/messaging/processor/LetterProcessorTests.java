@@ -8,24 +8,23 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createLetterRequest;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
 import static se.sundsvall.messaging.processor.Processor.GSON;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import se.sundsvall.messaging.api.model.LetterRequest;
+import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.dto.SnailmailDto;
@@ -36,7 +35,6 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailmailSenderIntegration;
 import se.sundsvall.messaging.model.ContentType;
-import se.sundsvall.messaging.model.DeliveryMode;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingLetterEvent;
@@ -47,7 +45,10 @@ public class LetterProcessorTests {
 
     @Mock
     private RetryProperties mockRetryProperties;
-
+    @Mock
+    private Defaults mockDefaults;
+    @Mock
+    private Defaults.DigitalMail mockDefaultsDigitalMailSettings;
     @Mock
     private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
     @Mock
@@ -60,24 +61,17 @@ public class LetterProcessorTests {
     private LetterProcessor letterProcessor;
 
     @BeforeEach
-    void setUp(final TestInfo info) {
-        letterProcessor = new LetterProcessor(mockRetryProperties, mockMessageRepository,
-                mockHistoryRepository, mockDigitalMailSenderIntegration, mockSnailmailSenderIntegration);
-
-        // Since 4/5 tests needs the retryProperties we set a tag on the one that doesn't.
-        // To keep mockito happy and without having to write the same 3 lines 4 times.
-        final Set<String> testTags = info.getTags();
-        if (testTags.stream().anyMatch(tag -> tag.equals("skipRetryProperties"))) {
-            return;
-        }
+    void setUp() {
         when(mockRetryProperties.getMaxAttempts()).thenReturn(3);
         when(mockRetryProperties.getInitialDelay()).thenReturn(Duration.ofMillis(1));
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
+
+        letterProcessor = new LetterProcessor(mockRetryProperties, mockMessageRepository,
+                mockHistoryRepository, mockDefaults, mockDigitalMailSenderIntegration, mockSnailmailSenderIntegration);
     }
 
     @Test
-    @Tag("skipRetryProperties")
     void testHandleIncomingMessageEvent_whenMessageIsNotFound() {
         when(mockMessageRepository.findByDeliveryId(any(String.class))).thenReturn(Optional.empty());
 
@@ -90,6 +84,8 @@ public class LetterProcessorTests {
 
     @Test
     void testHandleIncomingLetterEvent() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
         var letterRequest = createLetterRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
@@ -115,6 +111,8 @@ public class LetterProcessorTests {
 
     @Test
     void testHandleIncomingLetterEvent_couldNotSendAsDigital() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
         var letterRequest = createLetterRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
@@ -143,6 +141,8 @@ public class LetterProcessorTests {
 
     @Test
     void testHandleIncomingLetterEvent_couldNotSendAsDigitalOrSnail() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
         var letterRequest = createLetterRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
@@ -170,8 +170,10 @@ public class LetterProcessorTests {
 
     @Test
     void testHandleIncomingLetterEvent_couldNotSendAsDigitalAndNoSnailExists() {
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
         var letterRequest = createLetterRequest(req -> req.setAttachments(List.of(LetterRequest.Attachment.builder()
-                .withDeliveryMode(DeliveryMode.DIGITAL)
+                .withDeliveryMode(DIGITAL)
                 .withContentType(ContentType.APPLICATION_PDF.getValue())
                 .withContent("someContent")
                 .withFilename("someFilename")

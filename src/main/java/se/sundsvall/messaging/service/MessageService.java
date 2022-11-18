@@ -106,16 +106,18 @@ public class MessageService {
 
     public MessageBatchDto handleLetterRequest(final LetterRequest request) {
         var batchId = UUID.randomUUID().toString();
-        var messageIds = repository.saveAll(mapper.toEntities(request, batchId)).stream()
-                .map(mapper::toMessageDto)
-                .map(MessageDto::getMessageId)
-                .toList();
 
-        messageIds.forEach(messageId -> eventPublisher.publishEvent(new IncomingLetterEvent(this, messageId)));
+        var entities = repository.saveAll(mapper.toEntities(request, batchId));
+
+        entities.stream()
+                .map(MessageEntity::getDeliveryId)
+                .forEach(deliveryId -> eventPublisher.publishEvent(new IncomingLetterEvent(this, deliveryId)));
 
         return MessageBatchDto.builder()
                 .withBatchId(batchId)
-                .withMessageIds(messageIds)
+                .withMessageIds(entities.stream()
+                        .map(MessageEntity::getMessageId)
+                        .toList())
                 .build();
     }
 }
