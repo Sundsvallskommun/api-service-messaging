@@ -28,6 +28,7 @@ import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.dto.SnailmailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -57,6 +58,8 @@ public class LetterProcessorTests {
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
+    @Mock
+    private CounterRepository mockCounterRepository;
 
     private LetterProcessor letterProcessor;
 
@@ -68,7 +71,8 @@ public class LetterProcessorTests {
 
 
         letterProcessor = new LetterProcessor(mockRetryProperties, mockMessageRepository,
-                mockHistoryRepository, mockDefaults, mockDigitalMailSenderIntegration, mockSnailmailSenderIntegration);
+            mockHistoryRepository, mockCounterRepository, mockDefaults,
+            mockDigitalMailSenderIntegration, mockSnailmailSenderIntegration);
     }
 
     @Test

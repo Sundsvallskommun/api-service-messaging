@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -46,6 +47,8 @@ class DigitalMailProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
     @Mock
     private Defaults mockDefaults;
@@ -63,8 +66,8 @@ class DigitalMailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         digitalMailProcessor = new DigitalMailProcessor(mockRetryProperties,
-            mockMessageRepository, mockHistoryRepository, mockDigitalMailSenderIntegration,
-            mockDefaults);
+            mockMessageRepository, mockHistoryRepository, mockCounterRepository,
+            mockDigitalMailSenderIntegration, mockDefaults);
     }
 
     @Test

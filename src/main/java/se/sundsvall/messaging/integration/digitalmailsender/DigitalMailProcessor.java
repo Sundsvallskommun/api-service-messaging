@@ -13,10 +13,12 @@ import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.DigitalMailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.ContentType;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 
@@ -32,11 +34,11 @@ class DigitalMailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
 
     DigitalMailProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository,
-            final HistoryRepository historyRepository,
+            final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final CounterRepository counterRepository,
             final DigitalMailSenderIntegration digitalMailSenderIntegration,
             final Defaults defaults) {
-        super(messageRepository, historyRepository);
+        super(messageRepository, historyRepository, counterRepository);
 
         this.digitalMailSenderIntegration = digitalMailSenderIntegration;
         this.defaults = defaults;
@@ -61,6 +63,9 @@ class DigitalMailProcessor extends Processor {
 
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.DIGITAL_MAIL);
 
         var digitalMailDto = mapToDto(message);
 

@@ -11,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SnailmailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 
@@ -28,8 +30,9 @@ class SnailmailProcessor extends Processor {
 
     SnailmailProcessor(final RetryProperties retryProperties,
             final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final CounterRepository counterRepository,
             final SnailmailSenderIntegration snailmailSenderIntegration) {
-        super(messageRepository, historyRepository);
+        super(messageRepository, historyRepository, counterRepository);
 
         this.snailmailSenderIntegration = snailmailSenderIntegration;
 
@@ -53,6 +56,9 @@ class SnailmailProcessor extends Processor {
 
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.SNAIL_MAIL);
 
         var snailmailDto = mapToDto(message);
 

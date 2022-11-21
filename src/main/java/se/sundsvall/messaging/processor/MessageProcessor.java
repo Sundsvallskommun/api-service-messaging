@@ -17,6 +17,7 @@ import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.Defaults;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
@@ -40,11 +41,10 @@ class MessageProcessor extends Processor {
     private final FeedbackSettingsIntegration feedbackSettingsIntegration;
 
     MessageProcessor(final ApplicationEventPublisher eventPublisher,
-            final MessageRepository messageRepository,
-            final HistoryRepository historyRepository,
-            final Defaults defaults,
+            final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final CounterRepository counterRepository, final Defaults defaults,
             final FeedbackSettingsIntegration feedbackSettingsIntegration) {
-        super(messageRepository, historyRepository);
+        super(messageRepository, historyRepository, counterRepository);
 
         this.eventPublisher = eventPublisher;
         this.defaults = defaults;
@@ -59,6 +59,9 @@ class MessageProcessor extends Processor {
         if (message == null) {
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.MESSAGE);
 
         var partyId = message.getPartyId();
         var headers = getHeaders(message);

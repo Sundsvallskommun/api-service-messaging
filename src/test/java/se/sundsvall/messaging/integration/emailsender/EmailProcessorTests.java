@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -45,6 +46,8 @@ class EmailProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private EmailSenderIntegration mockEmailSenderIntegration;
     @Mock
     private Defaults mockDefaults;
@@ -58,7 +61,7 @@ class EmailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         emailProcessor = new EmailProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockEmailSenderIntegration, mockDefaults);
+            mockHistoryRepository, mockCounterRepository, mockEmailSenderIntegration, mockDefaults);
     }
 
     @Test

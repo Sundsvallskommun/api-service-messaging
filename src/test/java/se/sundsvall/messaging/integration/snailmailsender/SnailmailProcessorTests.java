@@ -1,27 +1,5 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
-import se.sundsvall.messaging.configuration.RetryProperties;
-import se.sundsvall.messaging.dto.SnailmailDto;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
-
-import java.time.Duration;
-import java.util.Optional;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,6 +8,30 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createSnailmailRequest;
+
+import java.time.Duration;
+import java.util.Optional;
+import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+
+import se.sundsvall.messaging.configuration.RetryProperties;
+import se.sundsvall.messaging.dto.SnailmailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +46,8 @@ public class SnailmailProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private SnailmailSenderIntegration mockSnailmailSenderIntegration;
 
     private SnailmailProcessor snailmailProcessor;
@@ -55,7 +59,7 @@ public class SnailmailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         snailmailProcessor = new SnailmailProcessor(mockRetryProperties, mockMessageRepository,
-                mockHistoryRepository, mockSnailmailSenderIntegration);
+            mockHistoryRepository, mockCounterRepository, mockSnailmailSenderIntegration);
     }
 
     @Test

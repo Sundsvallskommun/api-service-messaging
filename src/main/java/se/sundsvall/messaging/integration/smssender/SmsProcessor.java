@@ -13,9 +13,11 @@ import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
@@ -32,9 +34,9 @@ class SmsProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<SendSmsResponse>> retryPolicy;
 
     SmsProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final SmsSenderIntegration smsSenderIntegration,
-            final Defaults defaults) {
-        super(messageRepository, historyRepository);
+            final HistoryRepository historyRepository, final CounterRepository counterRepository,
+            final SmsSenderIntegration smsSenderIntegration, final Defaults defaults) {
+        super(messageRepository, historyRepository, counterRepository);
 
         this.smsSenderIntegration = smsSenderIntegration;
         this.defaults = defaults;
@@ -59,6 +61,9 @@ class SmsProcessor extends Processor {
 
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.SMS);
 
         var smsDto = mapToDto(message);
 

@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -45,6 +46,8 @@ class MessageProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private Defaults mockDefaults;
     @Mock
     private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
@@ -57,7 +60,8 @@ class MessageProcessorTests {
     @BeforeEach
     void setUp() {
         messageProcessor = new MessageProcessor(mockEventPublisher, mockMessageRepository,
-            mockHistoryRepository, mockDefaults, mockFeedbackSettingsIntegration);
+            mockHistoryRepository, mockCounterRepository, mockDefaults,
+            mockFeedbackSettingsIntegration);
     }
 
     @Test

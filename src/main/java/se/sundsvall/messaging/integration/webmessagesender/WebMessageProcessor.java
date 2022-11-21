@@ -11,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.WebMessageDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
@@ -28,9 +30,9 @@ class WebMessageProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     WebMessageProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository,
+            final HistoryRepository historyRepository, final CounterRepository counterRepository,
             final WebMessageSenderIntegration webMessageSenderIntegration) {
-        super(messageRepository, historyRepository);
+        super(messageRepository, historyRepository, counterRepository);
 
         this.webMessageSenderIntegration = webMessageSenderIntegration;
 
@@ -54,6 +56,9 @@ class WebMessageProcessor extends Processor {
 
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.WEB_MESSAGE);
 
         var webMessageDto = mapToDto(message);
 
