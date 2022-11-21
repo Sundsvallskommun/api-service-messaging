@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.WebMessageDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -46,6 +47,8 @@ class WebMessageProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private WebMessageSenderIntegration mockWebMessageSenderIntegration;
 
     private WebMessageProcessor webMessageProcessor;
@@ -57,7 +60,8 @@ class WebMessageProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         webMessageProcessor = new WebMessageProcessor(mockRetryProperties,
-            mockMessageRepository, mockHistoryRepository, mockWebMessageSenderIntegration);
+            mockMessageRepository, mockHistoryRepository, mockCounterRepository,
+            mockWebMessageSenderIntegration);
     }
 
     @Test

@@ -20,9 +20,12 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
+import se.sundsvall.messaging.service.event.IncomingLetterEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
+import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 import se.sundsvall.messaging.service.event.IncomingWebMessageEvent;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,22 +56,35 @@ class StartupHandlerTests {
     @Test
     void testRun() {
         var messages = List.of(
-            MessageEntity.builder()
-                .withMessageId("messageId1")
-                .withType(MessageType.MESSAGE)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId2")
-                .withType(MessageType.EMAIL)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId3")
-                .withType(MessageType.SMS)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId4")
-                .withType(MessageType.WEB_MESSAGE)
-                .build());
+                MessageEntity.builder()
+                        .withMessageId("messageId1")
+                        .withType(MessageType.MESSAGE)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId2")
+                        .withType(MessageType.EMAIL)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId3")
+                        .withType(MessageType.SMS)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId4")
+                        .withType(MessageType.WEB_MESSAGE)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId4")
+                        .withType(MessageType.SNAIL_MAIL)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId4")
+                        .withType(MessageType.LETTER)
+                        .build(),
+                MessageEntity.builder()
+                        .withMessageId("messageId4")
+                        .withType(MessageType.DIGITAL_MAIL)
+                        .build());
+
 
         when(mockMessageRepository.findLatestWithStatus(eq(MessageStatus.PENDING))).thenReturn(messages);
 
@@ -79,5 +95,8 @@ class StartupHandlerTests {
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingEmailEvent.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSmsEvent.class));
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingWebMessageEvent.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingSnailmailEvent.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingLetterEvent.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingDigitalMailEvent.class));
     }
 }

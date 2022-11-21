@@ -1,0 +1,25 @@
+{
+  "party": {
+    "partyIds": [
+      "e4e37771-397b-45b5-bb89-f389f8525e53"
+    ]
+  },
+  "subject": "Some subject",
+  "contentType": "text/plain",
+  "body": "This is the message contents",
+  "department": "Some department",
+  "attachments": [
+    {
+      "deliveryMode": "DIGITAL",
+      "filename": "someFile.txt",
+      "contentType": "application/pdf",
+      "content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+    },
+    {
+      "deliveryMode": "SNAIL",
+      "filename": "someFile.txt",
+      "contentType": "application/pdf",
+      "content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+    }
+  ]
+}

@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.SmsDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -48,6 +49,8 @@ class SmsProcessorTests {
     @Mock
     private HistoryRepository mockHistoryRepository;
     @Mock
+    private CounterRepository mockCounterRepository;
+    @Mock
     private SmsSenderIntegration mockSmsSenderIntegration;
     @Mock
     private Defaults mockDefaults;
@@ -61,7 +64,7 @@ class SmsProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         smsProcessor = new SmsProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockSmsSenderIntegration, mockDefaults);
+            mockHistoryRepository, mockCounterRepository, mockSmsSenderIntegration, mockDefaults);
     }
 
     @Test

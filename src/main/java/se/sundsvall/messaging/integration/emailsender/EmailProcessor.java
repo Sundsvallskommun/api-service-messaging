@@ -12,9 +12,11 @@ import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.configuration.RetryProperties;
 import se.sundsvall.messaging.dto.EmailDto;
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
@@ -30,10 +32,10 @@ class EmailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     EmailProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository,
+            final HistoryRepository historyRepository, final CounterRepository counterRepository,
             final EmailSenderIntegration emailSenderIntegration,
             final Defaults defaults) {
-        super(messageRepository, historyRepository);
+        super(messageRepository, historyRepository, counterRepository);
 
         this.emailSenderIntegration = emailSenderIntegration;
         this.defaults = defaults;
@@ -58,6 +60,9 @@ class EmailProcessor extends Processor {
 
             return;
         }
+
+        // Register a delivery attempt
+        incrementAttemptCounter(MessageType.EMAIL);
 
         var emailDto = mapToDto(message);
 

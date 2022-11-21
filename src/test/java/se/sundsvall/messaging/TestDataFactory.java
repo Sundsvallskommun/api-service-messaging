@@ -1,11 +1,15 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.SmsRequest;
 import se.sundsvall.messaging.api.model.SnailmailRequest;
@@ -173,28 +177,28 @@ public final class TestDataFactory {
 
     public static DigitalMailRequest createDigitalMailRequest(final Consumer<DigitalMailRequest> modifier) {
         var request = DigitalMailRequest.builder()
-            .withParty(Parties.builder()
-                .withPartyIds(List.of(DEFAULT_PARTY_ID))
-                .withExternalReferences(List.of(ExternalReference.builder()
-                    .withKey("someKey")
-                    .withValue("someValue")
-                    .build()))
-                .build())
-            .withHeaders(List.of(Header.builder()
-                .withName(HeaderName.TYPE)
-                .withValues(List.of("someValue1", "someValue2"))
-                .build()))
-            .withSubject("someSubject")
-            .withContentType(ContentType.TEXT_PLAIN.getValue())
-            .withBody("someBody")
-            .withAttachments(List.of(
-                DigitalMailRequest.Attachment.builder()
-                    .withContentType(ContentType.APPLICATION_PDF.getValue())
-                    .withContent("someContent")
-                    .withFilename("someFilename")
-                    .build()
-            ))
-            .build();
+                .withParty(Parties.builder()
+                        .withPartyIds(List.of(DEFAULT_PARTY_ID))
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
+                .withHeaders(List.of(Header.builder()
+                        .withName(HeaderName.TYPE)
+                        .withValues(List.of("someValue1", "someValue2"))
+                        .build()))
+                .withSubject("someSubject")
+                .withContentType(ContentType.TEXT_PLAIN.getValue())
+                .withBody("someBody")
+                .withAttachments(List.of(
+                        DigitalMailRequest.Attachment.builder()
+                                .withContentType(ContentType.APPLICATION_PDF.getValue())
+                                .withContent("someContent")
+                                .withFilename("someFilename")
+                                .build()
+                ))
+                .build();
 
         if (modifier != null) {
             modifier.accept(request);
@@ -203,19 +207,64 @@ public final class TestDataFactory {
         return request;
     }
 
+    public static LetterRequest createLetterRequest() {
+        return createLetterRequest(null);
+    }
+
+    public static LetterRequest createLetterRequest(final Consumer<LetterRequest> modifier) {
+        var request = LetterRequest.builder()
+                .withParty(Parties.builder()
+                        .withPartyIds(List.of(DEFAULT_PARTY_ID))
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
+                .withHeaders(List.of(Header.builder()
+                        .withName(HeaderName.TYPE)
+                        .withValues(List.of("someValue1", "someValue2"))
+                        .build()))
+                .withSubject("someSubject")
+                .withContentType(ContentType.TEXT_PLAIN.getValue())
+                .withBody("someBody")
+                .withDepartment("someDepartment")
+                .withAttachments(List.of(
+                        LetterRequest.Attachment.builder()
+                                .withDeliveryMode(DIGITAL)
+                                .withContentType(ContentType.APPLICATION_PDF.getValue())
+                                .withContent("someContent")
+                                .withFilename("someFilename")
+                                .build(),
+                        LetterRequest.Attachment.builder()
+                                .withDeliveryMode(SNAIL)
+                                .withContentType(ContentType.APPLICATION_PDF.getValue())
+                                .withContent("someContent")
+                                .withFilename("someFilename")
+                                .build()
+                ))
+                .build();
+
+        if (modifier != null) {
+            modifier.accept(request);
+        }
+
+        return request;
+    }
+
+
     public static MessageRequest.Message createMessageRequest() {
         return createMessageRequest(null);
     }
 
     public static MessageRequest.Message createMessageRequest(final Consumer<MessageRequest.Message> modifier) {
         var request = MessageRequest.Message.builder()
-            .withParty(Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
-                .withExternalReferences(List.of(ExternalReference.builder()
-                    .withKey("someKey")
-                    .withValue("someValue")
-                    .build()))
-                .build())
+                .withParty(Party.builder()
+                        .withPartyId(DEFAULT_PARTY_ID)
+                        .withExternalReferences(List.of(ExternalReference.builder()
+                                .withKey("someKey")
+                                .withValue("someValue")
+                                .build()))
+                        .build())
             .withHeaders(List.of(Header.builder()
                 .withName(HeaderName.DISTRIBUTION_RULE)
                 .withValues(List.of("someValue1", "someValue2"))

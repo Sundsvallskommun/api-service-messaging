@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/snailmail-sender/send/snailmail"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test3_ErrorFromDigital_ErrorFromSnailmail/responses/snailmail-sender.json",
+    "status": 500
+  }
+}

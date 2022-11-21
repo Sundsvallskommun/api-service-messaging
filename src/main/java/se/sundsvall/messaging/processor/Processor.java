@@ -8,11 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import se.sundsvall.messaging.integration.db.CounterRepository;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.CounterEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 public abstract class Processor {
 
@@ -22,11 +25,13 @@ public abstract class Processor {
 
     protected final MessageRepository messageRepository;
     protected final HistoryRepository historyRepository;
+    private final CounterRepository counterRepository;
 
     protected Processor(final MessageRepository messageRepository,
-            final HistoryRepository historyRepository) {
+            final HistoryRepository historyRepository, final CounterRepository counterRepository) {
         this.messageRepository = messageRepository;
         this.historyRepository = historyRepository;
+        this.counterRepository = counterRepository;
     }
 
     @Transactional
@@ -36,6 +41,8 @@ public abstract class Processor {
 
         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.SENT)));
         messageRepository.deleteByDeliveryId(message.getDeliveryId());
+
+        incrementSuccessCounter(message.getType());
     }
 
     @Transactional
@@ -45,6 +52,30 @@ public abstract class Processor {
 
         historyRepository.save(mapToHistoryEntity(message.withStatus(MessageStatus.FAILED)));
         messageRepository.deleteByDeliveryId(message.getDeliveryId());
+
+        incrementFailureCounter(message.getType());
+    }
+
+    protected void incrementAttemptCounter(final MessageType messageType) {
+        incrementCounter(messageType.toString().toLowerCase() + ".total");
+    }
+
+    protected void incrementSuccessCounter(final MessageType messageType) {
+        incrementCounter(messageType.toString().toLowerCase() + ".success");
+    }
+
+    protected void incrementFailureCounter(final MessageType messageType) {
+        incrementCounter(messageType.toString().toLowerCase() + ".failure");
+    }
+
+    protected void incrementCounter(final String name) {
+        var counter = counterRepository.findByName(name)
+            .orElseGet(() -> CounterEntity.builder()
+                .withName(name)
+                .build())
+            .increment();
+
+        counterRepository.save(counter);
     }
 
     protected HistoryEntity mapToHistoryEntity(final MessageEntity message) {

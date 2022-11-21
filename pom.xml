@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.19</version>
+        <version>1.22</version>
         <relativePath />
     </parent>
 
@@ -88,6 +88,24 @@
 
     <build>
         <plugins>
+            <!--
+                Plugin configuration added to be able to add the -parameters compiler
+                argument, to be able to have actuator endpoints with selectors handle
+                arguments/parameters properly
+
+                TODO: remove when dept44 1.21 is released
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>

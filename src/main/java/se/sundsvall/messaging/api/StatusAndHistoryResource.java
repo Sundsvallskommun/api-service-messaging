@@ -1,14 +1,13 @@
 package se.sundsvall.messaging.api;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
+
 import se.sundsvall.messaging.api.model.BatchStatusResponse;
 import se.sundsvall.messaging.api.model.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.EmailRequest;
 import se.sundsvall.messaging.api.model.HistoryResponse;
+import se.sundsvall.messaging.api.model.LetterRequest;
 import se.sundsvall.messaging.api.model.MessageRequest;
 import se.sundsvall.messaging.api.model.MessageStatusResponse;
 import se.sundsvall.messaging.api.model.SmsRequest;
@@ -28,11 +29,13 @@ import se.sundsvall.messaging.api.model.WebMessageRequest;
 import se.sundsvall.messaging.dto.HistoryDto;
 import se.sundsvall.messaging.service.HistoryService;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Status and History Resources")
 @RestController
@@ -202,6 +205,7 @@ class StatusAndHistoryResource {
                 case DIGITAL_MAIL -> DigitalMailRequest.class;
                 case MESSAGE -> MessageRequest.Message.class;
                 case SNAIL_MAIL -> SnailmailRequest.class;
+                case LETTER -> LetterRequest.class;
             }))
             .withTimestamp(historyDto.getCreatedAt())
             .build();
