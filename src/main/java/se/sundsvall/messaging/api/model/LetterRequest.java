@@ -76,7 +76,7 @@ public class LetterRequest extends BatchRequest {
         """
     )
     public enum DeliveryMode {
-        ALL,
+        BOTH,
         DIGITAL_MAIL,
         SNAIL_MAIL
     }

@@ -771,7 +771,7 @@ components:
             Delivery mode, to indicate whether an attachment is intended/allowed to be used for
             digital mail, snail-mail or both
           enum:
-          - ALL
+          - BOTH
           - DIGITAL_MAIL
           - SNAIL_MAIL
         contentType:

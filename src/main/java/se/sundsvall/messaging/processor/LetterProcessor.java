@@ -1,7 +1,7 @@
 package se.sundsvall.messaging.processor;
 
 
-import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.ALL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.BOTH;
 import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL_MAIL;
 
@@ -222,10 +222,10 @@ public class LetterProcessor extends Processor {
     }
 
     private boolean isAttachmentIntendedForDigitalMail(final LetterRequest.Attachment attachment) {
-        return attachment.getDeliveryMode().equals(ALL) || attachment.getDeliveryMode().equals(DIGITAL_MAIL);
+        return attachment.getDeliveryMode().equals(BOTH) || attachment.getDeliveryMode().equals(DIGITAL_MAIL);
     }
 
     private boolean isAttachmentIntendedForSnailMail(final LetterRequest.Attachment attachment) {
-        return attachment.getDeliveryMode().equals(ALL) || attachment.getDeliveryMode().equals(SNAIL_MAIL);
+        return attachment.getDeliveryMode().equals(BOTH) || attachment.getDeliveryMode().equals(SNAIL_MAIL);
     }
 }
