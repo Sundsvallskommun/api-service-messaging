@@ -20,9 +20,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
-@WireMockAppTestSuite(
-        files = "classpath:/LetterIT/",
-        classes = Application.class)
+@WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
 @Transactional
 public class LetterIT extends AbstractMessagingAppTest {
 
@@ -42,12 +40,12 @@ public class LetterIT extends AbstractMessagingAppTest {
     @Test
     void test1_successfulRequestByDigital() throws Exception {
         var response = setupCall()
-                .withServicePath(SERVICE_PATH)
-                .withRequest("request.json")
-                .withHttpMethod(HttpMethod.POST)
-                .withExpectedResponseStatus(HttpStatus.OK)
-                .sendRequestAndVerifyResponse()
-                .andReturnBody(MessagesResponse.class);
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(HttpMethod.POST)
+            .withExpectedResponseStatus(HttpStatus.OK)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessagesResponse.class);
 
         assertThat(response.getMessageIds()).hasSize(1);
 
@@ -61,23 +59,23 @@ public class LetterIT extends AbstractMessagingAppTest {
         assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
         // Make sure that there exists a history entry with the correct id and status
         assertThat(historyRepository.findByMessageId(messageId))
-                .isNotNull()
-                .allSatisfy(historyEntry -> {
-                    assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-                    assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
-                    assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
-                });
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
+                assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
+            });
     }
 
     @Test
     void test2_ErrorFromDigital_SuccessfulSnailmail() throws Exception {
         var response = setupCall()
-                .withServicePath(SERVICE_PATH)
-                .withRequest("request.json")
-                .withHttpMethod(HttpMethod.POST)
-                .withExpectedResponseStatus(HttpStatus.OK)
-                .sendRequestAndVerifyResponse()
-                .andReturnBody(MessagesResponse.class);
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(HttpMethod.POST)
+            .withExpectedResponseStatus(HttpStatus.OK)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessagesResponse.class);
 
         assertThat(response.getMessageIds()).hasSize(1);
 
@@ -91,23 +89,23 @@ public class LetterIT extends AbstractMessagingAppTest {
         assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
         // Make sure that there exists a history entry with the correct id and status
         assertThat(historyRepository.findByMessageId(messageId))
-                .isNotNull()
-                .allSatisfy(historyEntry -> {
-                    assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-                    assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
-                    assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
-                });
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.SENT);
+                assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
+            });
     }
 
     @Test
     void test3_ErrorFromDigital_ErrorFromSnailmail() throws Exception {
         var response = setupCall()
-                .withServicePath(SERVICE_PATH)
-                .withRequest("request.json")
-                .withHttpMethod(HttpMethod.POST)
-                .withExpectedResponseStatus(HttpStatus.OK)
-                .sendRequestAndVerifyResponse()
-                .andReturnBody(MessagesResponse.class);
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(HttpMethod.POST)
+            .withExpectedResponseStatus(HttpStatus.OK)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessagesResponse.class);
 
         assertThat(response.getMessageIds()).hasSize(1);
 
@@ -121,13 +119,13 @@ public class LetterIT extends AbstractMessagingAppTest {
         assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
         // Make sure that there exists a history entry with the correct id and status
         assertThat(historyRepository.findByMessageId(messageId))
-                .isNotNull()
-                .allSatisfy(historyEntry -> {
-                    assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-                    assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
-                    assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
-                });
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(MessageStatus.FAILED);
+                assertThat(historyEntry.getMessageType()).isEqualTo(MessageType.LETTER);
+            });
     }
 
-
+    // TODO: create an additional app-test that tests the "ALL" delivery mode stuff...
 }

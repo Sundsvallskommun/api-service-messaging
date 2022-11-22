@@ -61,7 +61,7 @@ public class DigitalMailRequest extends BatchRequest {
         private String content;
 
         @NotBlank
-        @Schema(name = "filename", description = "Filename")
+        @Schema(description = "Filename")
         private String filename;
     }
 }
