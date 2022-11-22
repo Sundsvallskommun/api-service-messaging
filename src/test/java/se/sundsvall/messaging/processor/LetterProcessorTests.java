@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createLetterRequest;
-import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.processor.Processor.GSON;
 
 import java.time.Duration;
@@ -177,7 +177,7 @@ public class LetterProcessorTests {
         when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
         when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
         var letterRequest = createLetterRequest(req -> req.setAttachments(List.of(LetterRequest.Attachment.builder()
-                .withDeliveryMode(DIGITAL)
+                .withDeliveryMode(DIGITAL_MAIL)
                 .withContentType(ContentType.APPLICATION_PDF.getValue())
                 .withContent("someContent")
                 .withFilename("someFilename")
