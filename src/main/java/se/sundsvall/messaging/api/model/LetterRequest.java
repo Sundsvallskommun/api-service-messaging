@@ -38,7 +38,7 @@ public class LetterRequest extends BatchRequest {
 
     @NotBlank
     @Schema(description = "Department and unit that should be billed in case of snailmail",
-            example = "SBK" + "(Gatuavdelningen, Trafiksektionen)")
+        example = "SBK" + "(Gatuavdelningen, Trafiksektionen)")
     private String department;
 
     @Valid
@@ -54,7 +54,7 @@ public class LetterRequest extends BatchRequest {
     public static class Attachment {
 
         @NotNull
-        @Schema(name = "delivery mode", description = "Is attachment for Digital or Snail mail?")
+        @Schema(description = "Delivery mode")
         private DeliveryMode deliveryMode;
 
         @OneOf("application/pdf")
@@ -66,13 +66,18 @@ public class LetterRequest extends BatchRequest {
         private String content;
 
         @NotBlank
-        @Schema(name = "filename", description = "Filename")
+        @Schema(description = "Filename")
         private String filename;
     }
 
+    @Schema(description = """
+        Delivery mode, to indicate whether an attachment is intended/allowed to be used for 
+        digital mail, snail-mail or both
+        """
+    )
     public enum DeliveryMode {
-        DIGITAL, SNAIL
+        BOTH,
+        DIGITAL_MAIL,
+        SNAIL_MAIL
     }
-
-
 }

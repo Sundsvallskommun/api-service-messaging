@@ -1,8 +1,9 @@
 package se.sundsvall.messaging.processor;
 
 
-import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL;
-import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.BOTH;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.LetterRequest.DeliveryMode.SNAIL_MAIL;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public class LetterProcessor extends Processor {
 
         var digitalAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
             .getAttachments().stream()
-            .filter(attachment -> attachment.getDeliveryMode().equals(DIGITAL))
+            .filter(this::isAttachmentIntendedForDigitalMail)
             .toList();
 
         sendDigitalMail(message, event, digitalAttachments);
@@ -116,7 +117,7 @@ public class LetterProcessor extends Processor {
     private void sendSnailMail(final MessageEntity message, final IncomingLetterEvent event) {
         var snailAndFailedAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
             .getAttachments().stream()
-            .filter(attachment -> attachment.getDeliveryMode().equals(SNAIL))
+            .filter(this::isAttachmentIntendedForSnailMail)
             .toList();
 
         if (snailAndFailedAttachments.isEmpty()) {
@@ -218,5 +219,13 @@ public class LetterProcessor extends Processor {
         } else {
             return request.handleResultIf(response -> response.getStatusCode() != HttpStatus.OK).build();
         }
+    }
+
+    private boolean isAttachmentIntendedForDigitalMail(final LetterRequest.Attachment attachment) {
+        return attachment.getDeliveryMode().equals(BOTH) || attachment.getDeliveryMode().equals(DIGITAL_MAIL);
+    }
+
+    private boolean isAttachmentIntendedForSnailMail(final LetterRequest.Attachment attachment) {
+        return attachment.getDeliveryMode().equals(BOTH) || attachment.getDeliveryMode().equals(SNAIL_MAIL);
     }
 }
