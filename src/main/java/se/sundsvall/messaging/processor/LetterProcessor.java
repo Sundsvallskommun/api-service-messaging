@@ -75,24 +75,18 @@ public class LetterProcessor extends Processor {
         // Register a LETTER delivery attempt
         incrementAttemptCounter(MessageType.LETTER);
 
-        var digitalAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
+        var filteredAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
             .getAttachments().stream()
             .filter(this::isAttachmentIntendedForDigitalMail)
             .toList();
 
-        sendDigitalMail(message, event, digitalAttachments);
-    }
-
-    private void sendDigitalMail(final MessageEntity message, final IncomingLetterEvent event,
-            final List<LetterRequest.Attachment> attachments) {
-        var dto = mapToDigitalMailDto(message, attachments);
+        var dto = mapToDigitalMailDto(message, filteredAttachments);
 
         // Register a DIGITAL_MAIL delivery attempt
         incrementAttemptCounter(MessageType.DIGITAL_MAIL);
 
         try {
-            Failsafe
-                .with(digitalMailRetryPolicy)
+            Failsafe.with(digitalMailRetryPolicy)
                 .onSuccess(successEvent -> {
                     // Register a DIGITAL_MAIL delivery success
                     incrementSuccessCounter(MessageType.DIGITAL_MAIL);
@@ -105,53 +99,48 @@ public class LetterProcessor extends Processor {
                     // Register a LETTER failover
                     incrementCounter(MessageType.LETTER.toString().toLowerCase() + ".failover");
                     // Switch over to snail-mail
-                    sendSnailMail(message, event);
+                    sendSnailMail(message);
                 })
                 .get(() -> digitalMailSenderIntegration.sendDigitalMail(dto));
         } catch (Exception e) {
-            log.warn("Unable to send digital mail via letter {}: {}", event.getPayload(),
+            log.warn("Unable to send digital mail via letter {}: {}", message.getDeliveryId(),
                 e.getMessage());
         }
     }
 
-    private void sendSnailMail(final MessageEntity message, final IncomingLetterEvent event) {
-        var snailAndFailedAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
+    private void sendSnailMail(final MessageEntity message) {
+        var filteredAttachments = GSON.fromJson(message.getContent(), LetterRequest.class)
             .getAttachments().stream()
             .filter(this::isAttachmentIntendedForSnailMail)
             .toList();
 
-        if (snailAndFailedAttachments.isEmpty()) {
+        if (filteredAttachments.isEmpty()) {
             handleMaximumDeliveryAttemptsExceeded(message);
         } else {
-            sendSnailMail(message, event, snailAndFailedAttachments);
-        }
-    }
+            var dto = mapToSnailmailDto(message, filteredAttachments);
 
-    private void sendSnailMail(final MessageEntity message, final IncomingLetterEvent event,
-            final List<LetterRequest.Attachment> snailAndFail) {
-        var dto = mapToSnailmailDto(message, snailAndFail);
+            // Register a SNAIL_MAIL delivery attempt
+            incrementAttemptCounter(MessageType.SNAIL_MAIL);
 
-        // Register a SNAIL_MAIL delivery attempt
-        incrementAttemptCounter(MessageType.SNAIL_MAIL);
+            try {
+                Failsafe.with(snailMailRetryPolicy)
+                    .onSuccess(successEvent -> {
+                        // Register a SNAIL_MAIL delivery success
+                        incrementSuccessCounter(MessageType.SNAIL_MAIL);
+                        // Handle successful delivery, incl. LETTER success
+                        handleSuccessfulDelivery(message);
+                    })
+                    .onFailure(failureEvent -> {
+                        // Register a SNAIL_MAIL failure
+                        incrementFailureCounter(MessageType.SNAIL_MAIL);
 
-        try {
-            Failsafe
-                .with(snailMailRetryPolicy)
-                .onSuccess(successEvent -> {
-                    // Register a SNAIL_MAIL delivery success
-                    incrementSuccessCounter(MessageType.SNAIL_MAIL);
-                    // Handle successful delivery, incl. LETTER success
-                    handleSuccessfulDelivery(message);
-                })
-                .onFailure(failureEvent -> {
-                    // Register a SNAIL_MAIL failure
-                    incrementFailureCounter(MessageType.SNAIL_MAIL);
-
-                    handleMaximumDeliveryAttemptsExceeded(message);
-                })
-                .get(() -> snailmailSenderIntegration.sendSnailmail(dto));
-        } catch (Exception e) {
-            log.warn("Unable to send snailMail via letter {}: {}", event.getPayload(), e.getMessage());
+                        handleMaximumDeliveryAttemptsExceeded(message);
+                    })
+                    .get(() -> snailmailSenderIntegration.sendSnailmail(dto));
+            } catch (Exception e) {
+                log.warn("Unable to send letter as snail-mail {}: {}", message.getDeliveryId(),
+                    e.getMessage());
+            }
         }
     }
 
