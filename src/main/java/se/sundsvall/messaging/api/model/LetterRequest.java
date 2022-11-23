@@ -33,7 +33,7 @@ public class LetterRequest extends BatchRequest {
     private String contentType;
 
     @NotBlank
-    @Schema(description = "Body (BASE64-encoded)")
+    @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')")
     private String body;
 
     @NotBlank

@@ -23,6 +23,15 @@ paths:
               $ref: '#/components/schemas/WebMessageRequest'
         required: true
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -34,15 +43,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -63,6 +63,15 @@ paths:
               $ref: '#/components/schemas/SnailmailRequest'
         required: true
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -74,15 +83,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -103,6 +103,15 @@ paths:
               $ref: '#/components/schemas/SmsRequest'
         required: true
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -114,15 +123,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -143,24 +143,6 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessagesResponse'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/MessagesResponse'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -170,6 +152,24 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
   /letter:
     post:
       tags:
@@ -183,6 +183,15 @@ paths:
               $ref: '#/components/schemas/LetterRequest'
         required: true
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -194,15 +203,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -223,6 +223,15 @@ paths:
               $ref: '#/components/schemas/EmailRequest'
         required: true
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -234,15 +243,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -263,24 +263,6 @@ paths:
               $ref: '#/components/schemas/DigitalMailRequest'
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessagesResponse'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/MessagesResponse'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -290,6 +272,24 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/MessagesResponse'
   /status/{messageId}:
     get:
       tags:
@@ -303,24 +303,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageStatusResponse'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/MessageStatusResponse'
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
@@ -330,6 +312,24 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStatusResponse'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/MessageStatusResponse'
   /message/{messageId}:
     get:
       tags:
@@ -343,8 +343,8 @@ paths:
         schema:
           type: string
       responses:
-        "404":
-          description: Not Found
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -352,8 +352,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -428,6 +428,15 @@ paths:
         schema:
           type: string
       responses:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -439,15 +448,6 @@ paths:
                 $ref: '#/components/schemas/BatchStatusResponse'
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -554,11 +554,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WebMessageAttachment'
-    MessageResponse:
-      type: object
-      properties:
-        messageId:
-          type: string
     Problem:
       type: object
       properties:
@@ -574,17 +569,22 @@ components:
             type: object
         status:
           $ref: '#/components/schemas/StatusType'
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
+    MessageResponse:
+      type: object
+      properties:
+        messageId:
           type: string
     SnailmailAttachment:
       required:
@@ -812,7 +812,8 @@ components:
           - text/html
         body:
           type: string
-          description: Body (BASE64-encoded)
+          description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
+            \ if contentType is set to 'application/html')"
         department:
           type: string
           description: Department and unit that should be billed in case of snailmail
@@ -916,7 +917,8 @@ components:
           - text/html
         body:
           type: string
-          description: Body (BASE64-encoded)
+          description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
+            \ if contentType is set to 'application/html')"
         attachments:
           type: array
           description: Attachments
