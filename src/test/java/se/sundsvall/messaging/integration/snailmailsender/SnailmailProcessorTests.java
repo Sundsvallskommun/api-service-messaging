@@ -159,8 +159,7 @@ public class SnailmailProcessorTests {
                 .build();
 
         var dto = snailmailProcessor.mapToDto(message);
-
-        assertThat(dto.getPersonId()).isEqualTo(snailmailRequest.getPersonId());
+    
         assertThat(dto.getAttachments()).hasSameSizeAs(snailmailRequest.getAttachments());
     }
 }

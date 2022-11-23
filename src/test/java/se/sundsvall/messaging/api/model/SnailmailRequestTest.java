@@ -17,26 +17,6 @@ class SnailmailRequestTest extends AbstractValidationTest {
     }
 
     @Test
-    void testValidationWithInvalidPersonId() {
-        var request = createSnailmailRequest(req -> req.setPersonId(null));
-
-        var constraints = List.copyOf(validator.validate(request));
-
-        assertThat(constraints).hasSize(2);
-        assertThat(constraints).extracting("message").containsOnly("must not be blank", "not a valid UUID");
-
-        request = createSnailmailRequest(req -> req.setPersonId("invalid"));
-
-        constraints = List.copyOf(validator.validate(request));
-
-        assertThat(constraints).hasSize(1);
-        assertThat(constraints.get(0)).satisfies(constraintViolation -> {
-            assertThat(constraintViolation.getPropertyPath().toString()).isEqualTo("personId");
-            assertThat(constraintViolation.getMessage()).startsWith("not a valid UUID");
-        });
-    }
-
-    @Test
     void testValidationWithInvalidDepartment() {
         var request = createSnailmailRequest(req -> req.setDepartment(null));
 

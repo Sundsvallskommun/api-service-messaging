@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.1"
+  version: "1.2"
 servers:
   - url: http://127.0.0.1:8080
     description: Generated server url
@@ -85,7 +85,6 @@ components:
     SendSnailMailRequest:
       required:
         - department
-        - personId
       type: object
       properties:
         department:
@@ -96,9 +95,6 @@ components:
           type: string
           description: If the letter to send deviates from the standard
           example: A3 Ritning
-        personId:
-          type: string
-          description: PersonId for the person to send mail to
         attachments:
           type: array
           description: Attachments
@@ -126,9 +122,9 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
   securitySchemes: { }

@@ -5,8 +5,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
-import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -30,11 +28,6 @@ public class SnailmailRequest extends Request {
 
     @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
     private String deviation;
-    
-    @NotBlank
-    @ValidUuid
-    @Schema(description = "PersonId for the person to send snailmail to")
-    private String personId;
 
     @ArraySchema(schema = @Schema(implementation = Attachment.class))
     private List<@Valid Attachment> attachments;

@@ -15,7 +15,6 @@ public class SnailmailDto {
 
     private final String department;
     private final String deviation;
-    private final String personId;
     private final List<AttachmentDto> attachments;
 
     @Getter
