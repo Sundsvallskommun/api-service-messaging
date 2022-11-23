@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import se.sundsvall.messaging.api.model.validation.OneOf;
+import se.sundsvall.messaging.model.Sender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -23,28 +24,35 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LetterRequest extends BatchRequest {
-
+    
     @Schema(description = "Subject", nullable = true)
     private String subject;
-
+    
+    @Valid
+    @Schema(description = "Sender")
+    private Sender.DigitalMail sender;
+    
     @NotBlank
     @OneOf({"text/plain", "text/html"})
     @Schema(description = "Content type", allowableValues = {"text/plain", "text/html"})
     private String contentType;
-
+    
     @NotBlank
     @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'text/html')")
     private String body;
-
+    
     @NotBlank
     @Schema(description = "Department and unit that should be billed in case of snailmail",
         example = "SBK" + "(Gatuavdelningen, Trafiksektionen)")
     private String department;
-
+    
+    @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
+    private String deviation;
+    
     @Valid
     @Schema(description = "Attachments")
     private List<Attachment> attachments;
-
+    
     @Getter
     @Setter
     @Builder(setterPrefix = "with")
@@ -71,7 +79,7 @@ public class LetterRequest extends BatchRequest {
     }
 
     @Schema(description = """
-        Delivery mode, to indicate whether an attachment is intended/allowed to be used for 
+        Delivery mode, to indicate whether an attachment is intended/allowed to be used for
         digital mail, snail-mail or both
         """
     )

@@ -93,7 +93,6 @@ public final class TestDataFactory {
                         .withName(HeaderName.CATEGORY)
                         .withValues(List.of("someValue1", "someValue2"))
                         .build()))
-                .withPersonId("58f96da8-6d76-4fa6-bb92-64f71fdc6aa5")
                 .withDepartment("someDepartment")
                 .withDeviation("someDeviation")
                 .withAttachments(List.of(SnailmailRequest.Attachment.builder()

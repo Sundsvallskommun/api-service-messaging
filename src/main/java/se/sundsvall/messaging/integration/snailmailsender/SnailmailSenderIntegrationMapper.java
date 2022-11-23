@@ -35,7 +35,6 @@ public class SnailmailSenderIntegrationMapper {
         return new SendSnailMailRequest()
                 .department(dto.getDepartment())
                 .deviation(dto.getDeviation())
-                .personId(dto.getPersonId())
                 .attachments(attachments);
     }
 }

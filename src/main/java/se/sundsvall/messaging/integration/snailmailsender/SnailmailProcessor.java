@@ -89,7 +89,6 @@ class SnailmailProcessor extends Processor {
         return SnailmailDto.builder()
             .withDepartment(request.getDepartment())
             .withDeviation(request.getDeviation())
-            .withPersonId(request.getPersonId())
             .withAttachments(attachments)
             .build();
     }

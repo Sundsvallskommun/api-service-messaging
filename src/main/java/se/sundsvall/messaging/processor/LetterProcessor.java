@@ -180,7 +180,6 @@ public class LetterProcessor extends Processor {
         return SnailmailDto.builder()
             .withDepartment(request.getDepartment())
             .withDeviation(request.getDeviation())
-            .withPersonId(request.getPersonId())
             .withAttachments(Optional.ofNullable(attachmentsForSnailMail)
                 .map(attachments -> attachments.stream()
                     .map(attachment -> SnailmailDto.AttachmentDto.builder()
