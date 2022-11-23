@@ -50,7 +50,7 @@ public class LetterRequest extends BatchRequest {
     @Builder(setterPrefix = "with")
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @Schema(name = "DigitalMailAttachment")
+    @Schema(name = "LetterAttachment")
     public static class Attachment {
 
         @NotNull
