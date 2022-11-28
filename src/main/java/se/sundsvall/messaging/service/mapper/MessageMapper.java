@@ -98,43 +98,44 @@ public class MessageMapper {
         var uuid = UUID.randomUUID().toString();
 
         return request.getParty().getPartyIds().stream()
-                .map(partyId -> MessageEntity.builder()
-                        .withMessageId(uuid)
-                        .withDeliveryId(UUID.randomUUID().toString())
-                        .withBatchId(batchId)
-                        .withPartyId(partyId)
-                        .withType(MessageType.DIGITAL_MAIL)
-                        .withStatus(MessageStatus.PENDING)
-                        .withContent(GSON.toJson(request))
-                        .build())
-                .toList();
+            .map(partyId -> MessageEntity.builder()
+                .withMessageId(uuid)
+                .withDeliveryId(UUID.randomUUID().toString())
+                .withBatchId(batchId)
+                .withPartyId(partyId)
+                .withType(MessageType.DIGITAL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build())
+            .toList();
     }
 
     public List<MessageEntity> toEntities(final LetterRequest request, final String batchId) {
         var uuid = UUID.randomUUID().toString();
 
         return request.getParty().getPartyIds().stream()
-                .map(partyId -> MessageEntity.builder()
-                        .withMessageId(uuid)
-                        .withDeliveryId(UUID.randomUUID().toString())
-                        .withBatchId(batchId)
-                        .withPartyId(partyId)
-                        .withType(MessageType.LETTER)
-                        .withStatus(MessageStatus.PENDING)
-                        .withContent(GSON.toJson(request))
-                        .build())
-                .toList();
+            .map(partyId -> MessageEntity.builder()
+                .withMessageId(uuid)
+                .withDeliveryId(UUID.randomUUID().toString())
+                .withBatchId(batchId)
+                .withPartyId(partyId)
+                .withType(MessageType.LETTER)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build())
+            .toList();
     }
 
     public MessageEntity toEntity(final String batchId, final MessageRequest.Message request) {
         var uuid = UUID.randomUUID().toString();
 
         return MessageEntity.builder()
-                .withMessageId(uuid)
-                .withBatchId(batchId)
-                .withPartyId(Optional.ofNullable(request.getParty())
-                        .map(Party::getPartyId)
-                        .orElse(null))
+            .withMessageId(uuid)
+            .withBatchId(batchId)
+            .withDeliveryId(UUID.randomUUID().toString())
+            .withPartyId(Optional.ofNullable(request.getParty())
+                .map(Party::getPartyId)
+                .orElse(null))
             .withType(MessageType.MESSAGE)
             .withStatus(MessageStatus.PENDING)
             .withContent(GSON.toJson(request))
