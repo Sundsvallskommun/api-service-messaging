@@ -32,15 +32,15 @@ class StartupHandler implements CommandLineRunner {
     @Override
     public void run(String... args) {
         messageRepository.findLatestWithStatus(MessageStatus.PENDING).stream()
-            .peek(message -> LOG.info("Processing {} with id {}", message.getType(), message.getMessageId()))
+            .peek(message -> LOG.info("Processing {} with id {} and delivery id {}", message.getType(), message.getMessageId(), message.getDeliveryId()))
             .map(message -> switch (message.getType()) {
-                case EMAIL -> new IncomingEmailEvent(this, message.getMessageId());
-                case SMS -> new IncomingSmsEvent(this, message.getMessageId());
+                case EMAIL -> new IncomingEmailEvent(this, message.getDeliveryId());
+                case SMS -> new IncomingSmsEvent(this, message.getDeliveryId());
                 case MESSAGE -> new IncomingMessageEvent(this, message.getId());
-                case WEB_MESSAGE -> new IncomingWebMessageEvent(this, message.getMessageId());
-                case DIGITAL_MAIL -> new IncomingDigitalMailEvent(this, message.getMessageId());
-                case SNAIL_MAIL -> new IncomingSnailmailEvent(this, message.getMessageId());
-                case LETTER -> new IncomingLetterEvent(this, message.getMessageId());
+                case WEB_MESSAGE -> new IncomingWebMessageEvent(this, message.getDeliveryId());
+                case DIGITAL_MAIL -> new IncomingDigitalMailEvent(this, message.getDeliveryId());
+                case SNAIL_MAIL -> new IncomingSnailmailEvent(this, message.getDeliveryId());
+                case LETTER -> new IncomingLetterEvent(this, message.getDeliveryId());
             })
             .forEach(eventPublisher::publishEvent);
     }
