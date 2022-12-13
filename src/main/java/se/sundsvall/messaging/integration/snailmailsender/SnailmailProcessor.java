@@ -17,6 +17,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
 
 import dev.failsafe.Failsafe;
@@ -29,10 +30,12 @@ class SnailmailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     SnailmailProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final MessageRepository messageRepository,
+            final HistoryRepository historyRepository,
             final CounterRepository counterRepository,
+            final WhitelistingService whitelistingService,
             final SnailmailSenderIntegration snailmailSenderIntegration) {
-        super(messageRepository, historyRepository, counterRepository);
+        super(messageRepository, historyRepository, counterRepository, whitelistingService);
 
         this.snailmailSenderIntegration = snailmailSenderIntegration;
 
@@ -61,6 +64,11 @@ class SnailmailProcessor extends Processor {
         incrementAttemptCounter(MessageType.SNAIL_MAIL);
 
         var snailmailDto = mapToDto(message);
+
+        // Check if the recipient is whitelisted
+        if (!isWhitelisted(message, snailmailDto.getDepartment())) {
+            return;
+        }
 
         try {
             Failsafe

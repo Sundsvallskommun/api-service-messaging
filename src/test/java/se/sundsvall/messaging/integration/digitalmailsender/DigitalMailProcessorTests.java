@@ -33,6 +33,7 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,8 @@ class DigitalMailProcessorTests {
     private HistoryRepository mockHistoryRepository;
     @Mock
     private CounterRepository mockCounterRepository;
+    @Mock
+    private WhitelistingService mockWhitelistingService;
     @Mock
     private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
     @Mock
@@ -67,7 +70,7 @@ class DigitalMailProcessorTests {
 
         digitalMailProcessor = new DigitalMailProcessor(mockRetryProperties,
             mockMessageRepository, mockHistoryRepository, mockCounterRepository,
-            mockDigitalMailSenderIntegration, mockDefaults);
+            mockWhitelistingService, mockDigitalMailSenderIntegration, mockDefaults);
     }
 
     @Test
@@ -84,7 +87,7 @@ class DigitalMailProcessorTests {
 
     @Test
     void testHandleIncomingDigitalMailEvent() {
-        var digitalMailRequest = createDigitalMailRequest();
+        var request = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
@@ -94,16 +97,18 @@ class DigitalMailProcessorTests {
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
+                .withPartyId(request.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(digitalMailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(ResponseEntity.ok(true));
 
         digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockDigitalMailSenderIntegration, times(1)).sendDigitalMail(any(DigitalMailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -111,7 +116,7 @@ class DigitalMailProcessorTests {
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationThrowsException() {
-        var digitalMailRequest = createDigitalMailRequest();
+        var request = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
@@ -121,16 +126,18 @@ class DigitalMailProcessorTests {
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
+                .withPartyId(request.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(digitalMailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenThrow(RuntimeException.class);
 
         digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -138,7 +145,7 @@ class DigitalMailProcessorTests {
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOtherThanOk() {
-        var digitalMailRequest = createDigitalMailRequest();
+        var request = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
@@ -148,17 +155,19 @@ class DigitalMailProcessorTests {
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
+                .withPartyId(request.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(digitalMailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class)))
             .thenReturn(ResponseEntity.internalServerError().build());
 
         digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -166,7 +175,7 @@ class DigitalMailProcessorTests {
 
     @Test
     void testHandleIncomingDigitalMailEvent_whenDigitalMailSenderIntegrationReturnsOkButFalse() {
-        var digitalMailRequest = createDigitalMailRequest();
+        var request = createDigitalMailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
@@ -176,17 +185,47 @@ class DigitalMailProcessorTests {
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(digitalMailRequest.getParty().getPartyIds().get(0))
+                .withPartyId(request.getParty().getPartyIds().get(0))
                 .withType(MessageType.DIGITAL_MAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(digitalMailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(ResponseEntity.ok(false));
 
         digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockDigitalMailSenderIntegration, times(3)).sendDigitalMail(any(DigitalMailDto.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
+        verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
+    }
+
+    @Test
+    void testHandleIncomingDigitalMailEvent_whenWhitelistingServiceReturnsFalse() {
+        var request = createDigitalMailRequest();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockDefaults.getDigitalMail()).thenReturn(mockDefaultsDigitalMailSettings);
+        when(mockDefaultsDigitalMailSettings.getMunicipalityId()).thenReturn("someMunicipalityId");
+
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(request.getParty().getPartyIds().get(0))
+                .withType(MessageType.DIGITAL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(false);
+
+        digitalMailProcessor.handleIncomingDigitalMailEvent(new IncomingDigitalMailEvent(this, messageAndDeliveryId));
+
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
+        verify(mockDigitalMailSenderIntegration, never()).sendDigitalMail(any(DigitalMailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }

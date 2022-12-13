@@ -20,6 +20,7 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingDigitalMailEvent;
 
 import dev.failsafe.Failsafe;
@@ -34,11 +35,13 @@ class DigitalMailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
 
     DigitalMailProcessor(final RetryProperties retryProperties,
-            final MessageRepository messageRepository, final HistoryRepository historyRepository,
+            final MessageRepository messageRepository,
+            final HistoryRepository historyRepository,
             final CounterRepository counterRepository,
+            final WhitelistingService whitelistingService,
             final DigitalMailSenderIntegration digitalMailSenderIntegration,
             final Defaults defaults) {
-        super(messageRepository, historyRepository, counterRepository);
+        super(messageRepository, historyRepository, counterRepository, whitelistingService);
 
         this.digitalMailSenderIntegration = digitalMailSenderIntegration;
         this.defaults = defaults;
@@ -68,6 +71,11 @@ class DigitalMailProcessor extends Processor {
         incrementAttemptCounter(MessageType.DIGITAL_MAIL);
 
         var digitalMailDto = mapToDto(message);
+
+        // Check if the recipient is whitelisted
+        if (!isWhitelisted(message, digitalMailDto.getPartyId())) {
+            return;
+        }
 
         try {
             Failsafe

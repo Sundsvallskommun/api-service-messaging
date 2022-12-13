@@ -29,8 +29,10 @@ class WebMessageProcessor extends Processor {
 
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
-    WebMessageProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final CounterRepository counterRepository,
+    WebMessageProcessor(final RetryProperties retryProperties,
+            final MessageRepository messageRepository,
+            final HistoryRepository historyRepository,
+            final CounterRepository counterRepository,
             final WebMessageSenderIntegration webMessageSenderIntegration) {
         super(messageRepository, historyRepository, counterRepository);
 

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.TestDataFactory.createEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createSmsRequest;
 
 import java.time.Duration;
@@ -33,6 +32,7 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 import generated.se.sundsvall.smssender.SendSmsResponse;
@@ -51,6 +51,8 @@ class SmsProcessorTests {
     @Mock
     private CounterRepository mockCounterRepository;
     @Mock
+    private WhitelistingService mockWhitelistingService;
+    @Mock
     private SmsSenderIntegration mockSmsSenderIntegration;
     @Mock
     private Defaults mockDefaults;
@@ -64,7 +66,8 @@ class SmsProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         smsProcessor = new SmsProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockCounterRepository, mockSmsSenderIntegration, mockDefaults);
+            mockHistoryRepository, mockCounterRepository, mockWhitelistingService,
+            mockSmsSenderIntegration, mockDefaults);
     }
 
     @Test
@@ -81,24 +84,26 @@ class SmsProcessorTests {
 
     @Test
     void testHandleIncomingSmsEvent() {
-        var emailRequest = createEmailRequest();
+        var request = createSmsRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
-                .withType(MessageType.EMAIL)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.SMS)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
             .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSmsSenderIntegration, times(1)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -106,23 +111,25 @@ class SmsProcessorTests {
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationThrowsException() {
-        var emailRequest = createEmailRequest();
+        var request = createSmsRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
-                .withType(MessageType.EMAIL)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.SMS)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenThrow(RuntimeException.class);
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -130,23 +137,25 @@ class SmsProcessorTests {
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationReturnsOtherThanOk() {
-        var emailRequest = createEmailRequest();
+        var request = createSmsRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
-                .withType(MessageType.EMAIL)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.SMS)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -154,45 +163,72 @@ class SmsProcessorTests {
 
     @Test
     void testHandleIncomingSmsEvent_whenSmsSenderIntegrationReturnsOkButFalse() {
-        var emailRequest = createEmailRequest();
+        var request = createSmsRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
-                .withType(MessageType.EMAIL)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.SMS)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class)))
             .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(false)));
 
         smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSmsSenderIntegration, times(3)).sendSms(any(SmsDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
+    void testHandleIncomingSmsEvent_whenWhitelistingServiceReturnsFalse() {
+        var request = createSmsRequest();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.SMS)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(false);
+
+        smsProcessor.handleIncomingSmsEvent(new IncomingSmsEvent(this, messageAndDeliveryId));
+
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
+        verify(mockSmsSenderIntegration, never()).sendSms(any(SmsDto.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
+        verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
+    }
+
+    @Test
     void test_mapToDto() {
-        var smsRequest = createSmsRequest();
+        var request = createSmsRequest();
 
         var message = MessageEntity.builder()
             .withMessageId(UUID.randomUUID().toString())
-            .withPartyId(smsRequest.getParty().getPartyId())
+            .withPartyId(request.getParty().getPartyId())
             .withType(MessageType.SMS)
             .withStatus(MessageStatus.PENDING)
-            .withContent(GSON.toJson(smsRequest))
+            .withContent(GSON.toJson(request))
             .build();
 
         var dto = smsProcessor.mapToDto(message);
 
-        assertThat(dto.getSender()).isEqualTo(smsRequest.getSender());
-        assertThat(dto.getMobileNumber()).isEqualTo(smsRequest.getMobileNumber());
-        assertThat(dto.getMessage()).isEqualTo(smsRequest.getMessage());
+        assertThat(dto.getSender()).isEqualTo(request.getSender());
+        assertThat(dto.getMobileNumber()).isEqualTo(request.getMobileNumber());
+        assertThat(dto.getMessage()).isEqualTo(request.getMessage());
     }
 }

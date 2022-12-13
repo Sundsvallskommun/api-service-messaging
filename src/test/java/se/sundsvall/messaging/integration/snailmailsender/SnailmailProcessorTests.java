@@ -31,8 +31,8 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingSnailmailEvent;
-
 
 @ExtendWith(MockitoExtension.class)
 public class SnailmailProcessorTests {
@@ -48,6 +48,8 @@ public class SnailmailProcessorTests {
     @Mock
     private CounterRepository mockCounterRepository;
     @Mock
+    private WhitelistingService mockWhitelistingService;
+    @Mock
     private SnailmailSenderIntegration mockSnailmailSenderIntegration;
 
     private SnailmailProcessor snailmailProcessor;
@@ -59,7 +61,8 @@ public class SnailmailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         snailmailProcessor = new SnailmailProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockCounterRepository, mockSnailmailSenderIntegration);
+            mockHistoryRepository, mockCounterRepository, mockWhitelistingService,
+            mockSnailmailSenderIntegration);
     }
 
     @Test
@@ -80,19 +83,21 @@ public class SnailmailProcessorTests {
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
-                MessageEntity.builder()
-                        .withMessageId(messageAndDeliveryId)
-                        .withDeliveryId(messageAndDeliveryId)
-                        .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.SNAIL_MAIL)
-                        .withStatus(MessageStatus.PENDING)
-                        .withContent(GSON.toJson(snailmailRequest))
-                        .build()));
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(snailmailRequest.getParty().getPartyId())
+                .withType(MessageType.SNAIL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(snailmailRequest))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSnailmailSenderIntegration.sendSnailmail(any(SnailmailDto.class))).thenReturn(ResponseEntity.ok().build());
 
         snailmailProcessor.handleIncomingSnailmailEvent(new IncomingSnailmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSnailmailSenderIntegration, times(1)).sendSnailmail(any(SnailmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -104,19 +109,21 @@ public class SnailmailProcessorTests {
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
-                MessageEntity.builder()
-                        .withMessageId(messageAndDeliveryId)
-                        .withDeliveryId(messageAndDeliveryId)
-                        .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.SNAIL_MAIL)
-                        .withStatus(MessageStatus.PENDING)
-                        .withContent(GSON.toJson(snailmailRequest))
-                        .build()));
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(snailmailRequest.getParty().getPartyId())
+                .withType(MessageType.SNAIL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(snailmailRequest))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSnailmailSenderIntegration.sendSnailmail(any(SnailmailDto.class))).thenThrow(RuntimeException.class);
 
         snailmailProcessor.handleIncomingSnailmailEvent(new IncomingSnailmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSnailmailSenderIntegration, times(3)).sendSnailmail(any(SnailmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -128,20 +135,47 @@ public class SnailmailProcessorTests {
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
-                MessageEntity.builder()
-                        .withMessageId(messageAndDeliveryId)
-                        .withDeliveryId(messageAndDeliveryId)
-                        .withPartyId(snailmailRequest.getParty().getPartyId())
-                        .withType(MessageType.SNAIL_MAIL)
-                        .withStatus(MessageStatus.PENDING)
-                        .withContent(GSON.toJson(snailmailRequest))
-                        .build()));
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(snailmailRequest.getParty().getPartyId())
+                .withType(MessageType.SNAIL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(snailmailRequest))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockSnailmailSenderIntegration.sendSnailmail(any(SnailmailDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
         snailmailProcessor.handleIncomingSnailmailEvent(new IncomingSnailmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockSnailmailSenderIntegration, times(3)).sendSnailmail(any(SnailmailDto.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
+        verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
+    }
+
+    @Test
+    void testHandleIncomingSnailmailEvent_whenWhitelistingServiceReturnsFalse() {
+        var snailmailRequest = createSnailmailRequest();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(snailmailRequest.getParty().getPartyId())
+                .withType(MessageType.SNAIL_MAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(snailmailRequest))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(false);
+
+        snailmailProcessor.handleIncomingSnailmailEvent(new IncomingSnailmailEvent(this, messageAndDeliveryId));
+
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
+        verify(mockSnailmailSenderIntegration, never()).sendSnailmail(any(SnailmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
@@ -151,12 +185,12 @@ public class SnailmailProcessorTests {
         var snailmailRequest = createSnailmailRequest();
 
         var message = MessageEntity.builder()
-                .withMessageId(UUID.randomUUID().toString())
-                .withPartyId(snailmailRequest.getParty().getPartyId())
-                .withType(MessageType.SNAIL_MAIL)
-                .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(snailmailRequest))
-                .build();
+            .withMessageId(UUID.randomUUID().toString())
+            .withPartyId(snailmailRequest.getParty().getPartyId())
+            .withType(MessageType.SNAIL_MAIL)
+            .withStatus(MessageStatus.PENDING)
+            .withContent(GSON.toJson(snailmailRequest))
+            .build();
 
         var dto = snailmailProcessor.mapToDto(message);
     

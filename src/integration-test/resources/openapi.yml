@@ -958,6 +958,7 @@ components:
             - PENDING
             - SENT
             - FAILED
+            - NOT_WHITELISTED
             - NO_FEEDBACK_SETTINGS_FOUND
             - NO_FEEDBACK_WANTED
     HistoryResponse:
@@ -982,6 +983,7 @@ components:
             - PENDING
             - SENT
             - FAILED
+            - NOT_WHITELISTED
             - NO_FEEDBACK_SETTINGS_FOUND
             - NO_FEEDBACK_WANTED
         timestamp:

@@ -19,6 +19,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
 import dev.failsafe.Failsafe;
@@ -33,10 +34,14 @@ class SmsProcessor extends Processor {
 
     private final RetryPolicy<ResponseEntity<SendSmsResponse>> retryPolicy;
 
-    SmsProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final CounterRepository counterRepository,
-            final SmsSenderIntegration smsSenderIntegration, final Defaults defaults) {
-        super(messageRepository, historyRepository, counterRepository);
+    SmsProcessor(final RetryProperties retryProperties,
+            final MessageRepository messageRepository,
+            final HistoryRepository historyRepository,
+            final CounterRepository counterRepository,
+            final WhitelistingService whitelistingService,
+            final SmsSenderIntegration smsSenderIntegration,
+            final Defaults defaults) {
+        super(messageRepository, historyRepository, counterRepository, whitelistingService);
 
         this.smsSenderIntegration = smsSenderIntegration;
         this.defaults = defaults;
@@ -66,6 +71,11 @@ class SmsProcessor extends Processor {
         incrementAttemptCounter(MessageType.SMS);
 
         var smsDto = mapToDto(message);
+
+        // Check if the recipient is whitelisted
+        if (!isWhitelisted(message, smsDto.getMobileNumber())) {
+            return;
+        }
 
         try {
             Failsafe

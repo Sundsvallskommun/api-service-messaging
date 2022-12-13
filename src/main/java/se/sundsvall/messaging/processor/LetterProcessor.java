@@ -49,7 +49,8 @@ public class LetterProcessor extends Processor {
             final MessageRepository messageRepository,
             final HistoryRepository historyRepository,
             final CounterRepository counterRepository,
-            final Defaults defaults, final DigitalMailSenderIntegration digitalMailSenderIntegration,
+            final Defaults defaults,
+            final DigitalMailSenderIntegration digitalMailSenderIntegration,
             final SnailmailSenderIntegration snailmailSenderIntegration) {
         super(messageRepository, historyRepository, counterRepository);
 

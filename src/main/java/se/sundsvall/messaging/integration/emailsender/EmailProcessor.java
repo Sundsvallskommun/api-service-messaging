@@ -18,6 +18,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.processor.Processor;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
 import dev.failsafe.Failsafe;
@@ -32,10 +33,12 @@ class EmailProcessor extends Processor {
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
     EmailProcessor(final RetryProperties retryProperties, final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final CounterRepository counterRepository,
+            final HistoryRepository historyRepository,
+            final CounterRepository counterRepository,
+            final WhitelistingService whitelistingService,
             final EmailSenderIntegration emailSenderIntegration,
             final Defaults defaults) {
-        super(messageRepository, historyRepository, counterRepository);
+        super(messageRepository, historyRepository, counterRepository, whitelistingService);
 
         this.emailSenderIntegration = emailSenderIntegration;
         this.defaults = defaults;
@@ -65,6 +68,11 @@ class EmailProcessor extends Processor {
         incrementAttemptCounter(MessageType.EMAIL);
 
         var emailDto = mapToDto(message);
+
+        // Check if the recipient is whitelisted
+        if (!isWhitelisted(message, emailDto.getEmailAddress())) {
+            return;
+        }
 
         try {
             Failsafe

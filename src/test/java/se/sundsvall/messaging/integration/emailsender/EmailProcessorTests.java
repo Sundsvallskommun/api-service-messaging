@@ -32,6 +32,7 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.WhitelistingService;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,8 @@ class EmailProcessorTests {
     @Mock
     private CounterRepository mockCounterRepository;
     @Mock
+    private WhitelistingService mockWhitelistingService;
+    @Mock
     private EmailSenderIntegration mockEmailSenderIntegration;
     @Mock
     private Defaults mockDefaults;
@@ -61,7 +64,8 @@ class EmailProcessorTests {
         when(mockRetryProperties.getMaxDelay()).thenReturn(Duration.ofMillis(100));
 
         emailProcessor = new EmailProcessor(mockRetryProperties, mockMessageRepository,
-            mockHistoryRepository, mockCounterRepository, mockEmailSenderIntegration, mockDefaults);
+            mockHistoryRepository, mockCounterRepository, mockWhitelistingService,
+            mockEmailSenderIntegration, mockDefaults);
     }
 
     @Test
@@ -78,23 +82,25 @@ class EmailProcessorTests {
 
     @Test
     void testHandleIncomingEmailEvent() {
-        var emailRequest = createEmailRequest();
+        var request = createEmailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
+                .withPartyId(request.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(ResponseEntity.ok().build());
 
         emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockEmailSenderIntegration, times(1)).sendEmail(any(EmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -102,23 +108,25 @@ class EmailProcessorTests {
 
     @Test
     void testHandleIncomingEmailEvent_whenEmailSenderIntegrationThrowsException() {
-        var emailRequest = createEmailRequest();
+        var request = createEmailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
+                .withPartyId(request.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenThrow(RuntimeException.class);
 
         emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockEmailSenderIntegration, times(3)).sendEmail(any(EmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
@@ -126,47 +134,74 @@ class EmailProcessorTests {
 
     @Test
     void testHandleIncomingEmailEvent_whenEmailSenderIntegrationReturnsFailure() {
-        var emailRequest = createEmailRequest();
+        var request = createEmailRequest();
         var messageAndDeliveryId = UUID.randomUUID().toString();
 
         when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
             MessageEntity.builder()
                 .withMessageId(messageAndDeliveryId)
                 .withDeliveryId(messageAndDeliveryId)
-                .withPartyId(emailRequest.getParty().getPartyId())
+                .withPartyId(request.getParty().getPartyId())
                 .withType(MessageType.EMAIL)
                 .withStatus(MessageStatus.PENDING)
-                .withContent(GSON.toJson(emailRequest))
+                .withContent(GSON.toJson(request))
                 .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(true);
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(ResponseEntity.internalServerError().build());
 
         emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
 
         verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
         verify(mockEmailSenderIntegration, times(3)).sendEmail(any(EmailDto.class));
         verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
 
     @Test
+    void testHandleIncomingEmailEvent_whenWhitelistingServiceReturnsFalse() {
+        var request = createEmailRequest();
+        var messageAndDeliveryId = UUID.randomUUID().toString();
+
+        when(mockMessageRepository.findByDeliveryId(eq(messageAndDeliveryId))).thenReturn(Optional.of(
+            MessageEntity.builder()
+                .withMessageId(messageAndDeliveryId)
+                .withDeliveryId(messageAndDeliveryId)
+                .withPartyId(request.getParty().getPartyId())
+                .withType(MessageType.EMAIL)
+                .withStatus(MessageStatus.PENDING)
+                .withContent(GSON.toJson(request))
+                .build()));
+        when(mockWhitelistingService.isWhitelisted(any(MessageType.class), any(String.class))).thenReturn(false);
+
+        emailProcessor.handleIncomingEmailEvent(new IncomingEmailEvent(this, messageAndDeliveryId));
+
+        verify(mockMessageRepository, times(1)).findByDeliveryId(eq(messageAndDeliveryId));
+        verify(mockWhitelistingService, times(1)).isWhitelisted(any(MessageType.class), any(String.class));
+        verify(mockEmailSenderIntegration, never()).sendEmail(any(EmailDto.class));
+        verify(mockMessageRepository, times(1)).deleteByDeliveryId(any(String.class));
+        verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
+    }
+
+    @Test
     void test_mapToDto() {
-        var emailRequest = createEmailRequest();
+        var request = createEmailRequest();
 
         var message = MessageEntity.builder()
             .withMessageId(UUID.randomUUID().toString())
-            .withPartyId(emailRequest.getParty().getPartyId())
+            .withPartyId(request.getParty().getPartyId())
             .withType(MessageType.EMAIL)
             .withStatus(MessageStatus.PENDING)
-            .withContent(GSON.toJson(emailRequest))
+            .withContent(GSON.toJson(request))
             .build();
 
         var dto = emailProcessor.mapToDto(message);
 
-        assertThat(dto.getSender()).isEqualTo(emailRequest.getSender());
-        assertThat(dto.getEmailAddress()).isEqualTo(emailRequest.getEmailAddress());
-        assertThat(dto.getSubject()).isEqualTo(emailRequest.getSubject());
-        assertThat(dto.getMessage()).isEqualTo(emailRequest.getMessage());
-        assertThat(dto.getHtmlMessage()).isEqualTo(emailRequest.getHtmlMessage());
-        assertThat(dto.getAttachments()).hasSameSizeAs(emailRequest.getAttachments());
+        assertThat(dto.getSender()).isEqualTo(request.getSender());
+        assertThat(dto.getEmailAddress()).isEqualTo(request.getEmailAddress());
+        assertThat(dto.getSubject()).isEqualTo(request.getSubject());
+        assertThat(dto.getMessage()).isEqualTo(request.getMessage());
+        assertThat(dto.getHtmlMessage()).isEqualTo(request.getHtmlMessage());
+        assertThat(dto.getAttachments()).hasSameSizeAs(request.getAttachments());
     }
 }

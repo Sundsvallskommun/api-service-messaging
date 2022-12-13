@@ -193,26 +193,26 @@ class MessageResource {
 
     @Operation(summary = "Send a single snailmail")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful Operation",
-                    content = @Content(schema = @Schema(implementation = MessageResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request",
-                    content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal Server Error",
-                    content = @Content(schema = @Schema(implementation = Problem.class))
-            )
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
     })
     @PostMapping(
-            value = "/snailmail",
-            consumes = APPLICATION_JSON_VALUE,
-            produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+        value = "/snailmail",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
     )
     ResponseEntity<MessageResponse> sendSnailmail(@Valid @RequestBody final SnailmailRequest request) {
         var message = messageService.handleSnailmailRequest(request);
@@ -222,26 +222,26 @@ class MessageResource {
 
     @Operation(summary = "Send a single letter as digital mail or snail mail")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful Operation",
-                    content = @Content(schema = @Schema(implementation = MessageResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request",
-                    content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal Server Error",
-                    content = @Content(schema = @Schema(implementation = Problem.class))
-            )
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful Operation",
+            content = @Content(schema = @Schema(implementation = MessageResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content = @Content(schema = @Schema(implementation = Problem.class))
+        )
     })
     @PostMapping(
-            value = "/letter",
-            consumes = APPLICATION_JSON_VALUE,
-            produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+        value = "/letter",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
     )
     ResponseEntity<MessagesResponse> sendLetter(@Valid @RequestBody final LetterRequest request) {
         var messages = messageService.handleLetterRequest(request);

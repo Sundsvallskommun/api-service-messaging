@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.24</version>
+        <version>1.25</version>
         <relativePath />
     </parent>
 
@@ -22,6 +22,7 @@
         <published.container.port.test>9040</published.container.port.test>
         <published.container.port.production>9040</published.container.port.production>
 
+        <jgit.version>6.3.0.202209071007-r</jgit.version>
         <failsafe.version>3.2.4</failsafe.version>
 
         <openapi-generator-maven-plugin>5.4.0</openapi-generator-maven-plugin>
@@ -73,6 +74,18 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
+        <!-- JGit -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.ssh.jsch</artifactId>
+            <version>${jgit.version}</version>
+        </dependency>
+
         <!-- Other -->
         <dependency>
             <groupId>dev.failsafe</groupId>
@@ -88,24 +101,6 @@
 
     <build>
         <plugins>
-            <!--
-                Plugin configuration added to be able to add the -parameters compiler
-                argument, to be able to have actuator endpoints with selectors handle
-                arguments/parameters properly
-
-                TODO: remove when dept44 1.21 is released
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -309,6 +304,18 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!-- For silencing logs for non-Spring-powered unit tests -->
+                        <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
+                        <logging.level.org.hibernate.validator>OFF</logging.level.org.hibernate.validator>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
@@ -318,9 +325,10 @@
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>
-                        <!-- Exclude JPA specifications and metamodels -->
+                        <!-- Exclude JPA repositories, specifications, entities and metamodels -->
+                        <exclude>**/se/sundsvall/messaging/integration/db/**/*Repository*</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/db/specification/**/**</exclude>
-                        <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*</exclude>
+                        <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity*</exclude>
                         <exclude>**/generated/**</exclude>
                     </excludes>
                 </configuration>
