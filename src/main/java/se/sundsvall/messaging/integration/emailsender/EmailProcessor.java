@@ -17,6 +17,7 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Sender;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 
@@ -27,7 +28,7 @@ import dev.failsafe.RetryPolicy;
 class EmailProcessor extends Processor {
 
     private final EmailSenderIntegration emailSenderIntegration;
-    private final Defaults defaults;
+    private final Sender.Email defaultSender;
 
     private final RetryPolicy<ResponseEntity<Void>> retryPolicy;
 
@@ -38,7 +39,8 @@ class EmailProcessor extends Processor {
         super(messageRepository, historyRepository, counterRepository);
 
         this.emailSenderIntegration = emailSenderIntegration;
-        this.defaults = defaults;
+
+        defaultSender = defaults.getEmail();
 
         retryPolicy = RetryPolicy.<ResponseEntity<Void>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -81,7 +83,7 @@ class EmailProcessor extends Processor {
         var request = GSON.fromJson(message.getContent(), EmailRequest.class);
 
         // Use sender from the original request, or use default sender as fallback
-        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getEmail);
+        var sender = Optional.ofNullable(request.getSender()).orElse(defaultSender);
 
         var attachments = Optional.ofNullable(request.getAttachments())
             .map(requestAttachments -> requestAttachments.stream()

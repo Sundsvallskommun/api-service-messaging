@@ -7,6 +7,8 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import se.sundsvall.messaging.api.model.validation.ValidationGroups;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -77,7 +79,7 @@ public class Sender {
     @Builder(setterPrefix = "with")
     public static class DigitalMail {
 
-        @NotBlank
+        @NotBlank(groups = ValidationGroups.Defaults.class)
         @JsonIgnore // Since this shouldn't be possible to set in requests
         private String municipalityId;
 
