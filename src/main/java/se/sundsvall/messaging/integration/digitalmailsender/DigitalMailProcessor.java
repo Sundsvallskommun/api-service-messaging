@@ -29,7 +29,7 @@ import dev.failsafe.RetryPolicy;
 class DigitalMailProcessor extends Processor {
 
     private final DigitalMailSenderIntegration digitalMailSenderIntegration;
-    private final Defaults defaults;
+    private final Defaults.DigitalMail digitalMailDefaults;
 
     private final RetryPolicy<ResponseEntity<Boolean>> retryPolicy;
 
@@ -41,7 +41,8 @@ class DigitalMailProcessor extends Processor {
         super(messageRepository, historyRepository, counterRepository);
 
         this.digitalMailSenderIntegration = digitalMailSenderIntegration;
-        this.defaults = defaults;
+
+        digitalMailDefaults = defaults.getDigitalMail();
 
         retryPolicy = RetryPolicy.<ResponseEntity<Boolean>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -84,12 +85,11 @@ class DigitalMailProcessor extends Processor {
         var request = GSON.fromJson(message.getContent(), DigitalMailRequest.class);
 
         // Use sender from the original request, or use default sender as fallback
-        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getDigitalMail);
+        var sender = Optional.ofNullable(request.getSender()).orElse(digitalMailDefaults);
         // Always use the municipality id from the defaults
-        sender.setMunicipalityId(defaults.getDigitalMail().getMunicipalityId());
+        sender.setMunicipalityId(digitalMailDefaults.getMunicipalityId());
         // Use subject from the original request, or use default subject as fallback
-        var subject = Optional.ofNullable(request.getSubject())
-            .orElseGet(() -> defaults.getDigitalMail().getSubject());
+        var subject = Optional.ofNullable(request.getSubject()).orElseGet(digitalMailDefaults::getSubject);
 
         var attachments = Optional.ofNullable(request.getAttachments())
             .map(requestAttachments -> requestAttachments.stream()
