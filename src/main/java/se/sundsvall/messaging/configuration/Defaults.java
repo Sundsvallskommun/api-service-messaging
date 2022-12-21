@@ -5,7 +5,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
+import se.sundsvall.messaging.api.model.validation.ValidationGroups;
 import se.sundsvall.messaging.model.Sender;
 
 import lombok.Getter;
@@ -13,6 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Validated(ValidationGroups.Defaults.class)
 @ConfigurationProperties(prefix = "messaging.defaults")
 public class Defaults {
 

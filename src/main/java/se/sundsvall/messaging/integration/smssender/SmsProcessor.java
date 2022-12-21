@@ -18,6 +18,7 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Sender;
 import se.sundsvall.messaging.processor.Processor;
 import se.sundsvall.messaging.service.event.IncomingSmsEvent;
 
@@ -29,7 +30,7 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
 class SmsProcessor extends Processor {
 
     private final SmsSenderIntegration smsSenderIntegration;
-    private final Defaults defaults;
+    private final Sender.Sms defaultSender;
 
     private final RetryPolicy<ResponseEntity<SendSmsResponse>> retryPolicy;
 
@@ -39,7 +40,8 @@ class SmsProcessor extends Processor {
         super(messageRepository, historyRepository, counterRepository);
 
         this.smsSenderIntegration = smsSenderIntegration;
-        this.defaults = defaults;
+
+        defaultSender = defaults.getSms();
 
         retryPolicy = RetryPolicy.<ResponseEntity<SendSmsResponse>>builder()
             .withMaxAttempts(retryProperties.getMaxAttempts())
@@ -82,7 +84,7 @@ class SmsProcessor extends Processor {
         var request = GSON.fromJson(message.getContent(), SmsRequest.class);
 
         // Use sender from the original request, or use default sender as fallback
-        var sender = Optional.ofNullable(request.getSender()).orElseGet(defaults::getSms);
+        var sender = Optional.ofNullable(request.getSender()).orElse(defaultSender);
 
         return SmsDto.builder()
             .withSender(sender)
