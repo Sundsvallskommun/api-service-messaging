@@ -1,10 +1,14 @@
 package se.sundsvall.messaging.integration.smssender;
 
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
+import java.util.Optional;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.messaging.dto.SmsDto;
+import se.sundsvall.messaging.model.MessageStatus;
 
 import generated.se.sundsvall.smssender.SendSmsResponse;
 
@@ -22,9 +26,14 @@ public class SmsSenderIntegration {
         this.mapper = mapper;
     }
 
-    public ResponseEntity<SendSmsResponse> sendSms(final SmsDto smsDto) {
-        var request = mapper.toSendSmsRequest(smsDto);
+    public MessageStatus sendSms(final SmsDto dto) {
+        var response = client.sendSms(mapper.toSendSmsRequest(dto));
 
-        return client.sendSms(request);
+        var success = response.getStatusCode().is2xxSuccessful() &&
+            Optional.ofNullable(response.getBody())
+                .map(SendSmsResponse::getSent)
+                .orElse(false);
+
+        return success ? SENT : NOT_SENT;
     }
 }

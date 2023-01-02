@@ -96,13 +96,17 @@ public class FeedbackSettingsIntegration {
 
     HttpHeaders toHttpHeaders(final List<Header> headers, final Set<HeaderName> skipHeaders) {
         var httpHeaders = new HttpHeaders();
-        headers.stream()
-            .filter(header -> skipHeaders.isEmpty() || !skipHeaders.contains(header.getName()))
-            .forEach(header -> httpHeaders.addAll(getHeaderFilterName(header), header.getValues()));
+
+        if (headers != null) {
+            headers.stream()
+                .filter(header -> skipHeaders.isEmpty() || !skipHeaders.contains(header.name()))
+                .forEach(header -> httpHeaders.addAll(getHeaderFilterName(header), header.values()));
+        }
+
         return httpHeaders;
     }
 
     String getHeaderFilterName(final Header header) {
-        return FILTER_HEADER_PREFIX + header.getName().toString().toLowerCase().replace('_', '-');
+        return FILTER_HEADER_PREFIX + header.name().toString().toLowerCase().replace('_', '-');
     }
 }

@@ -1,10 +1,12 @@
 package se.sundsvall.messaging.integration.emailsender;
 
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.messaging.dto.EmailDto;
+import se.sundsvall.messaging.model.MessageStatus;
 
 @Component
 @EnableConfigurationProperties(EmailSenderIntegrationProperties.class)
@@ -21,9 +23,9 @@ public class EmailSenderIntegration {
         this.mapper = mapper;
     }
 
-    public ResponseEntity<Void> sendEmail(final EmailDto emailDto) {
-        var request = mapper.toSendEmailRequest(emailDto);
+    public MessageStatus sendEmail(final EmailDto dto) {
+        var response = client.sendEmail(mapper.toSendEmailRequest(dto));
 
-        return client.sendEmail(request);
+        return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
     }
 }

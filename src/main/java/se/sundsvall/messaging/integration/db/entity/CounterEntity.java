@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "stats_counters")
+@Getter
+@Builder(setterPrefix = "with")
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(setterPrefix = "with")
-@Getter
 public class CounterEntity {
 
     @Id

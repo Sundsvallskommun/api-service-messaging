@@ -12,14 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
-import se.sundsvall.messaging.dto.WebMessageDto;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class WebMessageSenderIntegrationTests {
 
@@ -38,6 +40,8 @@ class WebMessageSenderIntegrationTests {
     @Test
     void test_sendWebMessage() {
         when(mockMapper.toCreateWebMessageRequest(any(WebMessageDto.class))).thenReturn(new CreateWebMessageRequest());
+        when(mockClient.sendWebMessage(any(CreateWebMessageRequest.class)))
+            .thenReturn(ResponseEntity.ok().build());
 
         integration.sendWebMessage(WebMessageDto.builder().build());
 

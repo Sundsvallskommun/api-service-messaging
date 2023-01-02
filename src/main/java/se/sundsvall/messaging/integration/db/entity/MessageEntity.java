@@ -26,10 +26,10 @@ import lombok.With;
 
 @Entity
 @Table(name = "messages")
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@Builder(setterPrefix = "with")
 @Getter
+@Builder(setterPrefix = "with")
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 public class MessageEntity {
 

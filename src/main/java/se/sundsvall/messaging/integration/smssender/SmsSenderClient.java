@@ -12,7 +12,7 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
     url = "${integration.sms-sender.base-url}",
     configuration = SmsSenderIntegrationConfiguration.class
 )
-public interface SmsSenderClient {
+interface SmsSenderClient {
 
     @PostMapping("/send/sms")
     ResponseEntity<SendSmsResponse> sendSms(SendSmsRequest request);

@@ -24,10 +24,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "history")
+@Getter
+@Builder(setterPrefix = "with")
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(setterPrefix = "with")
-@Getter
 public class HistoryEntity {
 
     @Id
@@ -35,11 +35,11 @@ public class HistoryEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "message_id", nullable = false, length = 36)
-    private String messageId;
-
     @Column(name = "batch_id", length = 36)
     private String batchId;
+
+    @Column(name = "message_id", nullable = false, length = 36)
+    private String messageId;
 
     @Column(name = "delivery_id", length = 36)
     private String deliveryId;

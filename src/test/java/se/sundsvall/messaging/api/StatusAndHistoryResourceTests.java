@@ -16,10 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import se.sundsvall.messaging.dto.HistoryDto;
+import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class StatusAndHistoryResourceTests {
 
@@ -35,10 +37,10 @@ class StatusAndHistoryResourceTests {
 
     @Test
     void test_getConversationHistory() {
-        // The only reason for this Loop is coverage...
+        // TODO: the only reason for this loop is coverage...refactor as a parameterized test ?
         for (var messageType : MessageType.values()) {
             when(mockHistoryService.getConversationHistory(any(String.class), any(LocalDate.class), any(LocalDate.class)))
-                .thenReturn(List.of(HistoryDto.builder()
+                .thenReturn(List.of(History.builder()
                     .withMessageType(messageType)
                     .build()));
 
@@ -58,7 +60,7 @@ class StatusAndHistoryResourceTests {
     @Test
     void test_getMessageStatus() {
         when(mockHistoryService.getHistory(any(String.class)))
-            .thenReturn(List.of(HistoryDto.builder().build()));
+            .thenReturn(List.of(History.builder().build()));
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
@@ -85,13 +87,52 @@ class StatusAndHistoryResourceTests {
     @Test
     void test_getBatchStatus() {
         when(mockHistoryService.getHistoryByBatchId(any(String.class)))
-            .thenReturn(List.of(HistoryDto.builder().build()));
+            .thenReturn(List.of(History.builder().build()));
 
         var response = statusAndHistoryResource.getBatchStatus("someBatchId");
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessages()).hasSize(1);
+        assertThat(response.getBody().messages()).hasSize(1);
+    }
+
+    @Test
+    void test_getBatchStatus_whenBatchIsEmpty() {
+        when(mockHistoryService.getHistoryByBatchId(any(String.class)))
+            .thenReturn(List.of());
+
+        var response = statusAndHistoryResource.getBatchStatus("someBatchId");
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void test_getMessage() {
+        when(mockHistoryService.getHistory(any(String.class)))
+            .thenReturn(List.of(History.builder().withMessageType(MessageType.SMS).build()));
+
+        var response = statusAndHistoryResource.getMessage("someMessageId");
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).hasSize(1);
+
+        verify(mockHistoryService, times(1)).getHistory(any(String.class));
+    }
+
+    @Test
+    void test_getMessage_whenMessageDoesNotExist() {
+        when(mockHistoryService.getHistory(any(String.class)))
+            .thenReturn(List.of());
+
+        var response = statusAndHistoryResource.getMessage("someMessageId");
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        verify(mockHistoryService, times(1)).getHistory(any(String.class));
     }
 }

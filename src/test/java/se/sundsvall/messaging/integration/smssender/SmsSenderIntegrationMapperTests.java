@@ -4,32 +4,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.dto.SmsDto;
-import se.sundsvall.messaging.model.Sender;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
 class SmsSenderIntegrationMapperTests {
 
     private final SmsSenderIntegrationMapper mapper = new SmsSenderIntegrationMapper();
 
     @Test
-    void test_toSendSmsRequest_whenDtoIsNull() {
+    void test_toSendSmsRequest_whenSmsRequestIsNull() {
         assertThat(mapper.toSendSmsRequest(null)).isNull();
     }
 
     @Test
     void test_toSendSmsRequest() {
         var dto = SmsDto.builder()
-            .withSender(Sender.Sms.builder()
-                .withName("someName")
-                .build())
+            .withSender("someName")
             .withMobileNumber("someMobileNumber")
             .withMessage("someMessage")
             .build();
 
-        var request = mapper.toSendSmsRequest(dto);
+        var sendSmsRequest = mapper.toSendSmsRequest(dto);
 
-        assertThat(request.getSender().getName()).isEqualTo("someName");
-        assertThat(request.getMobileNumber()).isEqualTo("someMobileNumber");
-        assertThat(request.getMessage()).isEqualTo("someMessage");
+        assertThat(sendSmsRequest.getSender().getName()).isEqualTo("someName");
+        assertThat(sendSmsRequest.getMobileNumber()).isEqualTo("someMobileNumber");
+        assertThat(sendSmsRequest.getMessage()).isEqualTo("someMessage");
     }
 }

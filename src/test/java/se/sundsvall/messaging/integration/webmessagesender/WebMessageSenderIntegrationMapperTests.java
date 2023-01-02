@@ -1,15 +1,15 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.dto.WebMessageDto;
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
 class WebMessageSenderIntegrationMapperTests {
 
     private final WebMessageSenderIntegrationMapper mapper = new WebMessageSenderIntegrationMapper();
@@ -22,22 +22,15 @@ class WebMessageSenderIntegrationMapperTests {
     @Test
     void test_toCreateWebMessageRequest() {
         var dto = WebMessageDto.builder()
-            .withParty(Party.builder()
-                .withPartyId("somePartyId")
-                .withExternalReferences(List.of(
-                    ExternalReference.builder()
-                        .withKey("key")
-                        .withValue("value")
-                        .build()
-                ))
-                .build())
+            .withPartyId("somePartyId")
+            .withExternalReferences(List.of(createExternalReference()))
             .withMessage("someMessage")
             .build();
 
-        var request = mapper.toCreateWebMessageRequest(dto);
+        var mappedRequest = mapper.toCreateWebMessageRequest(dto);
 
-        assertThat(request.getPartyId()).isEqualTo(dto.getParty().getPartyId());
-        assertThat(request.getExternalReferences()).hasSameSizeAs(dto.getParty().getExternalReferences());
-        assertThat(request.getMessage()).isEqualTo(dto.getMessage());
+        assertThat(mappedRequest.getPartyId()).isEqualTo(dto.partyId());
+        assertThat(mappedRequest.getExternalReferences()).hasSameSizeAs(dto.externalReferences());
+        assertThat(mappedRequest.getMessage()).isEqualTo(dto.message());
     }
 }

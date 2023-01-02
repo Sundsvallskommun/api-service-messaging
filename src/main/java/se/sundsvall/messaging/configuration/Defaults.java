@@ -3,39 +3,73 @@ package se.sundsvall.messaging.configuration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
-import se.sundsvall.messaging.api.model.validation.ValidationGroups;
-import se.sundsvall.messaging.model.Sender;
-
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@Validated(ValidationGroups.Defaults.class)
+@Validated
+@ConstructorBinding
 @ConfigurationProperties(prefix = "messaging.defaults")
-public class Defaults {
+public record Defaults(
 
-    @Valid
-    @NotNull
-    private Sender.Sms sms;
+        @Valid
+        @NotNull
+        Sms sms,
 
-    @Valid
-    @NotNull
-    private Sender.Email email;
+        @Valid
+        @NotNull
+        Email email,
 
-    @Valid
-    @NotNull
-    private DigitalMail digitalMail;
+        @Valid
+        @NotNull
+        DigitalMail digitalMail) {
 
-    @Getter
-    @Setter
-    public static class DigitalMail extends Sender.DigitalMail {
+    public record Sms(
 
         @NotBlank
-        private String subject;
+        @Size(max = 11)
+        String name) { }
+
+    public record Email(
+
+        @NotBlank
+        String name,
+
+        @NotBlank
+        @javax.validation.constraints.Email
+        String address,
+
+        @javax.validation.constraints.Email
+        String replyTo) { }
+
+    public record DigitalMail(
+
+            @NotBlank
+            @JsonIgnore // Since this shouldn't be possible to set in requests
+            String municipalityId,
+
+            @Valid
+            @NotNull
+            SupportInfo supportInfo,
+
+            String subject) {
+
+        public record SupportInfo(
+
+            @NotBlank
+            String text,
+
+            @javax.validation.constraints.Email
+            @NotBlank
+            String emailAddress,
+
+            @NotBlank
+            String phoneNumber,
+
+            @NotBlank
+            String url) { }
     }
 }

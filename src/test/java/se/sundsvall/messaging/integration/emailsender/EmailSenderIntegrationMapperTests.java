@@ -5,23 +5,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import se.sundsvall.messaging.dto.EmailDto;
-import se.sundsvall.messaging.model.Sender;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
+@ExtendWith(MockitoExtension.class)
 class EmailSenderIntegrationMapperTests {
 
     private final EmailSenderIntegrationMapper mapper = new EmailSenderIntegrationMapper();
 
     @Test
-    void test_toSendEmailRequest_whenDtoIsNull() {
+    void test_toSendEmailRequest_whenRequestIsNull() {
         assertThat(mapper.toSendEmailRequest(null)).isNull();
     }
 
     @Test
     void test_toSendEmailRequest() {
         var dto = EmailDto.builder()
-            .withSender(Sender.Email.builder()
+            .withSender(EmailDto.Sender.builder()
                 .withName("someName")
                 .withAddress("someAddress")
                 .withReplyTo("someReplyTo")
@@ -30,22 +33,22 @@ class EmailSenderIntegrationMapperTests {
             .withSubject("someSubject")
             .withMessage("someMessage")
             .withHtmlMessage("someHtmlMessage")
-            .withAttachments(List.of(EmailDto.AttachmentDto.builder()
+            .withAttachments(List.of(EmailDto.Attachment.builder()
                 .withName("someName")
                 .withContentType("someContentType")
                 .withContent("someContent")
                 .build()))
             .build();
 
-        var request = mapper.toSendEmailRequest(dto);
+        var mappedRequest = mapper.toSendEmailRequest(dto);
 
-        assertThat(request.getSender().getName()).isEqualTo("someName");
-        assertThat(request.getSender().getAddress()).isEqualTo("someAddress");
-        assertThat(request.getSender().getReplyTo()).isEqualTo("someReplyTo");
-        assertThat(request.getEmailAddress()).isEqualTo("someEmailAddress");
-        assertThat(request.getSubject()).isEqualTo("someSubject");
-        assertThat(request.getMessage()).isEqualTo("someMessage");
-        assertThat(request.getHtmlMessage()).isEqualTo("someHtmlMessage");
-        assertThat(request.getAttachments()).hasSize(1);
+        assertThat(mappedRequest.getSender().getName()).isEqualTo("someName");
+        assertThat(mappedRequest.getSender().getAddress()).isEqualTo("someAddress");
+        assertThat(mappedRequest.getSender().getReplyTo()).isEqualTo("someReplyTo");
+        assertThat(mappedRequest.getEmailAddress()).isEqualTo("someEmailAddress");
+        assertThat(mappedRequest.getSubject()).isEqualTo("someSubject");
+        assertThat(mappedRequest.getMessage()).isEqualTo("someMessage");
+        assertThat(mappedRequest.getHtmlMessage()).isEqualTo("someHtmlMessage");
+        assertThat(mappedRequest.getAttachments()).hasSize(1);
     }
 }

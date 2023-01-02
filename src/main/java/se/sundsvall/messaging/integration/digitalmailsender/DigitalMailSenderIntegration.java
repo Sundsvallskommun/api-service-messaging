@@ -1,12 +1,14 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
 import java.util.Optional;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.messaging.dto.DigitalMailDto;
+import se.sundsvall.messaging.model.MessageStatus;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
@@ -26,15 +28,15 @@ public class DigitalMailSenderIntegration {
         this.mapper = mapper;
     }
 
-    public ResponseEntity<Boolean> sendDigitalMail(final DigitalMailDto digitalMailDto) {
-        var request = mapper.toDigitalMailRequest(digitalMailDto);
+    public MessageStatus sendDigitalMail(final DigitalMailDto dto) {
+        var response = client.sendDigitalMail(mapper.toDigitalMailRequest(dto));
 
-        var response = client.sendDigitalMail(request);
-
-        return ResponseEntity.status(response.getStatusCode())
-            .body(Optional.ofNullable(response.getBody())
+        var success = response.getStatusCode().is2xxSuccessful() &&
+            Optional.ofNullable(response.getBody())
                 .map(DigitalMailResponse::getDeliveryStatus)
                 .map(DeliveryStatus::getDelivered)
-                .orElse(false));
+                .orElse(false);
+
+        return success ? SENT : NOT_SENT;
     }
 }

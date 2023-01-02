@@ -11,7 +11,7 @@ import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
     url = "${integration.web-message-sender.base-url}",
     configuration = WebMessageSenderIntegrationConfiguration.class
 )
-public interface WebMessageSenderClient {
+interface WebMessageSenderClient {
 
     @PostMapping("/webmessages")
     ResponseEntity<Void> sendWebMessage(CreateWebMessageRequest request);

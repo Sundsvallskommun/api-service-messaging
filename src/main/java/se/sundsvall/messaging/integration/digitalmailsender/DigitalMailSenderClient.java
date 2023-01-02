@@ -12,7 +12,7 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
     url = "${integration.digital-mail-sender.base-url}",
     configuration = DigitalMailSenderIntegrationConfiguration.class
 )
-public interface DigitalMailSenderClient {
+interface DigitalMailSenderClient {
 
     @PostMapping("/sendDigitalMail")
     ResponseEntity<DigitalMailResponse> sendDigitalMail(DigitalMailRequest request);

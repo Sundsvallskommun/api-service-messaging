@@ -17,11 +17,12 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
-import se.sundsvall.messaging.dto.SmsDto;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import generated.se.sundsvall.smssender.SendSmsRequest;
 import generated.se.sundsvall.smssender.SendSmsResponse;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class SmsSenderIntegrationTests {
 

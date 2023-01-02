@@ -5,156 +5,173 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.CREATED;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import se.sundsvall.messaging.api.model.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.EmailRequest;
-import se.sundsvall.messaging.api.model.LetterRequest;
-import se.sundsvall.messaging.api.model.MessageRequest;
-import se.sundsvall.messaging.api.model.SmsRequest;
-import se.sundsvall.messaging.api.model.SnailmailRequest;
-import se.sundsvall.messaging.api.model.WebMessageRequest;
-import se.sundsvall.messaging.dto.MessageBatchDto;
-import se.sundsvall.messaging.dto.MessageDto;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.DeliveryBatchResult;
+import se.sundsvall.messaging.model.DeliveryResult;
 import se.sundsvall.messaging.service.MessageService;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class MessageResourceTests {
 
     @Mock
     private MessageService mockMessageService;
 
+    @InjectMocks
     private MessageResource messageResource;
-
-    @BeforeEach
-    void setUp() {
-        messageResource = new MessageResource(mockMessageService);
-    }
 
     @Test
     void test_sendSms() {
-        when(mockMessageService.handleSmsRequest(any(SmsRequest.class)))
-            .thenReturn(MessageDto.builder()
-                .withMessageId("someMessageId")
-                .build());
+        when(mockMessageService.sendSms(any(SmsRequest.class)))
+            .thenReturn(new DeliveryResult("someMessageId", "someDeliveryId", SENT));
 
         var response = messageResource.sendSms(SmsRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().status()).isEqualTo(SENT);
 
-        verify(mockMessageService, times(1)).handleSmsRequest(any(SmsRequest.class));
+        verify(mockMessageService, times(1)).sendSms(any(SmsRequest.class));
     }
 
     @Test
     void test_sendEmail() {
-        when(mockMessageService.handleEmailRequest(any(EmailRequest.class)))
-            .thenReturn(MessageDto.builder()
-                .withMessageId("someMessageId")
-                .build());
+        when(mockMessageService.sendEmail(any(EmailRequest.class)))
+            .thenReturn(new DeliveryResult("someMessageId", "someDeliveryId", SENT));
 
         var response = messageResource.sendEmail(EmailRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().status()).isEqualTo(SENT);
 
-        verify(mockMessageService, times(1)).handleEmailRequest(any(EmailRequest.class));
+        verify(mockMessageService, times(1)).sendEmail(any(EmailRequest.class));
     }
 
     @Test
     void test_sendWebMessage() {
-        when(mockMessageService.handleWebMessageRequest(any(WebMessageRequest.class)))
-            .thenReturn(MessageDto.builder()
-                .withMessageId("someMessageId")
-                .build());
+        when(mockMessageService.sendWebMessage(any(WebMessageRequest.class)))
+            .thenReturn(new DeliveryResult("someMessageId", "someDeliveryId", SENT));
 
-        var response = messageResource.sendWebMessage(
-            WebMessageRequest.builder().build());
+        var response = messageResource.sendWebMessage(WebMessageRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().status()).isEqualTo(SENT);
 
-        verify(mockMessageService, times(1)).handleWebMessageRequest(any(WebMessageRequest.class));
+        verify(mockMessageService, times(1)).sendWebMessage(any(WebMessageRequest.class));
     }
 
     @Test
     void test_sendDigitalMail() {
-        when(mockMessageService.handleDigitalMailRequest(any(DigitalMailRequest.class)))
-            .thenReturn(MessageBatchDto.builder()
-                .withMessageIds(List.of("someMessageId"))
-                .build());
+        when(mockMessageService.sendDigitalMail(any(DigitalMailRequest.class)))
+            .thenReturn(new DeliveryBatchResult("someBatchId",
+                List.of(new DeliveryResult("someMessageId", "someDeliveryId", SENT))));
 
-        var response = messageResource.sendDigitalMail(
-            DigitalMailRequest.builder().build());
+        var response = messageResource.sendDigitalMail(DigitalMailRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageIds()).contains("someMessageId");
+        assertThat(response.getBody().batchId()).isEqualTo("someBatchId");
+        assertThat(response.getBody().messages())
+            .hasSize(1)
+            .allSatisfy(messageResult -> {
+                assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+                assertThat(messageResult.deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.status()).isEqualTo(SENT);
+            });
 
-        verify(mockMessageService, times(1)).handleDigitalMailRequest(any(DigitalMailRequest.class));
+        verify(mockMessageService, times(1)).sendDigitalMail(any(DigitalMailRequest.class));
     }
 
     @Test
     void test_sendMessages() {
-        when(mockMessageService.handleMessageRequest(any(MessageRequest.class)))
-            .thenReturn(MessageBatchDto.builder()
-                .withBatchId("someBatchId")
-                .withMessageIds(List.of("someMessageId"))
-                .build());
+        when(mockMessageService.sendMessages(any(MessageRequest.class)))
+            .thenReturn(new DeliveryBatchResult("someBatchId",
+                List.of(new DeliveryResult("someMessageId", "someDeliveryId", SENT))));
 
-        var response = messageResource.sendMessages(
-                MessageRequest.builder().build());
+        var response = messageResource.sendMessages(MessageRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getBatchId()).isEqualTo("someBatchId");
-        assertThat(response.getBody().getMessageIds()).containsExactly("someMessageId");
+        assertThat(response.getBody().batchId()).isEqualTo("someBatchId");
+        assertThat(response.getBody().messages())
+            .hasSize(1)
+            .allSatisfy(messageResult -> {
+                assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+                assertThat(messageResult.deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.status()).isEqualTo(SENT);
+            });
 
-        verify(mockMessageService, times(1)).handleMessageRequest(any(MessageRequest.class));
+        verify(mockMessageService, times(1)).sendMessages(any(MessageRequest.class));
     }
 
     @Test
     void test_sendSnailMail() {
-        when(mockMessageService.handleSnailmailRequest(any(SnailmailRequest.class)))
-                .thenReturn(MessageDto.builder()
-                        .withMessageId("someMessageId")
-                        .build());
+        when(mockMessageService.sendSnailMail(any(SnailMailRequest.class)))
+            .thenReturn(new DeliveryResult("someMessageId", "someDeliveryId", SENT));
 
-        var response = messageResource.sendSnailmail(SnailmailRequest.builder().build());
+        var response = messageResource.sendSnailMail(SnailMailRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
+        assertThat(response.getBody().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().status()).isEqualTo(SENT);
 
-        verify(mockMessageService, times(1)).handleSnailmailRequest(any(SnailmailRequest.class));
+        verify(mockMessageService, times(1)).sendSnailMail(any(SnailMailRequest.class));
     }
 
     @Test
     void test_sendLetter() {
-        when(mockMessageService.handleLetterRequest(any(LetterRequest.class)))
-                .thenReturn(MessageBatchDto.builder()
-                        .withBatchId("someBatchId")
-                        .withMessageIds(List.of("someMessageId"))
-                        .build());
+        when(mockMessageService.sendLetter(any(LetterRequest.class)))
+            .thenReturn(new DeliveryBatchResult("someBatchId",
+                List.of(new DeliveryResult("someMessageId", "someDeliveryId", SENT))));
 
-        var response = messageResource.sendLetter(
-                LetterRequest.builder().build());
+        var response = messageResource.sendLetter(LetterRequest.builder().build());
 
         assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getBatchId()).isEqualTo("someBatchId");
-        assertThat(response.getBody().getMessageIds()).containsExactly("someMessageId");
+        assertThat(response.getBody().batchId()).isEqualTo("someBatchId");
+        assertThat(response.getBody().messages())
+            .hasSize(1)
+            .allSatisfy(messageResult -> {
+                assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+                assertThat(messageResult.deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.status()).isEqualTo(SENT);
+            });
 
-        verify(mockMessageService, times(1)).handleLetterRequest(any(LetterRequest.class));
+        verify(mockMessageService, times(1)).sendLetter(any(LetterRequest.class));
     }
 }

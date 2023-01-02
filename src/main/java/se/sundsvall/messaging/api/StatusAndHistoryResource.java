@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
-import se.sundsvall.messaging.api.model.BatchStatusResponse;
-import se.sundsvall.messaging.api.model.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.EmailRequest;
-import se.sundsvall.messaging.api.model.HistoryResponse;
-import se.sundsvall.messaging.api.model.LetterRequest;
-import se.sundsvall.messaging.api.model.MessageRequest;
-import se.sundsvall.messaging.api.model.MessageStatusResponse;
-import se.sundsvall.messaging.api.model.SmsRequest;
-import se.sundsvall.messaging.api.model.SnailmailRequest;
-import se.sundsvall.messaging.api.model.WebMessageRequest;
-import se.sundsvall.messaging.dto.HistoryDto;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.HistoryResponse;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.service.HistoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +42,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 class StatusAndHistoryResource {
 
     private static final Gson GSON = new GsonBuilder().create();
+
+    static final String MESSAGE_STATUS_PATH = "/status/{messageId}";
+    static final String BATCH_STATUS_PATH = "/batch-status/{batchId}";
 
     private final HistoryService historyService;
 
@@ -86,7 +89,7 @@ class StatusAndHistoryResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageStatusResponse.class))
+            content = @Content(schema = @Schema(implementation = MessageResult.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -100,15 +103,15 @@ class StatusAndHistoryResource {
         )
     })
     @GetMapping(
-        value = "/status/{messageId}",
+        value = MESSAGE_STATUS_PATH,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<List<MessageStatusResponse>> getMessageStatus(@PathVariable final String messageId) {
+    ResponseEntity<List<MessageResult>> getMessageStatus(@PathVariable final String messageId) {
         var history = historyService.getHistory(messageId).stream()
-            .map(historyDto -> MessageStatusResponse.builder()
-                .withMessageId(historyDto.getMessageId())
-                .withDeliveryId(historyDto.getDeliveryId())
-                .withStatus(historyDto.getStatus())
+            .map(historyDto -> MessageResult.builder()
+                .withMessageId(historyDto.messageId())
+                .withDeliveryId(historyDto.deliveryId())
+                .withStatus(historyDto.status())
                 .build())
             .toList();
 
@@ -124,7 +127,7 @@ class StatusAndHistoryResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = BatchStatusResponse.class))
+            content = @Content(schema = @Schema(implementation = MessageBatchResult.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -138,25 +141,25 @@ class StatusAndHistoryResource {
         )
     })
     @GetMapping(
-        value = "/batch-status/{batchId}",
+        value = BATCH_STATUS_PATH,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<BatchStatusResponse> getBatchStatus(@PathVariable final String batchId) {
-        var statuses = historyService.getHistoryByBatchId(batchId).stream()
-            .map(historyDto -> MessageStatusResponse.builder()
-                .withMessageId(historyDto.getMessageId())
-                .withDeliveryId(historyDto.getDeliveryId())
-                .withStatus(historyDto.getStatus())
+    ResponseEntity<MessageBatchResult> getBatchStatus(@PathVariable final String batchId) {
+        var messageResults = historyService.getHistoryByBatchId(batchId).stream()
+            .map(history -> MessageResult.builder()
+                .withMessageId(history.messageId())
+                .withDeliveryId(history.deliveryId())
+                .withStatus(history.status())
                 .build())
             .toList();
 
-        if (statuses.isEmpty()) {
+        if (messageResults.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(BatchStatusResponse.builder()
+        return ResponseEntity.ok(MessageBatchResult.builder()
             .withBatchId(batchId)
-            .withMessages(statuses)
+            .withMessages(messageResults)
             .build());
     }
 
@@ -193,21 +196,21 @@ class StatusAndHistoryResource {
 
         return ResponseEntity.ok(history);
     }
-
-    HistoryResponse mapToHistoryResponse(final HistoryDto historyDto) {
+    
+    HistoryResponse mapToHistoryResponse(final History history) {
         return HistoryResponse.builder()
-            .withMessageType(historyDto.getMessageType())
-            .withStatus(historyDto.getStatus())
-            .withContent(GSON.fromJson(historyDto.getContent(), switch (historyDto.getMessageType()) {
+            .withMessageType(history.messageType())
+            .withStatus(history.status())
+            .withContent(GSON.fromJson(history.content(), switch (history.messageType()) {
                 case EMAIL -> EmailRequest.class;
                 case SMS -> SmsRequest.class;
                 case WEB_MESSAGE -> WebMessageRequest.class;
                 case DIGITAL_MAIL -> DigitalMailRequest.class;
                 case MESSAGE -> MessageRequest.Message.class;
-                case SNAIL_MAIL -> SnailmailRequest.class;
+                case SNAIL_MAIL -> SnailMailRequest.class;
                 case LETTER -> LetterRequest.class;
             }))
-            .withTimestamp(historyDto.getCreatedAt())
+            .withTimestamp(history.createdAt())
             .build();
     }
 }

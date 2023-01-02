@@ -11,34 +11,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import se.sundsvall.messaging.api.model.validation.ValidHeaderName;
+import se.sundsvall.messaging.api.model.request.validation.ValidHeaderName;
 
 import generated.se.sundsvall.messagingrules.HeaderName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.With;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@With
 @Builder(setterPrefix = "with")
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Header {
+public record Header(
 
     @ValidHeaderName
     @Schema(description = "The header name")
     @JsonDeserialize(using = HeaderNameDeserializer.class)
-    private HeaderName name;
+    HeaderName name,
 
     @NotEmpty
     @Schema(description = "The header values")
-    private List<String> values;
+    List<String> values) {
 
     /**
      * Custom Jackson deserializer used to avoid JSON parsing exceptions being thrown if invalid
@@ -52,7 +43,7 @@ public class Header {
 
         @Override
         public HeaderName deserialize(final JsonParser jsonParser, final DeserializationContext context)
-                throws IOException {
+            throws IOException {
             var node = (JsonNode) jsonParser.getCodec().readTree(jsonParser);
 
             for (var headerName : HeaderName.values()) {

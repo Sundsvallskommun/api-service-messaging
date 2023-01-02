@@ -17,16 +17,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
 import generated.se.sundsvall.messagingrules.HeaderName;
 
+@UnitTest
 class HeaderTests {
 
     @Test
     void testBuilderAndGetters() {
         var header = createHeader();
 
-        assertThat(header.getName()).isEqualTo(HeaderName.TYPE);
-        assertThat(header.getValues()).containsExactlyInAnyOrder("someValue1", "someValue2");
+        assertThat(header.name()).isEqualTo(HeaderName.CATEGORY);
+        assertThat(header.values()).containsExactlyInAnyOrder("someValue1", "someValue2");
     }
 
     @Nested

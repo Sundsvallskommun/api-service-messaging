@@ -15,7 +15,7 @@ public interface MessageRepository extends JpaRepository<MessageEntity, Long> {
 
     Optional<MessageEntity> findByDeliveryId(String deliveryId);
 
-    boolean existsByMessageId(String deliveryId);
+    boolean existsByMessageId(String messageId);
 
     @Transactional
     void deleteByDeliveryId(String deliveryId);

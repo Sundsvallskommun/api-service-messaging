@@ -1,13 +1,8 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
-import se.sundsvall.messaging.dto.EmailDto;
 
 import generated.se.sundsvall.emailsender.Attachment;
 import generated.se.sundsvall.emailsender.SendEmailRequest;
@@ -16,31 +11,29 @@ import generated.se.sundsvall.emailsender.Sender;
 @Component
 class EmailSenderIntegrationMapper {
 
-    SendEmailRequest toSendEmailRequest(final EmailDto emailDto) {
-        if (emailDto == null) {
+    SendEmailRequest toSendEmailRequest(final EmailDto dto) {
+        if (dto == null) {
             return null;
         }
 
-        List<Attachment> attachments = null;
-        if (!CollectionUtils.isEmpty(emailDto.getAttachments())) {
-            attachments = Optional.ofNullable(emailDto.getAttachments()).stream()
-                    .flatMap(Collection::stream)
-                    .map(attachment -> new Attachment()
-                            .content(attachment.getContent())
-                            .contentType(attachment.getContentType())
-                            .name(attachment.getName()))
-                    .toList();
-        }
-
         return new SendEmailRequest()
-                .subject(emailDto.getSubject())
-                .message(emailDto.getMessage())
-                .emailAddress(emailDto.getEmailAddress())
-                .sender(new Sender()
-                        .name(emailDto.getSender().getName())
-                        .address(emailDto.getSender().getAddress())
-                        .replyTo(emailDto.getSender().getReplyTo()))
-                .htmlMessage(emailDto.getHtmlMessage())
-                .attachments(attachments);
+            .sender(new Sender()
+                .name(dto.sender().name())
+                .address(dto.sender().address())
+                .replyTo(dto.sender().replyTo()))
+            .emailAddress(dto.emailAddress())
+            .subject(dto.subject())
+            .message(dto.message())
+            .htmlMessage(dto.htmlMessage())
+            .attachments(Optional.ofNullable(dto.attachments())
+                .map(attachments -> attachments.stream()
+                    .map(attachment -> new Attachment()
+                        .name(attachment.name())
+                        .contentType(attachment.contentType())
+                        .content(attachment.content())
+                    )
+                    .toList())
+                .orElse(null));
+
     }
 }

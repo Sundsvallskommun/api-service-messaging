@@ -1,10 +1,12 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.messaging.dto.WebMessageDto;
+import se.sundsvall.messaging.model.MessageStatus;
 
 @Component
 @EnableConfigurationProperties(WebMessageSenderIntegrationProperties.class)
@@ -21,9 +23,9 @@ public class WebMessageSenderIntegration {
         this.mapper = mapper;
     }
 
-    public ResponseEntity<Void> sendWebMessage(final WebMessageDto webMessageDto) {
-        var request = mapper.toCreateWebMessageRequest(webMessageDto);
+    public MessageStatus sendWebMessage(final WebMessageDto dto) {
+        var response = client.sendWebMessage(mapper.toCreateWebMessageRequest(dto));
 
-        return client.sendWebMessage(request);
+        return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
     }
 }

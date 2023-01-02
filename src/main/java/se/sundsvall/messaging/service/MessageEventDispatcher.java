@@ -1,0 +1,117 @@
+package se.sundsvall.messaging.service;
+
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
+
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.model.DeliveryBatchResult;
+import se.sundsvall.messaging.model.DeliveryResult;
+import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+
+@Component
+public class MessageEventDispatcher {
+
+    private final ApplicationEventPublisher eventPublisher;
+    private final DbIntegration dbIntegration;
+    private final MessageMapper mapper;
+
+    public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher,
+        final DbIntegration dbIntegration, final MessageMapper mapper) {
+        this.eventPublisher = eventPublisher;
+        this.dbIntegration = dbIntegration;
+        this.mapper = mapper;
+    }
+
+    public DeliveryBatchResult handleMessageRequest(final MessageRequest request) {
+        var batchId = UUID.randomUUID().toString();
+
+        var messages = request.messages().stream()
+            .map(message -> mapper.toMessage(batchId, message))
+            .map(dbIntegration::saveMessage)
+            .toList();
+
+        var deliveries = messages.stream()
+            .peek(message -> eventPublisher.publishEvent(new IncomingMessageEvent(this, MESSAGE, message.deliveryId())))
+            .map(DeliveryResult::new)
+            .toList();
+
+        return new DeliveryBatchResult(batchId, deliveries);
+    }
+
+    public DeliveryResult handleEmailRequest(final EmailRequest request) {
+        var message = dbIntegration.saveMessage(mapper.toMessage(request));
+
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, EMAIL, message.deliveryId()));
+
+        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+    }
+
+    public DeliveryResult handleSmsRequest(final SmsRequest request) {
+        var message = dbIntegration.saveMessage(mapper.toMessage(request));
+
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, SMS, message.deliveryId()));
+
+        return new DeliveryResult(message.messageId());
+    }
+
+    public DeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
+        var message = dbIntegration.saveMessage(mapper.toMessage(request));
+
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, WEB_MESSAGE, message.deliveryId()));
+
+        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+    }
+
+    public DeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
+        var batchId = UUID.randomUUID().toString();
+
+        var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
+
+        var deliveries = messages.stream()
+            .peek(message -> eventPublisher.publishEvent(
+                new IncomingMessageEvent(this, DIGITAL_MAIL, message.deliveryId())))
+            .map(DeliveryResult::new)
+            .toList();
+
+        return new DeliveryBatchResult(batchId, deliveries);
+    }
+
+    public DeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
+        var message = dbIntegration.saveMessage(mapper.toMessage(request));
+
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, SNAIL_MAIL, message.deliveryId()));
+
+        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+    }
+
+    public DeliveryBatchResult handleLetterRequest(final LetterRequest request) {
+        var batchId = UUID.randomUUID().toString();
+
+        var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
+
+        var deliveries = messages.stream()
+            .peek(message -> eventPublisher.publishEvent(
+                new IncomingMessageEvent(this, LETTER, message.deliveryId())))
+            .map(DeliveryResult::new)
+            .toList();
+
+        return new DeliveryBatchResult(batchId, deliveries);
+    }
+}
