@@ -11,7 +11,7 @@ import generated.se.sundsvall.emailsender.SendEmailRequest;
     url = "${integration.email-sender.base-url}",
     configuration = EmailSenderIntegrationConfiguration.class
 )
-public interface EmailSenderClient {
+interface EmailSenderClient {
 
     @PostMapping("/send/email")
     ResponseEntity<Void> sendEmail(SendEmailRequest request);

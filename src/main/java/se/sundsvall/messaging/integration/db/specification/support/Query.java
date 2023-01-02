@@ -5,19 +5,19 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 
-public abstract class Query<PARAM, ENTITY, METAMODEL> {
+public abstract class Query<P, E> {
 
-    protected SingularAttribute<ENTITY, PARAM> attribute;
-    protected PARAM value;
+    protected SingularAttribute<E, P> attribute;
+    protected P value;
 
-    public Query(final SingularAttribute<ENTITY, PARAM> attribute, final PARAM value) {
+    protected Query(final SingularAttribute<E, P> attribute, final P value) {
         this.attribute = attribute;
         this.value = value;
     }
 
-    public abstract Predicate eval(final Root<ENTITY> root, final CriteriaBuilder criteriaBuilder);
+    public abstract Predicate eval(final Root<E> root, final CriteriaBuilder criteriaBuilder);
 
-    public PARAM getValue() {
+    public P getValue() {
         return value;
     }
 }

@@ -5,13 +5,13 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.25</version>
+        <version>1.30</version>
         <relativePath />
     </parent>
 
     <groupId>se.sundsvall.messaging</groupId>
     <artifactId>api-service-messaging</artifactId>
-    <version>2.6</version>
+    <version>3.0</version>
     <name>api-service-messaging</name>
 
     <properties>
@@ -22,7 +22,8 @@
         <published.container.port.test>9040</published.container.port.test>
         <published.container.port.production>9040</published.container.port.production>
 
-        <failsafe.version>3.2.4</failsafe.version>
+        <gson.version>2.10</gson.version>
+        <archunit.version>1.0.1</archunit.version>
 
         <openapi-generator-maven-plugin>5.4.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
@@ -34,6 +35,12 @@
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -75,37 +82,19 @@
 
         <!-- Other -->
         <dependency>
-            <groupId>dev.failsafe</groupId>
-            <artifactId>failsafe</artifactId>
-            <version>${failsafe.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!--
-                Plugin configuration added to be able to add the -parameters compiler
-                argument, to be able to have actuator endpoints with selectors handle
-                arguments/parameters properly
-
-                TODO: remove when dept44 1.21 is released
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>

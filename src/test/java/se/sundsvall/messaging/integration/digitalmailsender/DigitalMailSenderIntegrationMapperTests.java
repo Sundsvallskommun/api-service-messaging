@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.dto.DigitalMailDto;
 import se.sundsvall.messaging.model.ContentType;
-import se.sundsvall.messaging.model.Sender;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
+@UnitTest
 class DigitalMailSenderIntegrationMapperTests {
 
     private final DigitalMailSenderIntegrationMapper mapper = new DigitalMailSenderIntegrationMapper();
@@ -22,9 +22,9 @@ class DigitalMailSenderIntegrationMapperTests {
     @Test
     void test_toDigitalMailRequest() {
         var dto = DigitalMailDto.builder()
-            .withSender(Sender.DigitalMail.builder()
+            .withSender(DigitalMailDto.Sender.builder()
                 .withMunicipalityId("someMunicipalityId")
-                .withSupportInfo(Sender.DigitalMail.SupportInfo.builder()
+                .withSupportInfo(DigitalMailDto.Sender.SupportInfo.builder()
                     .withEmailAddress("someEmailAddress")
                     .withPhoneNumber("somePhoneNumber")
                     .withText("someText")
@@ -35,7 +35,7 @@ class DigitalMailSenderIntegrationMapperTests {
             .withSubject("someSubject")
             .withContentType(ContentType.TEXT_PLAIN)
             .withBody("someBody")
-            .withAttachments(List.of(DigitalMailDto.AttachmentDto.builder()
+            .withAttachments(List.of(DigitalMailDto.Attachment.builder()
                 .withFilename("someFilename")
                 .withContentType(ContentType.APPLICATION_PDF)
                 .withContent("someContent")
@@ -48,9 +48,9 @@ class DigitalMailSenderIntegrationMapperTests {
         assertThat(request.getMunicipalityId()).isEqualTo("someMunicipalityId");
         assertThat(request.getBodyInformation()).satisfies(bodyInformation -> {
             assertThat(bodyInformation.getContentType()).isEqualTo(ContentType.TEXT_PLAIN.getValue());
-            assertThat(bodyInformation.getBody()).isEqualTo(dto.getBody());
+            assertThat(bodyInformation.getBody()).isEqualTo(dto.body());
         });
-        assertThat(request.getAttachments()).hasSameSizeAs(dto.getAttachments());
+        assertThat(request.getAttachments()).hasSameSizeAs(dto.attachments());
         assertThat(request.getAttachments().get(0)).satisfies(attachment -> {
             assertThat(attachment.getFilename()).isEqualTo("someFilename");
             assertThat(attachment.getContentType()).isEqualTo(ContentType.APPLICATION_PDF.getValue());

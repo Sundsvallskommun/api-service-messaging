@@ -2,55 +2,41 @@ package se.sundsvall.messaging.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import se.sundsvall.messaging.dto.HistoryDto;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.specification.HistoryEntitySpecifications;
+import se.sundsvall.messaging.model.History;
 
 @Service
 public class HistoryService {
 
-    private final HistoryRepository repository;
+    private final DbIntegration dbIntegration;
 
-    public HistoryService(final HistoryRepository repository) {
-        this.repository = repository;
+    public HistoryService(final DbIntegration dbIntegration) {
+        this.dbIntegration = dbIntegration;
     }
 
-    public List<HistoryDto> getHistory(final String messageId) {
-        return repository.findByMessageId(messageId).stream()
-            .map(this::toHistoryDto)
-            .toList();
+    public List<History> getHistoryByMessageId(final String messageId) {
+        return dbIntegration.getHistoryByMessageId(messageId);
     }
 
-    public List<HistoryDto> getHistoryByBatchId(final String batchId) {
-        return repository.findByBatchId(batchId).stream()
-            .map(this::toHistoryDto)
-            .toList();
+    public List<History> getHistoryByBatchId(final String batchId) {
+        return dbIntegration.getHistoryByBatchId(batchId);
     }
 
-    public List<HistoryDto> getConversationHistory(final String partyId, final LocalDate from,
+    public Optional<History> getHistoryForDeliveryId(final String deliveryId) {
+        return dbIntegration.getHistoryForDeliveryId(deliveryId);
+    }
+
+    public List<History> getConversationHistory(final String partyId, final LocalDate from,
             final LocalDate to) {
         var specifications = HistoryEntitySpecifications.withPartyId(partyId)
             .and(HistoryEntitySpecifications.withCreatedAtAfter(from))
             .and(HistoryEntitySpecifications.withCreatedAtBefore(to));
 
-        return repository.findAll(specifications).stream()
-            .map(this::toHistoryDto)
-            .toList();
-    }
-
-    HistoryDto toHistoryDto(final HistoryEntity historyEntity) {
-        return HistoryDto.builder()
-            .withMessageId(historyEntity.getMessageId())
-            .withBatchId(historyEntity.getBatchId())
-            .withDeliveryId(historyEntity.getDeliveryId())
-            .withMessageType(historyEntity.getMessageType())
-            .withStatus(historyEntity.getStatus())
-            .withContent(historyEntity.getContent())
-            .withCreatedAt(historyEntity.getCreatedAt())
-            .build();
+        return dbIntegration.getHistory(specifications);
     }
 }

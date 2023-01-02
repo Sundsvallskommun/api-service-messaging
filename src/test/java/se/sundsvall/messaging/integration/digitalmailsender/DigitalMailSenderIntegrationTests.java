@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,12 +19,13 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
-import se.sundsvall.messaging.dto.DigitalMailDto;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTests {
 
@@ -43,17 +45,16 @@ class DigitalMailSenderIntegrationTests {
 
     @Test
     void test_sendDigitalMail() {
-        when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class))).thenReturn(new DigitalMailRequest());
+        when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
+            .thenReturn(new DigitalMailRequest());
+        when(mockResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
         when(mockResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
             .deliveryStatus(new DeliveryStatus().delivered(true)));
-        when(mockResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
         when(mockClient.sendDigitalMail(any(DigitalMailRequest.class)))
             .thenReturn(mockResponseEntity);
 
         var response = integration.sendDigitalMail(createDigitalMailDto());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().booleanValue()).isTrue();
+        assertThat(response).isEqualTo(SENT);
 
         verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
         verify(mockClient, times(1)).sendDigitalMail(any(DigitalMailRequest.class));

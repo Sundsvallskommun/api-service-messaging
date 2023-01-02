@@ -1,0 +1,78 @@
+spring:
+  # No banner
+  main:
+    banner-mode: off
+
+  # Disable Flyway
+  flyway:
+    enabled: false
+
+  # Database
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# Silence some logs
+logging:
+  level:
+    com.tngtech.archunit: INFO
+
+# Defaults
+messaging:
+  defaults:
+    sms:
+      name: Sender
+    email:
+      name: Longer Sender
+      address: longer.sender@somehost.com
+    digital-mail:
+      municipality-id: someMunicipalityId
+      subject: someSubject
+      support-info:
+        text: someInfoText
+        email-address: someone@something.com
+        phone-number: somePhoneNumber
+        url: someUrl
+
+integration:
+  # SmsSender integration
+  sms-sender:
+    base-url: http://sms-sender/api
+    token-url: http://sms-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # EmailSender integration
+  email-sender:
+    base-url: http://email-sender/api
+    token-url: http://email-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # WebMessageSender integration
+  web-message-sender:
+    base-url: http://web-message-sender/api
+    token-url: http://web-message-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # DigitalMailSender integration
+  digital-mail-sender:
+    base-url: http://digital-mail-sender/api
+    token-url: http://digital-mail-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # SnailmailSender integration
+  snailmail-sender:
+    base-url: http://snailmail-sender/api
+    token-url: http://snailmail-sender/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # FeedbackSettings integration
+  feedback-settings:
+    base-url: http://feedback-settings/api
+    token-url: http://feedback-settings/token
+    client-id: someClientId
+    client-secret: someClientSecret

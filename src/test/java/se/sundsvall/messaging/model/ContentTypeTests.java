@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+@UnitTest
 class ContentTypeTests {
 
     @Test

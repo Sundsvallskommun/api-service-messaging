@@ -18,12 +18,14 @@ import org.springframework.http.HttpHeaders;
 
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.model.Header;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
 import generated.se.sundsvall.feedbacksettings.SearchResult;
 import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
 import generated.se.sundsvall.messagingrules.HeaderName;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class FeedbackSettingsIntegrationTests {
 
@@ -81,9 +83,9 @@ class FeedbackSettingsIntegrationTests {
 
         var dto = integration.toDto(feedbackChannel);
 
-        assertThat(dto.isFeedbackWanted()).isTrue();
-        assertThat(dto.getContactMethod()).isEqualTo(ContactMethod.EMAIL);
-        assertThat(dto.getDestination()).isEqualTo("someDestination");
+        assertThat(dto.feedbackWanted()).isTrue();
+        assertThat(dto.contactMethod()).isEqualTo(ContactMethod.EMAIL);
+        assertThat(dto.destination()).isEqualTo("someDestination");
     }
 
     @Test
@@ -95,9 +97,9 @@ class FeedbackSettingsIntegrationTests {
 
         var dto = integration.toDto(feedbackChannel);
 
-        assertThat(dto.isFeedbackWanted()).isTrue();
-        assertThat(dto.getContactMethod()).isEqualTo(ContactMethod.SMS);
-        assertThat(dto.getDestination()).isEqualTo("someDestination");
+        assertThat(dto.feedbackWanted()).isTrue();
+        assertThat(dto.contactMethod()).isEqualTo(ContactMethod.SMS);
+        assertThat(dto.destination()).isEqualTo("someDestination");
     }
 
     @Test
@@ -108,9 +110,9 @@ class FeedbackSettingsIntegrationTests {
 
         var dto = integration.toDto(feedbackChannel);
 
-        assertThat(dto.isFeedbackWanted()).isTrue();
-        assertThat(dto.getContactMethod()).isEqualTo(ContactMethod.UNKNOWN);
-        assertThat(dto.getDestination()).isEqualTo("someDestination");
+        assertThat(dto.feedbackWanted()).isTrue();
+        assertThat(dto.contactMethod()).isEqualTo(ContactMethod.UNKNOWN);
+        assertThat(dto.destination()).isEqualTo("someDestination");
     }
 
     @Test
