@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Status and History Resources")
@@ -52,19 +51,21 @@ class StatusAndHistoryResource {
         this.historyService = historyService;
     }
 
-    @Operation(summary = "Get the entire conversation history for a given party")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = HistoryResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        )
-    })
+    @Operation(
+        summary = "Get the entire conversation history for a given party",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = HistoryResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
     @GetMapping(
         value = "/conversation-history/{partyId}",
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
@@ -84,24 +85,26 @@ class StatusAndHistoryResource {
             .toList());
     }
 
-    @Operation(summary = "Get the status for a single message and its deliveries")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageResult.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Not Found",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        )
-    })
+    @Operation(
+        summary = "Get the status for a single message and its deliveries",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = MessageResult.class))
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not Found",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
     @GetMapping(
         value = MESSAGE_STATUS_PATH,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
@@ -122,24 +125,26 @@ class StatusAndHistoryResource {
         return ResponseEntity.ok(history);
     }
 
-    @Operation(summary = "Get the status for a message batch, its messages and their deliveries")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageBatchResult.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Not Found",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        )
-    })
+    @Operation(
+        summary = "Get the status for a message batch, its messages and their deliveries",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = MessageBatchResult.class))
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not Found",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
     @GetMapping(
         value = BATCH_STATUS_PATH,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
@@ -163,24 +168,26 @@ class StatusAndHistoryResource {
             .build());
     }
 
-    @Operation(summary = "Get a message and all its deliveries")
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = HistoryResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Not Found",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(schema = @Schema(implementation = Problem.class))
-        )
-    })
+    @Operation(
+        summary = "Get a message and all its deliveries",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = HistoryResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not Found",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
     @GetMapping(
         value = "/message/{messageId}",
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }

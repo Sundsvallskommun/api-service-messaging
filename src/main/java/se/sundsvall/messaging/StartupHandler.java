@@ -31,8 +31,12 @@ class StartupHandler implements CommandLineRunner {
             LOG.info("No pending messages to process");
         } else {
             pendingMessages.stream()
-                .peek(message -> LOG.info("Processing {} with id {} and delivery id {}", message.getType(), message.getMessageId(), message.getDeliveryId()))
-                .map(message -> new IncomingMessageEvent(this, message.getType(), message.getDeliveryId()))
+                .map(message -> {
+                    LOG.info("Processing {} with id {} and delivery id {}", message.getType(),
+                        message.getMessageId(), message.getDeliveryId());
+
+                    return new IncomingMessageEvent(this, message.getType(), message.getDeliveryId());
+                })
                 .forEach(eventPublisher::publishEvent);
         }
     }

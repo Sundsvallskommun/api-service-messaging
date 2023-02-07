@@ -7,43 +7,43 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 
-public class LocalDateQuery<ENTITY, METAMODEL> extends Query<LocalDate, ENTITY, METAMODEL> {
+public class LocalDateQuery<E> extends Query<LocalDate, E> {
 
     private final Mode mode;
 
-    private LocalDateQuery(final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value, final Mode mode) {
+    private LocalDateQuery(final SingularAttribute<E, LocalDate> attribute, final LocalDate value, final Mode mode) {
         super(attribute, value);
 
         this.mode = mode;
     }
 
-    public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> lt(
-            final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
+    public static <E> LocalDateQuery<E> lt(
+            final SingularAttribute<E, LocalDate> attribute, final LocalDate value) {
         return new LocalDateQuery<>(attribute, value, Mode.LESS_THAN);
     }
 
-    public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> lte(
-            final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
+    public static <E> LocalDateQuery<E> lte(
+            final SingularAttribute<E, LocalDate> attribute, final LocalDate value) {
         return new LocalDateQuery<>(attribute, value, Mode.LESS_THAN_OR_EQUAL);
     }
 
-    public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> equalTo(
-            final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
+    public static <E> LocalDateQuery<E> equalTo(
+            final SingularAttribute<E, LocalDate> attribute, final LocalDate value) {
         return new LocalDateQuery<>(attribute, value, Mode.EQUAL_TO);
     }
 
-    public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> gte(
-            final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
+    public static <E> LocalDateQuery<E> gte(
+            final SingularAttribute<E, LocalDate> attribute, final LocalDate value) {
         return new LocalDateQuery<>(attribute, value, Mode.GREATER_THAN_OR_EQUAL);
     }
 
-    public static <ENTITY, METAMODEL> LocalDateQuery<ENTITY, METAMODEL> gt(
-            final SingularAttribute<ENTITY, LocalDate> attribute, final LocalDate value) {
+    public static <E> LocalDateQuery<E> gt(
+            final SingularAttribute<E, LocalDate> attribute, final LocalDate value) {
         return new LocalDateQuery<>(attribute, value, Mode.GREATER_THAN);
     }
 
     @Override
-    public Predicate eval(final Root<ENTITY> root, final CriteriaBuilder criteriaBuilder) {
+    public Predicate eval(final Root<E> root, final CriteriaBuilder criteriaBuilder) {
         return switch (mode) {
             case LESS_THAN -> criteriaBuilder.lessThan(root.get(attribute), value);
             case LESS_THAN_OR_EQUAL -> criteriaBuilder.lessThanOrEqualTo(root.get(attribute), value);

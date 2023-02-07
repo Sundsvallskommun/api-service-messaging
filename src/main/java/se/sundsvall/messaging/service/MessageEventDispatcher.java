@@ -48,8 +48,11 @@ public class MessageEventDispatcher {
             .toList();
 
         var deliveries = messages.stream()
-            .peek(message -> eventPublisher.publishEvent(new IncomingMessageEvent(this, MESSAGE, message.deliveryId())))
-            .map(DeliveryResult::new)
+            .map(message -> {
+                eventPublisher.publishEvent(new IncomingMessageEvent(this, MESSAGE, message.deliveryId()));
+
+                return new DeliveryResult(message);
+            } )
             .toList();
 
         return new DeliveryBatchResult(batchId, deliveries);
@@ -85,9 +88,12 @@ public class MessageEventDispatcher {
         var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
 
         var deliveries = messages.stream()
-            .peek(message -> eventPublisher.publishEvent(
-                new IncomingMessageEvent(this, DIGITAL_MAIL, message.deliveryId())))
-            .map(DeliveryResult::new)
+            .map(message -> {
+                eventPublisher.publishEvent(
+                    new IncomingMessageEvent(this, DIGITAL_MAIL, message.deliveryId()));
+
+                return new DeliveryResult(message);
+            })
             .toList();
 
         return new DeliveryBatchResult(batchId, deliveries);
@@ -107,9 +113,12 @@ public class MessageEventDispatcher {
         var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
 
         var deliveries = messages.stream()
-            .peek(message -> eventPublisher.publishEvent(
-                new IncomingMessageEvent(this, LETTER, message.deliveryId())))
-            .map(DeliveryResult::new)
+            .map(message -> {
+                eventPublisher.publishEvent(
+                    new IncomingMessageEvent(this, LETTER, message.deliveryId()));
+
+                return new DeliveryResult(message);
+            })
             .toList();
 
         return new DeliveryBatchResult(batchId, deliveries);

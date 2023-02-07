@@ -30,29 +30,26 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/async")
 @Tag(name = "Sending Resources (async)")
-@ApiResponses({
-    @ApiResponse(
-        responseCode = "400",
-        description = "Bad Request",
-        content = @Content(schema = @Schema(implementation = Problem.class))
-    ),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Internal Server Error",
-        content = @Content(schema = @Schema(implementation = Problem.class))
-    ),
-    @ApiResponse(
-        responseCode = "502",
-        description = "Bad Gateway",
-        content = @Content(schema = @Schema(implementation = Problem.class))
-    )
-})
+@ApiResponse(
+    responseCode = "400",
+    description = "Bad Request",
+    content = @Content(schema = @Schema(implementation = Problem.class))
+)
+@ApiResponse(
+    responseCode = "500",
+    description = "Internal Server Error",
+    content = @Content(schema = @Schema(implementation = Problem.class))
+)
+@ApiResponse(
+    responseCode = "502",
+    description = "Bad Gateway",
+    content = @Content(schema = @Schema(implementation = Problem.class))
+)
 class AsyncMessageResource {
 
     private final MessageEventDispatcher eventDispatcher;

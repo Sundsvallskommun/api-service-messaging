@@ -8,16 +8,16 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-public class Spec<ENTITY, METAMODEL> implements Specification<ENTITY> {
+public class Spec<E> implements Specification<E> {
 
-    private final Query<?, ENTITY, METAMODEL> query;
+    private final transient Query<?, E> query;
 
-    public Spec(final Query<?, ENTITY, METAMODEL> query) {
+    public Spec(final Query<?, E> query) {
         this.query = query;
     }
 
     @Override
-    public Predicate toPredicate(@Nonnull final Root<ENTITY> root,
+    public Predicate toPredicate(@Nonnull final Root<E> root,
             @Nonnull final CriteriaQuery<?> criteriaQuery,
             @Nonnull final CriteriaBuilder criteriaBuilder) {
         if (query.getValue() == null) {
