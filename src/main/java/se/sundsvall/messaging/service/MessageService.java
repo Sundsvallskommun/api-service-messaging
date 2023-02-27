@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
@@ -48,7 +47,6 @@ import se.sundsvall.messaging.model.DeliveryBatchResult;
 import se.sundsvall.messaging.model.DeliveryResult;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
 import io.vavr.control.Try;
 
@@ -84,16 +82,6 @@ public class MessageService {
         this.webMessageSender = webMessageSender;
         this.snailmailSender = snailmailSender;
         this.mapper = mapper;
-    }
-
-    @TransactionalEventListener(value = IncomingMessageEvent.class, fallbackExecution = true)
-    void handleIncomingMessageEvent(final IncomingMessageEvent event) {
-        // Get the message (delivery)
-        var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
-            .orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
-                "Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
-        // Deliver it
-        deliver(message);
     }
 
     public DeliveryResult sendSms(final SmsRequest request) {
