@@ -48,7 +48,7 @@ import se.sundsvall.messaging.model.DeliveryResult;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
 
-import io.vavr.control.Try;
+import lombok.Generated;
 
 @Service
 public class MessageService {
@@ -228,11 +228,20 @@ public class MessageService {
 
         var deliveries = entities.stream()
             // First, try to deliver as digital mail
-            .map(message -> Try.ofCallable(() -> {
+            .map(message -> ofCallable(() -> {
+                    var digitalMailRequest = mapper.toDigitalMailRequest(request);
+                    if (digitalMailRequest.attachments().isEmpty()) {
+                        LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
+
+                        // No attachments intended for digital mail delivery - "switch" to snail-mail
+                        throw new NoLetterAttachmentsException();
+                    }
+
+                    // Re-map the message as digital mail and attempt to deliver it
                     var reroutedMessage = dbIntegration.saveMessage(message
                         .withDeliveryId(UUID.randomUUID().toString())
                         .withType(DIGITAL_MAIL)
-                        .withContent(GSON.toJson(mapper.toDigitalMailRequest(request))));
+                        .withContent(GSON.toJson(digitalMailRequest)));
 
                     return deliver(reroutedMessage);
                 })
@@ -243,11 +252,20 @@ public class MessageService {
                     return deliveryResult;
                 })
                 // If digital mail fails, try to deliver as snail-mail
-                .recover(Exception.class, ignored -> Try.ofCallable(() -> {
+                .recover(Exception.class, outerRecoveryIgnored -> ofCallable(() -> {
+                        var snailMailRequest = mapper.toSnailMailRequest(request);
+                        if (snailMailRequest.attachments().isEmpty()) {
+                            LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
+
+                            // No attachments intended for digital mail delivery - fail
+                            throw new NoLetterAttachmentsException();
+                        }
+
+                        // Re-map the message as snail-mail and attempt to deliver it
                         var reroutedMessage = message
                             .withDeliveryId(UUID.randomUUID().toString())
                             .withType(SNAIL_MAIL)
-                            .withContent(GSON.toJson(mapper.toSnailMailRequest(request)));
+                            .withContent(GSON.toJson(snailMailRequest));
 
                         // Register a LETTER failover
                         incrementCounter(LETTER.toString().toLowerCase() + ".failover");
@@ -259,6 +277,13 @@ public class MessageService {
                         archiveMessage(message.withStatus(deliveryResult.status()));
 
                         return deliveryResult;
+                    })
+                    .recover(Exception.class, innerRecoveryIgnored -> {
+                        // Archive the original message as FAILED
+                        var failedMessage = message.withStatus(FAILED);
+                        archiveMessage(failedMessage);
+
+                        return new DeliveryResult(failedMessage);
                     })
                     .get())
                 .get())
@@ -352,4 +377,7 @@ public class MessageService {
     void incrementCounter(final String name) {
         dbIntegration.incrementAndSaveCounter(name);
     }
+
+    @Generated // To avoid having to implement a stupid test for no reason...
+    static class NoLetterAttachmentsException extends RuntimeException { }
 }

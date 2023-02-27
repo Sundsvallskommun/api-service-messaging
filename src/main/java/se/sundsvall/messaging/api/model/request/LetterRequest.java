@@ -9,6 +9,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.request.validation.OneOf;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -131,10 +133,12 @@ public record LetterRequest(
             SNAIL_MAIL
         }
 
+        @JsonIgnore
         public boolean isIntendedForDigitalMail() {
             return deliveryMode == DeliveryMode.ANY || deliveryMode == DeliveryMode.DIGITAL_MAIL;
         }
 
+        @JsonIgnore
         public boolean isIntendedForSnailMail() {
             return deliveryMode == DeliveryMode.ANY || deliveryMode == DeliveryMode.SNAIL_MAIL;
         }

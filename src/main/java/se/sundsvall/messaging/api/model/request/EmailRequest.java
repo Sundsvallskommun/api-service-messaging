@@ -41,6 +41,7 @@ public record EmailRequest(
         @Schema(description = "E-mail plain-text body")
         String message,
 
+        @ValidBase64(nullable = true)
         @Schema(description = "E-mail HTML body (BASE64-encoded)")
         String htmlMessage,
 
