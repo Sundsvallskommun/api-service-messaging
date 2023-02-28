@@ -85,24 +85,18 @@ public class MessageService {
     }
 
     public DeliveryResult sendSms(final SmsRequest request) {
-        // Save the message
-        var message = dbIntegration.saveMessage(mapper.toMessage(request));
-        // Deliver it
-        return deliver(message);
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
     public DeliveryResult sendEmail(final EmailRequest request) {
-        // Save the message
-        var message = dbIntegration.saveMessage(mapper.toMessage(request));
-        // Deliver it
-        return deliver(message);
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
     public DeliveryResult sendWebMessage(final WebMessageRequest request) {
-        // Save the message
-        var message = dbIntegration.saveMessage(mapper.toMessage(request));
-        // Deliver it
-        return deliver(message);
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
     public DeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
@@ -118,10 +112,8 @@ public class MessageService {
     }
 
     public DeliveryResult sendSnailMail(final SnailMailRequest request) {
-        // Save the message
-        var message = dbIntegration.saveMessage(mapper.toMessage(request));
-        // Deliver it
-        return deliver(message);
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
     public DeliveryBatchResult sendMessages(final MessageRequest request) {
