@@ -40,9 +40,8 @@ public class DigitalMailRequest extends BatchRequest {
     @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')")
     private String body;
 
-    @Valid
     @Schema(description = "Attachments")
-    private List<Attachment> attachments;
+    private List<@Valid Attachment> attachments;
 
     @Getter
     @Setter

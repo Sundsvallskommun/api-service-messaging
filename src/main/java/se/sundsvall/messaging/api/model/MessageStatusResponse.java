@@ -3,6 +3,7 @@ package se.sundsvall.messaging.api.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,5 +18,6 @@ public class MessageStatusResponse {
 
     private final String messageId;
     private final String deliveryId;
+    private final MessageType type;
     private final MessageStatus status;
 }
