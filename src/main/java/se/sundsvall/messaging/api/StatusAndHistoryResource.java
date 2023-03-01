@@ -31,6 +31,7 @@ import se.sundsvall.messaging.service.HistoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -54,7 +55,7 @@ class StatusAndHistoryResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = HistoryResponse.class))
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
         ),
         @ApiResponse(
             responseCode = "500",
@@ -86,7 +87,7 @@ class StatusAndHistoryResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = MessageStatusResponse.class))
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageStatusResponse.class)))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -108,6 +109,7 @@ class StatusAndHistoryResource {
             .map(historyDto -> MessageStatusResponse.builder()
                 .withMessageId(historyDto.getMessageId())
                 .withDeliveryId(historyDto.getDeliveryId())
+                .withType(historyDto.getMessageType())
                 .withStatus(historyDto.getStatus())
                 .build())
             .toList();
@@ -146,6 +148,7 @@ class StatusAndHistoryResource {
             .map(historyDto -> MessageStatusResponse.builder()
                 .withMessageId(historyDto.getMessageId())
                 .withDeliveryId(historyDto.getDeliveryId())
+                .withType(historyDto.getMessageType())
                 .withStatus(historyDto.getStatus())
                 .build())
             .toList();
@@ -165,7 +168,7 @@ class StatusAndHistoryResource {
         @ApiResponse(
             responseCode = "200",
             description = "Successful Operation",
-            content = @Content(schema = @Schema(implementation = HistoryResponse.class))
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
         ),
         @ApiResponse(
             responseCode = "404",

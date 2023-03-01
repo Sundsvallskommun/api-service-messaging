@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +30,8 @@ public class SnailmailRequest extends Request {
     @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
     private String deviation;
 
-    @ArraySchema(schema = @Schema(implementation = Attachment.class))
+    @NotEmpty
+    @ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1)
     private List<@Valid Attachment> attachments;
 
     @Getter
