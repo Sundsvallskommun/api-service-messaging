@@ -4,11 +4,13 @@ import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import se.sundsvall.messaging.api.model.validation.OneOf;
 import se.sundsvall.messaging.model.Sender;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,9 +51,9 @@ public class LetterRequest extends BatchRequest {
     @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
     private String deviation;
     
-    @Valid
-    @Schema(description = "Attachments")
-    private List<Attachment> attachments;
+    @NotEmpty
+    @ArraySchema(schema = @Schema(description = "Attachments", implementation = Attachment.class), minItems = 1)
+    private List<@Valid Attachment> attachments;
     
     @Getter
     @Setter
