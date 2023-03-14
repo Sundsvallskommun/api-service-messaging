@@ -19,7 +19,8 @@ import se.sundsvall.messaging.dto.MessageDto;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.PartyWithOptionalPartyId;
+import se.sundsvall.messaging.model.PartyWithRequiredPartyId;
 
 @Component
 public class MessageMapper {
@@ -40,7 +41,7 @@ public class MessageMapper {
             .withMessageId(uuid)
             .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
+                .map(PartyWithOptionalPartyId::getPartyId)
                 .orElse(null))
             .withType(MessageType.EMAIL)
             .withStatus(MessageStatus.PENDING)
@@ -55,7 +56,7 @@ public class MessageMapper {
             .withMessageId(uuid)
             .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
+                .map(PartyWithOptionalPartyId::getPartyId)
                 .orElse(null))
             .withType(MessageType.SMS)
             .withStatus(MessageStatus.PENDING)
@@ -70,7 +71,7 @@ public class MessageMapper {
             .withMessageId(uuid)
             .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
+                .map(PartyWithOptionalPartyId::getPartyId)
                 .orElse(null))
             .withType(MessageType.SNAIL_MAIL)
             .withStatus(MessageStatus.PENDING)
@@ -86,7 +87,7 @@ public class MessageMapper {
             .withMessageId(uuid)
             .withDeliveryId(uuid)
             .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
+                .map(PartyWithRequiredPartyId::getPartyId)
                 .orElse(null))
                 .withType(MessageType.WEB_MESSAGE)
                 .withStatus(MessageStatus.PENDING)
@@ -134,7 +135,7 @@ public class MessageMapper {
             .withBatchId(batchId)
             .withDeliveryId(UUID.randomUUID().toString())
             .withPartyId(Optional.ofNullable(request.getParty())
-                .map(Party::getPartyId)
+                .map(PartyWithRequiredPartyId::getPartyId)
                 .orElse(null))
             .withType(MessageType.MESSAGE)
             .withStatus(MessageStatus.PENDING)

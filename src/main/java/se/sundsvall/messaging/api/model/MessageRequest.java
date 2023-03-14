@@ -1,10 +1,16 @@
 package se.sundsvall.messaging.api.model;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import se.sundsvall.messaging.model.PartyWithRequiredPartyId;
 import se.sundsvall.messaging.model.Sender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,14 +42,20 @@ public class MessageRequest {
     public static class Message extends Request {
 
         @Valid
+        @NotNull
+        @Schema(description = "Party", requiredMode = REQUIRED)
+        private PartyWithRequiredPartyId party;
+
+        @Valid
         @Schema(description = "Sender")
+        @JsonIgnoreProperties("digitalMail")
         private Sender sender;
 
         @Schema(description = "The message subject (for E-mails)")
         private String subject;
 
         @NotBlank
-        @Schema(description = "Plain-text message text", required = true)
+        @Schema(description = "Plain-text message text", requiredMode = REQUIRED)
         private String message;
 
         @Schema(description = "HTML message text, for e-mails (BASE64-encoded)")

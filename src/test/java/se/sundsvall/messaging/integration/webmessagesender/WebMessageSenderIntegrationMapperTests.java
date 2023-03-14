@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import se.sundsvall.messaging.dto.WebMessageDto;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.PartyWithRequiredPartyId;
 
 class WebMessageSenderIntegrationMapperTests {
 
@@ -22,7 +22,7 @@ class WebMessageSenderIntegrationMapperTests {
     @Test
     void test_toCreateWebMessageRequest() {
         var dto = WebMessageDto.builder()
-            .withParty(Party.builder()
+            .withParty(PartyWithRequiredPartyId.builder()
                 .withPartyId("somePartyId")
                 .withExternalReferences(List.of(
                     ExternalReference.builder()

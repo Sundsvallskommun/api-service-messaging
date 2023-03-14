@@ -26,6 +26,7 @@ import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.PartyWithOptionalPartyId;
 import se.sundsvall.messaging.model.Sender;
 import se.sundsvall.messaging.service.event.IncomingEmailEvent;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
@@ -150,7 +151,12 @@ class MessageProcessor extends Processor {
             .orElse(defaults.getEmail());
 
         var emailRequest = EmailRequest.builder()
-            .withParty(message.getParty())
+            .withParty(Optional.ofNullable(message.getParty())
+                .map(party -> PartyWithOptionalPartyId.builder()
+                    .withPartyId(party.getPartyId())
+                    .withExternalReferences(party.getExternalReferences())
+                    .build())
+                .orElse(null))
             .withHeaders(message.getHeaders())
             .withSender(sender)
             .withEmailAddress(emailAddress)
@@ -170,7 +176,12 @@ class MessageProcessor extends Processor {
             .orElse(defaults.getSms());
 
         var smsRequest = SmsRequest.builder()
-            .withParty(message.getParty())
+            .withParty(Optional.ofNullable(message.getParty())
+                .map(party -> PartyWithOptionalPartyId.builder()
+                    .withPartyId(party.getPartyId())
+                    .withExternalReferences(party.getExternalReferences())
+                    .build())
+                .orElse(null))
             .withHeaders(message.getHeaders())
             .withSender(sender)
             .withMobileNumber(mobileNumber)

@@ -22,9 +22,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 abstract class Request {
 
-    @Valid
-    @Schema(description = "Party")
-    private Party party;
+    public abstract Party getParty();
 
     @Builder.Default
     @Schema(description = "Headers")
