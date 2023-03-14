@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.7"
+  version: "2.8"
 servers:
 - url: http://localhost:8080
   description: Generated server url
@@ -32,8 +32,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -41,8 +41,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -72,8 +72,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -81,8 +81,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -112,8 +112,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -121,8 +121,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -143,6 +143,15 @@ paths:
               $ref: '#/components/schemas/MessageRequest'
         required: true
       responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -154,15 +163,6 @@ paths:
                 $ref: '#/components/schemas/MessagesResponse'
         "500":
           description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
           content:
             application/json:
               schema:
@@ -192,8 +192,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -201,8 +201,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -232,8 +232,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -241,8 +241,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -263,6 +263,15 @@ paths:
               $ref: '#/components/schemas/DigitalMailRequest'
         required: true
       responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         "200":
           description: Successful Operation
           content:
@@ -274,15 +283,6 @@ paths:
                 $ref: '#/components/schemas/MessagesResponse'
         "500":
           description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
           content:
             application/json:
               schema:
@@ -303,19 +303,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MessageStatusResponse'
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MessageStatusResponse'
         "404":
           description: Not Found
           content:
@@ -334,6 +321,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageStatusResponse'
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageStatusResponse'
   /message/{messageId}:
     get:
       tags:
@@ -440,15 +440,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BatchStatusResponse'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/BatchStatusResponse'
         "404":
           description: Not Found
           content:
@@ -458,6 +449,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
         "500":
           description: Internal Server Error
           content:
@@ -520,20 +520,24 @@ components:
             type: string
             description: The header values
       description: Headers
-    Party:
+    PartyWithRequiredPartyId:
+      required:
+      - partyId
       type: object
       properties:
-        partyId:
-          type: string
-          description: The message party ID
-          example: f427952b-247c-4d3b-b081-675a467b3619
         externalReferences:
           type: array
           description: External references
           items:
             $ref: '#/components/schemas/ExternalReference'
+        partyId:
+          type: string
+          description: The message party ID
+          example: f427952b-247c-4d3b-b081-675a467b3619
       description: Party
     WebMessageAttachment:
+      required:
+      - fileName
       type: object
       properties:
         fileName:
@@ -549,15 +553,16 @@ components:
     WebMessageRequest:
       required:
       - message
+      - party
       type: object
       properties:
-        party:
-          $ref: '#/components/schemas/Party'
         headers:
           type: array
           description: Headers
           items:
             $ref: '#/components/schemas/Header'
+        party:
+          $ref: '#/components/schemas/PartyWithRequiredPartyId'
         message:
           type: string
           description: Message
@@ -586,9 +591,9 @@ components:
             type: object
         status:
           $ref: '#/components/schemas/StatusType'
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
@@ -598,6 +603,19 @@ components:
           format: int32
         reasonPhrase:
           type: string
+    PartyWithOptionalPartyId:
+      type: object
+      properties:
+        externalReferences:
+          type: array
+          description: External references
+          items:
+            $ref: '#/components/schemas/ExternalReference'
+        partyId:
+          type: string
+          description: The message party ID
+          example: f427952b-247c-4d3b-b081-675a467b3619
+      description: Party
     SnailmailAttachment:
       required:
       - content
@@ -623,13 +641,13 @@ components:
       - department
       type: object
       properties:
-        party:
-          $ref: '#/components/schemas/Party'
         headers:
           type: array
           description: Headers
           items:
             $ref: '#/components/schemas/Header'
+        party:
+          $ref: '#/components/schemas/PartyWithOptionalPartyId'
         department:
           type: string
           description: Department and unit that should be billed
@@ -661,13 +679,13 @@ components:
       - mobileNumber
       type: object
       properties:
-        party:
-          $ref: '#/components/schemas/Party'
         headers:
           type: array
           description: Headers
           items:
             $ref: '#/components/schemas/Header'
+        party:
+          $ref: '#/components/schemas/PartyWithOptionalPartyId'
         sender:
           $ref: '#/components/schemas/Sms'
         mobileNumber:
@@ -676,13 +694,6 @@ components:
         message:
           type: string
           description: Message
-    DigitalMail:
-      required:
-      - supportInfo
-      type: object
-      properties:
-        supportInfo:
-          $ref: '#/components/schemas/SupportInfo'
     Email:
       required:
       - address
@@ -703,15 +714,16 @@ components:
     Message:
       required:
       - message
+      - party
       type: object
       properties:
-        party:
-          $ref: '#/components/schemas/Party'
         headers:
           type: array
           description: Headers
           items:
             $ref: '#/components/schemas/Header'
+        party:
+          $ref: '#/components/schemas/PartyWithRequiredPartyId'
         sender:
           $ref: '#/components/schemas/Sender'
         subject:
@@ -740,25 +752,7 @@ components:
           $ref: '#/components/schemas/Sms'
         email:
           $ref: '#/components/schemas/Email'
-        digitalMail:
-          $ref: '#/components/schemas/DigitalMail'
       description: Sender
-    SupportInfo:
-      required:
-      - emailAddress
-      - phoneNumber
-      - text
-      - url
-      type: object
-      properties:
-        text:
-          type: string
-        emailAddress:
-          type: string
-        phoneNumber:
-          type: string
-        url:
-          type: string
     MessagesResponse:
       type: object
       properties:
@@ -768,6 +762,14 @@ components:
           type: array
           items:
             type: string
+    DigitalMail:
+      required:
+      - supportInfo
+      type: object
+      properties:
+        supportInfo:
+          $ref: '#/components/schemas/SupportInfo'
+      description: Sender
     LetterAttachment:
       required:
       - content
@@ -802,6 +804,7 @@ components:
       - body
       - contentType
       - department
+      - party
       type: object
       properties:
         party:
@@ -857,6 +860,22 @@ components:
           items:
             $ref: '#/components/schemas/ExternalReference'
       description: Parties
+    SupportInfo:
+      required:
+      - emailAddress
+      - phoneNumber
+      - text
+      - url
+      type: object
+      properties:
+        text:
+          type: string
+        emailAddress:
+          type: string
+        phoneNumber:
+          type: string
+        url:
+          type: string
     EmailAttachment:
       required:
       - content
@@ -882,13 +901,13 @@ components:
       - subject
       type: object
       properties:
-        party:
-          $ref: '#/components/schemas/Party'
         headers:
           type: array
           description: Headers
           items:
             $ref: '#/components/schemas/Header'
+        party:
+          $ref: '#/components/schemas/PartyWithOptionalPartyId'
         emailAddress:
           type: string
           description: Recipient e-mail address
@@ -929,6 +948,7 @@ components:
       required:
       - body
       - contentType
+      - party
       type: object
       properties:
         party:

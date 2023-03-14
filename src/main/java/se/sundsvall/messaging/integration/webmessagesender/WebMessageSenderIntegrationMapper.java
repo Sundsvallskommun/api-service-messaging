@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import se.sundsvall.messaging.dto.WebMessageDto;
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.PartyWithRequiredPartyId;
 
 import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
@@ -36,7 +36,7 @@ class WebMessageSenderIntegrationMapper {
         List<ExternalReference> externalReferences = null;
         if (!CollectionUtils.isEmpty(webMessageDto.getParty().getExternalReferences())) {
             externalReferences = Optional.ofNullable(webMessageDto.getParty())
-                    .map(Party::getExternalReferences)
+                    .map(PartyWithRequiredPartyId::getExternalReferences)
                     .stream()
                     .flatMap(Collection::stream)
                     .map(externalReference -> new ExternalReference()
@@ -47,7 +47,7 @@ class WebMessageSenderIntegrationMapper {
 
         return new CreateWebMessageRequest()
                 .partyId(Optional.ofNullable(webMessageDto.getParty())
-                        .map(Party::getPartyId)
+                        .map(PartyWithRequiredPartyId::getPartyId)
                         .orElse(null))
                 .externalReferences(externalReferences)
                 .message(webMessageDto.getMessage())

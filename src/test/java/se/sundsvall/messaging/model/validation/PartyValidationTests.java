@@ -2,6 +2,7 @@ package se.sundsvall.messaging.model.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createParty;
+import static se.sundsvall.messaging.TestDataFactory.createPartyWithRequiredPartyId;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ class PartyValidationTests {
 
     @Test
     void test_withNullPartyId() {
-        var party = createParty(p -> p.setPartyId(null));
+        var party = createPartyWithRequiredPartyId(p -> p.setPartyId(null));
 
         var constraintViolations = validator.validate(party);
 

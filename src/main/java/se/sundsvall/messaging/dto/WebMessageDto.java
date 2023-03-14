@@ -2,7 +2,7 @@ package se.sundsvall.messaging.dto;
 
 import java.util.List;
 
-import se.sundsvall.messaging.model.Party;
+import se.sundsvall.messaging.model.PartyWithRequiredPartyId;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebMessageDto {
 
-    private Party party;
+    private PartyWithRequiredPartyId party;
     private String message;
     private final List<AttachmentDto> attachments;
 

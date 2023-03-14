@@ -1,8 +1,11 @@
 package se.sundsvall.messaging.api.model;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import se.sundsvall.messaging.model.Header;
 import se.sundsvall.messaging.model.Parties;
@@ -21,7 +24,8 @@ import lombok.experimental.SuperBuilder;
 abstract class BatchRequest {
 
     @Valid
-    @Schema(description = "Parties")
+    @NotNull
+    @Schema(description = "Parties", requiredMode = REQUIRED)
     private Parties party;
 
     @Schema(description = "Headers")

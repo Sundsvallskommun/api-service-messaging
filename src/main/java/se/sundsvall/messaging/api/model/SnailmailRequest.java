@@ -1,10 +1,14 @@
 package se.sundsvall.messaging.api.model;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+
+import se.sundsvall.messaging.model.PartyWithOptionalPartyId;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +26,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SnailmailRequest extends Request {
+
+    @Valid
+    @Schema(description = "Party")
+    private PartyWithOptionalPartyId party;
 
     @NotBlank
     @Schema(description = "Department and unit that should be billed", example = "SBK(Gatuavdelningen, Trafiksektionen)")
@@ -43,11 +51,19 @@ public class SnailmailRequest extends Request {
     public static class Attachment {
 
         @NotBlank
-        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", required = true)
+        @Schema(
+            description = "The attachment (file) content as a BASE64-encoded string",
+            example = "aGVsbG8gd29ybGQK",
+            requiredMode = REQUIRED
+        )
         private String content;
 
         @NotBlank
-        @Schema(description = "The attachment filename", example = "test.txt", required = true)
+        @Schema(
+            description = "The attachment filename",
+            example = "test.txt",
+            requiredMode = REQUIRED
+        )
         private String name;
 
         @Schema(description = "The attachment content type", example = "text/plain")
