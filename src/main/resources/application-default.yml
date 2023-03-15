@@ -5,71 +5,71 @@ spring:
 
   # Database
   datasource:
-    driver-class-name: ${env.DB_DRIVER}
-    url: ${env.DB_URL}
-    username: ${env.DB_USERNAME}
-    password: ${env.DB_PASSWORD}
+    driver-class-name: ${DB_DRIVER}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
-    show-sql: ${env.JPA_SHOW_SQL:false}
-    generate-ddl: ${env.JPA_GENERATE_DDL:false}
+    show-sql: ${JPA_SHOW_SQL:false}
+    generate-ddl: ${JPA_GENERATE_DDL:false}
 
 # Defaults
 messaging:
   defaults:
     sms:
-      name: ${env.DEFAULT_SENDER_SMS_NAME}
+      name: ${DEFAULT_SENDER_SMS_NAME}
     email:
-      name: ${env.DEFAULT_SENDER_EMAIL_NAME}
-      address: ${env.DEFAULT_SENDER_EMAIL_ADDRESS}
+      name: ${DEFAULT_SENDER_EMAIL_NAME}
+      address: ${DEFAULT_SENDER_EMAIL_ADDRESS}
     digital-mail:
-      municipality-id: ${env.DIGITAL_MAIL_SENDER_DEFAULT_MUNICIPALITY_ID}
-      subject: ${env.DIGITAL_MAIL_SENDER_DEFAULT_SUBJECT}
+      municipality-id: ${DIGITAL_MAIL_SENDER_DEFAULT_MUNICIPALITY_ID}
+      subject: ${DIGITAL_MAIL_SENDER_DEFAULT_SUBJECT}
       support-info:
-        text: ${env.DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_TEXT}
-        email-address: ${env.DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_EMAIL_ADDRESS}
-        phone-number: ${env.DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_PHONE_NUMBER}
-        url: ${env.DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_URL}
+        text: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_TEXT}
+        email-address: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_EMAIL_ADDRESS}
+        phone-number: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_PHONE_NUMBER}
+        url: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_URL}
 
 integration:
   # SmsSender integration
   sms-sender:
-    base-url: ${env.SMS_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${env.SMS_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${env.SMS_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.SMS_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${SMS_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${SMS_SENDER_INTEGRATION_TOKEN_URL}
+    client-id: ${SMS_SENDER_INTEGRATION_CLIENT_ID}
+    client-secret: ${SMS_SENDER_INTEGRATION_CLIENT_SECRET}
 
   # EmailSender integration
   email-sender:
-    base-url: ${env.EMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${env.EMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${env.EMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${EMAIL_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${EMAIL_SENDER_INTEGRATION_TOKEN_URL}
+    client-id: ${EMAIL_SENDER_INTEGRATION_CLIENT_ID}
+    client-secret: ${EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
 
   # WebMessageSender integration
   web-message-sender:
-    base-url: ${env.EMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${env.EMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${env.EMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${EMAIL_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${EMAIL_SENDER_INTEGRATION_TOKEN_URL}
+    client-id: ${EMAIL_SENDER_INTEGRATION_CLIENT_ID}
+    client-secret: ${EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
 
   # DigitalMailSender integration
   digital-mail-sender:
-    base-url: ${env.DIGITAL_MAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${env.DIGITAL_MAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${env.DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${DIGITAL_MAIL_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${DIGITAL_MAIL_SENDER_INTEGRATION_TOKEN_URL}
+    client-id: ${DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_ID}
+    client-secret: ${DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_SECRET}
 
   # SnailmailSender integration
   snailmail-sender:
-    base-url: ${env.SNAILMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${env.SNAILMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${env.SNAILMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.SNAILMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${SNAILMAIL_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${SNAILMAIL_SENDER_INTEGRATION_TOKEN_URL}
+    client-id: ${SNAILMAIL_SENDER_INTEGRATION_CLIENT_ID}
+    client-secret: ${SNAILMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
 
   # FeedbackSettings integration
   feedback-settings:
-    base-url: ${env.FEEDBACK_SETTINGS_INTEGRATION_BASE_URL}
-    token-url: ${env.FEEDBACK_SETTINGS_INTEGRATION_TOKEN_URL}
-    client-id: ${env.FEEDBACK_SETTINGS_INTEGRATION_CLIENT_ID}
-    client-secret: ${env.FEEDBACK_SETTINGS_INTEGRATION_CLIENT_SECRET}
+    base-url: ${FEEDBACK_SETTINGS_INTEGRATION_BASE_URL}
+    token-url: ${FEEDBACK_SETTINGS_INTEGRATION_TOKEN_URL}
+    client-id: ${FEEDBACK_SETTINGS_INTEGRATION_CLIENT_ID}
+    client-secret: ${FEEDBACK_SETTINGS_INTEGRATION_CLIENT_SECRET}

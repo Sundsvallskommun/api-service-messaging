@@ -36,7 +36,7 @@ public record SnailMailRequest(
         @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
         String deviation,
 
-        @ArraySchema(schema = @Schema(implementation = Attachment.class))
+        @ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1)
         List<@Valid Attachment> attachments) {
 
     @With

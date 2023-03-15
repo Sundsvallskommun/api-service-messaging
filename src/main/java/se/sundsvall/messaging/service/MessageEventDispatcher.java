@@ -21,8 +21,9 @@ import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.model.DeliveryBatchResult;
-import se.sundsvall.messaging.model.DeliveryResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
 @Component
@@ -39,7 +40,7 @@ public class MessageEventDispatcher {
         this.mapper = mapper;
     }
 
-    public DeliveryBatchResult handleMessageRequest(final MessageRequest request) {
+    public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
 
         var messages = request.messages().stream()
@@ -51,38 +52,38 @@ public class MessageEventDispatcher {
             .map(message -> {
                 eventPublisher.publishEvent(new IncomingMessageEvent(this, MESSAGE, message.deliveryId()));
 
-                return new DeliveryResult(message);
+                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), MessageType.MESSAGE, null);
             } )
             .toList();
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
-    public DeliveryResult handleEmailRequest(final EmailRequest request) {
+    public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
         var message = dbIntegration.saveMessage(mapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, EMAIL, message.deliveryId()));
 
-        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), EMAIL, null);
     }
 
-    public DeliveryResult handleSmsRequest(final SmsRequest request) {
+    public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
         var message = dbIntegration.saveMessage(mapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, SMS, message.deliveryId()));
 
-        return new DeliveryResult(message.messageId());
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SMS, null);
     }
 
-    public DeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
+    public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
         var message = dbIntegration.saveMessage(mapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, WEB_MESSAGE, message.deliveryId()));
 
-        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), WEB_MESSAGE, null);
     }
 
-    public DeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
+    public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
         var batchId = UUID.randomUUID().toString();
 
         var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
@@ -92,22 +93,22 @@ public class MessageEventDispatcher {
                 eventPublisher.publishEvent(
                     new IncomingMessageEvent(this, DIGITAL_MAIL, message.deliveryId()));
 
-                return new DeliveryResult(message);
+                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), DIGITAL_MAIL, null);
             })
             .toList();
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
-    public DeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
+    public InternalDeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
         var message = dbIntegration.saveMessage(mapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, SNAIL_MAIL, message.deliveryId()));
 
-        return new DeliveryResult(message.messageId(), message.deliveryId(), null);
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SNAIL_MAIL, null);
     }
 
-    public DeliveryBatchResult handleLetterRequest(final LetterRequest request) {
+    public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
         var batchId = UUID.randomUUID().toString();
 
         var messages = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
@@ -117,10 +118,10 @@ public class MessageEventDispatcher {
                 eventPublisher.publishEvent(
                     new IncomingMessageEvent(this, LETTER, message.deliveryId()));
 
-                return new DeliveryResult(message);
+                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), LETTER, null);
             })
             .toList();
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 }

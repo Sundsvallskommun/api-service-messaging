@@ -43,8 +43,8 @@ import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
 import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
-import se.sundsvall.messaging.model.DeliveryBatchResult;
-import se.sundsvall.messaging.model.DeliveryResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
 
@@ -84,22 +84,22 @@ public class MessageService {
         this.mapper = mapper;
     }
 
-    public DeliveryResult sendSms(final SmsRequest request) {
+    public InternalDeliveryResult sendSms(final SmsRequest request) {
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
-    public DeliveryResult sendEmail(final EmailRequest request) {
+    public InternalDeliveryResult sendEmail(final EmailRequest request) {
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
-    public DeliveryResult sendWebMessage(final WebMessageRequest request) {
+    public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
-    public DeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
+    public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
         var batchId = UUID.randomUUID().toString();
         // Save the message(s)
         var entities = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
@@ -108,22 +108,22 @@ public class MessageService {
             .map(this::deliver)
             .toList();
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
-    public DeliveryResult sendSnailMail(final SnailMailRequest request) {
+    public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
     }
 
-    public DeliveryBatchResult sendMessages(final MessageRequest request) {
+    public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
         var entities = request.messages().stream()
             .map(message -> mapper.toMessage(batchId, message))
             .map(dbIntegration::saveMessage)
             .toList();
 
-        var deliveries = new ArrayList<DeliveryResult>();
+        var deliveries = new ArrayList<InternalDeliveryResult>();
 
         entities.forEach(message -> {
             var partyId = message.partyId();
@@ -139,7 +139,7 @@ public class MessageService {
                 // No feedback settings found - can't do anything more here
                 archiveMessage(message.withStatus(NO_FEEDBACK_SETTINGS_FOUND));
 
-                deliveries.add(new DeliveryResult(message, NO_FEEDBACK_SETTINGS_FOUND));
+                deliveries.add(new InternalDeliveryResult(message, NO_FEEDBACK_SETTINGS_FOUND));
             } else {
                 for (var feedbackChannel : feedbackChannels) {
                     // Determine the contact method, if any
@@ -194,7 +194,7 @@ public class MessageService {
 
                             archiveMessage(message.withStatus(NO_FEEDBACK_WANTED));
 
-                            deliveries.add(new DeliveryResult(message, NO_FEEDBACK_WANTED));
+                            deliveries.add(new InternalDeliveryResult(message, NO_FEEDBACK_WANTED));
                         }
                         default -> {
                             LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
@@ -202,17 +202,17 @@ public class MessageService {
 
                             archiveMessage(message.withStatus(FAILED));
 
-                            deliveries.add(new DeliveryResult(message, FAILED));
+                            deliveries.add(new InternalDeliveryResult(message, FAILED));
                         }
                     }
                 }
             }
         });
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
-    public DeliveryBatchResult sendLetter(final LetterRequest request) {
+    public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
         var batchId = UUID.randomUUID().toString();
         var entities = mapper.toMessages(request, batchId).stream()
             .map(dbIntegration::saveMessage)
@@ -275,16 +275,16 @@ public class MessageService {
                         var failedMessage = message.withStatus(FAILED);
                         archiveMessage(failedMessage);
 
-                        return new DeliveryResult(failedMessage);
+                        return new InternalDeliveryResult(failedMessage);
                     })
                     .get())
                 .get())
             .toList();
 
-        return new DeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
-    DeliveryResult deliver(final Message delivery) {
+    InternalDeliveryResult deliver(final Message delivery) {
         // Re-construct the original request
         var request = GSON.fromJson(delivery.content(), switch (delivery.type()) {
             case SMS -> SmsRequest.class;
@@ -322,7 +322,7 @@ public class MessageService {
                 incrementSuccessCounter(delivery.type());
             })
             // Map to result
-            .map(status -> new DeliveryResult(delivery.messageId(), delivery.deliveryId(), status))
+            .map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
             // Make sure all exceptions that may occur are throwable problems
             .mapFailure(
                 Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> throwableProblem),

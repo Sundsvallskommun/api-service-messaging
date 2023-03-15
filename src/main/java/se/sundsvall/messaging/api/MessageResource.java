@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
@@ -22,9 +23,11 @@ import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -57,9 +60,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 class MessageResource {
 
     private final MessageService messageService;
+    private final MessageEventDispatcher eventDispatcher;
 
-    MessageResource(final MessageService messageService) {
+    MessageResource(final MessageService messageService, final MessageEventDispatcher eventDispatcher) {
         this.messageService = messageService;
+        this.eventDispatcher = eventDispatcher;
     }
 
     @Operation(summary = "Send a single SMS")
@@ -68,8 +73,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request) {
-        return toResponse(messageService.sendSms(request));
+    ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleSmsRequest(request));
+        } else {
+            return toResponse(messageService.sendSms(request));
+        }
     }
 
     @Operation(
@@ -88,8 +99,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request) {
-        return toResponse(messageService.sendEmail(request));
+    ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleEmailRequest(request));
+        } else {
+            return toResponse(messageService.sendEmail(request));
+        }
     }
 
     @Operation(
@@ -108,8 +125,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request) {
-        return toResponse(messageService.sendWebMessage(request));
+    ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleWebMessageRequest(request));
+        } else {
+            return toResponse(messageService.sendWebMessage(request));
+        }
     }
 
     @Operation(
@@ -128,8 +151,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request) {
-        return toResponse(messageService.sendDigitalMail(request));
+    ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleDigitalMailRequest(request));
+        } else {
+            return toResponse(messageService.sendDigitalMail(request));
+        }
     }
 
     @Operation(
@@ -148,8 +177,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
     )
-    ResponseEntity<MessageResult> sendSnailMail(@Valid @RequestBody final SnailMailRequest request) {
-        return toResponse(messageService.sendSnailMail(request));
+    ResponseEntity<MessageResult> sendSnailMail(@Valid @RequestBody final SnailMailRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleSnailMailRequest(request));
+        } else {
+            return toResponse(messageService.sendSnailMail(request));
+        }
     }
 
     @Operation(
@@ -168,8 +203,14 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
             produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
     )
-    ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request) {
-        return toResponse(messageService.sendMessages(request));
+    ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleMessageRequest(request));
+        } else {
+            return toResponse(messageService.sendMessages(request));
+        }
     }
 
     @Operation(
@@ -188,7 +229,13 @@ class MessageResource {
         consumes = APPLICATION_JSON_VALUE,
         produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
     )
-    ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request) {
-        return toResponse(messageService.sendLetter(request));
+    ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+        if (async) {
+            return toResponse(eventDispatcher.handleLetterRequest(request));
+        } else {
+            return toResponse(messageService.sendLetter(request));
+        }
     }
 }

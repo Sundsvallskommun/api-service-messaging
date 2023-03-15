@@ -57,7 +57,7 @@ public record EmailRequest(
     @Schema(name = "SmsRequestParty")
     public record Party(
 
-        @ValidUuid
+        @ValidUuid(nullable = true)
         @Schema(description = "The message party id", format = "uuid")
         String partyId,
 

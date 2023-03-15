@@ -46,7 +46,7 @@ class LetterIT extends AbstractMessagingAppTest {
 
         var batchId = response.batchId();
         var messageId = response.messages().get(0).messageId();
-        var deliveryId = response.messages().get(0).deliveryId();
+        var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
         assertValidUuid(batchId);
@@ -84,7 +84,7 @@ class LetterIT extends AbstractMessagingAppTest {
 
         var batchId = response.batchId();
         var messageId = response.messages().get(0).messageId();
-        var deliveryId = response.messages().get(0).deliveryId();
+        var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
         assertValidUuid(batchId);

@@ -59,6 +59,12 @@ public class DbIntegration {
     }
 
     @Transactional(readOnly = true)
+    public Optional<History> getHistoryForDeliveryId(final String deliveryId) {
+        return historyRepository.findByDeliveryId(deliveryId)
+            .map(this::mapToHistory);
+    }
+
+    @Transactional(readOnly = true)
     public List<History> getHistoryByMessageId(final String messageId) {
         return historyRepository.findByMessageId(messageId).stream()
             .map(this::mapToHistory)

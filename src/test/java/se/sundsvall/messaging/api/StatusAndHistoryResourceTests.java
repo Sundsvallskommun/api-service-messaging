@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -59,8 +60,15 @@ class StatusAndHistoryResourceTests {
 
     @Test
     void test_getMessageStatus() {
-        when(mockHistoryService.getHistory(any(String.class)))
-            .thenReturn(List.of(History.builder().build()));
+        when(mockHistoryService.getHistoryByMessageId(any(String.class)))
+            .thenReturn(List.of(
+                History.builder()
+                    .withBatchId("someBatchId")
+                    .withMessageId("someMessageId")
+                    .withDeliveryId("someDeliveryId")
+                    .withMessageType(MessageType.SMS)
+                    .withStatus(MessageStatus.SENT)
+                    .build()));
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
@@ -68,12 +76,12 @@ class StatusAndHistoryResourceTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
 
-        verify(mockHistoryService, times(1)).getHistory(any(String.class));
+        verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
     }
 
     @Test
     void test_getMessageStatus_whenMessageDoesNotExist() {
-        when(mockHistoryService.getHistory(any(String.class))).thenReturn(List.of());
+        when(mockHistoryService.getHistoryByMessageId(any(String.class))).thenReturn(List.of());
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
@@ -81,13 +89,20 @@ class StatusAndHistoryResourceTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNull();
 
-        verify(mockHistoryService, times(1)).getHistory(any(String.class));
+        verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
     }
 
     @Test
     void test_getBatchStatus() {
         when(mockHistoryService.getHistoryByBatchId(any(String.class)))
-            .thenReturn(List.of(History.builder().build()));
+            .thenReturn(List.of(
+                History.builder()
+                    .withBatchId("someBatchId")
+                    .withMessageId("someMessageId")
+                    .withDeliveryId("someDeliveryId")
+                    .withMessageType(MessageType.SMS)
+                    .withStatus(MessageStatus.SENT)
+                    .build()));
 
         var response = statusAndHistoryResource.getBatchStatus("someBatchId");
 
@@ -110,7 +125,7 @@ class StatusAndHistoryResourceTests {
 
     @Test
     void test_getMessage() {
-        when(mockHistoryService.getHistory(any(String.class)))
+        when(mockHistoryService.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of(History.builder().withMessageType(MessageType.SMS).build()));
 
         var response = statusAndHistoryResource.getMessage("someMessageId");
@@ -120,12 +135,12 @@ class StatusAndHistoryResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(1);
 
-        verify(mockHistoryService, times(1)).getHistory(any(String.class));
+        verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
     }
 
     @Test
     void test_getMessage_whenMessageDoesNotExist() {
-        when(mockHistoryService.getHistory(any(String.class)))
+        when(mockHistoryService.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of());
 
         var response = statusAndHistoryResource.getMessage("someMessageId");
@@ -133,6 +148,6 @@ class StatusAndHistoryResourceTests {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
-        verify(mockHistoryService, times(1)).getHistory(any(String.class));
+        verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
     }
 }

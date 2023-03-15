@@ -15,17 +15,18 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class DeliveryResultTests {
+class InternalDeliveryResultTests {
 
     @Mock
     private Message mockMessage;
 
     @Test
     void testDefaultConstructor() {
-        var deliveryResult = new DeliveryResult("someMessageId", "someDeliveryId", MessageStatus.FAILED);
+        var deliveryResult = new InternalDeliveryResult("someMessageId", "someDeliveryId", MessageType.EMAIL, MessageStatus.FAILED);
 
         assertThat(deliveryResult.messageId()).isEqualTo("someMessageId");
         assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(deliveryResult.messageType()).isEqualTo(MessageType.EMAIL);
         assertThat(deliveryResult.status()).isEqualTo(MessageStatus.FAILED);
     }
 
@@ -35,7 +36,7 @@ class DeliveryResultTests {
         when(mockMessage.deliveryId()).thenReturn("someDeliveryId");
         when(mockMessage.status()).thenReturn(MessageStatus.PENDING);
 
-        var deliveryResult = new DeliveryResult(mockMessage);
+        var deliveryResult = new InternalDeliveryResult(mockMessage);
 
         assertThat(deliveryResult.messageId()).isEqualTo("someMessageId");
         assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
@@ -51,7 +52,7 @@ class DeliveryResultTests {
         when(mockMessage.messageId()).thenReturn("someMessageId");
         when(mockMessage.deliveryId()).thenReturn("someDeliveryId");
 
-        var deliveryResult = new DeliveryResult(mockMessage, MessageStatus.SENT);
+        var deliveryResult = new InternalDeliveryResult(mockMessage, MessageStatus.SENT);
 
         assertThat(deliveryResult.messageId()).isEqualTo("someMessageId");
         assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
@@ -64,7 +65,7 @@ class DeliveryResultTests {
 
     @Test
     void testConstructorAcceptingMessageId() {
-        var deliveryResult = new DeliveryResult("someMessageId");
+        var deliveryResult = new InternalDeliveryResult("someMessageId");
 
         assertThat(deliveryResult.messageId()).isEqualTo("someMessageId");
         assertThat(deliveryResult.deliveryId()).isNull();

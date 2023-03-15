@@ -9,17 +9,17 @@ import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
-class DeliveryBatchResultTests {
+class InternalDeliveryBatchResultTests {
 
     @Test
     void testDefaultConstructor() {
-        var deliveryBatchResult = new DeliveryBatchResult("someBatchId",
-            List.of(new DeliveryResult("someMessageId")));
+        var deliveryBatchResult = new InternalDeliveryBatchResult("someBatchId",
+            List.of(new InternalDeliveryResult("someMessageId")));
 
         assertThat(deliveryBatchResult.batchId()).isEqualTo("someBatchId");
         assertThat(deliveryBatchResult.deliveries())
             .hasSize(1)
-            .extracting(DeliveryResult::messageId)
+            .extracting(InternalDeliveryResult::messageId)
             .containsExactly("someMessageId");
     }
 }

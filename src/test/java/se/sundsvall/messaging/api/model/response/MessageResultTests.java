@@ -2,6 +2,8 @@ package se.sundsvall.messaging.api.model.response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import se.sundsvall.messaging.model.MessageStatus;
@@ -14,12 +16,10 @@ class MessageResultTests {
     void testBuilderAndGetters() {
         var messageResult = MessageResult.builder()
             .withMessageId("someMessageId")
-            .withDeliveryId("someDeliveryId")
-            .withStatus(MessageStatus.AWAITING_FEEDBACK)
+            .withDeliveries(List.of(DeliveryResult.builder().build()))
             .build();
 
         assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-        assertThat(messageResult.deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(messageResult.status()).isEqualTo(MessageStatus.AWAITING_FEEDBACK);
+        assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
     }
 }

@@ -57,9 +57,9 @@ public record LetterRequest(
         @Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning")
         String deviation,
 
-        @Valid
-        @Schema(description = "Attachments")
-        List<Attachment> attachments) {
+        @NotEmpty
+        @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1)
+        List<@Valid Attachment> attachments) {
 
     @With
     @Builder(setterPrefix = "with")

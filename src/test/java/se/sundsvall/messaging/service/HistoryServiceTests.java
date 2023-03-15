@@ -39,7 +39,7 @@ class HistoryServiceTests {
         when(mockDbIntegration.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of(History.builder().build()));
 
-        var result = historyService.getHistory("someMessageId");
+        var result = historyService.getHistoryByMessageId("someMessageId");
 
         assertThat(result).isNotEmpty();
 
@@ -51,7 +51,7 @@ class HistoryServiceTests {
         when(mockDbIntegration.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of());
 
-        var result = historyService.getHistory("someMessageId");
+        var result = historyService.getHistoryByMessageId("someMessageId");
 
         assertThat(result).isEmpty();
 
