@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
-import se.sundsvall.messaging.integration.db.entity.CounterEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
@@ -35,8 +34,6 @@ class DbIntegrationTests {
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
-    @Mock
-    private CounterRepository mockCounterRepository;
 
     @InjectMocks
     private DbIntegration dbIntegration;
@@ -116,46 +113,6 @@ class DbIntegrationTests {
         assertThat(dbIntegration.saveHistory(Message.builder().build())).isNotNull();
 
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
-    }
-
-    @Test
-    void test_getAllCounters() {
-        when(mockCounterRepository.findAll())
-            .thenReturn(List.of(CounterEntity.builder().build(), CounterEntity.builder().build()));
-
-        assertThat(dbIntegration.getAllCounters()).hasSize(2);
-
-        verify(mockCounterRepository, times(1)).findAll();
-    }
-
-    @Test
-    void test_incrementAndSaveCounter_whenCounterDoesNotExist() {
-        when(mockCounterRepository.findByName(any(String.class))).thenReturn(Optional.empty());
-        when(mockCounterRepository.save(any(CounterEntity.class))).thenReturn(CounterEntity.builder().build());
-
-        assertThat(dbIntegration.incrementAndSaveCounter("someName")).isNotNull();
-
-        verify(mockCounterRepository, times(1)).findByName(any(String.class));
-        verify(mockCounterRepository, times(1)).save(any(CounterEntity.class));
-    }
-
-    @Test
-    void test_incrementAndSaveCounter_whenCounterExists() {
-        var counterEntity = CounterEntity.builder()
-            .withName("someName")
-            .withValue(345)
-            .build();
-
-        when(mockCounterRepository.findByName(any(String.class))).thenReturn(Optional.of(counterEntity));
-        when(mockCounterRepository.save(any(CounterEntity.class))).thenReturn(counterEntity);
-
-        var counter = dbIntegration.incrementAndSaveCounter("someName");
-        assertThat(counter).isNotNull();
-        assertThat(counter.name()).isEqualTo("someName");
-        assertThat(counter.value()).isEqualTo(346);
-
-        verify(mockCounterRepository, times(1)).findByName(any(String.class));
-        verify(mockCounterRepository, times(1)).save(any(CounterEntity.class));
     }
 
     @Test
@@ -274,23 +231,5 @@ class DbIntegrationTests {
         assertThat(historyEntity.getStatus()).isEqualTo(message.status());
         assertThat(historyEntity.getContent()).isEqualTo(message.content());
         assertThat(historyEntity.getCreatedAt()).isNotNull();
-    }
-
-    @Test
-    void test_mapToCounterWhenCounterEntityIsNull() {
-        assertThat(dbIntegration.mapToCounter(null)).isNull();
-    }
-
-    @Test
-    void test_mapToCounter() {
-        var counterEntity = CounterEntity.builder()
-            .withName("someName")
-            .withValue(123)
-            .build();
-
-        var counter = dbIntegration.mapToCounter(counterEntity);
-
-        assertThat(counter.name()).isEqualTo(counterEntity.getName());
-        assertThat(counter.value()).isEqualTo(counterEntity.getValue());
     }
 }

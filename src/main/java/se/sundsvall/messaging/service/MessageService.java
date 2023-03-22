@@ -10,7 +10,6 @@ import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FO
 import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
@@ -46,7 +45,6 @@ import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderInteg
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageType;
 
 import lombok.Generated;
 
@@ -259,9 +257,6 @@ public class MessageService {
                             .withType(SNAIL_MAIL)
                             .withContent(GSON.toJson(snailMailRequest));
 
-                        // Register a LETTER failover
-                        incrementCounter(LETTER.toString().toLowerCase() + ".failover");
-
                         return deliver(reroutedMessage);
                     })
                     .mapTry(deliveryResult -> {
@@ -311,15 +306,10 @@ public class MessageService {
             default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
         };
 
-        // Register a delivery attempt
-        incrementAttemptCounter(delivery.type());
-
         return sendTry
             .peek(status -> {
                 // Archive the message
                 archiveMessage(delivery.withStatus(status));
-                // Increment success counter
-                incrementSuccessCounter(delivery.type());
             })
             // Map to result
             .map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
@@ -337,8 +327,6 @@ public class MessageService {
             .peekLeft(throwable -> {
                 // Archive the message
                 archiveMessage(delivery.withStatus(FAILED));
-                // Increment failure counter
-                incrementFailureCounter(delivery.type());
 
                 throw (ThrowableProblem) throwable;
             })
@@ -352,22 +340,6 @@ public class MessageService {
 
         dbIntegration.saveHistory(message);
         dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-    }
-
-    void incrementAttemptCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".total");
-    }
-
-    void incrementSuccessCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".success");
-    }
-
-    void incrementFailureCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".failure");
-    }
-
-    void incrementCounter(final String name) {
-        dbIntegration.incrementAndSaveCounter(name);
     }
 
     @Generated // To avoid having to implement a stupid test for no reason...

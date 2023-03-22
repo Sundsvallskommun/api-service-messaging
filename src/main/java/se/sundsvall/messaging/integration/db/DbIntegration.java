@@ -8,10 +8,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import se.sundsvall.messaging.integration.db.entity.CounterEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.model.Counter;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
@@ -22,13 +20,11 @@ public class DbIntegration {
 
     private final MessageRepository messageRepository;
     private final HistoryRepository historyRepository;
-    private final CounterRepository counterRepository;
 
     public DbIntegration(final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final CounterRepository counterRepository) {
+            final HistoryRepository historyRepository) {
         this.messageRepository = messageRepository;
         this.historyRepository = historyRepository;
-        this.counterRepository = counterRepository;
     }
 
     @Transactional(readOnly = true)
@@ -87,23 +83,6 @@ public class DbIntegration {
 
     public History saveHistory(final Message message) {
         return mapToHistory(historyRepository.save(mapToHistoryEntity(message)));
-    }
-
-    @Transactional(readOnly = true)
-    public List<Counter> getAllCounters() {
-        return counterRepository.findAll().stream()
-            .map(this::mapToCounter)
-            .toList();
-    }
-
-    public Counter incrementAndSaveCounter(final String name) {
-        var counter = counterRepository.findByName(name)
-            .orElseGet(() -> CounterEntity.builder()
-                .withName(name)
-                .build())
-            .increment();
-
-        return mapToCounter(counterRepository.save(counter));
     }
 
     Message mapToMessage(final MessageEntity messageEntity) {
@@ -168,17 +147,6 @@ public class DbIntegration {
             .withStatus(message.status())
             .withContent(message.content())
             .withCreatedAt(LocalDateTime.now())
-            .build();
-    }
-
-    Counter mapToCounter(final CounterEntity counterEntity) {
-        if (null == counterEntity) {
-            return null;
-        }
-
-        return Counter.builder()
-            .withName(counterEntity.getName())
-            .withValue(counterEntity.getValue())
             .build();
     }
 }

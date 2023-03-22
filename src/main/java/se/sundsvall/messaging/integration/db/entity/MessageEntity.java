@@ -58,6 +58,11 @@ public class MessageEntity {
 
     @With
     @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_type")
+    private MessageType deliveryType;
+
+    @With
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private MessageStatus status;
 
