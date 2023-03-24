@@ -13,6 +13,9 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
+    properties:
+      hibernate:
+        integrator_provider: se.sundsvall.messaging.integration.db.projection.support.ClassImportIntegratorIntegratorProvider
 
 # OpenAPI
 openapi:

@@ -12,6 +12,7 @@ public record History(
     String messageId,
     String deliveryId,
     MessageType messageType,
+    MessageType originalMessageType,
     MessageStatus status,
     String content,
     LocalDateTime createdAt) {  }

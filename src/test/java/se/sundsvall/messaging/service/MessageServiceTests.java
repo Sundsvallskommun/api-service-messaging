@@ -14,6 +14,7 @@ import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsInteg
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
 import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

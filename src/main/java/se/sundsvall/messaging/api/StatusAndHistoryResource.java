@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,19 +18,15 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Statistics;
 import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.service.StatisticsService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,16 +40,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 class StatusAndHistoryResource {
 
-    private static final Gson GSON = new GsonBuilder().create();
-
     static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
     static final String MESSAGE_STATUS_PATH = "/status/message/{messageId}";
     static final String DELIVERY_STATUS_PATH = "/status/delivery/{deliveryId}";
 
     private final HistoryService historyService;
+    private final StatisticsService statisticsService;
 
-    StatusAndHistoryResource(final HistoryService historyService) {
+    StatusAndHistoryResource(final HistoryService historyService,
+            final StatisticsService statisticsService) {
         this.historyService = historyService;
+        this.statisticsService = statisticsService;
     }
 
     @Operation(
@@ -90,7 +85,7 @@ class StatusAndHistoryResource {
             @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
             final LocalDate to) {
         return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
-            .map(this::mapToHistoryResponse)
+            .map(ResponseMapper::toHistoryResponse)
             .toList());
     }
 
@@ -146,7 +141,7 @@ class StatusAndHistoryResource {
                 .map(message -> MessageResult.builder()
                     .withMessageId(message.getKey())
                     .withDeliveries(message.getValue().stream()
-                        .map(this::mapToDeliveryResult)
+                        .map(ResponseMapper::toDeliveryResult)
                         .toList())
                     .build())
                 .toList())
@@ -204,7 +199,7 @@ class StatusAndHistoryResource {
         var result = MessageResult.builder()
             .withMessageId(message.getKey())
             .withDeliveries(message.getValue().stream()
-                .map(this::mapToDeliveryResult)
+                .map(ResponseMapper::toDeliveryResult)
                 .toList())
             .build();
 
@@ -238,7 +233,7 @@ class StatusAndHistoryResource {
     ResponseEntity<DeliveryResult> getDeliveryStatus(
             @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
         return historyService.getHistoryForDeliveryId(deliveryId)
-            .map(this::mapToDeliveryResult)
+            .map(ResponseMapper::toDeliveryResult)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -270,7 +265,7 @@ class StatusAndHistoryResource {
     ResponseEntity<List<HistoryResponse>> getMessage(
             @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
         var history = historyService.getHistoryByMessageId(messageId).stream()
-            .map(this::mapToHistoryResponse)
+            .map(ResponseMapper::toHistoryResponse)
             .toList();
 
         if (history.isEmpty()) {
@@ -280,28 +275,41 @@ class StatusAndHistoryResource {
         return ResponseEntity.ok(history);
     }
 
-    HistoryResponse mapToHistoryResponse(final History history) {
-        return HistoryResponse.builder()
-            .withMessageType(history.messageType())
-            .withStatus(history.status())
-            .withContent(GSON.fromJson(history.content(), switch (history.messageType()) {
-                case EMAIL -> EmailRequest.class;
-                case SMS -> SmsRequest.class;
-                case WEB_MESSAGE -> WebMessageRequest.class;
-                case DIGITAL_MAIL -> DigitalMailRequest.class;
-                case MESSAGE -> MessageRequest.Message.class;
-                case SNAIL_MAIL -> SnailMailRequest.class;
-                case LETTER -> LetterRequest.class;
-            }))
-            .withTimestamp(history.createdAt())
-            .build();
-    }
+    @Operation(
+        summary = "Get delivery statistics",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Statistics.class)))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
+    @GetMapping(
+        value = "/statistics",
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
+    ResponseEntity<Statistics> getStats(
+            @RequestParam(name = "messageType", required = false)
+            @Parameter(description = "Message type")
+            final MessageType messageType,
 
-    DeliveryResult mapToDeliveryResult(final History deliveryHistory) {
-        return DeliveryResult.builder()
-            .withDeliveryId(deliveryHistory.deliveryId())
-            .withMessageType(deliveryHistory.messageType())
-            .withStatus(deliveryHistory.status())
-            .build();
+            @RequestParam(name = "from", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
+            final LocalDate from,
+
+            @RequestParam(name = "to", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
+            final LocalDate to) {
+        var stats = statisticsService.getStatistics(messageType, from, to);
+
+        return ResponseEntity.ok(stats);
     }
 }

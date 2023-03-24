@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -47,7 +47,7 @@ class DigitalMailSenderIntegrationTests {
     void test_sendDigitalMail() {
         when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
             .thenReturn(new DigitalMailRequest());
-        when(mockResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
+        when(mockResponseEntity.getStatusCode()).thenReturn(OK);
         when(mockResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
             .deliveryStatus(new DeliveryStatus().delivered(true)));
         when(mockClient.sendDigitalMail(any(DigitalMailRequest.class)))

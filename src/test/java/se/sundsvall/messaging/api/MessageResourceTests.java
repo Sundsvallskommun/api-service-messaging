@@ -33,7 +33,6 @@ import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -45,7 +44,7 @@ class MessageResourceTests {
     private final InternalDeliveryResult deliveryResult = InternalDeliveryResult.builder()
         .withMessageId("someMessageId")
         .withDeliveryId("someDeliveryId")
-        .withStatus(MessageStatus.SENT)
+        .withStatus(SENT)
         .build();
 
     @Mock

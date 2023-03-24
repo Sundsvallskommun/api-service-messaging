@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 @Component
 @Transactional
@@ -75,6 +78,12 @@ public class DbIntegration {
     }
 
     @Transactional(readOnly = true)
+    public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
+            final LocalDate to) {
+        return historyRepository.getStats(messageType, from, to);
+    }
+
+    @Transactional(readOnly = true)
     public List<History> getHistory(final Specification<HistoryEntity> specification) {
         return historyRepository.findAll(specification).stream()
             .map(this::mapToHistory)
@@ -96,6 +105,7 @@ public class DbIntegration {
             .withDeliveryId(messageEntity.getDeliveryId())
             .withPartyId(messageEntity.getPartyId())
             .withType(messageEntity.getType())
+            .withOriginalType(messageEntity.getOriginalMessageType())
             .withStatus(messageEntity.getStatus())
             .withContent(messageEntity.getContent())
             .build();
@@ -112,6 +122,7 @@ public class DbIntegration {
             .withDeliveryId(message.deliveryId())
             .withPartyId(message.partyId())
             .withType(message.type())
+            .withOriginalMessageType(message.originalType())
             .withStatus(message.status())
             .withContent(message.content())
             .build();
@@ -127,9 +138,22 @@ public class DbIntegration {
             .withMessageId(historyEntity.getMessageId())
             .withDeliveryId(historyEntity.getDeliveryId())
             .withMessageType(historyEntity.getMessageType())
+            .withOriginalMessageType(historyEntity.getOriginalMessageType())
             .withStatus(historyEntity.getStatus())
             .withContent(historyEntity.getContent())
             .withCreatedAt(historyEntity.getCreatedAt())
+            .build();
+    }
+
+    History mapToHistory(final StatsEntry historyEntry) {
+        if (null == historyEntry) {
+            return null;
+        }
+
+        return History.builder()
+            .withMessageType(historyEntry.messageType())
+            .withOriginalMessageType(historyEntry.originalMessageType())
+            .withStatus(historyEntry.status())
             .build();
     }
 
@@ -144,6 +168,7 @@ public class DbIntegration {
             .withDeliveryId(message.deliveryId())
             .withPartyId(message.partyId())
             .withMessageType(message.type())
+            .withOriginalMessageType(message.originalType())
             .withStatus(message.status())
             .withContent(message.content())
             .withCreatedAt(LocalDateTime.now())

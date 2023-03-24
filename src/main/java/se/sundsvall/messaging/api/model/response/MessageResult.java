@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")
-@Schema(description = "Message result", name = "TEST_MessageResult")
+@Schema(description = "Message result")
 public record MessageResult(
 
     @Schema(description = "The message id", format = "uuid")

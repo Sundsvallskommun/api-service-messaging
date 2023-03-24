@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")
-@Schema(description = "Delivery result", name = "TEST_DeliveryResult")
+@Schema(description = "Delivery result")
 public record DeliveryResult(
 
     @Schema(description = "The delivery id", format = "uuid")

@@ -2,7 +2,7 @@ package se.sundsvall.messaging.api;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static se.sundsvall.messaging.api.ResultMapper.toResponse;
+import static se.sundsvall.messaging.api.ResponseMapper.toResponse;
 
 import javax.validation.Valid;
 

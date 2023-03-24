@@ -6,6 +6,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,9 +24,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -53,7 +56,7 @@ class DbIntegrationTests {
         when(mockMessageRepository.findLatestWithStatus(any(MessageStatus.class)))
             .thenReturn(List.of(MessageEntity.builder().build(), MessageEntity.builder().build()));
 
-        assertThat(dbIntegration.getLatestMessagesWithStatus(MessageStatus.PENDING)).hasSize(2);
+        assertThat(dbIntegration.getLatestMessagesWithStatus(PENDING)).hasSize(2);
 
         verify(mockMessageRepository, times(1)).findLatestWithStatus(any(MessageStatus.class));
     }
@@ -127,8 +130,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 
@@ -156,8 +159,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 
@@ -175,7 +178,13 @@ class DbIntegrationTests {
 
     @Test
     void test_mapToHistoryWhenHistoryEntityIsNull() {
-        assertThat(dbIntegration.mapToHistory(null)).isNull();
+        assertThat(dbIntegration.mapToHistory((HistoryEntity) null)).isNull();
+    }
+
+
+    @Test
+    void test_mapToHistoryWhenHistoryEntryIsNull() {
+        assertThat(dbIntegration.mapToHistory((StatsEntry) null)).isNull();
     }
 
     @Test
@@ -185,8 +194,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withMessageType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withMessageType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .withCreatedAt(LocalDateTime.now())
             .build();
@@ -215,8 +224,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 

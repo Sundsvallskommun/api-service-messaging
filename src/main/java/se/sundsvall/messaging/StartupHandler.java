@@ -1,5 +1,7 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -7,7 +9,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
 @Component
@@ -25,7 +26,7 @@ class StartupHandler implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        var pendingMessages = dbIntegration.getLatestMessagesWithStatus(MessageStatus.PENDING);
+        var pendingMessages = dbIntegration.getLatestMessagesWithStatus(PENDING);
 
         if (pendingMessages.isEmpty()) {
             LOG.info("No pending messages to process");

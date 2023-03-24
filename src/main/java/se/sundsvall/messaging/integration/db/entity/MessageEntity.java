@@ -58,8 +58,8 @@ public class MessageEntity {
 
     @With
     @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_type")
-    private MessageType deliveryType;
+    @Column(name = "original_message_type")
+    private MessageType originalMessageType;
 
     @With
     @Enumerated(EnumType.STRING)

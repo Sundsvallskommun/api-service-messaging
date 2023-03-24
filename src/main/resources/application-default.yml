@@ -15,7 +15,7 @@ spring:
     generate-ddl: ${JPA_GENERATE_DDL:false}
 
 logbook:
-  json-path-exclusion-filters: '{"$.attachments[*].content": "[base64]", "$.attachments[*].base64Data": "[base64]"'
+  json-path-exclusion-filters: '{"$.attachments[*].content": "[base64]", "$.attachments[*].base64Data": "[base64]"}'
 
 # Defaults
 messaging:
@@ -38,41 +38,41 @@ integration:
   # SmsSender integration
   sms-sender:
     base-url: ${SMS_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${SMS_SENDER_INTEGRATION_TOKEN_URL}
+    token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${SMS_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${SMS_SENDER_INTEGRATION_CLIENT_SECRET}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # EmailSender integration
   email-sender:
     base-url: ${EMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${EMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${EMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # WebMessageSender integration
   web-message-sender:
-    base-url: ${EMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${EMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${EMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${EMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    base-url: ${WEB_MESSAGE_SENDER_INTEGRATION_BASE_URL}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # DigitalMailSender integration
   digital-mail-sender:
     base-url: ${DIGITAL_MAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${DIGITAL_MAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${DIGITAL_MAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # SnailmailSender integration
   snailmail-sender:
     base-url: ${SNAILMAIL_SENDER_INTEGRATION_BASE_URL}
-    token-url: ${SNAILMAIL_SENDER_INTEGRATION_TOKEN_URL}
-    client-id: ${SNAILMAIL_SENDER_INTEGRATION_CLIENT_ID}
-    client-secret: ${SNAILMAIL_SENDER_INTEGRATION_CLIENT_SECRET}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # FeedbackSettings integration
   feedback-settings:
     base-url: ${FEEDBACK_SETTINGS_INTEGRATION_BASE_URL}
-    token-url: ${FEEDBACK_SETTINGS_INTEGRATION_TOKEN_URL}
-    client-id: ${FEEDBACK_SETTINGS_INTEGRATION_CLIENT_ID}
-    client-secret: ${FEEDBACK_SETTINGS_INTEGRATION_CLIENT_SECRET}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
