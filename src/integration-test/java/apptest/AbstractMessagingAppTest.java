@@ -24,7 +24,7 @@ abstract class AbstractMessagingAppTest extends AbstractAppTest {
     }
 
     @Override
-    public void verifyAllStubs() {
+    public boolean verifyAllStubs() {
         getVerificationDelay().ifPresent(verificationDelay -> {
             LOG.info("Waiting {} seconds before verification", verificationDelay.getSeconds());
 
@@ -35,7 +35,7 @@ abstract class AbstractMessagingAppTest extends AbstractAppTest {
             }
         });
 
-        super.verifyAllStubs();
+        return super.verifyAllStubs();
     }
 
     protected void assertValidUuid(final String s) {

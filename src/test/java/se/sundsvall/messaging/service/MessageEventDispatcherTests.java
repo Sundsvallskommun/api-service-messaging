@@ -25,6 +25,7 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

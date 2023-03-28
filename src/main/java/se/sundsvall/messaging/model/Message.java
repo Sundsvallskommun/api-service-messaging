@@ -11,5 +11,6 @@ public record Message(
     String deliveryId,
     String partyId,
     MessageType type,
+    MessageType originalType,
     MessageStatus status,
     String content) {  }

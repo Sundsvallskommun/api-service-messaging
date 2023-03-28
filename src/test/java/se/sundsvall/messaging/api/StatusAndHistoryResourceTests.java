@@ -5,6 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,12 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.service.StatisticsService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -28,12 +31,15 @@ class StatusAndHistoryResourceTests {
 
     @Mock
     private HistoryService mockHistoryService;
+    @Mock
+    private StatisticsService mockStatisticsService;
 
     private StatusAndHistoryResource statusAndHistoryResource;
 
     @BeforeEach
     void setUp() {
-        statusAndHistoryResource = new StatusAndHistoryResource(mockHistoryService);
+        statusAndHistoryResource = new StatusAndHistoryResource(
+            mockHistoryService, mockStatisticsService);
     }
 
     @Test
@@ -49,7 +55,7 @@ class StatusAndHistoryResourceTests {
                 "somePartyId", LocalDate.now(), LocalDate.now());
 
             assertThat(response).isNotNull();
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getStatusCode()).isEqualTo(OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody()).hasSize(1);
         }
@@ -66,14 +72,14 @@ class StatusAndHistoryResourceTests {
                     .withBatchId("someBatchId")
                     .withMessageId("someMessageId")
                     .withDeliveryId("someDeliveryId")
-                    .withMessageType(MessageType.SMS)
-                    .withStatus(MessageStatus.SENT)
+                    .withMessageType(SMS)
+                    .withStatus(SENT)
                     .build()));
 
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getBody()).isNotNull();
 
         verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
@@ -86,7 +92,7 @@ class StatusAndHistoryResourceTests {
         var response = statusAndHistoryResource.getMessageStatus("someMessageId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
         assertThat(response.getBody()).isNull();
 
         verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
@@ -100,14 +106,14 @@ class StatusAndHistoryResourceTests {
                     .withBatchId("someBatchId")
                     .withMessageId("someMessageId")
                     .withDeliveryId("someDeliveryId")
-                    .withMessageType(MessageType.SMS)
-                    .withStatus(MessageStatus.SENT)
+                    .withMessageType(SMS)
+                    .withStatus(SENT)
                     .build()));
 
         var response = statusAndHistoryResource.getBatchStatus("someBatchId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messages()).hasSize(1);
     }
@@ -120,18 +126,18 @@ class StatusAndHistoryResourceTests {
         var response = statusAndHistoryResource.getBatchStatus("someBatchId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
     }
 
     @Test
     void test_getMessage() {
         when(mockHistoryService.getHistoryByMessageId(any(String.class)))
-            .thenReturn(List.of(History.builder().withMessageType(MessageType.SMS).build()));
+            .thenReturn(List.of(History.builder().withMessageType(SMS).build()));
 
         var response = statusAndHistoryResource.getMessage("someMessageId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(1);
 
@@ -146,7 +152,7 @@ class StatusAndHistoryResourceTests {
         var response = statusAndHistoryResource.getMessage("someMessageId");
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
 
         verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
     }

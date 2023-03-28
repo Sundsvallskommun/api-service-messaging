@@ -6,6 +6,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,12 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
-import se.sundsvall.messaging.integration.db.entity.CounterEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -35,8 +37,6 @@ class DbIntegrationTests {
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
-    @Mock
-    private CounterRepository mockCounterRepository;
 
     @InjectMocks
     private DbIntegration dbIntegration;
@@ -56,7 +56,7 @@ class DbIntegrationTests {
         when(mockMessageRepository.findLatestWithStatus(any(MessageStatus.class)))
             .thenReturn(List.of(MessageEntity.builder().build(), MessageEntity.builder().build()));
 
-        assertThat(dbIntegration.getLatestMessagesWithStatus(MessageStatus.PENDING)).hasSize(2);
+        assertThat(dbIntegration.getLatestMessagesWithStatus(PENDING)).hasSize(2);
 
         verify(mockMessageRepository, times(1)).findLatestWithStatus(any(MessageStatus.class));
     }
@@ -119,46 +119,6 @@ class DbIntegrationTests {
     }
 
     @Test
-    void test_getAllCounters() {
-        when(mockCounterRepository.findAll())
-            .thenReturn(List.of(CounterEntity.builder().build(), CounterEntity.builder().build()));
-
-        assertThat(dbIntegration.getAllCounters()).hasSize(2);
-
-        verify(mockCounterRepository, times(1)).findAll();
-    }
-
-    @Test
-    void test_incrementAndSaveCounter_whenCounterDoesNotExist() {
-        when(mockCounterRepository.findByName(any(String.class))).thenReturn(Optional.empty());
-        when(mockCounterRepository.save(any(CounterEntity.class))).thenReturn(CounterEntity.builder().build());
-
-        assertThat(dbIntegration.incrementAndSaveCounter("someName")).isNotNull();
-
-        verify(mockCounterRepository, times(1)).findByName(any(String.class));
-        verify(mockCounterRepository, times(1)).save(any(CounterEntity.class));
-    }
-
-    @Test
-    void test_incrementAndSaveCounter_whenCounterExists() {
-        var counterEntity = CounterEntity.builder()
-            .withName("someName")
-            .withValue(345)
-            .build();
-
-        when(mockCounterRepository.findByName(any(String.class))).thenReturn(Optional.of(counterEntity));
-        when(mockCounterRepository.save(any(CounterEntity.class))).thenReturn(counterEntity);
-
-        var counter = dbIntegration.incrementAndSaveCounter("someName");
-        assertThat(counter).isNotNull();
-        assertThat(counter.name()).isEqualTo("someName");
-        assertThat(counter.value()).isEqualTo(346);
-
-        verify(mockCounterRepository, times(1)).findByName(any(String.class));
-        verify(mockCounterRepository, times(1)).save(any(CounterEntity.class));
-    }
-
-    @Test
     void test_mapToMessageWhenMessageEntityIsNull() {
         assertThat(dbIntegration.mapToMessage(null)).isNull();
     }
@@ -170,8 +130,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 
@@ -199,8 +159,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 
@@ -218,7 +178,13 @@ class DbIntegrationTests {
 
     @Test
     void test_mapToHistoryWhenHistoryEntityIsNull() {
-        assertThat(dbIntegration.mapToHistory(null)).isNull();
+        assertThat(dbIntegration.mapToHistory((HistoryEntity) null)).isNull();
+    }
+
+
+    @Test
+    void test_mapToHistoryWhenHistoryEntryIsNull() {
+        assertThat(dbIntegration.mapToHistory((StatsEntry) null)).isNull();
     }
 
     @Test
@@ -228,8 +194,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withMessageType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withMessageType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .withCreatedAt(LocalDateTime.now())
             .build();
@@ -258,8 +224,8 @@ class DbIntegrationTests {
             .withMessageId("someMessageId")
             .withDeliveryId("someDeliveryId")
             .withPartyId("somePartyId")
-            .withType(MessageType.SNAIL_MAIL)
-            .withStatus(MessageStatus.FAILED)
+            .withType(SNAIL_MAIL)
+            .withStatus(FAILED)
             .withContent("someContent")
             .build();
 
@@ -274,23 +240,5 @@ class DbIntegrationTests {
         assertThat(historyEntity.getStatus()).isEqualTo(message.status());
         assertThat(historyEntity.getContent()).isEqualTo(message.content());
         assertThat(historyEntity.getCreatedAt()).isNotNull();
-    }
-
-    @Test
-    void test_mapToCounterWhenCounterEntityIsNull() {
-        assertThat(dbIntegration.mapToCounter(null)).isNull();
-    }
-
-    @Test
-    void test_mapToCounter() {
-        var counterEntity = CounterEntity.builder()
-            .withName("someName")
-            .withValue(123)
-            .build();
-
-        var counter = dbIntegration.mapToCounter(counterEntity);
-
-        assertThat(counter.name()).isEqualTo(counterEntity.getName());
-        assertThat(counter.value()).isEqualTo(counterEntity.getValue());
     }
 }

@@ -52,6 +52,10 @@ public class HistoryEntity {
     private MessageType messageType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "original_message_type")
+    private MessageType originalMessageType;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private MessageStatus status;
 

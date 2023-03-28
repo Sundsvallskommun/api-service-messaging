@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,13 +29,8 @@ class HistoryServiceTests {
     @InjectMocks
     private HistoryService historyService;
 
-    @BeforeEach
-    void setUp() {
-        historyService = new HistoryService(mockDbIntegration);
-    }
-
     @Test
-    void test_getHistory() {
+    void test_getHistoryByMessageId() {
         when(mockDbIntegration.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of(History.builder().build()));
 
@@ -47,7 +42,7 @@ class HistoryServiceTests {
     }
 
     @Test
-    void test_getHistory_whenNoEntityExists() {
+    void test_getHistoryByMessageId_whenNoEntityExists() {
         when(mockDbIntegration.getHistoryByMessageId(any(String.class)))
             .thenReturn(List.of());
 
@@ -68,6 +63,31 @@ class HistoryServiceTests {
         assertThat(result).hasSize(1);
 
         verify(mockDbIntegration, times(1)).getHistoryByBatchId(any(String.class));
+    }
+
+    @Test
+    void test_getHistoryByDeliveryId() {
+        when(mockDbIntegration.getHistoryForDeliveryId(any(String.class)))
+            .thenReturn(Optional.of(History.builder().build()));
+
+        var result = historyService.getHistoryForDeliveryId("someBatchId");
+
+        assertThat(result).isPresent();
+
+        verify(mockDbIntegration, times(1)).getHistoryForDeliveryId(any(String.class));
+    }
+
+    @Test
+    void test_getHistoryByDeliveryId_whenNoEntityExists() {
+        when(mockDbIntegration.getHistoryForDeliveryId(any(String.class)))
+            .thenReturn(Optional.empty());
+
+        var result = historyService.getHistoryForDeliveryId("someBatchId");
+
+        assertThat(result).isEmpty();
+
+        verify(mockDbIntegration, times(1)).getHistoryForDeliveryId(any(String.class));
+
     }
 
     @Test

@@ -10,7 +10,6 @@ import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FO
 import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
@@ -20,10 +19,13 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
@@ -46,7 +48,9 @@ import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderInteg
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.mapper.DtoMapper;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
+import se.sundsvall.messaging.service.mapper.RequestMapper;
 
 import lombok.Generated;
 
@@ -57,6 +61,7 @@ public class MessageService {
 
     private static final Gson GSON = new GsonBuilder().create();
 
+    private final TransactionTemplate transactionTemplate;
     private final DbIntegration dbIntegration;
     private final FeedbackSettingsIntegration feedbackSettings;
     private final SmsSenderIntegration smsSender;
@@ -64,16 +69,22 @@ public class MessageService {
     private final DigitalMailSenderIntegration digitalMailSender;
     private final WebMessageSenderIntegration webMessageSender;
     private final SnailMailSenderIntegration snailmailSender;
-    private final MessageMapper mapper;
+    private final MessageMapper messageMapper;
+    private final RequestMapper requestMapper;
+    private final DtoMapper dtoMapper;
 
-    public MessageService(final DbIntegration dbIntegration,
+    public MessageService(final TransactionTemplate transactionTemplate,
+            final DbIntegration dbIntegration,
             final FeedbackSettingsIntegration feedbackSettings,
             final SmsSenderIntegration smsSender,
             final EmailSenderIntegration emailSender,
             final DigitalMailSenderIntegration digitalMailSender,
             final WebMessageSenderIntegration webMessageSender,
             final SnailMailSenderIntegration snailmailSender,
-            final MessageMapper mapper) {
+            final MessageMapper messageMapper,
+            final RequestMapper requestMapper,
+            final DtoMapper dtoMapper) {
+        this.transactionTemplate = transactionTemplate;
         this.dbIntegration = dbIntegration;
         this.feedbackSettings = feedbackSettings;
         this.smsSender = smsSender;
@@ -81,28 +92,30 @@ public class MessageService {
         this.digitalMailSender = digitalMailSender;
         this.webMessageSender = webMessageSender;
         this.snailmailSender = snailmailSender;
-        this.mapper = mapper;
+        this.messageMapper = messageMapper;
+        this.requestMapper = requestMapper;
+        this.dtoMapper = dtoMapper;
     }
 
     public InternalDeliveryResult sendSms(final SmsRequest request) {
         // Save the message and (try to) deliver it
-        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryResult sendEmail(final EmailRequest request) {
         // Save the message and (try to) deliver it
-        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
         // Save the message and (try to) deliver it
-        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
         var batchId = UUID.randomUUID().toString();
         // Save the message(s)
-        var entities = dbIntegration.saveMessages(mapper.toMessages(request, batchId));
+        var entities = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
         // Deliver them
         var deliveries = entities.stream()
             .map(this::deliver)
@@ -113,13 +126,13 @@ public class MessageService {
 
     public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
         // Save the message and (try to) deliver it
-        return deliver(dbIntegration.saveMessage(mapper.toMessage(request)));
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
         var entities = request.messages().stream()
-            .map(message -> mapper.toMessage(batchId, message))
+            .map(message -> messageMapper.toMessage(batchId, message))
             .map(dbIntegration::saveMessage)
             .toList();
 
@@ -163,7 +176,7 @@ public class MessageService {
                             var delivery = message
                                 .withDeliveryId(deliveryId)
                                 .withType(EMAIL)
-                                .withContent(mapper.toEmailRequest(message, feedbackChannel.destination()));
+                                .withContent(requestMapper.toEmailRequest(message, feedbackChannel.destination()));
 
                             // Save the re-mapped delivery
                             dbIntegration.saveMessage(delivery);
@@ -180,7 +193,7 @@ public class MessageService {
                             var delivery = message
                                 .withDeliveryId(deliveryId)
                                 .withType(SMS)
-                                .withContent(mapper.toSmsRequest(message, feedbackChannel.destination()));
+                                .withContent(requestMapper.toSmsRequest(message, feedbackChannel.destination()));
 
                             // Save the re-mapped delivery
                             dbIntegration.saveMessage(delivery);
@@ -213,15 +226,16 @@ public class MessageService {
     }
 
     public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
+        var currentMessage = new ThreadLocal<Message>();
         var batchId = UUID.randomUUID().toString();
-        var entities = mapper.toMessages(request, batchId).stream()
+        var entities = messageMapper.toMessages(request, batchId).stream()
             .map(dbIntegration::saveMessage)
             .toList();
 
         var deliveries = entities.stream()
-            // First, try to deliver as digital mail
             .map(message -> ofCallable(() -> {
-                    var digitalMailRequest = mapper.toDigitalMailRequest(request);
+                    // Try to deliver as digital mail
+                    var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
                     if (digitalMailRequest.attachments().isEmpty()) {
                         LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 
@@ -238,14 +252,14 @@ public class MessageService {
                     return deliver(reroutedMessage);
                 })
                 .mapTry(deliveryResult -> {
-                    // Archive the original message
-                    archiveMessage(message.withStatus(deliveryResult.status()));
+                    // Success - delete the original delivery
+                    dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
                     return deliveryResult;
                 })
-                // If digital mail fails, try to deliver as snail-mail
                 .recover(Exception.class, outerRecoveryIgnored -> ofCallable(() -> {
-                        var snailMailRequest = mapper.toSnailMailRequest(request);
+                        // Failure using digital mail - try to deliver as snail-mail
+                        var snailMailRequest = requestMapper.toSnailMailRequest(request);
                         if (snailMailRequest.attachments().isEmpty()) {
                             LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
 
@@ -259,23 +273,26 @@ public class MessageService {
                             .withType(SNAIL_MAIL)
                             .withContent(GSON.toJson(snailMailRequest));
 
-                        // Register a LETTER failover
-                        incrementCounter(LETTER.toString().toLowerCase() + ".failover");
+                        // "Store" the message, for recovery handling
+                        currentMessage.set(reroutedMessage);
 
                         return deliver(reroutedMessage);
                     })
                     .mapTry(deliveryResult -> {
-                        // Archive the original message
-                        archiveMessage(message.withStatus(deliveryResult.status()));
+                        // Success - delete the original delivery
+                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
                         return deliveryResult;
                     })
                     .recover(Exception.class, innerRecoveryIgnored -> {
-                        // Archive the original message as FAILED
-                        var failedMessage = message.withStatus(FAILED);
-                        archiveMessage(failedMessage);
+                        // Failure - get the current message being delivered
+                        var failedReroutedMessage = currentMessage.get();
+                        currentMessage.remove();
 
-                        return new InternalDeliveryResult(failedMessage);
+                        // Delete the original delivery
+                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+
+                        return new InternalDeliveryResult(failedReroutedMessage.withStatus(FAILED));
                     })
                     .get())
                 .get())
@@ -299,27 +316,22 @@ public class MessageService {
         // Get the try call to start out with
         var sendTry = switch (delivery.type()) {
             case SMS -> ofCallable(() ->
-                smsSender.sendSms(mapper.toSmsDto((SmsRequest) request)));
+                smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
             case EMAIL -> ofCallable(() ->
-                emailSender.sendEmail(mapper.toEmailDto((EmailRequest) request)));
+                emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
             case DIGITAL_MAIL -> ofCallable(() ->
-                digitalMailSender.sendDigitalMail(mapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
+                digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
             case WEB_MESSAGE -> ofCallable(() ->
-                webMessageSender.sendWebMessage(mapper.toWebMessageDto((WebMessageRequest) request)));
+                webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
             case SNAIL_MAIL -> ofCallable(() ->
-                snailmailSender.sendSnailmail(mapper.toSnailmailDto((SnailMailRequest) request)));
+                snailmailSender.sendSnailmail(dtoMapper.toSnailmailDto((SnailMailRequest) request)));
             default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
         };
-
-        // Register a delivery attempt
-        incrementAttemptCounter(delivery.type());
 
         return sendTry
             .peek(status -> {
                 // Archive the message
                 archiveMessage(delivery.withStatus(status));
-                // Increment success counter
-                incrementSuccessCounter(delivery.type());
             })
             // Map to result
             .map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
@@ -337,37 +349,23 @@ public class MessageService {
             .peekLeft(throwable -> {
                 // Archive the message
                 archiveMessage(delivery.withStatus(FAILED));
-                // Increment failure counter
-                incrementFailureCounter(delivery.type());
 
                 throw (ThrowableProblem) throwable;
             })
             .get();
     }
 
-    @Transactional
     void archiveMessage(final Message message) {
-        LOG.info("Moving {} delivery {} with status {} to history", message.type(),
-            message.deliveryId(), message.status());
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(@NotNull final TransactionStatus status) {
+                LOG.info("Moving {} delivery {} with status {} to history", message.type(),
+                    message.deliveryId(), message.status());
 
-        dbIntegration.saveHistory(message);
-        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-    }
-
-    void incrementAttemptCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".total");
-    }
-
-    void incrementSuccessCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".success");
-    }
-
-    void incrementFailureCounter(final MessageType messageType) {
-        incrementCounter(messageType.toString().toLowerCase() + ".failure");
-    }
-
-    void incrementCounter(final String name) {
-        dbIntegration.incrementAndSaveCounter(name);
+                dbIntegration.saveHistory(message);
+                dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+            }
+        });
     }
 
     @Generated // To avoid having to implement a stupid test for no reason...

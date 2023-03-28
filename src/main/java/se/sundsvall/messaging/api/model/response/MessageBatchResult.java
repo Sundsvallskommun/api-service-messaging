@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")
-@Schema(description = "Message batch result", name = "TEST_BatchResult")
+@Schema(description = "Message batch result")
 public record MessageBatchResult(
 
     @Schema(description = "The batch id", format = "uuid")

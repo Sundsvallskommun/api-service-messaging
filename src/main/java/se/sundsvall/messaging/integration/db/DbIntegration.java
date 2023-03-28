@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -8,13 +9,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import se.sundsvall.messaging.integration.db.entity.CounterEntity;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.model.Counter;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 @Component
 @Transactional
@@ -22,13 +23,11 @@ public class DbIntegration {
 
     private final MessageRepository messageRepository;
     private final HistoryRepository historyRepository;
-    private final CounterRepository counterRepository;
 
     public DbIntegration(final MessageRepository messageRepository,
-            final HistoryRepository historyRepository, final CounterRepository counterRepository) {
+            final HistoryRepository historyRepository) {
         this.messageRepository = messageRepository;
         this.historyRepository = historyRepository;
-        this.counterRepository = counterRepository;
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +78,12 @@ public class DbIntegration {
     }
 
     @Transactional(readOnly = true)
+    public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
+            final LocalDate to) {
+        return historyRepository.getStats(messageType, from, to);
+    }
+
+    @Transactional(readOnly = true)
     public List<History> getHistory(final Specification<HistoryEntity> specification) {
         return historyRepository.findAll(specification).stream()
             .map(this::mapToHistory)
@@ -87,23 +92,6 @@ public class DbIntegration {
 
     public History saveHistory(final Message message) {
         return mapToHistory(historyRepository.save(mapToHistoryEntity(message)));
-    }
-
-    @Transactional(readOnly = true)
-    public List<Counter> getAllCounters() {
-        return counterRepository.findAll().stream()
-            .map(this::mapToCounter)
-            .toList();
-    }
-
-    public Counter incrementAndSaveCounter(final String name) {
-        var counter = counterRepository.findByName(name)
-            .orElseGet(() -> CounterEntity.builder()
-                .withName(name)
-                .build())
-            .increment();
-
-        return mapToCounter(counterRepository.save(counter));
     }
 
     Message mapToMessage(final MessageEntity messageEntity) {
@@ -117,6 +105,7 @@ public class DbIntegration {
             .withDeliveryId(messageEntity.getDeliveryId())
             .withPartyId(messageEntity.getPartyId())
             .withType(messageEntity.getType())
+            .withOriginalType(messageEntity.getOriginalMessageType())
             .withStatus(messageEntity.getStatus())
             .withContent(messageEntity.getContent())
             .build();
@@ -133,6 +122,7 @@ public class DbIntegration {
             .withDeliveryId(message.deliveryId())
             .withPartyId(message.partyId())
             .withType(message.type())
+            .withOriginalMessageType(message.originalType())
             .withStatus(message.status())
             .withContent(message.content())
             .build();
@@ -148,9 +138,22 @@ public class DbIntegration {
             .withMessageId(historyEntity.getMessageId())
             .withDeliveryId(historyEntity.getDeliveryId())
             .withMessageType(historyEntity.getMessageType())
+            .withOriginalMessageType(historyEntity.getOriginalMessageType())
             .withStatus(historyEntity.getStatus())
             .withContent(historyEntity.getContent())
             .withCreatedAt(historyEntity.getCreatedAt())
+            .build();
+    }
+
+    History mapToHistory(final StatsEntry historyEntry) {
+        if (null == historyEntry) {
+            return null;
+        }
+
+        return History.builder()
+            .withMessageType(historyEntry.messageType())
+            .withOriginalMessageType(historyEntry.originalMessageType())
+            .withStatus(historyEntry.status())
             .build();
     }
 
@@ -165,20 +168,10 @@ public class DbIntegration {
             .withDeliveryId(message.deliveryId())
             .withPartyId(message.partyId())
             .withMessageType(message.type())
+            .withOriginalMessageType(message.originalType())
             .withStatus(message.status())
             .withContent(message.content())
             .withCreatedAt(LocalDateTime.now())
-            .build();
-    }
-
-    Counter mapToCounter(final CounterEntity counterEntity) {
-        if (null == counterEntity) {
-            return null;
-        }
-
-        return Counter.builder()
-            .withName(counterEntity.getName())
-            .withValue(counterEntity.getValue())
             .build();
     }
 }
