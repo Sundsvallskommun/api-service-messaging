@@ -2,10 +2,12 @@ package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,18 +89,18 @@ class HistoryServiceTests {
         assertThat(result).isEmpty();
 
         verify(mockDbIntegration, times(1)).getHistoryForDeliveryId(any(String.class));
-
     }
 
     @Test
     void test_getConversationHistory() {
-        when(mockDbIntegration.getHistory(any()))
+        when(mockDbIntegration.getHistory(any(String.class), nullable(LocalDate.class), nullable(LocalDate.class)))
             .thenReturn(List.of(History.builder().build()));
 
         var result = historyService.getConversationHistory("somePartyId", null, null);
 
         assertThat(result).hasSize(1);
 
-        verify(mockDbIntegration, times(1)).getHistory(any());
+        verify(mockDbIntegration, times(1))
+            .getHistory(any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
     }
 }

@@ -313,7 +313,7 @@
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>
                         <!-- Exclude JPA specifications and metamodels -->
-                        <exclude>**/se/sundsvall/messaging/integration/db/specification/**/**</exclude>
+                        <exclude>**/se/sundsvall/messaging/integration/db/HistoryRepository$Specs*</exclude>
                         <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*</exclude>
                         <exclude>**/generated/**</exclude>
                     </excludes>

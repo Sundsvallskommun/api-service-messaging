@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.integration.db.specification.HistoryEntitySpecifications;
 import se.sundsvall.messaging.model.History;
 
 @Service
@@ -33,10 +32,6 @@ public class HistoryService {
 
     public List<History> getConversationHistory(final String partyId, final LocalDate from,
             final LocalDate to) {
-        var specifications = HistoryEntitySpecifications.withPartyId(partyId)
-            .and(HistoryEntitySpecifications.withCreatedAtAfter(from))
-            .and(HistoryEntitySpecifications.withCreatedAtBefore(to));
-
-        return dbIntegration.getHistory(specifications);
+        return dbIntegration.getHistory(partyId, from, to);
     }
 }

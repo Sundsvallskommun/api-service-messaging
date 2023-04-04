@@ -59,6 +59,9 @@ public class HistoryEntity {
     @Column(name = "status")
     private MessageStatus status;
 
+    @Column(name = "status_detail", columnDefinition = "LONGTEXT")
+    private String statusDetail;
+
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
 
