@@ -1,19 +1,19 @@
 package se.sundsvall.messaging.integration.db;
 
+import static java.lang.Boolean.TRUE;
+import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.CREATED_AT;
+import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.PARTY_ID;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.MessageType;
 
 @Repository
 public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>,
@@ -25,21 +25,36 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>,
 
     List<HistoryEntity> findByBatchId(String batchId);
 
-    default List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
-            final LocalDate to) {
-        return getStats(messageType,
-            from != null ? from.atStartOfDay() : null,
-            to != null ? to.atStartOfDay().plusHours(23).plusMinutes(59).plusSeconds(59) : null);
-    }
+    interface Specs {
 
-    @Query("""
-        SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status) FROM HistoryEntity h WHERE
-        (:message_type IS NULL OR h.originalMessageType = :message_type) AND 
-        (:from_date IS NULL OR h.createdAt >= :from_date) AND
-        (:to_date IS NULL OR h.createdAt <= :to_date)
-    """)
-    List<StatsEntry> getStats(
-        @Param("message_type") final MessageType messageType,
-        @Param("from_date") final LocalDateTime from,
-        @Param("to_date") final LocalDateTime to);
+        Specification<HistoryEntity> FALLBACK = (root, query, cb) -> cb.equal(cb.literal(TRUE), TRUE);
+
+        static Specification<HistoryEntity> withPartyId(final String partyId) {
+            return (root, query, cb) -> cb.equal(root.get(PARTY_ID), partyId);
+        }
+
+        static Specification<HistoryEntity> withCreatedAtBefore(final LocalDate when) {
+            if (when == null) {
+                return FALLBACK;
+            }
+
+            return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(CREATED_AT), when.atStartOfDay());
+        }
+
+        static Specification<HistoryEntity> withCreatedAtAfter(final LocalDate when) {
+            if (when == null) {
+                return FALLBACK;
+            }
+
+            return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(CREATED_AT), when.atStartOfDay().plusDays(1));
+        }
+
+        static Specification<HistoryEntity> orderByCreatedAtDesc(final Specification<HistoryEntity> specification) {
+            return (root, query, cb) -> {
+                query.orderBy(cb.desc(root.get(CREATED_AT)));
+
+                return specification.toPredicate(root, query, cb);
+            };
+        }
+    }
 }

@@ -16,7 +16,7 @@ spring:
 
 logbook:
   exclusionfilters:
-    json-path: '{"$.attachments[*].content": "[base64]", "$.attachments[*].base64Data": "[base64]"}'
+    json-path: '{"$.attachments[*].content": "[base64]", "$.attachments[*].base64Data": "[base64]", "$.attachments[*].body": "[base64]"}'
 
 messaging:
   defaults:

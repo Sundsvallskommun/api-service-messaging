@@ -226,77 +226,72 @@ public class MessageService {
     }
 
     public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
-        var currentMessage = new ThreadLocal<Message>();
         var batchId = UUID.randomUUID().toString();
-        var entities = messageMapper.toMessages(request, batchId).stream()
+        var messages = messageMapper.toMessages(request, batchId).stream()
             .map(dbIntegration::saveMessage)
             .toList();
 
-        var deliveries = entities.stream()
-            .map(message -> ofCallable(() -> {
-                    // Try to deliver as digital mail
-                    var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
-                    if (digitalMailRequest.attachments().isEmpty()) {
-                        LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
+        var deliveries = new ArrayList<InternalDeliveryResult>();
 
-                        // No attachments intended for digital mail delivery - "switch" to snail-mail
-                        throw new NoLetterAttachmentsException();
-                    }
+        // Re-map the request as a digital mail request
+        var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
+        var digitalMailRequestAsJson = GSON.toJson(digitalMailRequest);
+        // Re-map the request as a snail-mail request
+        var snailMailRequest = requestMapper.toSnailMailRequest(request);
+        var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
 
-                    // Re-map the message as digital mail and attempt to deliver it
-                    var reroutedMessage = dbIntegration.saveMessage(message
-                        .withDeliveryId(UUID.randomUUID().toString())
-                        .withType(DIGITAL_MAIL)
-                        .withContent(GSON.toJson(digitalMailRequest)));
+        for (var message : messages) {
+            // Don't make an attempt to deliver as digital mail if there aren't any attachments
+            // indended for it
+            if (!digitalMailRequest.attachments().isEmpty()) {
+                // "Re-route" the message as digital mail
+                var reroutedMessage = dbIntegration.saveMessage(message
+                    .withDeliveryId(UUID.randomUUID().toString())
+                    .withType(DIGITAL_MAIL)
+                    .withContent(digitalMailRequestAsJson));
 
-                    return deliver(reroutedMessage);
-                })
-                .mapTry(deliveryResult -> {
-                    // Success - delete the original delivery
+                try {
+                    // Deliver it
+                    deliveries.add(deliver(reroutedMessage));
+                    // Delete the original delivery
                     dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+                    // Process the next message, if any
+                    continue;
+                } catch (Exception e) {
+                    LOG.info("Unable to send LETTER as DIGITAL_MAIL");
 
-                    return deliveryResult;
-                })
-                .recover(Exception.class, outerRecoveryIgnored -> ofCallable(() -> {
-                        // Failure using digital mail - try to deliver as snail-mail
-                        var snailMailRequest = requestMapper.toSnailMailRequest(request);
-                        if (snailMailRequest.attachments().isEmpty()) {
-                            LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
+                    deliveries.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+                    // Delete the original delivery
+                    dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+                }
+            } else {
+                // No attachments intended for digital mail
+                LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
+            }
 
-                            // No attachments intended for digital mail delivery - fail
-                            throw new NoLetterAttachmentsException();
-                        }
+            // Don't make an attempt to deliver as snail mail if there aren't any attachments
+            // indended for it
+            if (!snailMailRequest.attachments().isEmpty()) {
+                // Re-route the message as snail-mail
+                var reroutedMessage = dbIntegration.saveMessage(message
+                    .withDeliveryId(UUID.randomUUID().toString())
+                    .withType(SNAIL_MAIL)
+                    .withContent(snailMailRequestAsJson));
 
-                        // Re-map the message as snail-mail and attempt to deliver it
-                        var reroutedMessage = message
-                            .withDeliveryId(UUID.randomUUID().toString())
-                            .withType(SNAIL_MAIL)
-                            .withContent(GSON.toJson(snailMailRequest));
+                try {
+                    // Deliver it
+                    deliveries.add(deliver(reroutedMessage));
+                } catch (Exception e) {
+                    LOG.info("Unable to send LETTER as SNAIL_MAIL");
 
-                        // "Store" the message, for recovery handling
-                        currentMessage.set(reroutedMessage);
-
-                        return deliver(reroutedMessage);
-                    })
-                    .mapTry(deliveryResult -> {
-                        // Success - delete the original delivery
-                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-
-                        return deliveryResult;
-                    })
-                    .recover(Exception.class, innerRecoveryIgnored -> {
-                        // Failure - get the current message being delivered
-                        var failedReroutedMessage = currentMessage.get();
-                        currentMessage.remove();
-
-                        // Delete the original delivery
-                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-
-                        return new InternalDeliveryResult(failedReroutedMessage.withStatus(FAILED));
-                    })
-                    .get())
-                .get())
-            .toList();
+                    deliveries.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+                }
+                // Delete the original delivery
+                dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+            } else {
+                LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
+            }
+        }
 
         return new InternalDeliveryBatchResult(batchId, deliveries);
     }
@@ -337,7 +332,11 @@ public class MessageService {
             .map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
             // Make sure all exceptions that may occur are throwable problems
             .mapFailure(
-                Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> throwableProblem),
+                Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> {
+                    LOG.info("Unable to deliver {}: {}", delivery.type(), throwableProblem.getMessage());
+
+                    return throwableProblem;
+                }),
                 Case($(), e -> {
                     LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
 
@@ -348,7 +347,7 @@ public class MessageService {
             // If we have a left (i.e. an exception has occurred) - archive the message and throw
             .peekLeft(throwable -> {
                 // Archive the message
-                archiveMessage(delivery.withStatus(FAILED));
+                archiveMessage(delivery.withStatus(FAILED), throwable.getMessage());
 
                 throw (ThrowableProblem) throwable;
             })
@@ -356,18 +355,19 @@ public class MessageService {
     }
 
     void archiveMessage(final Message message) {
+        archiveMessage(message, null);
+    }
+
+    void archiveMessage(final Message message, final String statusDetail) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NotNull final TransactionStatus status) {
-                LOG.info("Moving {} delivery {} with status {} to history", message.type(),
+                LOG.debug("Moving {} delivery {} with status {} to history", message.type(),
                     message.deliveryId(), message.status());
 
-                dbIntegration.saveHistory(message);
+                dbIntegration.saveHistory(message, statusDetail);
                 dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
             }
         });
     }
-
-    @Generated // To avoid having to implement a stupid test for no reason...
-    static class NoLetterAttachmentsException extends RuntimeException { }
 }

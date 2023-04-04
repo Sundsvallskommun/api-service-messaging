@@ -32,10 +32,10 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class HistoryRepositoryTests {
+class StatisticsRepositoryTests {
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private HistoryRepository mockHistoryRepository;
+    private StatisticsRepository mockStatisticsRepository;
 
     @Captor
     private ArgumentCaptor<LocalDateTime> fromCaptor;
@@ -44,17 +44,17 @@ class HistoryRepositoryTests {
 
     @Test
     void test_getStats() {
-        when(mockHistoryRepository.getStats(any(MessageType.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(mockStatisticsRepository.getStats(any(MessageType.class), any(LocalDateTime.class), any(LocalDateTime.class)))
             .thenReturn(List.of(new StatsEntry(SMS, SMS, SENT)));
 
         var from = LocalDate.of(2023, 3, 27);
         var to = LocalDate.of(2023, 3, 28);
 
-        var result = mockHistoryRepository.getStats(SMS, from, to);
+        var result = mockStatisticsRepository.getStats(SMS, from, to);
 
         assertThat(result).isNotNull().hasSize(1);
 
-        verify(mockHistoryRepository, times(1)).getStats(eq(SMS), fromCaptor.capture(), toCaptor.capture());
+        verify(mockStatisticsRepository, times(1)).getStats(eq(SMS), fromCaptor.capture(), toCaptor.capture());
 
         assertThat(fromCaptor.getValue().toLocalDate()).isEqualTo(from);
         assertThat(toCaptor.getValue()).satisfies(capturedTo -> {
@@ -67,13 +67,13 @@ class HistoryRepositoryTests {
 
     @Test
     void test_getStats_withNullFromAndTo() {
-        when(mockHistoryRepository.getStats(any(MessageType.class), nullable(LocalDateTime.class), nullable(LocalDateTime.class)))
+        when(mockStatisticsRepository.getStats(any(MessageType.class), nullable(LocalDateTime.class), nullable(LocalDateTime.class)))
             .thenReturn(List.of(new StatsEntry(EMAIL, EMAIL, FAILED)));
 
-        var result = mockHistoryRepository.getStats(SMS, (LocalDate) null, null);
+        var result = mockStatisticsRepository.getStats(SMS, (LocalDate) null, null);
 
         assertThat(result).isNotNull().hasSize(1);
 
-        verify(mockHistoryRepository, times(1)).getStats(eq(SMS), ArgumentMatchers.<LocalDateTime>isNull(), isNull());
+        verify(mockStatisticsRepository, times(1)).getStats(eq(SMS), ArgumentMatchers.<LocalDateTime>isNull(), isNull());
     }
 }

@@ -103,7 +103,7 @@ class DbIntegrationTests {
         when(mockHistoryRepository.findAll(ArgumentMatchers.<Specification<HistoryEntity>>any()))
             .thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
 
-        assertThat(dbIntegration.getHistory(null)).hasSize(2);
+        assertThat(dbIntegration.getHistory(null, null, null)).hasSize(2);
 
         verify(mockHistoryRepository, times(1))
             .findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
@@ -113,7 +113,7 @@ class DbIntegrationTests {
     void test_saveHistory() {
         when(mockHistoryRepository.save(any(HistoryEntity.class))).thenReturn(HistoryEntity.builder().build());
 
-        assertThat(dbIntegration.saveHistory(Message.builder().build())).isNotNull();
+        assertThat(dbIntegration.saveHistory(Message.builder().build(), null)).isNotNull();
 
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
     }
@@ -214,7 +214,7 @@ class DbIntegrationTests {
 
     @Test
     void test_mapToHistoryEntityWhenMessageIsNull() {
-        assertThat(dbIntegration.mapToHistoryEntity(null)).isNull();
+        assertThat(dbIntegration.mapToHistoryEntity(null, null)).isNull();
     }
 
     @Test
@@ -229,7 +229,7 @@ class DbIntegrationTests {
             .withContent("someContent")
             .build();
 
-        var historyEntity = dbIntegration.mapToHistoryEntity(message);
+        var historyEntity = dbIntegration.mapToHistoryEntity(message, "someStatusDetail");
 
         assertThat(historyEntity).isNotNull();
         assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
@@ -238,6 +238,7 @@ class DbIntegrationTests {
         assertThat(historyEntity.getPartyId()).isEqualTo(message.partyId());
         assertThat(historyEntity.getMessageType()).isEqualTo(message.type());
         assertThat(historyEntity.getStatus()).isEqualTo(message.status());
+        assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
         assertThat(historyEntity.getContent()).isEqualTo(message.content());
         assertThat(historyEntity.getCreatedAt()).isNotNull();
     }

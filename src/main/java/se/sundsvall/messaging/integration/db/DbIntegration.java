@@ -1,5 +1,10 @@
 package se.sundsvall.messaging.integration.db;
 
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.orderByCreatedAtDesc;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withPartyId;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,11 +28,14 @@ public class DbIntegration {
 
     private final MessageRepository messageRepository;
     private final HistoryRepository historyRepository;
+    private final StatisticsRepository statisticsRepository;
 
     public DbIntegration(final MessageRepository messageRepository,
-            final HistoryRepository historyRepository) {
+            final HistoryRepository historyRepository,
+            final StatisticsRepository statisticsRepository) {
         this.messageRepository = messageRepository;
         this.historyRepository = historyRepository;
+        this.statisticsRepository = statisticsRepository;
     }
 
     @Transactional(readOnly = true)
@@ -78,20 +86,25 @@ public class DbIntegration {
     }
 
     @Transactional(readOnly = true)
-    public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
-            final LocalDate to) {
-        return historyRepository.getStats(messageType, from, to);
-    }
+    public List<History> getHistory(final String partyId, final LocalDate from, final LocalDate to) {
+        var specifications = orderByCreatedAtDesc(
+            withPartyId(partyId)
+                .and(withCreatedAtAfter(from))
+                .and(withCreatedAtBefore(to)));
 
-    @Transactional(readOnly = true)
-    public List<History> getHistory(final Specification<HistoryEntity> specification) {
-        return historyRepository.findAll(specification).stream()
+        return historyRepository.findAll(specifications).stream()
             .map(this::mapToHistory)
             .toList();
     }
 
-    public History saveHistory(final Message message) {
-        return mapToHistory(historyRepository.save(mapToHistoryEntity(message)));
+    public History saveHistory(final Message message, final String failureDetail) {
+        return mapToHistory(historyRepository.save(mapToHistoryEntity(message, failureDetail)));
+    }
+
+    @Transactional(readOnly = true)
+    public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
+        final LocalDate to) {
+        return statisticsRepository.getStats(messageType, from, to);
     }
 
     Message mapToMessage(final MessageEntity messageEntity) {
@@ -157,7 +170,7 @@ public class DbIntegration {
             .build();
     }
 
-    HistoryEntity mapToHistoryEntity(final Message message) {
+    HistoryEntity mapToHistoryEntity(final Message message, final String statusDetail) {
         if (null == message) {
             return null;
         }
@@ -170,6 +183,7 @@ public class DbIntegration {
             .withMessageType(message.type())
             .withOriginalMessageType(message.originalType())
             .withStatus(message.status())
+            .withStatusDetail(statusDetail)
             .withContent(message.content())
             .withCreatedAt(LocalDateTime.now())
             .build();
