@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

@@ -52,8 +52,6 @@ import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
 
-import lombok.Generated;
-
 @Service
 public class MessageService {
 
@@ -241,11 +239,14 @@ public class MessageService {
         var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
 
         for (var message : messages) {
+            var newMessageId = UUID.randomUUID().toString();
+
             // Don't make an attempt to deliver as digital mail if there aren't any attachments
             // indended for it
             if (!digitalMailRequest.attachments().isEmpty()) {
                 // "Re-route" the message as digital mail
                 var reroutedMessage = dbIntegration.saveMessage(message
+                    .withMessageId(newMessageId)
                     .withDeliveryId(UUID.randomUUID().toString())
                     .withType(DIGITAL_MAIL)
                     .withContent(digitalMailRequestAsJson));
@@ -274,6 +275,7 @@ public class MessageService {
             if (!snailMailRequest.attachments().isEmpty()) {
                 // Re-route the message as snail-mail
                 var reroutedMessage = dbIntegration.saveMessage(message
+                    .withMessageId(newMessageId)
                     .withDeliveryId(UUID.randomUUID().toString())
                     .withType(SNAIL_MAIL)
                     .withContent(snailMailRequestAsJson));
