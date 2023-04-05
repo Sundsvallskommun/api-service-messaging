@@ -54,7 +54,7 @@ public record EmailRequest(
 
     @With
     @Builder(setterPrefix = "with")
-    @Schema(name = "SmsRequestParty")
+    @Schema(name = "EmailRequestParty")
     public record Party(
 
         @ValidUuid(nullable = true)
