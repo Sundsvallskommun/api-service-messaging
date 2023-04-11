@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,13 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -43,6 +52,8 @@ class StatusAndHistoryResource {
     static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
     static final String MESSAGE_STATUS_PATH = "/status/message/{messageId}";
     static final String DELIVERY_STATUS_PATH = "/status/delivery/{deliveryId}";
+
+    private static final Gson GSON = new GsonBuilder().create();
 
     private final HistoryService historyService;
     private final StatisticsService statisticsService;
@@ -85,7 +96,7 @@ class StatusAndHistoryResource {
             @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
             final LocalDate to) {
         return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
-            .map(ResponseMapper::toHistoryResponse)
+            .map(this::toHistoryResponse)
             .toList());
     }
 
@@ -141,7 +152,7 @@ class StatusAndHistoryResource {
                 .map(message -> MessageResult.builder()
                     .withMessageId(message.getKey())
                     .withDeliveries(message.getValue().stream()
-                        .map(ResponseMapper::toDeliveryResult)
+                        .map(this::toDeliveryResult)
                         .toList())
                     .build())
                 .toList())
@@ -199,7 +210,7 @@ class StatusAndHistoryResource {
         var result = MessageResult.builder()
             .withMessageId(message.getKey())
             .withDeliveries(message.getValue().stream()
-                .map(ResponseMapper::toDeliveryResult)
+                .map(this::toDeliveryResult)
                 .toList())
             .build();
 
@@ -233,7 +244,7 @@ class StatusAndHistoryResource {
     ResponseEntity<DeliveryResult> getDeliveryStatus(
             @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
         return historyService.getHistoryForDeliveryId(deliveryId)
-            .map(ResponseMapper::toDeliveryResult)
+            .map(this::toDeliveryResult)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -265,7 +276,7 @@ class StatusAndHistoryResource {
     ResponseEntity<List<HistoryResponse>> getMessage(
             @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
         var history = historyService.getHistoryByMessageId(messageId).stream()
-            .map(ResponseMapper::toHistoryResponse)
+            .map(this::toHistoryResponse)
             .toList();
 
         if (history.isEmpty()) {
@@ -311,5 +322,29 @@ class StatusAndHistoryResource {
         var stats = statisticsService.getStatistics(messageType, from, to);
 
         return ResponseEntity.ok(stats);
+    }
+    DeliveryResult toDeliveryResult(final History deliveryHistory) {
+        return DeliveryResult.builder()
+            .withDeliveryId(deliveryHistory.deliveryId())
+            .withMessageType(deliveryHistory.messageType())
+            .withStatus(deliveryHistory.status())
+            .build();
+    }
+
+    HistoryResponse toHistoryResponse(final History history) {
+        return HistoryResponse.builder()
+            .withMessageType(history.messageType())
+            .withStatus(history.status())
+            .withContent(GSON.fromJson(history.content(), switch (history.messageType()) {
+                case EMAIL -> EmailRequest.class;
+                case SMS -> SmsRequest.class;
+                case WEB_MESSAGE -> WebMessageRequest.class;
+                case DIGITAL_MAIL -> DigitalMailRequest.class;
+                case MESSAGE -> MessageRequest.Message.class;
+                case SNAIL_MAIL -> SnailMailRequest.class;
+                case LETTER -> LetterRequest.class;
+            }))
+            .withTimestamp(history.createdAt())
+            .build();
     }
 }
