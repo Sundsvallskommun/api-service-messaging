@@ -211,7 +211,11 @@ public class MessageService {
                             LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
                                 message.messageId(), message.deliveryId());
 
-                            archiveMessage(message.withStatus(FAILED));
+                            var statusDetail = String.format(
+                                "Unknown/missing contact method for message %s and delivery id %s",
+                                message.messageId(), message.deliveryId());
+
+                            archiveMessage(message.withStatus(FAILED), statusDetail);
 
                             deliveries.add(new InternalDeliveryResult(message, FAILED));
                         }

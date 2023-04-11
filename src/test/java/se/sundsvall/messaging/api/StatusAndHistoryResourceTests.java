@@ -7,15 +7,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,13 +39,8 @@ class StatusAndHistoryResourceTests {
     @Mock
     private StatisticsService mockStatisticsService;
 
+    @InjectMocks
     private StatusAndHistoryResource statusAndHistoryResource;
-
-    @BeforeEach
-    void setUp() {
-        statusAndHistoryResource = new StatusAndHistoryResource(
-            mockHistoryService, mockStatisticsService);
-    }
 
     @Test
     void test_getConversationHistory() {
@@ -155,5 +155,39 @@ class StatusAndHistoryResourceTests {
         assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
 
         verify(mockHistoryService, times(1)).getHistoryByMessageId(any(String.class));
+    }
+
+    @Test
+    void test_toDeliveryResult() {
+        var history = History.builder()
+            .withDeliveryId("someDeliveryId")
+            .withMessageType(WEB_MESSAGE)
+            .withStatus(FAILED)
+            .build();
+
+        var result = statusAndHistoryResource.toDeliveryResult(history);
+
+        assertThat(result.deliveryId()).isEqualTo(history.deliveryId());
+        assertThat(result.messageType()).isEqualTo(history.messageType());
+        assertThat(result.status()).isEqualTo(history.status());
+    }
+
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void test_toHistoryResponse(final MessageType messageType) {
+        var history = History.builder()
+            .withMessageType(messageType)
+            .withStatus(SENT)
+            .withContent("{}")
+            .withCreatedAt(LocalDateTime.now())
+            .build();
+
+        var result = statusAndHistoryResource.toHistoryResponse(history);
+
+        assertThat(result).isNotNull();
+        assertThat(result.messageType()).isEqualTo(messageType);
+        assertThat(result.content()).isNotNull();
+        assertThat(result.status()).isEqualTo(SENT);
+        assertThat(result.timestamp()).isNotNull();
     }
 }

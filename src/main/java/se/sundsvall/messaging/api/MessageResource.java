@@ -1,8 +1,13 @@
 package se.sundsvall.messaging.api;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static se.sundsvall.messaging.api.ResponseMapper.toResponse;
+import static org.springframework.http.ResponseEntity.created;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
+
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.zalando.problem.Problem;
 
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -21,8 +27,11 @@ import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
@@ -75,11 +84,12 @@ class MessageResource {
     )
     ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleSmsRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleSmsRequest(request));
         } else {
-            return toResponse(messageService.sendSms(request));
+            return toResponse(uriComponentsBuilder, messageService.sendSms(request));
         }
     }
 
@@ -101,11 +111,12 @@ class MessageResource {
     )
     ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleEmailRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleEmailRequest(request));
         } else {
-            return toResponse(messageService.sendEmail(request));
+            return toResponse(uriComponentsBuilder, messageService.sendEmail(request));
         }
     }
 
@@ -127,11 +138,12 @@ class MessageResource {
     )
     ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleWebMessageRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleWebMessageRequest(request));
         } else {
-            return toResponse(messageService.sendWebMessage(request));
+            return toResponse(uriComponentsBuilder, messageService.sendWebMessage(request));
         }
     }
 
@@ -153,11 +165,12 @@ class MessageResource {
     )
     ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleDigitalMailRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalMailRequest(request));
         } else {
-            return toResponse(messageService.sendDigitalMail(request));
+            return toResponse(uriComponentsBuilder, messageService.sendDigitalMail(request));
         }
     }
 
@@ -179,11 +192,12 @@ class MessageResource {
     )
     ResponseEntity<MessageResult> sendSnailMail(@Valid @RequestBody final SnailMailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleSnailMailRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleSnailMailRequest(request));
         } else {
-            return toResponse(messageService.sendSnailMail(request));
+            return toResponse(uriComponentsBuilder, messageService.sendSnailMail(request));
         }
     }
 
@@ -205,11 +219,12 @@ class MessageResource {
     )
     ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleMessageRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleMessageRequest(request));
         } else {
-            return toResponse(messageService.sendMessages(request));
+            return toResponse(uriComponentsBuilder, messageService.sendMessages(request));
         }
     }
 
@@ -231,11 +246,57 @@ class MessageResource {
     )
     ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
         if (async) {
-            return toResponse(eventDispatcher.handleLetterRequest(request));
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleLetterRequest(request));
         } else {
-            return toResponse(messageService.sendLetter(request));
+            return toResponse(uriComponentsBuilder, messageService.sendLetter(request));
         }
+    }
+
+    ResponseEntity<MessageResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,
+            final InternalDeliveryResult deliveryResult) {
+        var uri = uriComponentsBuilder.path(MESSAGE_STATUS_PATH)
+            .buildAndExpand(deliveryResult.messageId())
+            .toUri();;
+
+        return created(uri)
+            .body(MessageResult.builder()
+                .withMessageId(deliveryResult.messageId())
+                .withDeliveries(List.of(DeliveryResult.builder()
+                    .withDeliveryId(deliveryResult.deliveryId())
+                    .withMessageType(deliveryResult.messageType())
+                    .withStatus(deliveryResult.status())
+                    .build()))
+                .build());
+    }
+
+    ResponseEntity<MessageBatchResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,
+            final InternalDeliveryBatchResult deliveryBatchResult) {
+        var uri = uriComponentsBuilder.path(BATCH_STATUS_PATH)
+            .buildAndExpand(deliveryBatchResult.batchId())
+            .toUri();
+
+        // Group the deliveries by message id
+        var groupedDeliveries = deliveryBatchResult.deliveries().stream()
+            .collect(groupingBy(InternalDeliveryResult::messageId));
+
+        return created(uri)
+            .body(MessageBatchResult.builder()
+                .withBatchId(deliveryBatchResult.batchId())
+                .withMessages(groupedDeliveries.entrySet().stream()
+                    .map(message -> MessageResult.builder()
+                        .withMessageId(message.getKey())
+                        .withDeliveries(message.getValue().stream()
+                            .map(delivery -> DeliveryResult.builder()
+                                .withDeliveryId(delivery.deliveryId())
+                                .withMessageType(delivery.messageType())
+                                .withStatus(delivery.status())
+                                .build())
+                            .toList())
+                        .build())
+                    .toList())
+                .build());
     }
 }
