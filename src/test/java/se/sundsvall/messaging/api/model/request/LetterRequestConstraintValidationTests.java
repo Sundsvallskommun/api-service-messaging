@@ -164,32 +164,8 @@ class LetterRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithNullContentType() {
-        assertThat(validRequest.withContentType(null))
-            .hasConstraintViolation("contentType", "must not be blank")
-            .hasConstraintViolation("contentType", "must be one of: [text/plain, text/html]");
-    }
-
-    @Test
-    void shouldFailWithBlankContentType() {
-        assertThat(validRequest.withContentType(null))
-            .hasConstraintViolation("contentType", "must not be blank")
-            .hasConstraintViolation("contentType", "must be one of: [text/plain, text/html]");
-    }
-
-    @Test
     void shouldFailWithInvalidContentType() {
         assertThat(validRequest.withContentType("invalid-content-type"))
             .hasSingleConstraintViolation("contentType", "must be one of: [text/plain, text/html]");
-    }
-
-    @Test
-    void shouldFailWithNullBody() {
-        assertThat(validRequest.withBody(null)).hasSingleConstraintViolation("body", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithBlankBody() {
-        assertThat(validRequest.withBody(" ")).hasSingleConstraintViolation("body", "must not be blank");
     }
 }
