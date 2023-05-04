@@ -1137,8 +1137,6 @@ components:
     LetterRequest:
       required:
       - attachments
-      - body
-      - contentType
       - department
       - party
       - subject

@@ -40,12 +40,10 @@ public record LetterRequest(
         @Schema(description = "Sender")
         Sender sender,
 
-        @NotBlank
         @OneOf({"text/plain", "text/html"})
         @Schema(description = "Content type", allowableValues = {"text/plain", "text/html"})
         String contentType,
 
-        @NotBlank
         @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'text/html')")
         String body,
 
