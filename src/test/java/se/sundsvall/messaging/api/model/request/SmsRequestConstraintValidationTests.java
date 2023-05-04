@@ -30,6 +30,7 @@ class SmsRequestConstraintValidationTests {
 
         assertThat(request).hasSingleConstraintViolation("party.partyId", "not a valid UUID");
     }
+
     @Test
     void shouldFailWithInvalidExternalReference() {
         var externalReference = validRequest.party().externalReferences().get(0);

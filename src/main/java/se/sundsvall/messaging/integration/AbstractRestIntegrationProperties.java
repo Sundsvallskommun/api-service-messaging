@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.integration;
 
+import static se.sundsvall.messaging.integration.Constants.DEFAULT_CONNECT_TIMEOUT;
+import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
+
 import java.time.Duration;
 
 import lombok.Getter;
@@ -11,8 +14,8 @@ public abstract class AbstractRestIntegrationProperties {
 
     private String baseUrl;
 
-    private Duration readTimeout = Duration.ofSeconds(15);
-    private Duration connectTimeout = Duration.ofSeconds(5);
+    private Duration readTimeout = DEFAULT_READ_TIMEOUT;
+    private Duration connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
     private String tokenUrl;
     private String clientId;

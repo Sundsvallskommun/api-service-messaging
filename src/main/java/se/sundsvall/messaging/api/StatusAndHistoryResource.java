@@ -24,6 +24,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -343,6 +344,7 @@ class StatusAndHistoryResource {
                 case MESSAGE -> MessageRequest.Message.class;
                 case SNAIL_MAIL -> SnailMailRequest.class;
                 case LETTER -> LetterRequest.class;
+                case SLACK -> SlackRequest.class;
             }))
             .withTimestamp(history.createdAt())
             .build();

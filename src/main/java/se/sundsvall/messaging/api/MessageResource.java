@@ -24,6 +24,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -252,6 +253,23 @@ class MessageResource {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleLetterRequest(request));
         } else {
             return toResponse(uriComponentsBuilder, messageService.sendLetter(request));
+        }
+    }
+
+    @Operation(summary = "Send a single Slack message")
+    @PostMapping(
+        value = "/slack",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
+    ResponseEntity<MessageResult> sendToSlack(@Valid @RequestBody final SlackRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
+        if (async) {
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleSlackRequest(request));
+        } else {
+            return toResponse(uriComponentsBuilder, messageService.sendToSlack(request));
         }
     }
 

@@ -5,6 +5,7 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SLACK;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
@@ -21,6 +22,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -134,6 +136,17 @@ public class MessageMapper {
                 .orElse(null))
             .withType(MESSAGE)
             .withOriginalType(MESSAGE)
+            .withStatus(PENDING)
+            .withContent(GSON.toJson(request))
+            .build();
+    }
+
+    public Message toMessage(final SlackRequest request) {
+        return Message.builder()
+            .withMessageId(UUID.randomUUID().toString())
+            .withDeliveryId(UUID.randomUUID().toString())
+            .withType(SLACK)
+            .withOriginalType(SLACK)
             .withStatus(PENDING)
             .withContent(GSON.toJson(request))
             .build();

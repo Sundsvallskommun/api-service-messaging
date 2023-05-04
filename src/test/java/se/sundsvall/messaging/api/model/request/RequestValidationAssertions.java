@@ -135,4 +135,15 @@ abstract class RequestValidationAssertions<R>
             return new LetterRequestAssertions(request);
         }
     }
+
+    static class SlackRequestAssertions extends RequestValidationAssertions<SlackRequest> {
+
+        private SlackRequestAssertions(final SlackRequest request) {
+            super(request, SlackRequestAssertions.class);
+        }
+
+        static SlackRequestAssertions assertThat(final SlackRequest request) {
+            return new SlackRequestAssertions(request);
+        }
+    }
 }

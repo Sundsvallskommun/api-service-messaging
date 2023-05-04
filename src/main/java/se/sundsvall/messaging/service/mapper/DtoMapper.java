@@ -6,12 +6,14 @@ import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
+import se.sundsvall.messaging.integration.slack.SlackDto;
 import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
 import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
@@ -140,6 +142,14 @@ public class DtoMapper {
                         .build())
                     .toList())
                 .orElse(null))
+            .build();
+    }
+
+    public SlackDto toSlackDto(final SlackRequest request) {
+        return SlackDto.builder()
+            .withToken(request.token())
+            .withChannel(request.channel())
+            .withMessage(request.message())
             .build();
     }
 }

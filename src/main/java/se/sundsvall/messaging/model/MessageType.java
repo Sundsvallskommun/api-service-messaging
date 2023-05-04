@@ -7,5 +7,6 @@ public enum MessageType {
     WEB_MESSAGE,
     DIGITAL_MAIL,
     SNAIL_MAIL,
-    LETTER
+    LETTER,
+    SLACK
 }

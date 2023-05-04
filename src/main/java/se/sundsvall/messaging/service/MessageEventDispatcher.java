@@ -4,6 +4,7 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SLACK;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
@@ -17,6 +18,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -123,5 +125,13 @@ public class MessageEventDispatcher {
             .toList();
 
         return new InternalDeliveryBatchResult(batchId, deliveries);
+    }
+
+    public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
+        var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, SLACK, message.deliveryId()));
+
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SLACK, null);
     }
 }
