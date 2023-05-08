@@ -9,7 +9,7 @@ import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

@@ -4,11 +4,11 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -84,13 +84,13 @@ public record MessageRequest(
                 @Schema(description = "The sender of the e-mail")
                 String name,
 
-                @javax.validation.constraints.Email
+                @jakarta.validation.constraints.Email
                 @NotBlank
                 @Schema(description = "Sender e-mail address", example = "sender@sender.se")
                 String address,
 
                 @Schema(description = "Reply-to e-mail address", example = "sender@sender.se")
-                @javax.validation.constraints.Email
+                @jakarta.validation.constraints.Email
                 String replyTo) { }
 
             @With

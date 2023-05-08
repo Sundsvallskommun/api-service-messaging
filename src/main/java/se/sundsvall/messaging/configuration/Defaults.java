@@ -1,31 +1,28 @@
 package se.sundsvall.messaging.configuration;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@ConstructorBinding
 @ConfigurationProperties(prefix = "messaging.defaults")
-public record Defaults(
+public record Defaults(Sms sms, Email email, DigitalMail digitalMail) {
 
-        @Valid
-        @NotNull
-        Sms sms,
-
-        @Valid
-        @NotNull
-        Email email,
-
-        @Valid
-        @NotNull
-        DigitalMail digitalMail) {
+    @ConstructorBinding
+    public Defaults(
+            @Valid @NotNull final Sms sms,
+            @Valid @NotNull final Email email,
+            @Valid @NotNull final DigitalMail digitalMail) {
+        this.sms = sms;
+        this.email = email;
+        this.digitalMail = digitalMail;
+    }
 
     public record Sms(
 
@@ -39,10 +36,10 @@ public record Defaults(
         String name,
 
         @NotBlank
-        @javax.validation.constraints.Email
+        @jakarta.validation.constraints.Email
         String address,
 
-        @javax.validation.constraints.Email
+        @jakarta.validation.constraints.Email
         String replyTo) { }
 
     public record DigitalMail(
@@ -62,7 +59,7 @@ public record Defaults(
             @NotBlank
             String text,
 
-            @javax.validation.constraints.Email
+            @jakarta.validation.constraints.Email
             @NotBlank
             String emailAddress,
 

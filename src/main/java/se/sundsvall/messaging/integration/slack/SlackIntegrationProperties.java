@@ -8,7 +8,7 @@ import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
 import java.time.Duration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 @ConfigurationProperties(prefix = "integration.slack")
 record SlackIntegrationProperties(String baseUrl, Duration connectTimeout, Duration readTimeout) {
