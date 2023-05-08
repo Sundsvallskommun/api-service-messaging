@@ -34,6 +34,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -42,6 +43,7 @@ import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderInt
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
 import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
 import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
+import se.sundsvall.messaging.integration.slack.SlackIntegration;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
 import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
@@ -67,6 +69,7 @@ public class MessageService {
     private final DigitalMailSenderIntegration digitalMailSender;
     private final WebMessageSenderIntegration webMessageSender;
     private final SnailMailSenderIntegration snailmailSender;
+    private final SlackIntegration slackIntegration;
     private final MessageMapper messageMapper;
     private final RequestMapper requestMapper;
     private final DtoMapper dtoMapper;
@@ -79,6 +82,7 @@ public class MessageService {
             final DigitalMailSenderIntegration digitalMailSender,
             final WebMessageSenderIntegration webMessageSender,
             final SnailMailSenderIntegration snailmailSender,
+            final SlackIntegration slackIntegration,
             final MessageMapper messageMapper,
             final RequestMapper requestMapper,
             final DtoMapper dtoMapper) {
@@ -90,6 +94,7 @@ public class MessageService {
         this.digitalMailSender = digitalMailSender;
         this.webMessageSender = webMessageSender;
         this.snailmailSender = snailmailSender;
+        this.slackIntegration = slackIntegration;
         this.messageMapper = messageMapper;
         this.requestMapper = requestMapper;
         this.dtoMapper = dtoMapper;
@@ -302,6 +307,11 @@ public class MessageService {
         return new InternalDeliveryBatchResult(batchId, deliveries);
     }
 
+    public InternalDeliveryResult sendToSlack(final SlackRequest request) {
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+    }
+
     InternalDeliveryResult deliver(final Message delivery) {
         // Re-construct the original request
         var request = GSON.fromJson(delivery.content(), switch (delivery.type()) {
@@ -311,6 +321,7 @@ public class MessageService {
             case WEB_MESSAGE -> WebMessageRequest.class;
             case SNAIL_MAIL -> SnailMailRequest.class;
             case LETTER -> LetterRequest.class;
+            case SLACK -> SlackRequest.class;
             default -> throw new IllegalArgumentException("Unknown request type: " + delivery.type());
         });
 
@@ -326,6 +337,8 @@ public class MessageService {
                 webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
             case SNAIL_MAIL -> ofCallable(() ->
                 snailmailSender.sendSnailmail(dtoMapper.toSnailmailDto((SnailMailRequest) request)));
+            case SLACK -> ofCallable(() ->
+                slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
             default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
         };
 

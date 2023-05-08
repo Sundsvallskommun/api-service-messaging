@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import org.assertj.core.api.AbstractAssert;
 
@@ -133,6 +133,17 @@ abstract class RequestValidationAssertions<R>
 
         static LetterRequestAssertions assertThat(final LetterRequest request) {
             return new LetterRequestAssertions(request);
+        }
+    }
+
+    static class SlackRequestAssertions extends RequestValidationAssertions<SlackRequest> {
+
+        private SlackRequestAssertions(final SlackRequest request) {
+            super(request, SlackRequestAssertions.class);
+        }
+
+        static SlackRequestAssertions assertThat(final SlackRequest request) {
+            return new SlackRequestAssertions(request);
         }
     }
 }

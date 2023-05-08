@@ -10,6 +10,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -176,6 +177,15 @@ public final class TestDataFactory {
                 .build())
             .withHeaders(List.of(createHeader()))
             .withSubject("someSubject")
+            .withMessage("someMessage")
+            .build();
+    }
+
+    public static SlackRequest createValidSlackRequest() {
+        return SlackRequest.builder()
+            .withHeaders(List.of(createHeader()))
+            .withToken("someToken")
+            .withChannel("someChannel")
             .withMessage("someMessage")
             .build();
     }

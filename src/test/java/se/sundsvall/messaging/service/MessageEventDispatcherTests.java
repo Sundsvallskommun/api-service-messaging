@@ -19,6 +19,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -130,4 +131,14 @@ class MessageEventDispatcherTests {
         verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
     }
 
+    @Test
+    void test_handleSlackRequest() {
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
+
+        messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build());
+
+        verify(mockMapper, times(1)).toMessage(any(SlackRequest.class));
+        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
+        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+    }
 }
