@@ -22,12 +22,10 @@
         <published.container.port.test>8701</published.container.port.test>
         <published.container.port.production>8787</published.container.port.production>
 
-        <!--
-        <hibernate.version>6.2.0.Final</hibernate.version>
-        -->
+        <hypersistence-utils.version>3.3.2</hypersistence-utils.version>
         <slack-api-client.version>1.29.2</slack-api-client.version>
         <vavr.version>0.10.4</vavr.version>
-        <gson.version>2.10</gson.version>
+        <gson.version>2.10.1</gson.version>
         <archunit.version>1.0.1</archunit.version>
 
         <openapi-generator-maven-plugin>6.5.0</openapi-generator-maven-plugin>
@@ -66,7 +64,7 @@
         <dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-utils-hibernate-60</artifactId>
-            <version>3.3.2</version>
+            <version>${hypersistence-utils.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.orm</groupId>
@@ -138,7 +136,6 @@
                         <library>spring-boot</library>
                         <dateLibrary>java8</dateLibrary>
                         <apiPackage>generated</apiPackage>
-                        <modelPackage>generated.se.sundsvall.messagingrules</modelPackage>
                         <openApiNullable>false</openApiNullable>
                         <useSwaggerUi>false</useSwaggerUi>
                         <useBeanValidation>true</useBeanValidation>
