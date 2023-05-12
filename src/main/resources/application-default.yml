@@ -21,58 +21,58 @@ logbook:
 messaging:
   defaults:
     sms:
-      name: ${DEFAULT_SENDER_SMS_NAME}
+      name: ${DEFAULT_SMS_SENDER_NAME}
     email:
-      name: ${DEFAULT_SENDER_EMAIL_NAME}
-      address: ${DEFAULT_SENDER_EMAIL_ADDRESS}
+      name: ${DEFAULT_EMAIL_SENDER_NAME}
+      address: ${DEFAULT_EMAIL_SENDER_ADDRESS}
     digital-mail:
-      municipality-id: ${DIGITAL_MAIL_SENDER_DEFAULT_MUNICIPALITY_ID}
-      subject: ${DIGITAL_MAIL_SENDER_DEFAULT_SUBJECT}
+      municipality-id: ${DEFAULT_DIGITAL_MAIL_SENDER_MUNICIPALITY_ID}
+      subject: ${DEFAULT_DIGITAL_MAIL_SENDER_SUBJECT}
       support-info:
-        text: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_TEXT}
-        email-address: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_EMAIL_ADDRESS}
-        phone-number: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_PHONE_NUMBER}
-        url: ${DIGITAL_MAIL_SENDER_DEFAULT_SUPPORT_INFO_URL}
+        text: ${DEFAULT_DIGITAL_MAIL_SENDER_SUPPORT_INFO_TEXT}
+        email-address: ${DEFAULT_DIGITAL_MAIL_SENDER_SUPPORT_INFO_EMAIL_ADDRESS}
+        phone-number: ${DEFAULT_DIGITAL_MAIL_SENDER_SUPPORT_INFO_PHONE_NUMBER}
+        url: ${DEFAULT_DIGITAL_MAIL_SENDER_SUPPORT_INFO_URL}
 
 integration:
   # SmsSender integration
   sms-sender:
-    base-url: ${SMS_SENDER_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_SMS_SENDER_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
-    client-id: ${SMS_SENDER_INTEGRATION_CLIENT_ID}
+    client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # EmailSender integration
   email-sender:
-    base-url: ${EMAIL_SENDER_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_EMAIL_SENDER_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # WebMessageSender integration
   web-message-sender:
-    base-url: ${WEB_MESSAGE_SENDER_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_WEB_MESSAGE_SENDER_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # DigitalMailSender integration
   digital-mail-sender:
-    base-url: ${DIGITAL_MAIL_SENDER_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_DIGITAL_MAIL_SENDER_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # SnailmailSender integration
   snailmail-sender:
-    base-url: ${SNAILMAIL_SENDER_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_SNAILMAIL_SENDER_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
 
   # FeedbackSettings integration
   feedback-settings:
-    base-url: ${FEEDBACK_SETTINGS_INTEGRATION_BASE_URL}
+    base-url: ${INTEGRATION_FEEDBACK_SETTINGS_BASE_URL}
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
