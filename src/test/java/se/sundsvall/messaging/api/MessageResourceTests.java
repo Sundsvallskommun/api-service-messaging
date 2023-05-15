@@ -2,11 +2,19 @@ package se.sundsvall.messaging.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.CREATED;
+import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidSnailMailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -19,6 +27,7 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +45,8 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.Blacklist;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -56,16 +67,25 @@ class MessageResourceTests {
     private MessageService mockMessageService;
     @Mock
     private MessageEventDispatcher mockEventDispatcher;
+    @Mock
+    private Blacklist mockBlacklist;
 
     @InjectMocks
     private MessageResource messageResource;
+
+    @BeforeEach
+    void setUp() {
+        lenient()
+            .doNothing()
+                .when(mockBlacklist).check(any(MessageType.class), any(String.class));
+    }
 
     @Test
     void test_sendSms() {
         when(mockMessageService.sendSms(any(SmsRequest.class)))
             .thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", SMS, SENT));
 
-        var response = messageResource.sendSms(SmsRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendSms(createValidSmsRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -85,7 +105,7 @@ class MessageResourceTests {
         when(mockEventDispatcher.handleSmsRequest(any(SmsRequest.class)))
             .thenReturn(deliveryResult.withMessageType(SMS));
 
-        var response = messageResource.sendSms(SmsRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendSms(createValidSmsRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -105,7 +125,7 @@ class MessageResourceTests {
         when(mockMessageService.sendEmail(any(EmailRequest.class)))
             .thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", EMAIL, SENT));
 
-        var response = messageResource.sendEmail(EmailRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendEmail(createValidEmailRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -125,7 +145,7 @@ class MessageResourceTests {
         when(mockEventDispatcher.handleEmailRequest(any(EmailRequest.class)))
             .thenReturn(deliveryResult.withMessageType(EMAIL));
 
-        var response = messageResource.sendEmail(EmailRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendEmail(createValidEmailRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -145,7 +165,7 @@ class MessageResourceTests {
         when(mockMessageService.sendWebMessage(any(WebMessageRequest.class)))
             .thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", WEB_MESSAGE, SENT));
 
-        var response = messageResource.sendWebMessage(WebMessageRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendWebMessage(createValidWebMessageRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -165,7 +185,7 @@ class MessageResourceTests {
         when(mockEventDispatcher.handleWebMessageRequest(any(WebMessageRequest.class)))
             .thenReturn(deliveryResult.withMessageType(WEB_MESSAGE));
 
-        var response = messageResource.sendWebMessage(WebMessageRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendWebMessage(createValidWebMessageRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -186,7 +206,7 @@ class MessageResourceTests {
             .thenReturn(new InternalDeliveryBatchResult("someBatchId",
                 List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", DIGITAL_MAIL, SENT))));
 
-        var response = messageResource.sendDigitalMail(DigitalMailRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendDigitalMail(createValidDigitalMailRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -215,7 +235,7 @@ class MessageResourceTests {
                 .withDeliveries(List.of(deliveryResult.withMessageType(DIGITAL_MAIL)))
                 .build());
 
-        var response = messageResource.sendDigitalMail(DigitalMailRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendDigitalMail(createValidDigitalMailRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -241,7 +261,11 @@ class MessageResourceTests {
             .thenReturn(new InternalDeliveryBatchResult("someBatchId",
                 List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", MESSAGE, SENT))));
 
-        var response = messageResource.sendMessages(MessageRequest.builder().build(), false, uriComponentsBuilder);
+        var request = MessageRequest.builder()
+            .withMessages(List.of(createValidMessageRequest()))
+            .build();
+
+        var response = messageResource.sendMessages(request, false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -268,8 +292,11 @@ class MessageResourceTests {
                 .withBatchId("someBatchId")
                 .withDeliveries(List.of(deliveryResult.withMessageType(MESSAGE)))
                 .build());
+        var request = MessageRequest.builder()
+            .withMessages(List.of(createValidMessageRequest()))
+            .build();
 
-        var response = messageResource.sendMessages(MessageRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendMessages(request, true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -294,7 +321,7 @@ class MessageResourceTests {
         when(mockMessageService.sendSnailMail(any(SnailMailRequest.class)))
             .thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", SNAIL_MAIL, SENT));
 
-        var response = messageResource.sendSnailMail(SnailMailRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendSnailMail(createValidSnailMailRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -314,7 +341,7 @@ class MessageResourceTests {
         when(mockEventDispatcher.handleSnailMailRequest(any(SnailMailRequest.class)))
             .thenReturn(deliveryResult.withMessageType(SNAIL_MAIL));
 
-        var response = messageResource.sendSnailMail(SnailMailRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendSnailMail(createValidSnailMailRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -335,7 +362,7 @@ class MessageResourceTests {
             .thenReturn(new InternalDeliveryBatchResult("someBatchId",
                 List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", LETTER, SENT))));
 
-        var response = messageResource.sendLetter(LetterRequest.builder().build(), false, uriComponentsBuilder);
+        var response = messageResource.sendLetter(createValidLetterRequest(), false, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -363,7 +390,7 @@ class MessageResourceTests {
                 .withDeliveries(List.of(deliveryResult.withMessageType(LETTER)))
                 .build());
 
-        var response = messageResource.sendLetter(LetterRequest.builder().build(), true, uriComponentsBuilder);
+        var response = messageResource.sendLetter(createValidLetterRequest(), true, uriComponentsBuilder);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(CREATED);

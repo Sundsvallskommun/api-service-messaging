@@ -6,6 +6,14 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
 import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SLACK;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
 
@@ -33,6 +41,8 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.Blacklist;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
@@ -71,10 +81,13 @@ class MessageResource {
 
     private final MessageService messageService;
     private final MessageEventDispatcher eventDispatcher;
+    private final Blacklist blacklist;
 
-    MessageResource(final MessageService messageService, final MessageEventDispatcher eventDispatcher) {
+    MessageResource(final MessageService messageService,
+            final MessageEventDispatcher eventDispatcher, final Blacklist blacklist) {
         this.messageService = messageService;
         this.eventDispatcher = eventDispatcher;
+        this.blacklist = blacklist;
     }
 
     @Operation(summary = "Send a single SMS")
@@ -87,6 +100,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        checkBlacklist(SMS, request.mobileNumber());
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSmsRequest(request));
         } else {
@@ -114,6 +129,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        checkBlacklist(EMAIL, request.emailAddress());
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleEmailRequest(request));
         } else {
@@ -141,6 +158,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        checkBlacklist(WEB_MESSAGE, request.party().partyId());
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleWebMessageRequest(request));
         } else {
@@ -168,6 +187,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        request.party().partyIds().forEach(partyId -> checkBlacklist(DIGITAL_MAIL, partyId));
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalMailRequest(request));
         } else {
@@ -195,6 +216,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        checkBlacklist(SNAIL_MAIL, request.party().partyId());
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSnailMailRequest(request));
         } else {
@@ -222,6 +245,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        request.messages().stream()
+            .map(MessageRequest.Message::party)
+            .map(MessageRequest.Message.Party::partyId)
+            .forEach(partyId -> checkBlacklist(MESSAGE, partyId));
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleMessageRequest(request));
         } else {
@@ -249,6 +277,8 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        request.party().partyIds().forEach(partyId -> checkBlacklist(LETTER, partyId));
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleLetterRequest(request));
         } else {
@@ -266,11 +296,17 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        checkBlacklist(SLACK, request.channel());
+
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSlackRequest(request));
         } else {
             return toResponse(uriComponentsBuilder, messageService.sendToSlack(request));
         }
+    }
+
+    void checkBlacklist(final MessageType messageType, final String value) {
+        blacklist.check(messageType, value);
     }
 
     ResponseEntity<MessageResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,

@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.service;
 
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.zalando.problem.Problem;
@@ -25,7 +27,12 @@ class MessageEventHandler {
         var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
             .orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
                 "Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
-        // Deliver it
-        messageService.sendMessage(message);
+
+        // Handle it
+        if (message.type() == MESSAGE) {
+            messageService.sendMessage(message);
+        } else {
+            messageService.deliver(message);
+        }
     }
 }
