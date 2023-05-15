@@ -4,6 +4,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Try.ofCallable;
+import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FOUND;
@@ -16,7 +17,6 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.Gson;
@@ -171,7 +171,7 @@ public class MessageService {
         } else {
             for (var feedbackChannel : feedbackChannels) {
                 // Determine the contact method, if any
-                var actualContactMethod = Optional.ofNullable(feedbackChannel.contactMethod())
+                var actualContactMethod = ofNullable(feedbackChannel.contactMethod())
                     .map(contactMethod -> {
                         if (!feedbackChannel.feedbackWanted()) {
                             return NO_CONTACT;
