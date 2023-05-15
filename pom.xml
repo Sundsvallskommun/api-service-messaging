@@ -28,7 +28,7 @@
         <gson.version>2.10.1</gson.version>
         <archunit.version>1.0.1</archunit.version>
 
-        <openapi-generator-maven-plugin>6.5.0</openapi-generator-maven-plugin>
+        <openapi-generator-maven-plugin>6.6.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
