@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 import java.util.Optional;
 
@@ -39,7 +40,7 @@ class MessageEventHandlerTests {
     @Test
     void test_handleIncomingMessageEvent() {
         when(mockDbIntegration.getMessageByDeliveryId(any(String.class)))
-            .thenReturn(Optional.of(Message.builder().build()));
+            .thenReturn(Optional.of(Message.builder().withType(MESSAGE).build()));
 
         messageEventHandler.handleIncomingMessageEvent(event);
 
