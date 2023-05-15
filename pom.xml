@@ -154,7 +154,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/messaging-rules-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/messaging-rules-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.messagingrules</modelPackage>
                             </configOptions>
@@ -167,7 +167,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/feedback-settings-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/feedback-settings-2.1.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.feedbacksettings</modelPackage>
                             </configOptions>
@@ -180,7 +180,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/email-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/email-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.emailsender</modelPackage>
                             </configOptions>
@@ -193,7 +193,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/snailmail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-1.2.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.snailmail</modelPackage>
                             </configOptions>
@@ -206,7 +206,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/sms-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.smssender</modelPackage>
                             </configOptions>
@@ -219,7 +219,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/web-message-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-1.1.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>
                             </configOptions>
@@ -232,7 +232,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/digital-mail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/digital-mail-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.digitalmailsender</modelPackage>
                             </configOptions>
