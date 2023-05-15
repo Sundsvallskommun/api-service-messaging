@@ -14,6 +14,8 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -134,102 +136,111 @@ public class MessageService {
 
     public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
         var batchId = UUID.randomUUID().toString();
-        var entities = request.messages().stream()
+        var messages = request.messages().stream()
             .map(message -> messageMapper.toMessage(batchId, message))
             .map(dbIntegration::saveMessage)
             .toList();
 
-        var deliveries = new ArrayList<InternalDeliveryResult>();
+        // Handle and send each message individually, since we don't know if it will result in zero,
+        // one or more actual deliveries
+        var deliveryResults = messages.stream()
+            .map(this::sendMessage)
+            .flatMap(Collection::stream)
+            .toList();
 
-        entities.forEach(message -> {
-            var partyId = message.partyId();
+        return new InternalDeliveryBatchResult(batchId, deliveryResults);
+    }
 
-            // Get the message headers
-            var headers = GSON.fromJson(message.content(), MessageRequest.Message.class).headers();
+    List<InternalDeliveryResult> sendMessage(final Message message) {
+        var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
-            // Attempt to get feedback settings and maybe act upon them
-            var feedbackChannels = feedbackSettings.getSettingsByPartyId(headers, partyId);
-            if (feedbackChannels.isEmpty()) {
-                LOG.info("No feedback settings found for {}", partyId);
+        var partyId = message.partyId();
 
-                // No feedback settings found - can't do anything more here
-                archiveMessage(message.withStatus(NO_FEEDBACK_SETTINGS_FOUND));
+        // Get the message headers
+        var headers = GSON.fromJson(message.content(), MessageRequest.Message.class).headers();
 
-                deliveries.add(new InternalDeliveryResult(message, NO_FEEDBACK_SETTINGS_FOUND));
-            } else {
-                for (var feedbackChannel : feedbackChannels) {
-                    // Determine the contact method, if any
-                    var actualContactMethod = Optional.ofNullable(feedbackChannel.contactMethod())
-                        .map(contactMethod -> {
-                            if (!feedbackChannel.feedbackWanted()) {
-                                return NO_CONTACT;
-                            }
+        // Attempt to get feedback settings and maybe act upon them
+        var feedbackChannels = feedbackSettings.getSettingsByPartyId(headers, partyId);
+        if (feedbackChannels.isEmpty()) {
+            LOG.info("No feedback settings found for {}", partyId);
 
-                            return contactMethod;
-                        })
-                        .orElse(ContactMethod.UNKNOWN);
+            // No feedback settings found - can't do anything more here
+            archiveMessage(message.withStatus(NO_FEEDBACK_SETTINGS_FOUND));
 
-                    // Re-map the delivery to use the actual contact method and deliver it
-                    switch (actualContactMethod) {
-                        case EMAIL -> {
-                            var deliveryId = UUID.randomUUID().toString();
-
-                            LOG.info("Handling incoming message {} as e-mail with delivery id {}", message.messageId(), deliveryId);
-
-                            var delivery = message
-                                .withDeliveryId(deliveryId)
-                                .withType(EMAIL)
-                                .withContent(requestMapper.toEmailRequest(message, feedbackChannel.destination()));
-
-                            // Save the re-mapped delivery
-                            dbIntegration.saveMessage(delivery);
-                            // Delete the original delivery
-                            dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-
-                            deliveries.add(deliver(delivery));
+            deliveryResults.add(new InternalDeliveryResult(message, NO_FEEDBACK_SETTINGS_FOUND));
+        } else {
+            for (var feedbackChannel : feedbackChannels) {
+                // Determine the contact method, if any
+                var actualContactMethod = Optional.ofNullable(feedbackChannel.contactMethod())
+                    .map(contactMethod -> {
+                        if (!feedbackChannel.feedbackWanted()) {
+                            return NO_CONTACT;
                         }
-                        case SMS -> {
-                            var deliveryId = UUID.randomUUID().toString();
 
-                            LOG.info("Handling incoming message {} as SMS with delivery id {}", message.messageId(), deliveryId);
+                        return contactMethod;
+                    })
+                    .orElse(ContactMethod.UNKNOWN);
 
-                            var delivery = message
-                                .withDeliveryId(deliveryId)
-                                .withType(SMS)
-                                .withContent(requestMapper.toSmsRequest(message, feedbackChannel.destination()));
+                // Re-map the delivery to use the actual contact method and deliver it
+                switch (actualContactMethod) {
+                    case EMAIL -> {
+                        var deliveryId = UUID.randomUUID().toString();
 
-                            // Save the re-mapped delivery
-                            dbIntegration.saveMessage(delivery);
-                            // Delete the original delivery
-                            dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+                        LOG.info("Handling incoming message {} as e-mail with delivery id {}", message.messageId(), deliveryId);
 
-                            deliveries.add(deliver(delivery));
-                        }
-                        case NO_CONTACT -> {
-                            LOG.info("No feedback wanted for {}. No delivery will be attempted", partyId);
+                        var delivery = message
+                            .withDeliveryId(deliveryId)
+                            .withType(EMAIL)
+                            .withContent(requestMapper.toEmailRequest(message, feedbackChannel.destination()));
 
-                            archiveMessage(message.withStatus(NO_FEEDBACK_WANTED));
+                        // Save the re-mapped delivery
+                        dbIntegration.saveMessage(delivery);
+                        // Delete the original delivery
+                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
-                            deliveries.add(new InternalDeliveryResult(message, NO_FEEDBACK_WANTED));
-                        }
-                        default -> {
-                            LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
-                                message.messageId(), message.deliveryId());
+                        deliveryResults.add(deliver(delivery));
+                    }
+                    case SMS -> {
+                        var deliveryId = UUID.randomUUID().toString();
 
-                            var statusDetail = String.format(
-                                "Unknown/missing contact method for message %s and delivery id %s",
-                                message.messageId(), message.deliveryId());
+                        LOG.info("Handling incoming message {} as SMS with delivery id {}", message.messageId(), deliveryId);
 
-                            archiveMessage(message.withStatus(FAILED), statusDetail);
+                        var delivery = message
+                            .withDeliveryId(deliveryId)
+                            .withType(SMS)
+                            .withContent(requestMapper.toSmsRequest(message, feedbackChannel.destination()));
 
-                            deliveries.add(new InternalDeliveryResult(message, FAILED));
-                        }
+                        // Save the re-mapped delivery
+                        dbIntegration.saveMessage(delivery);
+                        // Delete the original delivery
+                        dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+
+                        deliveryResults.add(deliver(delivery));
+                    }
+                    case NO_CONTACT -> {
+                        LOG.info("No feedback wanted for {}. No delivery will be attempted", partyId);
+
+                        archiveMessage(message.withStatus(NO_FEEDBACK_WANTED));
+
+                        deliveryResults.add(new InternalDeliveryResult(message, NO_FEEDBACK_WANTED));
+                    }
+                    default -> {
+                        LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
+                            message.messageId(), message.deliveryId());
+
+                        var statusDetail = String.format(
+                            "Unknown/missing contact method for message %s and delivery id %s",
+                            message.messageId(), message.deliveryId());
+
+                        archiveMessage(message.withStatus(FAILED), statusDetail);
+
+                        deliveryResults.add(new InternalDeliveryResult(message, FAILED));
                     }
                 }
             }
-        });
+        }
 
-        return new InternalDeliveryBatchResult(batchId, deliveries);
+        return deliveryResults;
     }
 
     public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
