@@ -26,6 +26,6 @@ class MessageEventHandler {
             .orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
                 "Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
         // Deliver it
-        messageService.deliver(message);
+        messageService.sendMessage(message);
     }
 }

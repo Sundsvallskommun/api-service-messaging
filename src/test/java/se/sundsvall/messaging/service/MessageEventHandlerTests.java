@@ -44,7 +44,7 @@ class MessageEventHandlerTests {
         messageEventHandler.handleIncomingMessageEvent(event);
 
         verify(mockDbIntegration, times(1)).getMessageByDeliveryId(any(String.class));
-        verify(mockMessageService, times(1)).deliver(any(Message.class));
+        verify(mockMessageService, times(1)).sendMessage(any(Message.class));
     }
 
     @Test
@@ -56,6 +56,6 @@ class MessageEventHandlerTests {
             .withMessageStartingWith("Internal Server Error: Unable to send");
 
         verify(mockDbIntegration, times(1)).getMessageByDeliveryId(any(String.class));
-        verify(mockMessageService, never()).deliver(any(Message.class));
+        verify(mockMessageService, never()).sendMessage(any(Message.class));
     }
 }
