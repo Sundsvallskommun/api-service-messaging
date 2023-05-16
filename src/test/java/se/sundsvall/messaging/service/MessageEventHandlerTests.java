@@ -2,9 +2,10 @@ package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
@@ -55,6 +56,7 @@ class MessageEventHandlerTests {
         } else {
             verify(mockMessageService, times(1)).deliver(any(Message.class));
         }
+        verifyNoMoreInteractions(mockMessageService);
     }
 
     @Test
@@ -66,6 +68,6 @@ class MessageEventHandlerTests {
             .withMessageStartingWith("Internal Server Error: Unable to send");
 
         verify(mockDbIntegration, times(1)).getMessageByDeliveryId(any(String.class));
-        verify(mockMessageService, never()).sendMessage(any(Message.class));
+        verifyNoInteractions(mockMessageService);
     }
 }

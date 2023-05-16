@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -56,11 +57,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Sending Resources")
 @RestController
-@ApiResponse(
-    responseCode = "201",
-    description = "Successful Operation",
-    content = @Content(schema = @Schema(implementation = MessageResult.class)),
-    headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+@RequestMapping(
+    consumes = APPLICATION_JSON_VALUE,
+    produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
 )
 @ApiResponse(
     responseCode = "400",
@@ -90,16 +89,23 @@ class MessageResource {
         this.blacklist = blacklist;
     }
 
-    @Operation(summary = "Send a single SMS")
-    @PostMapping(
-        value = "/sms",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    @Operation(
+        summary = "Send a single SMS",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = MessageResult.class)),
+                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+            )
+        }
     )
+    @PostMapping("/sms")
     ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         checkBlacklist(SMS, request.mobileNumber());
 
         if (async) {
@@ -120,15 +126,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/email",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
+    @PostMapping("/email")
     ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         checkBlacklist(EMAIL, request.emailAddress());
 
         if (async) {
@@ -149,15 +152,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/webmessage",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
+    @PostMapping("/webmessage")
     ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         checkBlacklist(WEB_MESSAGE, request.party().partyId());
 
         if (async) {
@@ -178,15 +178,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/digital-mail",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
+    @PostMapping("/digital-mail")
     ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         request.party().partyIds().forEach(partyId -> checkBlacklist(DIGITAL_MAIL, partyId));
 
         if (async) {
@@ -197,7 +194,7 @@ class MessageResource {
     }
 
     @Operation(
-        summary = "Send a single snailmail",
+        summary = "Send a single snail mail",
         responses = {
             @ApiResponse(
                 responseCode = "201",
@@ -207,15 +204,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/snail-mail",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
-    )
+    @PostMapping("/snail-mail")
     ResponseEntity<MessageResult> sendSnailMail(@Valid @RequestBody final SnailMailRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         checkBlacklist(SNAIL_MAIL, request.party().partyId());
 
         if (async) {
@@ -236,15 +230,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/messages",
-        consumes = APPLICATION_JSON_VALUE,
-            produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
-    )
+    @PostMapping("/messages")
     ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         request.messages().stream()
             .map(MessageRequest.Message::party)
             .map(MessageRequest.Message.Party::partyId)
@@ -268,15 +259,12 @@ class MessageResource {
             )
         }
     )
-    @PostMapping(
-        value = "/letter",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
-    )
+    @PostMapping("/letter")
     ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         request.party().partyIds().forEach(partyId -> checkBlacklist(LETTER, partyId));
 
         if (async) {
@@ -286,16 +274,23 @@ class MessageResource {
         }
     }
 
-    @Operation(summary = "Send a single Slack message")
-    @PostMapping(
-        value = "/slack",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    @Operation(
+        summary = "Send a single Slack message",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Successful Operation",
+                content = @Content(schema = @Schema(implementation = MessageResult.class)),
+                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+            )
+        }
     )
+    @PostMapping("/slack")
     ResponseEntity<MessageResult> sendToSlack(@Valid @RequestBody final SlackRequest request,
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
+        // Check blacklist
         checkBlacklist(SLACK, request.channel());
 
         if (async) {

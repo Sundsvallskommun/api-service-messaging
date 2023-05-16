@@ -76,7 +76,7 @@ paths:
     post:
       tags:
       - Sending Resources
-      summary: Send a single snailmail
+      summary: Send a single snail mail
       operationId: sendSnailMail
       parameters:
       - name: async
@@ -289,10 +289,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
         "400":
           description: Bad Request
           content:
@@ -351,10 +351,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
         "400":
           description: Bad Request
           content:
@@ -475,10 +475,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/MessageResult'
+                $ref: '#/components/schemas/MessageBatchResult'
         "400":
           description: Bad Request
           content:

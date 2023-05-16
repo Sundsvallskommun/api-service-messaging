@@ -32,7 +32,7 @@ public class Blacklist {
 
     public void check(final MessageType messageType, final String value) {
         if (!properties.enabled() || isEmpty(properties.blockedRecipients())) {
-            LOG.info("Blacklist is NOT ENABLED, or no blocked recipients have been defined");
+            LOG.debug("Blacklist is NOT ENABLED, or no blocked recipients have been defined");
 
             return;
         }
