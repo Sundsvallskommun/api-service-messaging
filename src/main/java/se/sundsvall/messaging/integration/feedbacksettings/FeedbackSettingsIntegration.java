@@ -1,7 +1,9 @@
 package se.sundsvall.messaging.integration.feedbacksettings;
 
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -18,6 +20,7 @@ import se.sundsvall.messaging.model.Header;
 
 import generated.se.sundsvall.feedbacksettings.FeedbackChannel;
 import generated.se.sundsvall.feedbacksettings.SearchResult;
+import generated.se.sundsvall.feedbacksettings.WeightedFeedbackSetting;
 import generated.se.sundsvall.messagingrules.HeaderName;
 
 @Component
@@ -39,12 +42,14 @@ public class FeedbackSettingsIntegration {
     public List<FeedbackChannelDto> getSettingsByPartyId(final List<Header> headers, final String partyId) {
         var httpHeaders = toHttpHeaders(headers, Set.of(HeaderName.DISTRIBUTION_RULE));
 
-        var feedbackChannels = Optional.ofNullable(client.searchByPersonId(httpHeaders, partyId))
+        var feedbackChannels = ofNullable(client.searchByPersonId(httpHeaders, partyId))
             .stream()
             .map(SearchResult::getFeedbackSettings)
             .flatMap(feedbackSettings -> {
                 if (feedbackSettings != null) {
-                    return feedbackSettings.stream();
+                    return feedbackSettings.stream()
+                        // Sort by matching percent, descending
+                        .sorted(comparing(WeightedFeedbackSetting::getMatchingPercent).reversed());
                 }
 
                 return Stream.empty();
@@ -58,7 +63,7 @@ public class FeedbackSettingsIntegration {
         if (feedbackChannels.isEmpty()) {
             LOG.info("No feedback settings found for personId {}. Checking for matching organizationId", partyId);
 
-            feedbackChannels = Optional.ofNullable(client.searchByOrganizationId(httpHeaders, partyId))
+            feedbackChannels = ofNullable(client.searchByOrganizationId(httpHeaders, partyId))
                 .stream()
                 .map(SearchResult::getFeedbackSettings)
                 .flatMap(feedbackSettings -> {
@@ -83,13 +88,13 @@ public class FeedbackSettingsIntegration {
 
     FeedbackChannelDto toDto(final FeedbackChannel feedbackChannel) {
         return FeedbackChannelDto.builder()
-            .withContactMethod(Optional.ofNullable(feedbackChannel.getContactMethod())
+            .withContactMethod(ofNullable(feedbackChannel.getContactMethod())
                 .map(contactMethod -> switch (contactMethod) {
                     case EMAIL -> ContactMethod.EMAIL;
                     case SMS -> ContactMethod.SMS;
                 })
                 .orElse(ContactMethod.UNKNOWN))
-            .withFeedbackWanted(Optional.ofNullable(feedbackChannel.getSendFeedback()).orElse(false))
+            .withFeedbackWanted(ofNullable(feedbackChannel.getSendFeedback()).orElse(false))
             .withDestination(feedbackChannel.getDestination())
             .build();
     }

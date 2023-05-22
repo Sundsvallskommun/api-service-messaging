@@ -1,6 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
-import java.util.Optional;
+import static java.util.Optional.ofNullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,17 +36,17 @@ public class RequestMapper {
     public String toSmsRequest(final Message message, final String mobileNumber) {
         var originalMessage = GSON.fromJson(message.content(), MessageRequest.Message.class);
 
-        var sender = Optional.ofNullable(originalMessage.sender())
+        var sender = ofNullable(originalMessage.sender())
             .map(MessageRequest.Message.Sender::sms)
             .map(MessageRequest.Message.Sender.Sms::name)
             .orElse(defaultSmsRequestSender);
 
         var smsRequest = SmsRequest.builder()
             .withParty(SmsRequest.Party.builder()
-                .withPartyId(Optional.ofNullable(originalMessage.party())
+                .withPartyId(ofNullable(originalMessage.party())
                     .map(MessageRequest.Message.Party::partyId)
                     .orElse(null))
-                .withExternalReferences(Optional.ofNullable(originalMessage.party())
+                .withExternalReferences(ofNullable(originalMessage.party())
                     .map(MessageRequest.Message.Party::externalReferences)
                     .orElse(null))
                 .build())
@@ -62,7 +62,7 @@ public class RequestMapper {
     public String toEmailRequest(final Message message, final String emailAddress) {
         var originalMessage = GSON.fromJson(message.content(), MessageRequest.Message.class);
 
-        var sender = Optional.ofNullable(originalMessage.sender())
+        var sender = ofNullable(originalMessage.sender())
             .map(MessageRequest.Message.Sender::email)
             .map(emailSender -> EmailRequest.Sender.builder()
                 .withName(emailSender.name())
@@ -73,10 +73,10 @@ public class RequestMapper {
 
         var emailRequest = EmailRequest.builder()
             .withParty(EmailRequest.Party.builder()
-                .withPartyId(Optional.ofNullable(originalMessage.party())
+                .withPartyId(ofNullable(originalMessage.party())
                     .map(MessageRequest.Message.Party::partyId)
                     .orElse(null))
-                .withExternalReferences(Optional.ofNullable(originalMessage.party())
+                .withExternalReferences(ofNullable(originalMessage.party())
                     .map(MessageRequest.Message.Party::externalReferences)
                     .orElse(null))
                 .build())
@@ -94,7 +94,7 @@ public class RequestMapper {
     public DigitalMailRequest toDigitalMailRequest(final LetterRequest request) {
         return DigitalMailRequest.builder()
             .withSender(DigitalMailRequest.Sender.builder()
-                .withSupportInfo(Optional.ofNullable(request.sender()).map(LetterRequest.Sender::supportInfo)
+                .withSupportInfo(ofNullable(request.sender()).map(LetterRequest.Sender::supportInfo)
                     .map(supportInfo -> DigitalMailRequest.Sender.SupportInfo.builder()
                         .withText(supportInfo.text())
                         .withUrl(supportInfo.url())

@@ -4,6 +4,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Try.ofCallable;
+import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FOUND;
@@ -16,7 +17,6 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.Gson;
@@ -120,13 +120,13 @@ public class MessageService {
     public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
         var batchId = UUID.randomUUID().toString();
         // Save the message(s)
-        var entities = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
         // Deliver them
-        var deliveries = entities.stream()
+        var deliveryResults = deliveries.stream()
             .map(this::deliver)
             .toList();
 
-        return new InternalDeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveryResults);
     }
 
     public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
@@ -171,7 +171,7 @@ public class MessageService {
         } else {
             for (var feedbackChannel : feedbackChannels) {
                 // Determine the contact method, if any
-                var actualContactMethod = Optional.ofNullable(feedbackChannel.contactMethod())
+                var actualContactMethod = ofNullable(feedbackChannel.contactMethod())
                     .map(contactMethod -> {
                         if (!feedbackChannel.feedbackWanted()) {
                             return NO_CONTACT;
@@ -218,7 +218,7 @@ public class MessageService {
                         deliveryResults.add(deliver(delivery));
                     }
                     case NO_CONTACT -> {
-                        LOG.info("No feedback wanted for {}. No delivery will be attempted", partyId);
+                        LOG.info("No feedback wanted for {} ({}). No delivery will be attempted", partyId, feedbackChannel.contactMethod());
 
                         archiveMessage(message.withStatus(NO_FEEDBACK_WANTED));
 
@@ -245,27 +245,26 @@ public class MessageService {
 
     public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
         var batchId = UUID.randomUUID().toString();
-        var messages = messageMapper.toMessages(request, batchId).stream()
-            .map(dbIntegration::saveMessage)
-            .toList();
+        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 
-        var deliveries = new ArrayList<InternalDeliveryResult>();
+        var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
         // Re-map the request as a digital mail request
         var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
         var digitalMailRequestAsJson = GSON.toJson(digitalMailRequest);
+
         // Re-map the request as a snail-mail request
         var snailMailRequest = requestMapper.toSnailMailRequest(request);
         var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
 
-        for (var message : messages) {
+        for (var delivery : deliveries) {
             var newMessageId = UUID.randomUUID().toString();
 
             // Don't make an attempt to deliver as digital mail if there aren't any attachments
-            // indended for it
+            // intended for it
             if (!digitalMailRequest.attachments().isEmpty()) {
-                // "Re-route" the message as digital mail
-                var reroutedMessage = dbIntegration.saveMessage(message
+                // "Re-route" the delivery as digital mail
+                var reroutedDelivery = dbIntegration.saveMessage(delivery
                     .withMessageId(newMessageId)
                     .withDeliveryId(UUID.randomUUID().toString())
                     .withType(DIGITAL_MAIL)
@@ -273,17 +272,17 @@ public class MessageService {
 
                 try {
                     // Deliver it
-                    deliveries.add(deliver(reroutedMessage));
+                    deliveryResults.add(deliver(reroutedDelivery));
                     // Delete the original delivery
-                    dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
-                    // Process the next message, if any
+                    dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
+                    // Process the next delivery, if any
                     continue;
                 } catch (Exception e) {
                     LOG.info("Unable to send LETTER as DIGITAL_MAIL");
 
-                    deliveries.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+                    deliveryResults.add(new InternalDeliveryResult(reroutedDelivery.withStatus(FAILED)));
                     // Delete the original delivery
-                    dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+                    dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
                 }
             } else {
                 // No attachments intended for digital mail
@@ -291,10 +290,10 @@ public class MessageService {
             }
 
             // Don't make an attempt to deliver as snail mail if there aren't any attachments
-            // indended for it
+            // intended for it
             if (!snailMailRequest.attachments().isEmpty()) {
                 // Re-route the message as snail-mail
-                var reroutedMessage = dbIntegration.saveMessage(message
+                var reroutedDelivery = dbIntegration.saveMessage(delivery
                     .withMessageId(newMessageId)
                     .withDeliveryId(UUID.randomUUID().toString())
                     .withType(SNAIL_MAIL)
@@ -302,20 +301,20 @@ public class MessageService {
 
                 try {
                     // Deliver it
-                    deliveries.add(deliver(reroutedMessage));
+                    deliveryResults.add(deliver(reroutedDelivery));
                 } catch (Exception e) {
                     LOG.info("Unable to send LETTER as SNAIL_MAIL");
 
-                    deliveries.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+                    deliveryResults.add(new InternalDeliveryResult(reroutedDelivery.withStatus(FAILED)));
                 }
                 // Delete the original delivery
-                dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+                dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
             } else {
                 LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
             }
         }
 
-        return new InternalDeliveryBatchResult(batchId, deliveries);
+        return new InternalDeliveryBatchResult(batchId, deliveryResults);
     }
 
     public InternalDeliveryResult sendToSlack(final SlackRequest request) {
@@ -347,7 +346,7 @@ public class MessageService {
             case WEB_MESSAGE -> ofCallable(() ->
                 webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
             case SNAIL_MAIL -> ofCallable(() ->
-                snailmailSender.sendSnailmail(dtoMapper.toSnailmailDto((SnailMailRequest) request)));
+                snailmailSender.sendSnailMail(dtoMapper.toSnailmailDto((SnailMailRequest) request)));
             case SLACK -> ofCallable(() ->
                 slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
             default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
@@ -391,7 +390,7 @@ public class MessageService {
     void archiveMessage(final Message message, final String statusDetail) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            protected void doInTransactionWithoutResult(@NotNull final TransactionStatus status) {
+            protected void doInTransactionWithoutResult(@NotNull final TransactionStatus ignored) {
                 LOG.debug("Moving {} delivery {} with status {} to history", message.type(),
                     message.deliveryId(), message.status());
 

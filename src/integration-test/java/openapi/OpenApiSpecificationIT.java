@@ -17,13 +17,14 @@ import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
+import configuration.TestContainersConfiguration;
 import net.javacrumbs.jsonunit.core.Option;
 import net.javacrumbs.jsonunit.core.internal.Options;
 
 @UnitTest
 @SpringBootTest(
     webEnvironment = WebEnvironment.RANDOM_PORT,
-    classes = Application.class,
+    classes = { Application.class, TestContainersConfiguration.class },
     properties = {
         "spring.main.banner-mode=off",
         "logging.level.se.sundsvall.dept44.payload=OFF"

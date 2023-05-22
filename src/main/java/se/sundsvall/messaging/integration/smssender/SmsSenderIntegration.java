@@ -1,9 +1,8 @@
 package se.sundsvall.messaging.integration.smssender;
 
+import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
-import java.util.Optional;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,7 @@ public class SmsSenderIntegration {
         var response = client.sendSms(mapper.toSendSmsRequest(dto));
 
         var success = response.getStatusCode().is2xxSuccessful() &&
-            Optional.ofNullable(response.getBody())
+            ofNullable(response.getBody())
                 .map(SendSmsResponse::getSent)
                 .orElse(false);
 

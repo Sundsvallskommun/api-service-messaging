@@ -23,7 +23,7 @@ public class SnailMailSenderIntegration {
         this.mapper = mapper;
     }
 
-    public MessageStatus sendSnailmail(final SnailMailDto dto) {
+    public MessageStatus sendSnailMail(final SnailMailDto dto) {
         var response = client.sendSnailmail(mapper.toSendSnailmailRequest(dto));
 
         return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;

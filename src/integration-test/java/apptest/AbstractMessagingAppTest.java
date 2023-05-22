@@ -8,10 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Import;
 
 import se.sundsvall.dept44.common.validators.annotation.impl.ValidUuidConstraintValidator;
 import se.sundsvall.dept44.test.AbstractAppTest;
 
+import configuration.TestContainersConfiguration;
+
+@Import(TestContainersConfiguration.class)
 abstract class AbstractMessagingAppTest extends AbstractAppTest {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());

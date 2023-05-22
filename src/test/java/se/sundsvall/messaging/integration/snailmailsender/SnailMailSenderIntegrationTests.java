@@ -39,7 +39,7 @@ class SnailMailSenderIntegrationTests {
         when(mockClient.sendSnailmail(any(SendSnailMailRequest.class)))
             .thenReturn(ResponseEntity.ok().build());
 
-        integration.sendSnailmail(SnailMailDto.builder().build());
+        integration.sendSnailMail(SnailMailDto.builder().build());
 
         verify(mockMapper, times(1)).toSendSnailmailRequest(any(SnailMailDto.class));
         verify(mockClient, times(1)).sendSnailmail(any(SendSnailMailRequest.class));
@@ -57,7 +57,7 @@ class SnailMailSenderIntegrationTests {
                 .build());
 
         assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> integration.sendSnailmail(SnailMailDto.builder().build()))
+            .isThrownBy(() -> integration.sendSnailMail(SnailMailDto.builder().build()))
             .satisfies(problem -> {
                 assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
                 assertThat(problem.getCause()).isNotNull().satisfies(cause ->

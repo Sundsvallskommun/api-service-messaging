@@ -1,5 +1,6 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
 
@@ -156,16 +157,22 @@ public final class TestDataFactory {
                 LetterRequest.Attachment.builder()
                     .withDeliveryMode(DIGITAL_MAIL)
                     .withContentType(ContentType.APPLICATION_PDF.getValue())
-                    .withContent("someContent")
                     .withFilename("someFilename")
+                    .withContent("someContent")
                     .build(),
                 LetterRequest.Attachment.builder()
                     .withDeliveryMode(SNAIL_MAIL)
                     .withContentType(ContentType.APPLICATION_PDF.getValue())
-                    .withContent("someContent")
                     .withFilename("someFilename")
+                    .withContent("someContent")
+                    .build(),
+                LetterRequest.Attachment.builder()
+                    .withDeliveryMode(ANY)
+                    .withContentType(ContentType.APPLICATION_PDF.getValue())
+                    .withFilename("someFilename")
+                    .withContent("someContent")
                     .build()
-                ))
+            ))
             .build();
     }
 

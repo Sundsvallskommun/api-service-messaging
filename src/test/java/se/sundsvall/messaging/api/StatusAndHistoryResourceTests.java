@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
-import se.sundsvall.messaging.service.StatisticsService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -36,31 +35,27 @@ class StatusAndHistoryResourceTests {
 
     @Mock
     private HistoryService mockHistoryService;
-    @Mock
-    private StatisticsService mockStatisticsService;
 
     @InjectMocks
     private StatusAndHistoryResource statusAndHistoryResource;
 
-    @Test
-    void test_getConversationHistory() {
-        // TODO: the only reason for this loop is coverage...refactor as a parameterized test ?
-        for (var messageType : MessageType.values()) {
-            when(mockHistoryService.getConversationHistory(any(String.class), any(LocalDate.class), any(LocalDate.class)))
-                .thenReturn(List.of(History.builder()
-                    .withMessageType(messageType)
-                    .build()));
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void test_getConversationHistory(final MessageType messageType) {
+        when(mockHistoryService.getConversationHistory(any(String.class), any(LocalDate.class), any(LocalDate.class)))
+            .thenReturn(List.of(History.builder()
+                .withMessageType(messageType)
+                .build()));
 
-            var response = statusAndHistoryResource.getConversationHistory(
-                "somePartyId", LocalDate.now(), LocalDate.now());
+        var response = statusAndHistoryResource.getConversationHistory(
+            "somePartyId", LocalDate.now(), LocalDate.now());
 
-            assertThat(response).isNotNull();
-            assertThat(response.getStatusCode()).isEqualTo(OK);
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody()).hasSize(1);
-        }
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).hasSize(1);
 
-        verify(mockHistoryService, times(MessageType.values().length))
+        verify(mockHistoryService, times(1))
             .getConversationHistory(any(String.class), any(LocalDate.class), any(LocalDate.class));
     }
 

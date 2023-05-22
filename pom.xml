@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>2.0.2</version>
+        <version>2.1.0</version>
         <relativePath />
     </parent>
 
@@ -28,7 +28,7 @@
         <gson.version>2.10.1</gson.version>
         <archunit.version>1.0.1</archunit.version>
 
-        <openapi-generator-maven-plugin>6.5.0</openapi-generator-maven-plugin>
+        <openapi-generator-maven-plugin>6.6.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
@@ -38,6 +38,21 @@
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mariadb</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -57,6 +72,7 @@
             <artifactId>dept44-common-validators</artifactId>
         </dependency>
 
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -76,17 +92,18 @@
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
 
         <!-- Slack -->
@@ -154,7 +171,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/messaging-rules-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/messaging-rules-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.messagingrules</modelPackage>
                             </configOptions>
@@ -167,7 +184,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/feedback-settings-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/feedback-settings-2.1.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.feedbacksettings</modelPackage>
                             </configOptions>
@@ -180,7 +197,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/email-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/email-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.emailsender</modelPackage>
                             </configOptions>
@@ -193,7 +210,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/snailmail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-1.2.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.snailmail</modelPackage>
                             </configOptions>
@@ -206,7 +223,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/sms-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.smssender</modelPackage>
                             </configOptions>
@@ -219,7 +236,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/web-message-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-1.1.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>
                             </configOptions>
@@ -232,7 +249,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/generated/digital-mail-sender-api.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/digital-mail-sender-1.0.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.digitalmailsender</modelPackage>
                             </configOptions>
