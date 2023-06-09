@@ -243,11 +243,9 @@ public class MessageService {
         return deliveryResults;
     }
 
-    public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
-        var batchId = UUID.randomUUID().toString();
-        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
-
-        var deliveryResults = new ArrayList<InternalDeliveryResult>();
+    public List<InternalDeliveryResult> sendLetter(final Message message) {
+        var result = new ArrayList<InternalDeliveryResult>();
+        var request = GSON.fromJson(message.content(), LetterRequest.class);
 
         // Re-map the request as a digital mail request
         var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
@@ -257,62 +255,62 @@ public class MessageService {
         var snailMailRequest = requestMapper.toSnailMailRequest(request);
         var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
 
-        for (var delivery : deliveries) {
-            var newMessageId = UUID.randomUUID().toString();
+        // Don't make an attempt to deliver as digital mail if there aren't any attachments
+        // intended for it
+        if (!digitalMailRequest.attachments().isEmpty()) {
+            // "Re-route" the message as digital mail
+            var reroutedMessage = dbIntegration.saveMessage(message
+                .withType(DIGITAL_MAIL)
+                .withContent(digitalMailRequestAsJson));
 
-            // Don't make an attempt to deliver as digital mail if there aren't any attachments
-            // intended for it
-            if (!digitalMailRequest.attachments().isEmpty()) {
-                // "Re-route" the delivery as digital mail
-                var reroutedDelivery = dbIntegration.saveMessage(delivery
-                    .withMessageId(newMessageId)
-                    .withDeliveryId(UUID.randomUUID().toString())
-                    .withType(DIGITAL_MAIL)
-                    .withContent(digitalMailRequestAsJson));
+            try {
+                // Deliver it
+                result.add(deliver(reroutedMessage));
 
-                try {
-                    // Deliver it
-                    deliveryResults.add(deliver(reroutedDelivery));
-                    // Delete the original delivery
-                    dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
-                    // Process the next delivery, if any
-                    continue;
-                } catch (Exception e) {
-                    LOG.info("Unable to send LETTER as DIGITAL_MAIL");
+                return result;
+            } catch (Exception e) {
+                LOG.info("Unable to send LETTER as DIGITAL_MAIL");
 
-                    deliveryResults.add(new InternalDeliveryResult(reroutedDelivery.withStatus(FAILED)));
-                    // Delete the original delivery
-                    dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
-                }
-            } else {
-                // No attachments intended for digital mail
-                LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
+                result.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
             }
-
-            // Don't make an attempt to deliver as snail mail if there aren't any attachments
-            // intended for it
-            if (!snailMailRequest.attachments().isEmpty()) {
-                // Re-route the message as snail-mail
-                var reroutedDelivery = dbIntegration.saveMessage(delivery
-                    .withMessageId(newMessageId)
-                    .withDeliveryId(UUID.randomUUID().toString())
-                    .withType(SNAIL_MAIL)
-                    .withContent(snailMailRequestAsJson));
-
-                try {
-                    // Deliver it
-                    deliveryResults.add(deliver(reroutedDelivery));
-                } catch (Exception e) {
-                    LOG.info("Unable to send LETTER as SNAIL_MAIL");
-
-                    deliveryResults.add(new InternalDeliveryResult(reroutedDelivery.withStatus(FAILED)));
-                }
-                // Delete the original delivery
-                dbIntegration.deleteMessageByDeliveryId(delivery.deliveryId());
-            } else {
-                LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
-            }
+        } else {
+            // No attachments intended for digital mail
+            LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
         }
+
+        // Don't make an attempt to deliver as snail mail if there aren't any attachments
+        // intended for it
+        if (!snailMailRequest.attachments().isEmpty()) {
+            // Re-route the message as snail-mail
+            var reroutedMessage = dbIntegration.saveMessage(message
+                .withType(SNAIL_MAIL)
+                .withContent(snailMailRequestAsJson));
+
+            try {
+                // Deliver it
+                result.add(deliver(reroutedMessage));
+            } catch (Exception e) {
+                LOG.info("Unable to send LETTER as SNAIL_MAIL");
+
+                result.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+            }
+        } else {
+            LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
+        }
+
+        return result;
+    }
+
+    public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
+        var batchId = UUID.randomUUID().toString();
+        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+
+        // Handle and send each message individually, since we don't know if it will result in zero,
+        // one or more actual deliveries
+        var deliveryResults = deliveries.stream()
+            .map(this::sendLetter)
+            .flatMap(Collection::stream)
+            .toList();
 
         return new InternalDeliveryBatchResult(batchId, deliveryResults);
     }
@@ -330,7 +328,6 @@ public class MessageService {
             case DIGITAL_MAIL -> DigitalMailRequest.class;
             case WEB_MESSAGE -> WebMessageRequest.class;
             case SNAIL_MAIL -> SnailMailRequest.class;
-            case LETTER -> LetterRequest.class;
             case SLACK -> SlackRequest.class;
             default -> throw new IllegalArgumentException("Unknown request type: " + delivery.type());
         });

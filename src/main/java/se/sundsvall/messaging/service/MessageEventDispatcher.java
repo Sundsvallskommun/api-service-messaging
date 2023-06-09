@@ -120,7 +120,7 @@ public class MessageEventDispatcher {
                 eventPublisher.publishEvent(
                     new IncomingMessageEvent(this, LETTER, message.deliveryId()));
 
-                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), LETTER, null);
+                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), LETTER);
             })
             .toList();
 

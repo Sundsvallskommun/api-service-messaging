@@ -1,7 +1,10 @@
 package se.sundsvall.messaging.service;
 
+import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.zalando.problem.Problem;
@@ -12,6 +15,8 @@ import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
 @Component
 class MessageEventHandler {
+
+    private static final Gson GSON = new GsonBuilder().create();
 
     private final MessageService messageService;
     private final DbIntegration dbIntegration;
@@ -31,6 +36,8 @@ class MessageEventHandler {
         // Handle it
         if (message.type() == MESSAGE) {
             messageService.sendMessage(message);
+        } else if (message.type() == LETTER) {
+            messageService.sendLetter(message);
         } else {
             messageService.deliver(message);
         }

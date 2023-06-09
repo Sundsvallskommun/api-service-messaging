@@ -344,7 +344,7 @@ class MessageServiceTests {
         verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
         // Verify db integration interactions
         verify(mockDbIntegration, times(1)).saveHistory(any(Message.class), nullable(String.class));
-        verify(mockDbIntegration, times(1 + 1)).deleteMessageByDeliveryId(any(String.class));
+        verify(mockDbIntegration, times(1)).deleteMessageByDeliveryId(any(String.class));
         verifyNoMoreInteractions(mockDbIntegration);
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 import java.util.Optional;
@@ -53,6 +54,8 @@ class MessageEventHandlerTests {
 
         if (messageType == MESSAGE) {
             verify(mockMessageService, times(1)).sendMessage(any(Message.class));
+        } else if (messageType == LETTER) {
+            verify(mockMessageService, times(1)).sendLetter(any(Message.class));
         } else {
             verify(mockMessageService, times(1)).deliver(any(Message.class));
         }

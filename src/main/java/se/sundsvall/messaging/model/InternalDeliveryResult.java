@@ -18,4 +18,8 @@ public record InternalDeliveryResult(String messageId, String deliveryId, Messag
     public InternalDeliveryResult(final String messageId) {
         this(messageId, null, null, null);
     }
+
+    public InternalDeliveryResult(final String messageId, final String deliveryId, final MessageType messageType) {
+        this(messageId, deliveryId, messageType, null);
+    }
 }
