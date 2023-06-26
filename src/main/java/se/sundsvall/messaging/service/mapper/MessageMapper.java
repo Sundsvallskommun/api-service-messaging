@@ -108,12 +108,10 @@ public class MessageMapper {
     }
 
     public List<Message> toMessages(final LetterRequest request, final String batchId) {
-        var messageId = UUID.randomUUID().toString();
-
         return request.party().partyIds().stream()
             .map(partyId -> Message.builder()
                 .withBatchId(batchId)
-                .withMessageId(messageId)
+                .withMessageId(UUID.randomUUID().toString())
                 .withDeliveryId(UUID.randomUUID().toString())
                 .withPartyId(partyId)
                 .withType(LETTER)

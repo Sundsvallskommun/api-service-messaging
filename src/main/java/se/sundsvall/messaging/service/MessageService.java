@@ -248,11 +248,11 @@ public class MessageService {
         var request = GSON.fromJson(message.content(), LetterRequest.class);
 
         // Re-map the request as a digital mail request
-        var digitalMailRequest = requestMapper.toDigitalMailRequest(request);
+        var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
         var digitalMailRequestAsJson = GSON.toJson(digitalMailRequest);
 
         // Re-map the request as a snail-mail request
-        var snailMailRequest = requestMapper.toSnailMailRequest(request);
+        var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId());
         var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
 
         // Don't make an attempt to deliver as digital mail if there aren't any attachments
@@ -283,6 +283,7 @@ public class MessageService {
         if (!snailMailRequest.attachments().isEmpty()) {
             // Re-route the message as snail-mail
             var reroutedMessage = dbIntegration.saveMessage(message
+                .withDeliveryId(UUID.randomUUID().toString())
                 .withType(SNAIL_MAIL)
                 .withContent(snailMailRequestAsJson));
 
