@@ -2,7 +2,6 @@ package se.sundsvall.messaging.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,7 +26,6 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,8 +43,7 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.service.Blacklist;
+import se.sundsvall.messaging.service.BlacklistService;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -68,17 +65,10 @@ class MessageResourceTests {
     @Mock
     private MessageEventDispatcher mockEventDispatcher;
     @Mock
-    private Blacklist mockBlacklist;
+    private BlacklistService mockBlacklist;
 
     @InjectMocks
     private MessageResource messageResource;
-
-    @BeforeEach
-    void setUp() {
-        lenient()
-            .doNothing()
-                .when(mockBlacklist).check(any(MessageType.class), any(String.class));
-    }
 
     @Test
     void test_sendSms() {

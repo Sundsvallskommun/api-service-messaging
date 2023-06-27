@@ -52,7 +52,6 @@ public class RequestMapper {
                     .map(MessageRequest.Message.Party::externalReferences)
                     .orElse(null))
                 .build())
-            .withHeaders(originalMessage.headers())
             .withSender(sender)
             .withMobileNumber(mobileNumber)
             .withMessage(originalMessage.message())
@@ -82,7 +81,6 @@ public class RequestMapper {
                     .map(MessageRequest.Message.Party::externalReferences)
                     .orElse(null))
                 .build())
-            .withHeaders(originalMessage.headers())
             .withSender(sender)
             .withEmailAddress(emailAddress)
             .withSubject(originalMessage.subject())
@@ -109,7 +107,6 @@ public class RequestMapper {
                 .withPartyIds(List.of(partyId))
                 .withExternalReferences(request.party().externalReferences())
                 .build())
-            .withHeaders(request.headers())
             .withContentType(request.contentType())
             .withSubject(request.subject())
             .withBody(request.body())
@@ -126,7 +123,6 @@ public class RequestMapper {
 
     public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId) {
         return SnailMailRequest.builder()
-            .withHeaders(request.headers())
             .withParty(SnailMailRequest.Party.builder()
                 .withPartyId(partyId)
                 .build())

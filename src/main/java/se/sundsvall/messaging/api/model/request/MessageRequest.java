@@ -3,6 +3,7 @@ package se.sundsvall.messaging.api.model.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +13,6 @@ import jakarta.validation.constraints.Size;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -35,8 +35,8 @@ public record MessageRequest(
         @Schema(description = "Party", requiredMode = REQUIRED)
         Party party,
 
-        @Schema(description = "Headers")
-        List<@Valid Header> headers,
+        @Schema(description = "Filters", example = "{\"someAttributeName\": [\"someAttributeValue\"]}")
+        Map<String, List<String>> filters,
 
         @Valid
         @Schema(description = "Sender")

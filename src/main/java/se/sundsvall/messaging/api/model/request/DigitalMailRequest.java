@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.request.validation.OneOf;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,9 +26,6 @@ public record DigitalMailRequest(
         @NotNull
         @Schema(description = "Party", requiredMode = REQUIRED)
         Party party,
-
-        @Schema(description = "Headers")
-        List<@Valid Header> headers,
 
         @Valid
         @Schema(description = "Sender")

@@ -67,9 +67,9 @@ integration:
   slack:
     base-url: http://localhost:${wiremock.server.port}/slack/
 
-  # FeedbackSettings integration
-  feedback-settings:
-    base-url: http://localhost:${wiremock.server.port}/feedback-settings
+  # ContactSettings integration
+  contact-settings:
+    base-url: http://localhost:${wiremock.server.port}/contact-settings
     token-url: http://localhost:${wiremock.server.port}/token
     client-id: someClientId
     client-secret: someClientSecret

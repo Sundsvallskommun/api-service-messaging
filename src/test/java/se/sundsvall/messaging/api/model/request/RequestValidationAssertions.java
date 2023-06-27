@@ -125,6 +125,17 @@ abstract class RequestValidationAssertions<R>
         }
     }
 
+    static class MessageRequestAssertions extends RequestValidationAssertions<MessageRequest> {
+
+        private MessageRequestAssertions(final MessageRequest request) {
+            super(request, MessageRequestAssertions.class);
+        }
+
+        static MessageRequestAssertions assertThat(final MessageRequest request) {
+            return new MessageRequestAssertions(request);
+        }
+    }
+
     static class LetterRequestAssertions extends RequestValidationAssertions<LetterRequest> {
 
         private LetterRequestAssertions(final LetterRequest request) {

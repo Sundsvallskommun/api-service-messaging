@@ -1,25 +1,17 @@
 package se.sundsvall.messaging.api;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
 import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
-import static se.sundsvall.messaging.model.MessageType.SLACK;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
 
 import jakarta.validation.Valid;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,8 +34,6 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.service.Blacklist;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
@@ -58,7 +48,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Sending Resources")
 @RestController
 @RequestMapping(
-    consumes = APPLICATION_JSON_VALUE,
+    consumes = { APPLICATION_JSON_VALUE },
     produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
 )
 @ApiResponse(
@@ -80,13 +70,10 @@ class MessageResource {
 
     private final MessageService messageService;
     private final MessageEventDispatcher eventDispatcher;
-    private final Blacklist blacklist;
 
-    MessageResource(final MessageService messageService,
-            final MessageEventDispatcher eventDispatcher, final Blacklist blacklist) {
+    MessageResource(final MessageService messageService, final MessageEventDispatcher eventDispatcher) {
         this.messageService = messageService;
         this.eventDispatcher = eventDispatcher;
-        this.blacklist = blacklist;
     }
 
     @Operation(
@@ -95,8 +82,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -105,14 +92,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        checkBlacklist(SMS, request.mobileNumber());
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSmsRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendSms(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendSms(request));
     }
 
     @Operation(
@@ -121,8 +105,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -131,14 +115,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        checkBlacklist(EMAIL, request.emailAddress());
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleEmailRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendEmail(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendEmail(request));
     }
 
     @Operation(
@@ -147,8 +128,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -157,14 +138,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        checkBlacklist(WEB_MESSAGE, request.party().partyId());
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleWebMessageRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendWebMessage(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendWebMessage(request));
     }
 
     @Operation(
@@ -173,8 +151,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageBatchResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -183,14 +161,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        request.party().partyIds().forEach(partyId -> checkBlacklist(DIGITAL_MAIL, partyId));
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalMailRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendDigitalMail(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendDigitalMail(request));
     }
 
     @Operation(
@@ -199,8 +174,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -209,14 +184,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        checkBlacklist(SNAIL_MAIL, request.party().partyId());
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSnailMailRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendSnailMail(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendSnailMail(request));
     }
 
     @Operation(
@@ -225,8 +197,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageBatchResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -235,17 +207,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        request.messages().stream()
-            .map(MessageRequest.Message::party)
-            .map(MessageRequest.Message.Party::partyId)
-            .forEach(partyId -> checkBlacklist(MESSAGE, partyId));
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleMessageRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendMessages(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendMessages(request));
     }
 
     @Operation(
@@ -254,8 +220,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageBatchResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -264,14 +230,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        request.party().partyIds().forEach(partyId -> checkBlacklist(LETTER, partyId));
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleLetterRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendLetter(request));
         }
+
+        return toResponse(uriComponentsBuilder, messageService.sendLetter(request));
     }
 
     @Operation(
@@ -280,8 +243,8 @@ class MessageResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class)),
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
             )
         }
     )
@@ -290,18 +253,11 @@ class MessageResource {
             @Parameter(description = "Whether to send the message asynchronously")
             @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
             final UriComponentsBuilder uriComponentsBuilder) {
-        // Check blacklist
-        checkBlacklist(SLACK, request.channel());
-
         if (async) {
             return toResponse(uriComponentsBuilder, eventDispatcher.handleSlackRequest(request));
-        } else {
-            return toResponse(uriComponentsBuilder, messageService.sendToSlack(request));
         }
-    }
 
-    void checkBlacklist(final MessageType messageType, final String value) {
-        blacklist.check(messageType, value);
+        return toResponse(uriComponentsBuilder, messageService.sendToSlack(request));
     }
 
     ResponseEntity<MessageResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,

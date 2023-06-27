@@ -17,9 +17,6 @@ import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
-
-import generated.se.sundsvall.messagingrules.HeaderName;
 
 public final class TestDataFactory {
 
@@ -40,7 +37,6 @@ public final class TestDataFactory {
                 .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withSender(EmailRequest.Sender.builder()
                 .withName(DEFAULT_SENDER_NAME)
                 .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
@@ -64,7 +60,6 @@ public final class TestDataFactory {
                 .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withDepartment("someDepartment")
             .withDeviation("someDeviation")
             .withAttachments(List.of(
@@ -82,7 +77,6 @@ public final class TestDataFactory {
                 .withPartyId(UUID.randomUUID().toString())
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withSender(DEFAULT_SENDER_NAME)
             .withMobileNumber(DEFAULT_MOBILE_NUMBER)
             .withMessage("someMessage")
@@ -95,7 +89,6 @@ public final class TestDataFactory {
                 .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withMessage("someMessage")
             .withAttachments(List.of(
                 WebMessageRequest.Attachment.builder()
@@ -112,7 +105,6 @@ public final class TestDataFactory {
                 .withPartyIds(List.of(DEFAULT_PARTY_ID))
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withSender(DigitalMailRequest.Sender.builder()
                 .withSupportInfo(DigitalMailRequest.Sender.SupportInfo.builder()
                     .withText("someText")
@@ -140,7 +132,6 @@ public final class TestDataFactory {
                 .withPartyIds(List.of(DEFAULT_PARTY_ID))
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withSender(LetterRequest.Sender.builder()
                 .withSupportInfo(LetterRequest.Sender.SupportInfo.builder()
                     .withText("someText")
@@ -182,7 +173,15 @@ public final class TestDataFactory {
                 .withPartyId(DEFAULT_PARTY_ID)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
+            .withSender(MessageRequest.Message.Sender.builder()
+                .withEmail(MessageRequest.Message.Sender.Email.builder()
+                    .withName(DEFAULT_SENDER_NAME)
+                    .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
+                    .build())
+                .withSms(MessageRequest.Message.Sender.Sms.builder()
+                    .withName(DEFAULT_SENDER_NAME)
+                    .build())
+                .build())
             .withSubject("someSubject")
             .withMessage("someMessage")
             .build();
@@ -190,7 +189,6 @@ public final class TestDataFactory {
 
     public static SlackRequest createValidSlackRequest() {
         return SlackRequest.builder()
-            .withHeaders(List.of(createHeader()))
             .withToken("someToken")
             .withChannel("someChannel")
             .withMessage("someMessage")
@@ -201,13 +199,6 @@ public final class TestDataFactory {
         return ExternalReference.builder()
             .withKey("someKey")
             .withValue("someValue")
-            .build();
-    }
-
-    public static Header createHeader() {
-        return Header.builder()
-            .withName(HeaderName.CATEGORY)
-            .withValues(List.of("someValue1", "someValue2"))
             .build();
     }
 }

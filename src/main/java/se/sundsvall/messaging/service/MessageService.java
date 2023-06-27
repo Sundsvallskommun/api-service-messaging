@@ -5,10 +5,11 @@ import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Try.ofCallable;
 import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod.NO_CONTACT;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FOUND;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.SMS;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.LinkedMultiValueMap;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
@@ -40,11 +42,10 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
 import se.sundsvall.messaging.integration.slack.SlackIntegration;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
@@ -64,21 +65,24 @@ public class MessageService {
     private static final Gson GSON = new GsonBuilder().create();
 
     private final TransactionTemplate transactionTemplate;
+    private final BlacklistService blacklistService;
     private final DbIntegration dbIntegration;
-    private final FeedbackSettingsIntegration feedbackSettings;
+    private final ContactSettingsIntegration contactSettingsIntegration;
     private final SmsSenderIntegration smsSender;
     private final EmailSenderIntegration emailSender;
     private final DigitalMailSenderIntegration digitalMailSender;
     private final WebMessageSenderIntegration webMessageSender;
     private final SnailMailSenderIntegration snailmailSender;
     private final SlackIntegration slackIntegration;
+
     private final MessageMapper messageMapper;
     private final RequestMapper requestMapper;
     private final DtoMapper dtoMapper;
 
     public MessageService(final TransactionTemplate transactionTemplate,
+            final BlacklistService blacklistService,
             final DbIntegration dbIntegration,
-            final FeedbackSettingsIntegration feedbackSettings,
+            final ContactSettingsIntegration contactSettingsIntegration,
             final SmsSenderIntegration smsSender,
             final EmailSenderIntegration emailSender,
             final DigitalMailSenderIntegration digitalMailSender,
@@ -89,8 +93,9 @@ public class MessageService {
             final RequestMapper requestMapper,
             final DtoMapper dtoMapper) {
         this.transactionTemplate = transactionTemplate;
+        this.blacklistService = blacklistService;
         this.dbIntegration = dbIntegration;
-        this.feedbackSettings = feedbackSettings;
+        this.contactSettingsIntegration = contactSettingsIntegration;
         this.smsSender = smsSender;
         this.emailSender = emailSender;
         this.digitalMailSender = digitalMailSender;
@@ -103,21 +108,33 @@ public class MessageService {
     }
 
     public InternalDeliveryResult sendSms(final SmsRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryResult sendEmail(final EmailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var batchId = UUID.randomUUID().toString();
         // Save the message(s)
         var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
@@ -130,11 +147,17 @@ public class MessageService {
     }
 
     public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         // Save the message and (try to) deliver it
         return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var batchId = UUID.randomUUID().toString();
         var messages = request.messages().stream()
             .map(message -> messageMapper.toMessage(batchId, message))
@@ -151,35 +174,63 @@ public class MessageService {
         return new InternalDeliveryBatchResult(batchId, deliveryResults);
     }
 
+    public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
+        var batchId = UUID.randomUUID().toString();
+        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+
+        // Handle and send each message individually, since we don't know if it will result in zero,
+        // one or more actual deliveries
+        var deliveryResults = deliveries.stream()
+            .map(this::sendLetter)
+            .flatMap(Collection::stream)
+            .toList();
+
+        return new InternalDeliveryBatchResult(batchId, deliveryResults);
+    }
+
+    public InternalDeliveryResult sendToSlack(final SlackRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+    }
+
     List<InternalDeliveryResult> sendMessage(final Message message) {
         var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
         var partyId = message.partyId();
 
-        // Get the message headers
-        var headers = GSON.fromJson(message.content(), MessageRequest.Message.class).headers();
+        // Get the message filters
+        var request = GSON.fromJson(message.content(), MessageRequest.Message.class);
+        var filters = ofNullable(request.filters())
+            .map(LinkedMultiValueMap::new)
+            .orElseGet(LinkedMultiValueMap::new);
 
-        // Attempt to get feedback settings and maybe act upon them
-        var feedbackChannels = feedbackSettings.getSettingsByPartyId(headers, partyId);
-        if (feedbackChannels.isEmpty()) {
-            LOG.info("No feedback settings found for {}", partyId);
+        // Get contact settings and maybe act upon them
+        var contactSettings = contactSettingsIntegration.getContactSettings(partyId, filters);
+        if (contactSettings.isEmpty()) {
+            LOG.info("No contact settings found for {} with filters {}", partyId, filters);
 
-            // No feedback settings found - can't do anything more here
-            archiveMessage(message.withStatus(NO_FEEDBACK_SETTINGS_FOUND));
+            // No contact settings found - can't do anything more here
+            archiveMessage(message.withStatus(NO_CONTACT_SETTINGS_FOUND));
 
-            deliveryResults.add(new InternalDeliveryResult(message, NO_FEEDBACK_SETTINGS_FOUND));
+            deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_SETTINGS_FOUND));
         } else {
-            for (var feedbackChannel : feedbackChannels) {
+            for (var contactSetting : contactSettings) {
                 // Determine the contact method, if any
-                var actualContactMethod = ofNullable(feedbackChannel.contactMethod())
+                var actualContactMethod = ofNullable(contactSetting.contactMethod())
                     .map(contactMethod -> {
-                        if (!feedbackChannel.feedbackWanted()) {
+                        if (contactSetting.disabled()) {
                             return NO_CONTACT;
                         }
 
                         return contactMethod;
                     })
-                    .orElse(ContactMethod.UNKNOWN);
+                    .orElse(UNKNOWN);
 
                 // Re-map the delivery to use the actual contact method and deliver it
                 switch (actualContactMethod) {
@@ -191,7 +242,7 @@ public class MessageService {
                         var delivery = message
                             .withDeliveryId(deliveryId)
                             .withType(EMAIL)
-                            .withContent(requestMapper.toEmailRequest(message, feedbackChannel.destination()));
+                            .withContent(requestMapper.toEmailRequest(message, contactSetting.destination()));
 
                         // Save the re-mapped delivery
                         dbIntegration.saveMessage(delivery);
@@ -208,7 +259,7 @@ public class MessageService {
                         var delivery = message
                             .withDeliveryId(deliveryId)
                             .withType(SMS)
-                            .withContent(requestMapper.toSmsRequest(message, feedbackChannel.destination()));
+                            .withContent(requestMapper.toSmsRequest(message, contactSetting.destination()));
 
                         // Save the re-mapped delivery
                         dbIntegration.saveMessage(delivery);
@@ -218,11 +269,11 @@ public class MessageService {
                         deliveryResults.add(deliver(delivery));
                     }
                     case NO_CONTACT -> {
-                        LOG.info("No feedback wanted for {} ({}). No delivery will be attempted", partyId, feedbackChannel.contactMethod());
+                        LOG.info("No contact wanted for {} ({}). No delivery will be attempted", partyId, contactSetting.contactMethod());
 
-                        archiveMessage(message.withStatus(NO_FEEDBACK_WANTED));
+                        archiveMessage(message.withStatus(NO_CONTACT_WANTED));
 
-                        deliveryResults.add(new InternalDeliveryResult(message, NO_FEEDBACK_WANTED));
+                        deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_WANTED));
                     }
                     default -> {
                         LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
@@ -300,25 +351,6 @@ public class MessageService {
         }
 
         return result;
-    }
-
-    public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
-        var batchId = UUID.randomUUID().toString();
-        var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
-
-        // Handle and send each message individually, since we don't know if it will result in zero,
-        // one or more actual deliveries
-        var deliveryResults = deliveries.stream()
-            .map(this::sendLetter)
-            .flatMap(Collection::stream)
-            .toList();
-
-        return new InternalDeliveryBatchResult(batchId, deliveryResults);
-    }
-
-    public InternalDeliveryResult sendToSlack(final SlackRequest request) {
-        // Save the message and (try to) deliver it
-        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
     }
 
     InternalDeliveryResult deliver(final Message delivery) {

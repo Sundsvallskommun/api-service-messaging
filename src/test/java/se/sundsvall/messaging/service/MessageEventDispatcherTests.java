@@ -36,6 +36,8 @@ class MessageEventDispatcherTests {
     @Mock
     private ApplicationEventPublisher mockEventPublisher;
     @Mock
+    private BlacklistService mockBlacklistService;
+    @Mock
     private DbIntegration mockDbIntegration;
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private MessageMapper mockMapper;

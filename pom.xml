@@ -11,7 +11,7 @@
 
     <groupId>se.sundsvall.messaging</groupId>
     <artifactId>api-service-messaging</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
     <name>api-service-messaging</name>
 
     <properties>
@@ -166,27 +166,14 @@
 
                 <executions>
                     <execution>
-                        <id>messaging-rules-api</id>
+                        <id>contact-settings-api</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/messaging-rules-1.0.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/contact-settings-1.0.yml</inputSpec>
                             <configOptions>
-                                <modelPackage>generated.se.sundsvall.messagingrules</modelPackage>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>feedback-settings-api</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/feedback-settings-2.1.yml</inputSpec>
-                            <configOptions>
-                                <modelPackage>generated.se.sundsvall.feedbacksettings</modelPackage>
+                                <modelPackage>generated.se.sundsvall.contactsettings</modelPackage>
                             </configOptions>
                         </configuration>
                     </execution>
