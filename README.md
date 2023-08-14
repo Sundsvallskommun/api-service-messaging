@@ -92,3 +92,16 @@ docker run -i --rm -p 8080:8080 evil.sundsvall.se/ms-messaging-v2:latest
 ```
 
 Copyright &copy; 2022 Sundsvalls kommun
+
+## Status
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=alert_status)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=security_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=bugs)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
+
+
+## 
+Copyright (c) 2021 Sundsvalls kommun
