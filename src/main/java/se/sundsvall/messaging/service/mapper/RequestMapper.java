@@ -2,6 +2,8 @@ package se.sundsvall.messaging.service.mapper;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
@@ -91,7 +93,7 @@ public class RequestMapper {
         return GSON.toJson(emailRequest);
     }
 
-    public DigitalMailRequest toDigitalMailRequest(final LetterRequest request) {
+    public DigitalMailRequest toDigitalMailRequest(final LetterRequest request, final String partyId) {
         return DigitalMailRequest.builder()
             .withSender(DigitalMailRequest.Sender.builder()
                 .withSupportInfo(ofNullable(request.sender()).map(LetterRequest.Sender::supportInfo)
@@ -104,8 +106,7 @@ public class RequestMapper {
                     .orElse(null))
                 .build())
             .withParty(DigitalMailRequest.Party.builder()
-                // TODO: nullcheck x 2
-                .withPartyIds(request.party().partyIds())
+                .withPartyIds(List.of(partyId))
                 .withExternalReferences(request.party().externalReferences())
                 .build())
             .withHeaders(request.headers())
@@ -124,9 +125,12 @@ public class RequestMapper {
             .build();
     }
 
-    public SnailMailRequest toSnailMailRequest(final LetterRequest request) {
+    public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId) {
         return SnailMailRequest.builder()
             .withHeaders(request.headers())
+            .withParty(SnailMailRequest.Party.builder()
+                .withPartyId(partyId)
+                .build())
             .withDepartment(request.department())
             .withDeviation(request.deviation())
             .withAttachments(request.attachments().stream()

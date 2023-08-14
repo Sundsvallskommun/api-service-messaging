@@ -351,8 +351,8 @@ class MessageServiceTests {
         verifyNoMoreInteractions(mockMessageMapper);
         verify(mockDtoMapper, times(1)).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDtoMapper);
-        verify(mockRequestMapper, times(1)).toDigitalMailRequest(any(LetterRequest.class));
-        verify(mockRequestMapper, times(1)).toSnailMailRequest(any(LetterRequest.class));
+        verify(mockRequestMapper, times(1)).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
+        verify(mockRequestMapper, times(1)).toSnailMailRequest(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockRequestMapper);
         // Verify transaction template interaction
         verifyTransactionTemplateInteractions();
