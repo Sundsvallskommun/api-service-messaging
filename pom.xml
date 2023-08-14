@@ -22,8 +22,8 @@
         <published.container.port.test>8701</published.container.port.test>
         <published.container.port.production>8787</published.container.port.production>
 
-        <hypersistence-utils.version>3.5.1</hypersistence-utils.version>
-        <slack-api-client.version>1.29.2</slack-api-client.version>
+        <hypersistence-utils.version>3.4.1</hypersistence-utils.version>
+        <slack-api-client.version>1.30.0</slack-api-client.version>
         <vavr.version>0.10.4</vavr.version>
         <gson.version>2.10.1</gson.version>
         <archunit.version>1.0.1</archunit.version>
