@@ -163,8 +163,10 @@ class FeedbackSettingsIntegrationTests {
 
         var headerFilterName = integration.getHeaderFilterName(header);
 
-        assertThat(headerFilterName).startsWith(FeedbackSettingsIntegration.FILTER_HEADER_PREFIX);
-        assertThat(headerFilterName).isLowerCase();
-        assertThat(headerFilterName).doesNotContain("_").contains("-");
+        assertThat(headerFilterName)
+            .isLowerCase()
+            .contains("-")
+            .doesNotContain("_")
+            .startsWith(FeedbackSettingsIntegration.FILTER_HEADER_PREFIX);
     }
 }
