@@ -1,6 +1,10 @@
 package openapi;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static se.sundsvall.dept44.util.ResourceUtils.asString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
@@ -8,22 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.Resource;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import configuration.TestContainersConfiguration;
-import net.javacrumbs.jsonunit.core.Option;
-import net.javacrumbs.jsonunit.core.internal.Options;
 
 @UnitTest
 @SpringBootTest(
-    webEnvironment = WebEnvironment.RANDOM_PORT,
+    webEnvironment = RANDOM_PORT,
     classes = { Application.class, TestContainersConfiguration.class },
     properties = {
         "spring.main.banner-mode=off",
@@ -47,11 +46,11 @@ class OpenApiSpecificationIT {
     
     @Test
     void compareOpenApiSpecifications() {
-        String existingOpenApiSpecification = ResourceUtils.asString(openApiResource);
-        String currentOpenApiSpecification = getCurrentOpenApiSpecification();
+        var existingOpenApiSpecification = asString(openApiResource);
+        var currentOpenApiSpecification = getCurrentOpenApiSpecification();
 
         assertThatJson(toJson(existingOpenApiSpecification))
-            .withOptions(new Options(Option.IGNORING_ARRAY_ORDER))
+            .withOptions(IGNORING_ARRAY_ORDER)
             .whenIgnoringPaths("servers")
             .isEqualTo(toJson(currentOpenApiSpecification));
     }
@@ -62,7 +61,7 @@ class OpenApiSpecificationIT {
      * @return the current OpenAPI specification
      */
     private String getCurrentOpenApiSpecification() {
-        var uri = UriComponentsBuilder.fromPath("/api-docs.yaml")
+        var uri = fromPath("/api-docs.yaml")
             .buildAndExpand(openApiName, openApiVersion)
             .toUri();
 
