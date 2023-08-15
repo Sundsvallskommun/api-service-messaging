@@ -1,7 +1,6 @@
 package se.sundsvall.messaging;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,11 +46,11 @@ class StartupHandlerTests {
 
     @Test
     void testRun_whenNoPendingMessagesExist() {
-        when(mockDbIntegration.getLatestMessagesWithStatus(eq(PENDING))).thenReturn(List.of());
+        when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(List.of());
 
         startupProcessor.run();
 
-        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(eq(PENDING));
+        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
         verify(mockEventPublisher, never()).publishEvent(any());
     }
 
@@ -87,11 +86,11 @@ class StartupHandlerTests {
                 .withType(DIGITAL_MAIL)
                 .build());
 
-        when(mockDbIntegration.getLatestMessagesWithStatus(eq(PENDING))).thenReturn(messages);
+        when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(messages);
 
         startupProcessor.run();
 
-        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(eq(PENDING));
+        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
         verify(mockEventPublisher, times(7)).publishEvent(any(IncomingMessageEvent.class));
     }
 }

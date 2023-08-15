@@ -308,7 +308,7 @@ class MessageResource {
             final InternalDeliveryResult deliveryResult) {
         var uri = uriComponentsBuilder.path(MESSAGE_STATUS_PATH)
             .buildAndExpand(deliveryResult.messageId())
-            .toUri();;
+            .toUri();
 
         return created(uri)
             .body(MessageResult.builder()

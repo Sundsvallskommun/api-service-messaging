@@ -7,22 +7,20 @@ import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "messaging.defaults")
-public record Defaults(Sms sms, Email email, DigitalMail digitalMail) {
+public record Defaults(
 
-    @ConstructorBinding
-    public Defaults(
-            @Valid @NotNull final Sms sms,
-            @Valid @NotNull final Email email,
-            @Valid @NotNull final DigitalMail digitalMail) {
-        this.sms = sms;
-        this.email = email;
-        this.digitalMail = digitalMail;
-    }
+        @Valid @NotNull
+        Sms sms,
+
+        @Valid @NotNull
+        Email email,
+
+        @Valid @NotNull
+        DigitalMail digitalMail) {
 
     public record Sms(
 
