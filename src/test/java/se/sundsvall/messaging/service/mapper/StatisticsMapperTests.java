@@ -18,6 +18,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.Statistics;
 
 class StatisticsMapperTests {
 
@@ -56,57 +57,26 @@ class StatisticsMapperTests {
         var result = mapper.toStatistics(input);
 
         assertThat(result).isNotNull();
-        assertThat(result.email()).satisfies(email -> {
-            assertThat(email.sent()).isEqualTo(2);
-            assertThat(email.failed()).isOne();
-            assertThat(email.total()).isEqualTo(3);
-        });
-        assertThat(result.sms()).satisfies(sms -> {
-            assertThat(sms.sent()).isOne();
-            assertThat(sms.failed()).isEqualTo(2);
-            assertThat(sms.total()).isEqualTo(3);
-        });
-        assertThat(result.digitalMail()).satisfies(digitalMail -> {
-            assertThat(digitalMail.sent()).isOne();
-            assertThat(digitalMail.failed()).isZero();
-            assertThat(digitalMail.total()).isOne();
-        });
-        assertThat(result.webMessage()).satisfies(webMessage -> {
-            assertThat(webMessage.sent()).isOne();
-            assertThat(webMessage.failed()).isOne();
-            assertThat(webMessage.total()).isEqualTo(2);
-        });
-        assertThat(result.snailMail()).satisfies(snailMail -> {
-            assertThat(snailMail.sent()).isZero();
-            assertThat(snailMail.failed()).isOne();
-            assertThat(snailMail.total()).isOne();
-        });
+        assertThat(result.email()).satisfies(email -> assertCount(email, 2, 1));
+        assertThat(result.sms()).satisfies(sms -> assertCount(sms, 1, 2));
+        assertThat(result.digitalMail()).satisfies(digitalMail -> assertCount(digitalMail, 1, 0));
+        assertThat(result.webMessage()).satisfies(webMessage -> assertCount(webMessage, 1, 1));
+        assertThat(result.snailMail()).satisfies(snailMail -> assertCount(snailMail, 0, 1));
         assertThat(result.message()).isNotNull().satisfies(message -> {
-            assertThat(message.email()).isNotNull().satisfies(email -> {
-                assertThat(email.sent()).isOne();
-                assertThat(email.failed()).isZero();
-                assertThat(email.total()).isOne();
-            });
-            assertThat(message.sms()).isNotNull().satisfies(sms -> {
-                assertThat(sms.sent()).isEqualTo(2);
-                assertThat(sms.failed()).isOne();
-                assertThat(sms.total()).isEqualTo(3);
-            });
-            assertThat(message.undeliverable()).isEqualTo(1);
+            assertThat(message.email()).isNotNull().satisfies(email -> assertCount(email, 1, 0));
+            assertThat(message.sms()).isNotNull().satisfies(sms -> assertCount(sms, 2, 1));
+            assertThat(message.undeliverable()).isOne();
         });
         assertThat(result.letter()).isNotNull().satisfies(letter -> {
-            assertThat(letter.digitalMail()).isNotNull().satisfies(digitalMail -> {
-                assertThat(digitalMail.sent()).isOne();
-                assertThat(digitalMail.failed()).isOne();
-                assertThat(digitalMail.total()).isEqualTo(2);
-            });
-            assertThat(letter.snailMail()).isNotNull().satisfies(snailMail -> {
-                assertThat(snailMail.sent()).isZero();
-                assertThat(snailMail.failed()).isOne();
-                assertThat(snailMail.total()).isOne();
-            });
+            assertThat(letter.digitalMail()).isNotNull().satisfies(digitalMail -> assertCount(digitalMail, 1, 1));
+            assertThat(letter.snailMail()).isNotNull().satisfies(snailMail -> assertCount(snailMail, 0, 1));
         });
         assertThat(result.total()).isEqualTo(18);
+    }
+
+    private void assertCount(final Statistics.Count count, final int expectedSent, final int expectedFailed) {
+        assertThat(count.sent()).isEqualTo(expectedSent);
+        assertThat(count.failed()).isEqualTo(expectedFailed);
     }
 
     @Test

@@ -113,7 +113,6 @@ public class RequestMapper {
             .withContentType(request.contentType())
             .withSubject(request.subject())
             .withBody(request.body())
-            // TODO: nullcheck
             .withAttachments(request.attachments().stream()
                 .filter(LetterRequest.Attachment::isIntendedForDigitalMail)
                 .map(attachment -> DigitalMailRequest.Attachment.builder()
