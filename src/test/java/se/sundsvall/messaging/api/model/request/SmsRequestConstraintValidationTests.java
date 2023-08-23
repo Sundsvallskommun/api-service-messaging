@@ -70,13 +70,13 @@ class SmsRequestConstraintValidationTests {
     @Test
     void shouldFailWithNullMobileNumber() {
         assertThat(validRequest.withMobileNumber(null))
-            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must match"));
+            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
     }
 
     @Test
     void shouldFailWithInvalidMobileNumber() {
         assertThat(validRequest.withMobileNumber("not-a-mobile-number"))
-            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must match"));
+            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
     }
 
     @Test

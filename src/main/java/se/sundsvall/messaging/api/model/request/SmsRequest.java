@@ -7,7 +7,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-import se.sundsvall.dept44.common.validators.annotation.ValidMobileNumber;
+import se.sundsvall.dept44.common.validators.annotation.ValidMSISDN;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.Header;
@@ -30,7 +30,7 @@ public record SmsRequest(
         @Schema(description = "Sender")
         String sender,
 
-        @ValidMobileNumber
+        @ValidMSISDN
         @Schema(description = "Mobile number. Should start with +467x", requiredMode = REQUIRED)
         String mobileNumber,
 
