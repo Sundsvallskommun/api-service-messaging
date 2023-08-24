@@ -223,7 +223,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-1.0.yml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-1.2.yml</inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.smssender</modelPackage>
                             </configOptions>
