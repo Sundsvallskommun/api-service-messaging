@@ -52,23 +52,6 @@ class WebMessageRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithInvalidHeaders() {
-        var header = validRequest.headers().get(0);
-
-        // Test null header name
-        var request = validRequest.withHeaders(List.of(header.withName(null)));
-
-        assertThat(request)
-            .hasSingleConstraintViolation("headers[0].name", message -> message.startsWith("must be one of"));
-
-        // Test empty (null) header values
-        request = validRequest.withHeaders(List.of(header.withValues(null)));
-
-        assertThat(request)
-            .hasSingleConstraintViolation("headers[0].values", "must not be empty");
-    }
-
-    @Test
     void shouldFailWithNullMessage() {
         assertThat(validRequest.withMessage(null))
             .hasSingleConstraintViolation("message", "must not be blank");

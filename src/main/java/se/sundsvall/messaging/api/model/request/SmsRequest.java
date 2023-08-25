@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotBlank;
 import se.sundsvall.dept44.common.validators.annotation.ValidMSISDN;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -23,9 +22,6 @@ public record SmsRequest(
         @Valid
         @Schema(description = "Party")
         Party party,
-
-        @Schema(description = "Headers")
-        List<@Valid Header> headers,
 
         @Schema(description = "Sender")
         String sender,

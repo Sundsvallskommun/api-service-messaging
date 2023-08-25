@@ -2,7 +2,7 @@ package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
@@ -32,7 +32,7 @@ class StatisticsMapperTests {
             new StatsEntry(SMS, MESSAGE, SENT),
             new StatsEntry(SMS, MESSAGE, FAILED),
             new StatsEntry(EMAIL, MESSAGE, SENT),
-            new StatsEntry(MESSAGE, MESSAGE, NO_FEEDBACK_WANTED),
+            new StatsEntry(MESSAGE, MESSAGE, NO_CONTACT_WANTED),
             // LETTER
             new StatsEntry(DIGITAL_MAIL, LETTER, SENT),
             new StatsEntry(DIGITAL_MAIL, LETTER, FAILED),

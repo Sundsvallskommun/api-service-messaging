@@ -3,8 +3,8 @@ package apptest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.CREATED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FOUND;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import org.junit.jupiter.api.Test;
@@ -39,11 +39,13 @@ class MessagesIT extends AbstractMessagingAppTest {
             .sendRequestAndVerifyResponse()
             .andReturnBody(MessageBatchResult.class);
 
-        assertThat(response.messages()).hasSize(1);
-
         var batchId = response.batchId();
+
+        assertThat(response.messages()).hasSize(1);
         var messageId = response.messages().get(0).messageId();
-        var deliveryId = response.messages().get(0).messageId();
+
+        assertThat(response.messages().get(0).deliveries()).hasSize(1);
+        var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
         assertValidUuid(batchId);
@@ -72,10 +74,12 @@ class MessagesIT extends AbstractMessagingAppTest {
             .sendRequestAndVerifyResponse()
             .andReturnBody(MessageBatchResult.class);
 
-        assertThat(response.messages()).hasSize(1);
-
         var batchId = response.batchId();
+
+        assertThat(response.messages()).hasSize(1);
         var messageId = response.messages().get(0).messageId();
+
+        assertThat(response.messages().get(0).deliveries()).hasSize(1);
         var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
@@ -105,10 +109,12 @@ class MessagesIT extends AbstractMessagingAppTest {
             .sendRequestAndVerifyResponse()
             .andReturnBody(MessageBatchResult.class);
 
-        assertThat(response.messages()).hasSize(1);
-
         var batchId = response.batchId();
+
+        assertThat(response.messages()).hasSize(1);
         var messageId = response.messages().get(0).messageId();
+
+        assertThat(response.messages().get(0).deliveries()).hasSize(1);
         var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
@@ -124,7 +130,7 @@ class MessagesIT extends AbstractMessagingAppTest {
             .allSatisfy(historyEntry -> {
                 assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
                 assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
-                assertThat(historyEntry.getStatus()).isEqualTo(NO_FEEDBACK_SETTINGS_FOUND);
+                assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_SETTINGS_FOUND);
             });
     }
 
@@ -138,10 +144,13 @@ class MessagesIT extends AbstractMessagingAppTest {
             .sendRequestAndVerifyResponse()
             .andReturnBody(MessageBatchResult.class);
 
-        assertThat(response.messages()).hasSize(1);
 
         var batchId = response.batchId();
+
+        assertThat(response.messages()).hasSize(1);
         var messageId = response.messages().get(0).messageId();
+
+        assertThat(response.messages().get(0).deliveries()).hasSize(1);
         var deliveryId = response.messages().get(0).deliveries().get(0).deliveryId();
 
         // Make sure we received batch, message and delivery id:s as proper UUID:s
@@ -156,7 +165,43 @@ class MessagesIT extends AbstractMessagingAppTest {
             .isNotNull().allSatisfy(historyEntry -> {
                 assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
                 assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
-                assertThat(historyEntry.getStatus()).isEqualTo(NO_FEEDBACK_WANTED);
+                assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_WANTED);
+            });
+    }
+    @Test
+    void test5_successfulRequest_byBothSmsAndEmail() throws Exception {
+        var response = setupCall()
+            .withServicePath(SERVICE_PATH)
+            .withRequest("request.json")
+            .withHttpMethod(POST)
+            .withExpectedResponseStatus(CREATED)
+            .sendRequestAndVerifyResponse()
+            .andReturnBody(MessageBatchResult.class);
+
+        var batchId = response.batchId();
+
+        assertThat(response.messages()).hasSize(1);
+        var messageId = response.messages().get(0).messageId();
+
+        assertThat(response.messages().get(0).deliveries()).hasSize(2);
+        var deliveryId1 = response.messages().get(0).deliveries().get(0).deliveryId();
+        var deliveryId2 = response.messages().get(0).deliveries().get(1).deliveryId();
+
+        // Make sure we received batch, message and delivery id:s as proper UUID:s
+        assertValidUuid(batchId);
+        assertValidUuid(messageId);
+        assertValidUuid(deliveryId1);
+        assertValidUuid(deliveryId2);
+
+        // Make sure that there doesn't exist a message entity
+        assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+        // Make sure that there exists a history entry with the correct id and status
+        assertThat(historyRepository.findByMessageId(messageId))
+            .isNotNull()
+            .allSatisfy(historyEntry -> {
+                assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
+                assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+                assertThat(historyEntry.getStatus()).isEqualTo(SENT);
             });
     }
 }

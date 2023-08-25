@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.integration.feedbacksettings;
+package se.sundsvall.messaging.integration.contactsettings;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,11 +16,11 @@ import feign.Request;
 import feign.codec.ErrorDecoder;
 
 @Import(FeignConfiguration.class)
-class FeedbackSettingsIntegrationConfiguration {
+class ContactSettingsIntegrationConfiguration {
 
-    private final FeedbackSettingsIntegrationProperties properties;
+    private final ContactSettingsIntegrationProperties properties;
 
-    FeedbackSettingsIntegrationConfiguration(final FeedbackSettingsIntegrationProperties properties) {
+    ContactSettingsIntegrationConfiguration(final ContactSettingsIntegrationProperties properties) {
         this.properties = properties;
     }
 
@@ -35,7 +35,7 @@ class FeedbackSettingsIntegrationConfiguration {
 
     private ClientRegistration clientRegistration() {
         return ClientRegistration
-            .withRegistrationId(FeedbackSettingsIntegration.INTEGRATION_NAME)
+            .withRegistrationId(ContactSettingsIntegration.INTEGRATION_NAME)
             .tokenUri(properties.getTokenUrl())
             .clientId(properties.getClientId())
             .clientSecret(properties.getClientSecret())
@@ -52,6 +52,6 @@ class FeedbackSettingsIntegrationConfiguration {
     }
 
     private ErrorDecoder errorDecoder() {
-        return new ProblemErrorDecoder(FeedbackSettingsIntegration.INTEGRATION_NAME);
+        return new ProblemErrorDecoder(ContactSettingsIntegration.INTEGRATION_NAME);
     }
 }

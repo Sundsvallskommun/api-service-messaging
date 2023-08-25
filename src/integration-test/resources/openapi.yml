@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.1"
+  version: "3.2"
 servers:
 - url: http://localhost:8080
   description: Generated server url
@@ -801,54 +801,6 @@ paths:
       x-wso2-mutual-ssl: Optional
 components:
   schemas:
-    DeliveryResult:
-      type: object
-      properties:
-        deliveryId:
-          type: string
-          description: The delivery id
-          format: uuid
-        messageType:
-          $ref: '#/components/schemas/MessageType'
-        status:
-          $ref: '#/components/schemas/MessageStatus'
-      description: Delivery result
-    MessageResult:
-      type: object
-      properties:
-        messageId:
-          type: string
-          description: The message id
-          format: uuid
-        deliveries:
-          type: array
-          description: The message deliveries
-          items:
-            $ref: '#/components/schemas/DeliveryResult'
-      description: Message result
-    MessageStatus:
-      type: string
-      description: Status
-      enum:
-      - PENDING
-      - AWAITING_FEEDBACK
-      - SENT
-      - NOT_SENT
-      - FAILED
-      - NO_FEEDBACK_SETTINGS_FOUND
-      - NO_FEEDBACK_WANTED
-    MessageType:
-      type: string
-      description: Message type
-      enum:
-      - MESSAGE
-      - EMAIL
-      - SMS
-      - WEB_MESSAGE
-      - DIGITAL_MAIL
-      - SNAIL_MAIL
-      - LETTER
-      - SLACK
     ExternalReference:
       required:
       - key
@@ -864,26 +816,6 @@ components:
           description: The external reference value
           example: 356t4r34f
       description: External references
-    Header:
-      required:
-      - values
-      type: object
-      properties:
-        name:
-          type: string
-          description: The header name
-          enum:
-          - DISTRIBUTION_RULE
-          - CATEGORY
-          - FACILITY_ID
-          - TYPE
-        values:
-          type: array
-          description: The header values
-          items:
-            type: string
-            description: The header values
-      description: Headers
     WebMessageAttachment:
       type: object
       properties:
@@ -920,11 +852,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/WebMessageParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         message:
           type: string
           description: Message
@@ -961,6 +888,54 @@ components:
         statusCode:
           type: integer
           format: int32
+    DeliveryResult:
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          description: The delivery id
+          format: uuid
+        messageType:
+          $ref: '#/components/schemas/MessageType'
+        status:
+          $ref: '#/components/schemas/MessageStatus'
+      description: Delivery result
+    MessageResult:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: The message id
+          format: uuid
+        deliveries:
+          type: array
+          description: The message deliveries
+          items:
+            $ref: '#/components/schemas/DeliveryResult'
+      description: Message result
+    MessageStatus:
+      type: string
+      description: Status
+      enum:
+      - PENDING
+      - AWAITING_FEEDBACK
+      - SENT
+      - NOT_SENT
+      - FAILED
+      - NO_CONTACT_SETTINGS_FOUND
+      - NO_CONTACT_WANTED
+    MessageType:
+      type: string
+      description: Message type
+      enum:
+      - MESSAGE
+      - EMAIL
+      - SMS
+      - WEB_MESSAGE
+      - DIGITAL_MAIL
+      - SNAIL_MAIL
+      - LETTER
+      - SLACK
     SnailmailAttachment:
       required:
       - content
@@ -1000,11 +975,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/SnailmailParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         department:
           type: string
           description: Department and unit that should be billed
@@ -1026,11 +996,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/SmsRequestParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         sender:
           type: string
           description: Sender
@@ -1060,11 +1025,6 @@ components:
       - token
       type: object
       properties:
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         token:
           type: string
           description: App/bot token
@@ -1074,19 +1034,6 @@ components:
         message:
           type: string
           description: Message (supports Slack markdown formatting)
-    MessageBatchResult:
-      type: object
-      properties:
-        batchId:
-          type: string
-          description: The batch id
-          format: uuid
-        messages:
-          type: array
-          description: The individual message results
-          items:
-            $ref: '#/components/schemas/MessageResult'
-      description: Message batch result
     Email:
       required:
       - address
@@ -1112,11 +1059,22 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/MessageParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
+        filters:
+          type: object
+          additionalProperties:
+            type: array
+            description: Filters
+            example:
+              someAttributeName:
+              - someAttributeValue
+            items:
+              type: string
+              description: Filters
+              example: "{\"someAttributeName\":[\"someAttributeValue\"]}"
+          description: Filters
+          example:
+            someAttributeName:
+            - someAttributeValue
         sender:
           $ref: '#/components/schemas/MessageSender'
         subject:
@@ -1173,6 +1131,19 @@ components:
           type: string
           description: The sender of the SMS
           example: sender
+    MessageBatchResult:
+      type: object
+      properties:
+        batchId:
+          type: string
+          description: The batch id
+          format: uuid
+        messages:
+          type: array
+          description: The individual message results
+          items:
+            $ref: '#/components/schemas/MessageResult'
+      description: Message batch result
     LetterAttachment:
       required:
       - content
@@ -1229,11 +1200,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/LetterParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         subject:
           type: string
           description: Subject
@@ -1313,11 +1279,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/EmailRequestParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         emailAddress:
           type: string
           description: Recipient e-mail address
@@ -1412,11 +1373,6 @@ components:
       properties:
         party:
           $ref: '#/components/schemas/DigitalMailParty'
-        headers:
-          type: array
-          description: Headers
-          items:
-            $ref: '#/components/schemas/Header'
         sender:
           $ref: '#/components/schemas/DigitalMailSender'
         subject:
@@ -1527,8 +1483,8 @@ components:
           - SENT
           - NOT_SENT
           - FAILED
-          - NO_FEEDBACK_SETTINGS_FOUND
-          - NO_FEEDBACK_WANTED
+          - NO_CONTACT_SETTINGS_FOUND
+          - NO_CONTACT_WANTED
         content:
           type: object
         timestamp:

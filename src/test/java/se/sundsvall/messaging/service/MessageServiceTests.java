@@ -1,7 +1,6 @@
 package se.sundsvall.messaging.service;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
@@ -10,7 +9,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
-import static se.sundsvall.messaging.TestDataFactory.createHeader;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
@@ -19,8 +17,8 @@ import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidSnailMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_SETTINGS_FOUND;
-import static se.sundsvall.messaging.model.MessageStatus.NO_FEEDBACK_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
@@ -54,14 +52,13 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.contactsettings.ContactDto;
+import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.FeedbackSettingsIntegration;
-import se.sundsvall.messaging.integration.feedbacksettings.model.ContactMethod;
-import se.sundsvall.messaging.integration.feedbacksettings.model.FeedbackChannelDto;
 import se.sundsvall.messaging.integration.slack.SlackDto;
 import se.sundsvall.messaging.integration.slack.SlackIntegration;
 import se.sundsvall.messaging.integration.smssender.SmsDto;
@@ -84,9 +81,11 @@ class MessageServiceTests {
     @Mock
     private TransactionTemplate mockTransactionTemplate;
     @Mock
+    private BlacklistService mockBlacklistService;
+    @Mock
     private DbIntegration mockDbIntegration;
     @Mock
-    private FeedbackSettingsIntegration mockFeedbackSettingsIntegration;
+    private ContactSettingsIntegration mockContactSettingsIntegration;
     @Mock
     private SmsSenderIntegration mockSmsSenderIntegration;
     @Mock
@@ -114,7 +113,7 @@ class MessageServiceTests {
     @BeforeEach
     void setUp() {
         integrations = List.of(
-            mockFeedbackSettingsIntegration,
+            mockContactSettingsIntegration,
             mockEmailSenderIntegration,
             mockSmsSenderIntegration,
             mockDigitalMailSenderIntegration,
@@ -363,28 +362,28 @@ class MessageServiceTests {
         var request = createMessageRequest(List.of("partyId1", "partyId2", "partyId3", "partyId4"));
 
         when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyList(), eq("partyId1")))
+        when(mockContactSettingsIntegration.getContactSettings(eq("partyId1"), any()))
             .thenReturn(List.of(
-                FeedbackChannelDto.builder()
-                    .withFeedbackWanted(true)
-                    .withContactMethod(ContactMethod.SMS)
-                    .withDestination("0701234567")
+                ContactDto.builder()
+                    .withContactMethod(ContactDto.ContactMethod.SMS)
+                    .withDestination("+46701234567")
+                    .withDisabled(false)
                     .build(),
-                FeedbackChannelDto.builder()
-                    .withFeedbackWanted(false)
-                    .withContactMethod(ContactMethod.EMAIL)
+                ContactDto.builder()
+                    .withContactMethod(ContactDto.ContactMethod.EMAIL)
                     .withDestination("partyId1@something.com")
+                    .withDisabled(true)
                     .build()));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyList(), eq("partyId2")))
-            .thenReturn(List.of(FeedbackChannelDto.builder().build()));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyList(), eq("partyId3")))
+        when(mockContactSettingsIntegration.getContactSettings(eq("partyId2"), any()))
+            .thenReturn(List.of(ContactDto.builder().build()));
+        when(mockContactSettingsIntegration.getContactSettings(eq("partyId3"), any()))
             .thenReturn(List.of(
-                FeedbackChannelDto.builder()
-                    .withFeedbackWanted(true)
-                    .withContactMethod(ContactMethod.EMAIL)
+                ContactDto.builder()
+                    .withContactMethod(ContactDto.ContactMethod.EMAIL)
                     .withDestination("partyId3@something.com")
+                    .withDisabled(false)
                     .build()));
-        when(mockFeedbackSettingsIntegration.getSettingsByPartyId(anyList(), eq("partyId4")))
+        when(mockContactSettingsIntegration.getContactSettings(eq("partyId4"), any()))
             .thenReturn(List.of());
 
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(SENT);
@@ -395,7 +394,7 @@ class MessageServiceTests {
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(5);
         assertThat(result.deliveries()).extracting(InternalDeliveryResult::status)
-            .containsExactlyInAnyOrder(SENT, FAILED, FAILED, NO_FEEDBACK_WANTED, NO_FEEDBACK_SETTINGS_FOUND);
+            .containsExactlyInAnyOrder(SENT, FAILED, FAILED, NO_CONTACT_WANTED, NO_CONTACT_SETTINGS_FOUND);
         assertThat(result.deliveries()).extracting(InternalDeliveryResult::messageType)
             .containsExactlyInAnyOrder(SMS, EMAIL, MESSAGE, MESSAGE, MESSAGE);
         assertThat(result.deliveries()).allSatisfy(deliveryResult -> {
@@ -404,8 +403,8 @@ class MessageServiceTests {
         });
 
         // Verify external integration interactions
-        verify(mockFeedbackSettingsIntegration, times(4)).getSettingsByPartyId(anyList(), any(String.class));
-        verifyNoMoreInteractions(mockFeedbackSettingsIntegration);
+        verify(mockContactSettingsIntegration, times(4)).getContactSettings(any(String.class), any());
+        verifyNoMoreInteractions(mockContactSettingsIntegration);
         verify(mockSmsSenderIntegration, times(1)).sendSms(any(SmsDto.class));
         verifyNoMoreInteractions(mockSmsSenderIntegration);
         verify(mockEmailSenderIntegration, times(1)).sendEmail(any(EmailDto.class));
@@ -460,7 +459,6 @@ class MessageServiceTests {
                 .withPartyId(partyId)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
-            .withHeaders(List.of(createHeader()))
             .withSubject("someSubject")
             .withMessage("someMessage")
             .build();

@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotBlank;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,9 +24,6 @@ public record SnailMailRequest(
         @Valid
         @Schema(description = "Party")
         Party party,
-
-        @Schema(description = "Headers")
-        List<@Valid Header> headers,
 
         @NotBlank
         @Schema(description = "Department and unit that should be billed", example = "SBK(Gatuavdelningen, Trafiksektionen)", requiredMode = REQUIRED)

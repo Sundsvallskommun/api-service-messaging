@@ -1,0 +1,12 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "/email-sender/send/email"
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "status": 200
+    }
+}

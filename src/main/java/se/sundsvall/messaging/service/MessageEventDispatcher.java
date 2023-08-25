@@ -32,17 +32,23 @@ import se.sundsvall.messaging.service.mapper.MessageMapper;
 public class MessageEventDispatcher {
 
     private final ApplicationEventPublisher eventPublisher;
+    private final BlacklistService blacklistService;
     private final DbIntegration dbIntegration;
     private final MessageMapper messageMapper;
 
     public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher,
-        final DbIntegration dbIntegration, final MessageMapper messageMapper) {
+            final BlacklistService blacklistService, final DbIntegration dbIntegration,
+            final MessageMapper messageMapper) {
         this.eventPublisher = eventPublisher;
+        this.blacklistService = blacklistService;
         this.dbIntegration = dbIntegration;
         this.messageMapper = messageMapper;
     }
 
     public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var batchId = UUID.randomUUID().toString();
 
         var messages = request.messages().stream()
@@ -62,6 +68,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, EMAIL, message.deliveryId()));
@@ -70,6 +79,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, SMS, message.deliveryId()));
@@ -78,6 +90,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, WEB_MESSAGE, message.deliveryId()));
@@ -86,6 +101,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var batchId = UUID.randomUUID().toString();
 
         var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
@@ -103,6 +121,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, SNAIL_MAIL, message.deliveryId()));
@@ -111,6 +132,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var batchId = UUID.randomUUID().toString();
 
         var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
@@ -128,6 +152,9 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
         eventPublisher.publishEvent(new IncomingMessageEvent(this, SLACK, message.deliveryId()));

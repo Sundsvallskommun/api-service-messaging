@@ -11,7 +11,6 @@ import jakarta.validation.constraints.Size;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.model.Header;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,9 +25,6 @@ public record WebMessageRequest(
         @NotNull
         @Schema(description = "Party", requiredMode = REQUIRED)
         Party party,
-
-        @Schema(description = "Headers")
-        List<@Valid Header> headers,
 
         @NotBlank
         @Schema(description = "Message", requiredMode = REQUIRED)

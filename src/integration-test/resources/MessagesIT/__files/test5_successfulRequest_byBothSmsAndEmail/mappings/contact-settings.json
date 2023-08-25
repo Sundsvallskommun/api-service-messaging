@@ -1,0 +1,18 @@
+{
+    "request": {
+        "method": "GET",
+        "urlPath": "/contact-settings/settings",
+        "queryParameters": {
+            "partyId": {
+                "equalTo": "f427952b-247c-4d3b-b081-675a467b3619"
+            }
+        }
+    },
+    "response": {
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "bodyFileName": "test5_successfulRequest_byBothSmsAndEmail/responses/contact-settings.json",
+        "status": 200
+    }
+}

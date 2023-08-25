@@ -6,6 +6,6 @@ public enum MessageStatus {
     SENT,
     NOT_SENT,
     FAILED,
-    NO_FEEDBACK_SETTINGS_FOUND,
-    NO_FEEDBACK_WANTED
+    NO_CONTACT_SETTINGS_FOUND,
+    NO_CONTACT_WANTED
 }
