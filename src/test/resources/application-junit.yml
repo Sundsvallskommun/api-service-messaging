@@ -71,8 +71,8 @@ integration:
     client-secret: someClientSecret
 
   # FeedbackSettings integration
-  feedback-settings:
-    base-url: http://feedback-settings/api
-    token-url: http://feedback-settings/token
+  contact-settings:
+    base-url: http://contact-settings/api
+    token-url: http://contact-settings/token
     client-id: someClientId
     client-secret: someClientSecret
