@@ -65,7 +65,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithNullText() {
+    void shouldFailWithSupportInfoWithNullText() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withText(null));
 
@@ -74,7 +74,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithBlankText() {
+    void shouldFailWithSupportInfoWithBlankText() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withText(" "));
 
@@ -83,7 +83,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithNullEmailAddress() {
+    void shouldFailWithSupportInfoWithNullEmailAddress() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(null));
 
@@ -92,7 +92,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithBlankEmailAddress() {
+    void shouldFailWithSupportInfoWithBlankEmailAddress() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(" "));
 
@@ -102,7 +102,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithInvalidEmailAddress() {
+    void shouldFailWithSupportInfoWithInvalidEmailAddress() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress("not-an-email-address"));
 
@@ -111,7 +111,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithNullPhoneNumber() {
+    void shouldFailWithSupportInfoWithNullPhoneNumber() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(null));
 
@@ -120,7 +120,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithBlankPhoneNumber() {
+    void shouldFailWithSupportInfoWithBlankPhoneNumber() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(" "));
 
@@ -129,7 +129,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithNullUrl() {
+    void shouldFailWithSupportInfoWithNullUrl() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withUrl(null));
 
@@ -138,7 +138,7 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithBlankUrl() {
+    void shouldFailWithSupportInfoWithBlankUrl() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withUrl(" "));
 

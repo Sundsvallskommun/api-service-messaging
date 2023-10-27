@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -56,6 +57,10 @@ public class BlacklistService {
 
     public void check(final DigitalMailRequest request) {
         request.party().partyIds().forEach(partyId -> check(DIGITAL_MAIL, partyId));
+    }
+
+    public void check(final DigitalInvoiceRequest request) {
+        check(EMAIL, request.party().partyId());
     }
 
     public void check(final SnailMailRequest request) {

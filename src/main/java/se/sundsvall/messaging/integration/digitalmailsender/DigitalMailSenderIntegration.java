@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.model.MessageStatus;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
 @Component
@@ -34,6 +35,17 @@ public class DigitalMailSenderIntegration {
             ofNullable(response.getBody())
                 .map(DigitalMailResponse::getDeliveryStatus)
                 .map(DeliveryStatus::getDelivered)
+                .orElse(false);
+
+        return success ? SENT : NOT_SENT;
+    }
+
+    public MessageStatus sendDigitalInvoice(final DigitalInvoiceDto dto) {
+        var response = client.sendDigitalInvoice(mapper.toDigitalInvoiceRequest(dto));
+
+        var success = response.getStatusCode().is2xxSuccessful() &&
+            ofNullable(response.getBody())
+                .map(DigitalInvoiceResponse::getSent)
                 .orElse(false);
 
         return success ? SENT : NOT_SENT;

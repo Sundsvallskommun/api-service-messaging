@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
+import static se.sundsvall.messaging.TestDataFactory.createValidDigitalInvoiceRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
@@ -20,6 +21,7 @@ import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
@@ -44,6 +46,7 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -55,6 +58,7 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.contactsettings.ContactDto;
 import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
 import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
@@ -248,7 +252,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(SnailMailRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toSnailmailDto(any(SnailMailRequest.class));
+        verify(mockDtoMapper, times(1)).toSnailMailDto(any(SnailMailRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
@@ -296,7 +300,7 @@ class MessageServiceTests {
 
         var result = messageService.sendDigitalMail(request);
 
-        assertThat(result.batchId()).isNotNull();   // TODO: assert UUID
+        assertThat(result.batchId()).isNotNull();
         assertThat(result.deliveries()).hasSize(1);
         assertThat(result.deliveries().get(0).messageId()).isValidUuid().isEqualTo(messages.get(0).messageId());
         assertThat(result.deliveries().get(0).deliveryId()).isValidUuid().isEqualTo(messages.get(0).deliveryId());
@@ -313,6 +317,37 @@ class MessageServiceTests {
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(DigitalMailRequest.class), any(String.class));
         verifyNoMoreInteractions(mockMessageMapper);
         verify(mockDtoMapper, times(1)).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
+        verifyNoMoreInteractions(mockDtoMapper);
+        verifyNoInteractions(mockRequestMapper);
+        // Verify transaction template interaction
+        verify(mockTransactionTemplate, times(1)).execute(any(TransactionCallbackWithoutResult.class));
+    }
+
+    @Test
+    void test_sendDigitalInvoice() {
+        var request = createValidDigitalInvoiceRequest();
+        var message = mockMessageMapper.toMessage(request);
+
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDigitalMailSenderIntegration.sendDigitalInvoice(any(DigitalInvoiceDto.class))).thenReturn(SENT);
+
+        var result = messageService.sendDigitalInvoice(request);
+
+        assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
+        assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
+        assertThat(result.messageType()).isEqualTo(DIGITAL_INVOICE);
+        assertThat(result.status()).isEqualTo(SENT);
+
+        // Verify external integration interactions
+        verify(mockDigitalMailSenderIntegration, times(1)).sendDigitalInvoice(any(DigitalInvoiceDto.class));
+        verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
+        verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
+        // Verify db integration interactions
+        verifyDbIntegrationInteractions();
+        // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
+        verify(mockMessageMapper, times(1 + 1)).toMessage(any(DigitalInvoiceRequest.class));
+        verifyNoMoreInteractions(mockMessageMapper);
+        verify(mockDtoMapper, times(1)).toDigitalInvoiceDto(any(DigitalInvoiceRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction

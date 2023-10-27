@@ -3,10 +3,13 @@ package se.sundsvall.messaging;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -15,12 +18,15 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.model.InvoiceType;
+import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.ReferenceType;
 
 public final class TestDataFactory {
-
-    public static final String DEFAULT_PARTY_ID = UUID.randomUUID().toString();
 
     public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
 
@@ -31,10 +37,27 @@ public final class TestDataFactory {
     
     private TestDataFactory() { }
 
+    public static Message createMessage(final MessageType type, final String content) {
+        return createMessage(UUID.randomUUID().toString(), type, content);
+    }
+
+    public static Message createMessage(final String partyId, final MessageType type, final String content) {
+        return Message.builder()
+            .withBatchId(UUID.randomUUID().toString())
+            .withMessageId(UUID.randomUUID().toString())
+            .withDeliveryId(UUID.randomUUID().toString())
+            .withPartyId(partyId)
+            .withType(type)
+            .withOriginalType(type)
+            .withContent(content)
+            .withStatus(PENDING)
+            .build();
+    }
+
     public static EmailRequest createValidEmailRequest() {
         return EmailRequest.builder()
             .withParty(EmailRequest.Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
+                .withPartyId(UUID.randomUUID().toString())
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withSender(EmailRequest.Sender.builder()
@@ -57,7 +80,7 @@ public final class TestDataFactory {
     public static SnailMailRequest createValidSnailMailRequest() {
         return SnailMailRequest.builder()
             .withParty(SnailMailRequest.Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
+                .withPartyId(UUID.randomUUID().toString())
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withDepartment("someDepartment")
@@ -86,7 +109,7 @@ public final class TestDataFactory {
     public static WebMessageRequest createValidWebMessageRequest() {
         return WebMessageRequest.builder()
             .withParty(WebMessageRequest.Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
+                .withPartyId(UUID.randomUUID().toString())
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withMessage("someMessage")
@@ -102,7 +125,7 @@ public final class TestDataFactory {
     public static DigitalMailRequest createValidDigitalMailRequest() {
         return DigitalMailRequest.builder()
             .withParty(DigitalMailRequest.Party.builder()
-                .withPartyIds(List.of(DEFAULT_PARTY_ID))
+                .withPartyIds(List.of(UUID.randomUUID().toString()))
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withSender(DigitalMailRequest.Sender.builder()
@@ -126,10 +149,37 @@ public final class TestDataFactory {
             .build();
     }
 
+    public static DigitalInvoiceRequest createValidDigitalInvoiceRequest() {
+        return DigitalInvoiceRequest.builder()
+            .withParty(DigitalInvoiceRequest.Party.builder()
+                .withPartyId(UUID.randomUUID().toString())
+                .withExternalReferences(List.of(createExternalReference()))
+                .build())
+            .withType(InvoiceType.INVOICE)
+            .withSubject("someSubject")
+            .withReference("someReference")
+            .withDetails(DigitalInvoiceRequest.Details.builder()
+                .withAmount(12.34f)
+                .withDueDate(LocalDate.now().plusDays(30))
+                .withPaymentReferenceType(ReferenceType.SE_OCR)
+                .withPaymentReference("somePaymentReference")
+                .withAccountType(AccountType.BANKGIRO)
+                .withAccountNumber("1234567")
+                .build())
+            .withFiles(List.of(
+                DigitalInvoiceRequest.File.builder()
+                    .withContentType(ContentType.APPLICATION_PDF.getValue())
+                    .withContent("someContent")
+                    .withFilename("someFilename")
+                    .build()
+            ))
+            .build();
+    }
+
     public static LetterRequest createValidLetterRequest() {
         return LetterRequest.builder()
             .withParty(LetterRequest.Party.builder()
-                .withPartyIds(List.of(DEFAULT_PARTY_ID))
+                .withPartyIds(List.of(UUID.randomUUID().toString()))
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withSender(LetterRequest.Sender.builder()
@@ -167,10 +217,22 @@ public final class TestDataFactory {
             .build();
     }
 
-    public static MessageRequest.Message createValidMessageRequest() {
+    public static MessageRequest createValidMessageRequest(final List<String> partyIds) {
+        return MessageRequest.builder()
+            .withMessages(partyIds.stream()
+                .map(TestDataFactory::createValidMessageRequestMessage)
+                .toList())
+            .build();
+    }
+
+    public static MessageRequest.Message createValidMessageRequestMessage() {
+        return createValidMessageRequestMessage(UUID.randomUUID().toString());
+    }
+
+    public static MessageRequest.Message createValidMessageRequestMessage(final String partyId) {
         return MessageRequest.Message.builder()
             .withParty(MessageRequest.Message.Party.builder()
-                .withPartyId(DEFAULT_PARTY_ID)
+                .withPartyId(partyId)
                 .withExternalReferences(List.of(createExternalReference()))
                 .build())
             .withSender(MessageRequest.Message.Sender.builder()

@@ -1,19 +1,11 @@
 package se.sundsvall.messaging.service;
 
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
-import static se.sundsvall.messaging.model.MessageType.SLACK;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -25,6 +17,7 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 
@@ -57,11 +50,7 @@ public class MessageEventDispatcher {
             .toList();
 
         var deliveries = messages.stream()
-            .map(message -> {
-                eventPublisher.publishEvent(new IncomingMessageEvent(this, MESSAGE, message.deliveryId()));
-
-                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), MESSAGE, null);
-            } )
+            .map(this::publishMessageEvent)
             .toList();
 
         return new InternalDeliveryBatchResult(batchId, deliveries);
@@ -73,9 +62,7 @@ public class MessageEventDispatcher {
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, EMAIL, message.deliveryId()));
-
-        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), EMAIL, null);
+        return publishMessageEvent(message);
     }
 
     public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
@@ -84,9 +71,7 @@ public class MessageEventDispatcher {
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, SMS, message.deliveryId()));
-
-        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SMS, null);
+        return publishMessageEvent(message);
     }
 
     public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
@@ -95,9 +80,7 @@ public class MessageEventDispatcher {
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, WEB_MESSAGE, message.deliveryId()));
-
-        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), WEB_MESSAGE, null);
+        return publishMessageEvent(message);
     }
 
     public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
@@ -109,16 +92,21 @@ public class MessageEventDispatcher {
         var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 
         var deliveries = messages.stream()
-            .map(message -> {
-                eventPublisher.publishEvent(
-                    new IncomingMessageEvent(this, DIGITAL_MAIL, message.deliveryId()));
-
-                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), DIGITAL_MAIL, null);
-            })
+            .map(this::publishMessageEvent)
             .toList();
 
         return new InternalDeliveryBatchResult(batchId, deliveries);
     }
+
+    public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
+        var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+
+        return publishMessageEvent(message);
+    }
+
 
     public InternalDeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
         // Check blacklist
@@ -126,9 +114,7 @@ public class MessageEventDispatcher {
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, SNAIL_MAIL, message.deliveryId()));
-
-        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SNAIL_MAIL, null);
+        return publishMessageEvent(message);
     }
 
     public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
@@ -140,12 +126,7 @@ public class MessageEventDispatcher {
         var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 
         var deliveries = messages.stream()
-            .map(message -> {
-                eventPublisher.publishEvent(
-                    new IncomingMessageEvent(this, LETTER, message.deliveryId()));
-
-                return new InternalDeliveryResult(message.messageId(), message.deliveryId(), LETTER);
-            })
+            .map(this::publishMessageEvent)
             .toList();
 
         return new InternalDeliveryBatchResult(batchId, deliveries);
@@ -157,8 +138,12 @@ public class MessageEventDispatcher {
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, SLACK, message.deliveryId()));
+        return publishMessageEvent(message);
+    }
 
-        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), SLACK, null);
+    private InternalDeliveryResult publishMessageEvent(final Message message) {
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, message.type(), message.deliveryId()));
+
+        return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type());
     }
 }

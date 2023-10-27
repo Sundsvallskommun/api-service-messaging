@@ -14,14 +14,14 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -61,8 +62,6 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 public class MessageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
-
-    private static final Gson GSON = new GsonBuilder().create();
 
     private final TransactionTemplate transactionTemplate;
     private final BlacklistService blacklistService;
@@ -146,6 +145,14 @@ public class MessageService {
         return new InternalDeliveryBatchResult(batchId, deliveryResults);
     }
 
+    public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
+        // Check blacklist
+        blacklistService.check(request);
+
+        // Save the message and (try to) deliver it
+        return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+    }
+
     public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
         // Check blacklist
         blacklistService.check(request);
@@ -205,7 +212,7 @@ public class MessageService {
         var partyId = message.partyId();
 
         // Get the message filters
-        var request = GSON.fromJson(message.content(), MessageRequest.Message.class);
+        var request = fromJson(message.content(), MessageRequest.Message.class);
         var filters = ofNullable(request.filters())
             .map(LinkedMultiValueMap::new)
             .orElseGet(LinkedMultiValueMap::new);
@@ -296,15 +303,15 @@ public class MessageService {
 
     public List<InternalDeliveryResult> sendLetter(final Message message) {
         var result = new ArrayList<InternalDeliveryResult>();
-        var request = GSON.fromJson(message.content(), LetterRequest.class);
+        var request = fromJson(message.content(), LetterRequest.class);
 
         // Re-map the request as a digital mail request
         var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
-        var digitalMailRequestAsJson = GSON.toJson(digitalMailRequest);
+        var digitalMailRequestAsJson = toJson(digitalMailRequest);
 
         // Re-map the request as a snail-mail request
         var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId());
-        var snailMailRequestAsJson = GSON.toJson(snailMailRequest);
+        var snailMailRequestAsJson = toJson(snailMailRequest);
 
         // Don't make an attempt to deliver as digital mail if there aren't any attachments
         // intended for it
@@ -355,10 +362,11 @@ public class MessageService {
 
     InternalDeliveryResult deliver(final Message delivery) {
         // Re-construct the original request
-        var request = GSON.fromJson(delivery.content(), switch (delivery.type()) {
+        var request = fromJson(delivery.content(), switch (delivery.type()) {
             case SMS -> SmsRequest.class;
             case EMAIL -> EmailRequest.class;
             case DIGITAL_MAIL -> DigitalMailRequest.class;
+            case DIGITAL_INVOICE -> DigitalInvoiceRequest.class;
             case WEB_MESSAGE -> WebMessageRequest.class;
             case SNAIL_MAIL -> SnailMailRequest.class;
             case SLACK -> SlackRequest.class;
@@ -373,10 +381,12 @@ public class MessageService {
                 emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
             case DIGITAL_MAIL -> ofCallable(() ->
                 digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
+            case DIGITAL_INVOICE -> ofCallable(() ->
+                digitalMailSender.sendDigitalInvoice(dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
             case WEB_MESSAGE -> ofCallable(() ->
                 webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
             case SNAIL_MAIL -> ofCallable(() ->
-                snailmailSender.sendSnailMail(dtoMapper.toSnailmailDto((SnailMailRequest) request)));
+                snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request)));
             case SLACK -> ofCallable(() ->
                 slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
             default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());

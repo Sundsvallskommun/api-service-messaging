@@ -8,6 +8,7 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
@@ -51,7 +52,7 @@ class BoundaryArchTests {
             .that()
                 .resideInAPackage(DigitalMailSenderIntegration.class.getPackageName())
             .and()
-                .doNotBelongToAnyOf(DigitalMailSenderIntegration.class, DigitalMailDto.class)
+                .doNotBelongToAnyOf(DigitalMailSenderIntegration.class, DigitalMailDto.class, DigitalInvoiceDto.class)
             .should()
                 .bePackagePrivate();
 

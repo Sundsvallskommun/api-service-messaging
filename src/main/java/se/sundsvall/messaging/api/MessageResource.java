@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.zalando.problem.Problem;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -166,6 +167,29 @@ class MessageResource {
         }
 
         return toResponse(uriComponentsBuilder, messageService.sendDigitalMail(request));
+    }
+
+    @Operation(
+        summary = "Send a digital invoice",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Successful Operation",
+                useReturnTypeSchema = true,
+                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+            )
+        }
+    )
+    @PostMapping("/digital-invoice")
+    ResponseEntity<MessageResult> sendDigitalInvoice(@Valid @RequestBody final DigitalInvoiceRequest request,
+            @Parameter(description = "Whether to send the message asynchronously")
+            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
+            final UriComponentsBuilder uriComponentsBuilder) {
+        if (async) {
+            return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalInvoiceRequest(request));
+        }
+
+        return toResponse(uriComponentsBuilder, messageService.sendDigitalInvoice(request));
     }
 
     @Operation(

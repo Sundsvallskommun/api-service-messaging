@@ -16,17 +16,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.service.StatisticsService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -35,9 +36,15 @@ class StatusAndHistoryResourceTests {
 
     @Mock
     private HistoryService mockHistoryService;
+    @Mock
+    private StatisticsService mockStatisticsService;
 
-    @InjectMocks
     private StatusAndHistoryResource statusAndHistoryResource;
+
+    @BeforeEach
+    void setUp() {
+        statusAndHistoryResource = new StatusAndHistoryResource(mockHistoryService, mockStatisticsService);
+    }
 
     @ParameterizedTest
     @EnumSource(MessageType.class)

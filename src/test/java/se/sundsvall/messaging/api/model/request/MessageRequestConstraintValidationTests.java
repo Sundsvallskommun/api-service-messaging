@@ -1,6 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
 import static se.sundsvall.messaging.api.model.request.RequestValidationAssertions.MessageRequestAssertions.assertThat;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageRequestConstraintValidationTests {
 
-    private final MessageRequest.Message validMessage = createValidMessageRequest();
+    private final MessageRequest.Message validMessage = createValidMessageRequestMessage();
 
     @Test
     void shouldPassForValidRequest() {

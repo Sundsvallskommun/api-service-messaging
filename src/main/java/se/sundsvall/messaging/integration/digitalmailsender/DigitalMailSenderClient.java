@@ -4,6 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
@@ -16,4 +18,7 @@ interface DigitalMailSenderClient {
 
     @PostMapping("/send-digital-mail")
     ResponseEntity<DigitalMailResponse> sendDigitalMail(DigitalMailRequest request);
+
+    @PostMapping("/sendDigitalInvoice")
+    ResponseEntity<DigitalInvoiceResponse> sendDigitalInvoice(DigitalInvoiceRequest request);
 }

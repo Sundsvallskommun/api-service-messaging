@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
@@ -11,6 +12,7 @@ import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.configuration.Defaults;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.integration.slack.SlackDto;
@@ -108,6 +110,30 @@ public class DtoMapper {
             .build();
     }
 
+    public DigitalInvoiceDto toDigitalInvoiceDto(final DigitalInvoiceRequest request) {
+        return DigitalInvoiceDto.builder()
+            .withPartyId(request.party().partyId())
+            .withType(request.type())
+            .withSubject(request.subject())
+            .withReference(request.reference())
+            .withDetails(DigitalInvoiceDto.Details.builder()
+                .withAmount(request.details().amount())
+                .withDueDate(request.details().dueDate())
+                .withPaymentReferenceType(request.details().paymentReferenceType())
+                .withPaymentReference(request.details().paymentReference())
+                .withAccountType(request.details().accountType())
+                .withAccountNumber(request.details().accountNumber())
+                .build())
+            .withFiles(request.files().stream()
+                .map(file -> DigitalInvoiceDto.File.builder()
+                    .withFilename(file.filename())
+                    .withContentType(file.contentType())
+                    .withContent(file.content())
+                    .build())
+                .toList())
+            .build();
+    }
+
     public WebMessageDto toWebMessageDto(final WebMessageRequest request) {
         return WebMessageDto.builder()
             .withPartyId(Optional.ofNullable(request.party())
@@ -129,7 +155,7 @@ public class DtoMapper {
             .build();
     }
 
-    public SnailMailDto toSnailmailDto(final SnailMailRequest request) {
+    public SnailMailDto toSnailMailDto(final SnailMailRequest request) {
         return SnailMailDto.builder()
             .withDepartment(request.department())
             .withDeviation(request.deviation())

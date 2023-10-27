@@ -506,6 +506,68 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /digital-invoice:
+    post:
+      tags:
+      - Sending Resources
+      summary: Send a digital invoice
+      operationId: sendDigitalInvoice
+      parameters:
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigitalInvoiceRequest'
+        required: true
+      responses:
+        "201":
+          description: Successful Operation
+          headers:
+            Location:
+              style: simple
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResult'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/MessageResult'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /status/message/{messageId}:
     get:
       tags:
@@ -648,6 +710,7 @@ paths:
           - SMS
           - WEB_MESSAGE
           - DIGITAL_MAIL
+          - DIGITAL_INVOICE
           - SNAIL_MAIL
           - LETTER
           - SLACK
@@ -883,11 +946,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     DeliveryResult:
       type: object
       properties:
@@ -933,6 +996,7 @@ components:
       - SMS
       - WEB_MESSAGE
       - DIGITAL_MAIL
+      - DIGITAL_INVOICE
       - SNAIL_MAIL
       - LETTER
       - SLACK
@@ -1418,6 +1482,107 @@ components:
           type: string
         url:
           type: string
+    Details:
+      required:
+      - accountNumber
+      - accountType
+      - amount
+      - dueDate
+      - paymentReference
+      - paymentReferenceType
+      type: object
+      properties:
+        amount:
+          type: number
+          description: The invoice amount
+          format: float
+          example: 123.45
+        dueDate:
+          type: string
+          description: The invoice due date
+          format: date
+          example: 2023-10-09
+        paymentReferenceType:
+          type: string
+          enum:
+          - SE_OCR
+          - TENANT_REF
+        paymentReference:
+          maxLength: 25
+          type: string
+          description: The payment reference number
+          example: "426523791"
+        accountType:
+          type: string
+          enum:
+          - BANKGIRO
+          - PLUSGIRO
+        accountNumber:
+          type: string
+          description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
+          example: "12345"
+      description: Invoice details
+    DigitalInvoiceFile:
+      required:
+      - content
+      - filename
+      type: object
+      properties:
+        contentType:
+          type: string
+          description: Content type
+          enum:
+          - application/pdf
+        content:
+          type: string
+          description: Content (BASE64-encoded)
+        filename:
+          type: string
+          description: Filename
+      description: Files
+    DigitalInvoiceParty:
+      type: object
+      properties:
+        partyId:
+          type: string
+          description: The recipient party id
+          format: uuid
+        externalReferences:
+          type: array
+          description: External references
+          items:
+            $ref: '#/components/schemas/ExternalReference'
+      description: Party
+    DigitalInvoiceRequest:
+      required:
+      - details
+      - party
+      - type
+      type: object
+      properties:
+        party:
+          $ref: '#/components/schemas/DigitalInvoiceParty'
+        type:
+          type: string
+          description: Invoice type
+          enum:
+          - INVOICE
+          - REMINDER
+        subject:
+          type: string
+          description: Subject
+          nullable: true
+        reference:
+          type: string
+          description: Invoice reference
+          example: "Faktura #12345"
+        details:
+          $ref: '#/components/schemas/Details'
+        files:
+          type: array
+          description: Files
+          items:
+            $ref: '#/components/schemas/DigitalInvoiceFile'
     LetterStatistics:
       type: object
       properties:
@@ -1472,6 +1637,7 @@ components:
           - SMS
           - WEB_MESSAGE
           - DIGITAL_MAIL
+          - DIGITAL_INVOICE
           - SNAIL_MAIL
           - LETTER
           - SLACK
