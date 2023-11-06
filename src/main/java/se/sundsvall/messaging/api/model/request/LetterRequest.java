@@ -11,8 +11,8 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.messaging.api.model.request.validation.OneOf;
 import se.sundsvall.messaging.model.ExternalReference;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;

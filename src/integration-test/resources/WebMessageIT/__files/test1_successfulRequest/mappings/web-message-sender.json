@@ -1,12 +1,12 @@
 {
-    "request": {
-        "method": "POST",
-        "url": "/web-message-sender/webmessages"
+  "request": {
+    "method": "POST",
+    "url": "/web-message-sender/webmessages"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
     },
-    "response": {
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "status": 201
-    }
+    "status": 201
+  }
 }

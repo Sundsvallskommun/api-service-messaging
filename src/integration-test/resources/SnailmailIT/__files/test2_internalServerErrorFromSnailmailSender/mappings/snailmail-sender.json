@@ -1,13 +1,13 @@
 {
-    "request": {
-        "method": "POST",
-        "url": "/snailmail-sender/send/snailmail"
+  "request": {
+    "method": "POST",
+    "url": "/snailmail-sender/send/snailmail"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
     },
-    "response": {
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "bodyFileName": "test2_internalServerErrorFromSnailmailSender/responses/snailmail-sender.json",
-        "status": 500
-    }
+    "bodyFileName": "test2_internalServerErrorFromSnailmailSender/responses/snailmail-sender.json",
+    "status": 500
+  }
 }

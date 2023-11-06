@@ -1525,6 +1525,7 @@ components:
     DigitalInvoiceFile:
       required:
       - content
+      - contentType
       - filename
       type: object
       properties:

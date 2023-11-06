@@ -169,7 +169,7 @@ public final class TestDataFactory {
             .withFiles(List.of(
                 DigitalInvoiceRequest.File.builder()
                     .withContentType(ContentType.APPLICATION_PDF.getValue())
-                    .withContent("someContent")
+                    .withContent("c29tZUNvbnRlbnQK")
                     .withFilename("someFilename")
                     .build()
             ))

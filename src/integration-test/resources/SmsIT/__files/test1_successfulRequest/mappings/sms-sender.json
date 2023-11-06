@@ -1,13 +1,13 @@
 {
-    "request": {
-        "method": "POST",
-        "url": "/sms-sender/send/sms"
+  "request": {
+    "method": "POST",
+    "url": "/sms-sender/send/sms"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
     },
-    "response": {
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
-        "status": 200
-    }
+    "bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
+    "status": 200
+  }
 }

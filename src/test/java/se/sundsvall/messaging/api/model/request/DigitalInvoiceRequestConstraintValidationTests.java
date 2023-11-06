@@ -5,6 +5,7 @@ import static se.sundsvall.messaging.api.model.request.RequestValidationAssertio
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -125,5 +126,63 @@ class DigitalInvoiceRequestConstraintValidationTests {
         var details = validRequest.details().withAccountNumber("");
 
         assertThat(validRequest.withDetails(details)).hasSingleConstraintViolation("details.accountNumber", "must not be blank");
+    }
+
+    @Test
+    void shouldFailWithFileWithNullContentType() {
+        var file = validRequest.files().get(0).withContentType(null);
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
+    }
+
+    @Test
+    void shouldFailWithFileWithBlankContentType() {
+        var file = validRequest.files().get(0).withContentType("");
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
+    }
+
+
+    @Test
+    void shouldFailWithFileWithDisallowedContentType() {
+        var file = validRequest.files().get(0).withContentType("text/plain");
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
+    }
+
+    @Test
+    void shouldFailWithFileWithNullContent() {
+        var file = validRequest.files().get(0).withContent(null);
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].content", "not a valid BASE64-encoded string");
+    }
+
+    @Test
+    @Disabled("Disabled until the BASE64-validation logic for blank strings is released in dept44")
+    void shouldFailWithFileWithBlankContent() {
+        var file = validRequest.files().get(0).withContent("");
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].content", "not a valid BASE64-encoded string");
+    }
+
+    @Test
+    void shouldFailWithFileWithInvalidContent() {
+        var file = validRequest.files().get(0).withContent("___abc123");
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].content", "not a valid BASE64-encoded string");
+    }
+
+    @Test
+    void shouldFailWithFileWithNullFilename() {
+        var file = validRequest.files().get(0).withFilename(null);
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].filename", "must not be blank");
+    }
+
+    @Test
+    void shouldFailWithFileWithBlankFilename() {
+        var file = validRequest.files().get(0).withFilename("");
+
+        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].filename", "must not be blank");
     }
 }

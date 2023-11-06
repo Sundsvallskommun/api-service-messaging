@@ -11,8 +11,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import se.sundsvall.dept44.common.validators.annotation.OneOf;
+import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.messaging.api.model.request.validation.OneOf;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
@@ -97,14 +98,14 @@ public record DigitalInvoiceRequest(
     public record File(
 
         @OneOf(APPLICATION_PDF_VALUE)
-        @Schema(description = "Content type", allowableValues = {APPLICATION_PDF_VALUE})
+        @Schema(description = "Content type", allowableValues = {APPLICATION_PDF_VALUE}, requiredMode = REQUIRED)
         String contentType,
 
-        @NotBlank
-        @Schema(description = "Content (BASE64-encoded)")
+        @ValidBase64
+        @Schema(description = "Content (BASE64-encoded)", requiredMode = REQUIRED)
         String content,
 
         @NotBlank
-        @Schema(description = "Filename")
+        @Schema(description = "Filename", requiredMode = REQUIRED)
         String filename) { }
 }
