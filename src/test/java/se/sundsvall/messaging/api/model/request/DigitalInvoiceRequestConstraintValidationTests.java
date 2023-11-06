@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -128,24 +129,11 @@ class DigitalInvoiceRequestConstraintValidationTests {
         assertThat(validRequest.withDetails(details)).hasSingleConstraintViolation("details.accountNumber", "must not be blank");
     }
 
-    @Test
-    void shouldFailWithFileWithNullContentType() {
-        var file = validRequest.files().get(0).withContentType(null);
-
-        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
-    }
-
-    @Test
-    void shouldFailWithFileWithBlankContentType() {
-        var file = validRequest.files().get(0).withContentType("");
-
-        assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
-    }
-
-
-    @Test
-    void shouldFailWithFileWithDisallowedContentType() {
-        var file = validRequest.files().get(0).withContentType("text/plain");
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", "text/plain"})
+    void shouldFailWithFileWithInvalidContentType(final String contentType) {
+        var file = validRequest.files().get(0).withContentType(contentType);
 
         assertThat(validRequest.withFiles(List.of(file))).hasSingleConstraintViolation("files[0].contentType", "must be one of: [application/pdf]");
     }
