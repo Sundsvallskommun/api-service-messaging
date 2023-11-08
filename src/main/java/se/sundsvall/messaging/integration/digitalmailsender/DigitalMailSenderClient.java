@@ -14,6 +14,6 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 )
 interface DigitalMailSenderClient {
 
-    @PostMapping("/sendDigitalMail")
+    @PostMapping("/send-digital-mail")
     ResponseEntity<DigitalMailResponse> sendDigitalMail(DigitalMailRequest request);
 }

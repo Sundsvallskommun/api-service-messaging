@@ -1,7 +1,7 @@
 {
     "request": {
         "method": "POST",
-        "url": "/digital-mail-sender/sendDigitalMail"
+        "url": "/digital-mail-sender/send-digital-mail"
     },
     "response": {
         "headers": {
