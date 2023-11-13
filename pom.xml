@@ -15,7 +15,7 @@
     <name>api-service-messaging</name>
 
     <properties>
-        <docker.image.name>ms-messaging-v3</docker.image.name>
+        <docker.image.name>ms-messaging</docker.image.name>
 
         <exposed.app.port>8080</exposed.app.port>
         <published.container.port.test>8701</published.container.port.test>
