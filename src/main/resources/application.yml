@@ -1,7 +1,7 @@
 spring:
   # General
   application:
-    name: api-messaging-v3
+    name: api-messaging
 
   # Flyway
   flyway:
