@@ -83,49 +83,12 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSupportInfoWithNullEmailAddress() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.emailAddress", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSupportInfoWithBlankEmailAddress() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasConstraintViolation("sender.supportInfo.emailAddress", "must not be blank")
-            .hasConstraintViolation("sender.supportInfo.emailAddress", "must be a well-formed email address");
-    }
-
-    @Test
     void shouldFailWithSupportInfoWithInvalidEmailAddress() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress("not-an-email-address"));
 
         assertThat(validRequest.withSender(sender))
             .hasSingleConstraintViolation("sender.supportInfo.emailAddress", "must be a well-formed email address");
-    }
-
-    @Test
-    void shouldFailWithSupportInfoWithNullPhoneNumber() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.phoneNumber", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSupportInfoWithBlankPhoneNumber() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.phoneNumber", "must not be blank");
     }
 
     @Test

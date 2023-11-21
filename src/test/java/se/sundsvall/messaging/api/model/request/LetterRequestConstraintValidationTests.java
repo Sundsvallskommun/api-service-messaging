@@ -83,67 +83,12 @@ class LetterRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSendWithSupportInfoWithNullEmailAddress() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.emailAddress", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSendWithSupportInfoWithBlankEmailAddress() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasConstraintViolation("sender.supportInfo.emailAddress", "must not be blank")
-            .hasConstraintViolation("sender.supportInfo.emailAddress", "must be a well-formed email address");
-    }
-
-    @Test
     void shouldFailWithSendWithSupportInfoWithInvalidEmailAddress() {
         var sender = validRequest.sender()
             .withSupportInfo(validRequest.sender().supportInfo().withEmailAddress("not-an-email-address"));
 
         assertThat(validRequest.withSender(sender))
             .hasSingleConstraintViolation("sender.supportInfo.emailAddress", "must be a well-formed email address");
-    }
-
-    @Test
-    void shouldFailWithSendWithSupportInfoWithNullPhoneNumber() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.phoneNumber", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSendWithSupportInfoWithBlankPhoneNumber() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withPhoneNumber(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.phoneNumber", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSendWithSupportInfoWithNullUrl() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withUrl(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.url", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSendWithSupportInfoWithBlankUrl() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withUrl(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.url", "must not be blank");
     }
 
     @Test

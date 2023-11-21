@@ -78,26 +78,27 @@ public record LetterRequest(
 
         @With
         @Builder(setterPrefix = "with")
-        @Schema(name = "LetterSenderSupportInfo")
+        @Schema(name = "LetterSenderSupportInfo", description = "Support info")
         public record SupportInfo(
 
             @NotBlank
+            @Schema(description = "Text", requiredMode = REQUIRED)
             String text,
 
             @jakarta.validation.constraints.Email
-            @NotBlank
+            @Schema(description = "E-mail address")
             String emailAddress,
 
-            @NotBlank
+            @Schema(description = "Phone number")
             String phoneNumber,
 
-            @NotBlank
+            @Schema(description = "URL")
             String url) { }
     }
 
     @With
     @Builder(setterPrefix = "with")
-    @Schema(name = "LetterAttachment")
+    @Schema(name = "LetterAttachment", description = "Attachment")
     public record Attachment(
 
         @NotNull

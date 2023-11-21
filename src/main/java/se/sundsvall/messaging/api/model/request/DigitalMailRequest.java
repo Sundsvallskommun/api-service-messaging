@@ -69,26 +69,28 @@ public record DigitalMailRequest(
 
         @With
         @Builder(setterPrefix = "with")
-        @Schema(name = "DigitalMailSenderSupportInfo")
+        @Schema(name = "DigitalMailSenderSupportInfo", description = "Support info")
         public record SupportInfo(
 
             @NotBlank
+            @Schema(description = "Text", requiredMode = REQUIRED)
             String text,
 
             @jakarta.validation.constraints.Email
-            @NotBlank
+            @Schema(description = "E-mail address")
             String emailAddress,
 
-            @NotBlank
+            @Schema(description = "Phone number")
             String phoneNumber,
 
             @NotBlank
+            @Schema(description = "URL")
             String url) { }
     }
 
     @With
     @Builder(setterPrefix = "with")
-    @Schema(name = "DigitalMailAttachment")
+    @Schema(name = "DigitalMailAttachment", description = "Attachment")
     public record Attachment(
 
         @OneOf("application/pdf")

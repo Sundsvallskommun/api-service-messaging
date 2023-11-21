@@ -54,8 +54,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -63,8 +63,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -116,8 +116,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -125,8 +125,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -178,8 +178,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -187,8 +187,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -240,8 +240,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -249,8 +249,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -302,8 +302,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -311,8 +311,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -364,8 +364,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -373,8 +373,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -426,8 +426,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -435,8 +435,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -488,8 +488,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -497,8 +497,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -550,8 +550,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -559,8 +559,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -946,11 +946,11 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
       properties:
@@ -1235,7 +1235,7 @@ components:
         content:
           type: string
           description: Content (BASE64-encoded)
-      description: Attachments
+      description: Attachment
     LetterParty:
       required:
       - partyIds
@@ -1302,20 +1302,22 @@ components:
       description: Sender
     LetterSenderSupportInfo:
       required:
-      - emailAddress
-      - phoneNumber
       - text
-      - url
       type: object
       properties:
         text:
           type: string
+          description: Text
         emailAddress:
           type: string
+          description: E-mail address
         phoneNumber:
           type: string
+          description: Phone number
         url:
           type: string
+          description: URL
+      description: Support info
     EmailAttachment:
       required:
       - content
@@ -1409,7 +1411,7 @@ components:
         filename:
           type: string
           description: Filename
-      description: Attachments
+      description: Attachment
     DigitalMailParty:
       required:
       - partyIds
@@ -1468,20 +1470,23 @@ components:
       description: Sender
     DigitalMailSenderSupportInfo:
       required:
-      - emailAddress
-      - phoneNumber
       - text
       - url
       type: object
       properties:
         text:
           type: string
+          description: Text
         emailAddress:
           type: string
+          description: E-mail address
         phoneNumber:
           type: string
+          description: Phone number
         url:
           type: string
+          description: URL
+      description: Support info
     Details:
       required:
       - accountNumber
