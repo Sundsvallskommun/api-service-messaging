@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/digital-mail-sender/sendDigitalInvoice"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test2_internalServerErrorFromDigitalMailSender/responses/digital-mail-sender.json",
+    "status": 500
+  }
+}

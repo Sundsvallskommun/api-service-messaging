@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.service.mapper;
 
 import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -19,8 +19,6 @@ import se.sundsvall.messaging.model.Message;
 
 @Component
 public class RequestMapper {
-
-    static final Gson GSON = new GsonBuilder().create();
 
     private final String defaultSmsRequestSender;
     private final EmailRequest.Sender defaultEmailRequestSender;
@@ -36,7 +34,7 @@ public class RequestMapper {
     }
 
     public String toSmsRequest(final Message message, final String mobileNumber) {
-        var originalMessage = GSON.fromJson(message.content(), MessageRequest.Message.class);
+        var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
         var sender = ofNullable(originalMessage.sender())
             .map(MessageRequest.Message.Sender::sms)
@@ -57,11 +55,11 @@ public class RequestMapper {
             .withMessage(originalMessage.message())
             .build();
 
-        return GSON.toJson(smsRequest);
+        return toJson(smsRequest);
     }
 
     public String toEmailRequest(final Message message, final String emailAddress) {
-        var originalMessage = GSON.fromJson(message.content(), MessageRequest.Message.class);
+        var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
         var sender = ofNullable(originalMessage.sender())
             .map(MessageRequest.Message.Sender::email)
@@ -88,7 +86,7 @@ public class RequestMapper {
             .withHtmlMessage(originalMessage.htmlMessage())
             .build();
 
-        return GSON.toJson(emailRequest);
+        return toJson(emailRequest);
     }
 
     public DigitalMailRequest toDigitalMailRequest(final LetterRequest request, final String partyId) {

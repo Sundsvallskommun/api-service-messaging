@@ -92,6 +92,17 @@ abstract class RequestValidationAssertions<R>
         }
     }
 
+    static class DigitalInvoiceRequestAssertions extends RequestValidationAssertions<DigitalInvoiceRequest> {
+
+        private DigitalInvoiceRequestAssertions(final DigitalInvoiceRequest request) {
+            super(request, DigitalInvoiceRequestAssertions.class);
+        }
+
+        static DigitalInvoiceRequestAssertions assertThat(final DigitalInvoiceRequest request) {
+            return new DigitalInvoiceRequestAssertions(request);
+        }
+    }
+
     static class EmailRequestAssertions extends RequestValidationAssertions<EmailRequest> {
 
         private EmailRequestAssertions(final EmailRequest request) {

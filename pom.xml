@@ -11,7 +11,7 @@
 
     <groupId>se.sundsvall.messaging</groupId>
     <artifactId>api-service-messaging</artifactId>
-    <version>3.2</version>
+    <version>3.3</version>
     <name>api-service-messaging</name>
 
     <properties>
@@ -24,7 +24,6 @@
         <slack-api-client.version>1.36.0</slack-api-client.version>
         <hypersistence-utils.version>3.6.1</hypersistence-utils.version>
         <vavr.version>0.10.4</vavr.version>
-        <gson.version>2.10.1</gson.version>
         <archunit.version>1.2.0</archunit.version>
 
         <openapi-generator-maven-plugin>7.1.0</openapi-generator-maven-plugin>
@@ -126,11 +125,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 

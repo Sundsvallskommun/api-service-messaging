@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
-import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidSnailMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
@@ -252,7 +252,7 @@ class MessageResourceTests {
                 List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", MESSAGE, SENT))));
 
         var request = MessageRequest.builder()
-            .withMessages(List.of(createValidMessageRequest()))
+            .withMessages(List.of(createValidMessageRequestMessage()))
             .build();
 
         var response = messageResource.sendMessages(request, false, uriComponentsBuilder);
@@ -283,7 +283,7 @@ class MessageResourceTests {
                 .withDeliveries(List.of(deliveryResult.withMessageType(MESSAGE)))
                 .build());
         var request = MessageRequest.builder()
-            .withMessages(List.of(createValidMessageRequest()))
+            .withMessages(List.of(createValidMessageRequestMessage()))
             .build();
 
         var response = messageResource.sendMessages(request, true, uriComponentsBuilder);

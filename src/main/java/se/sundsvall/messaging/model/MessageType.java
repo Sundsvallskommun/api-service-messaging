@@ -6,6 +6,7 @@ public enum MessageType {
     SMS,
     WEB_MESSAGE,
     DIGITAL_MAIL,
+    DIGITAL_INVOICE,
     SNAIL_MAIL,
     LETTER,
     SLACK

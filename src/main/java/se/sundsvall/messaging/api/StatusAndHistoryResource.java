@@ -3,13 +3,12 @@ package se.sundsvall.messaging.api;
 import static java.util.stream.Collectors.groupingBy;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +19,7 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -53,8 +53,6 @@ class StatusAndHistoryResource {
     static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
     static final String MESSAGE_STATUS_PATH = "/status/message/{messageId}";
     static final String DELIVERY_STATUS_PATH = "/status/delivery/{deliveryId}";
-
-    private static final Gson GSON = new GsonBuilder().create();
 
     private final HistoryService historyService;
     private final StatisticsService statisticsService;
@@ -336,11 +334,12 @@ class StatusAndHistoryResource {
         return HistoryResponse.builder()
             .withMessageType(history.messageType())
             .withStatus(history.status())
-            .withContent(GSON.fromJson(history.content(), switch (history.messageType()) {
+            .withContent(fromJson(history.content(), switch (history.messageType()) {
                 case EMAIL -> EmailRequest.class;
                 case SMS -> SmsRequest.class;
                 case WEB_MESSAGE -> WebMessageRequest.class;
                 case DIGITAL_MAIL -> DigitalMailRequest.class;
+                case DIGITAL_INVOICE -> DigitalInvoiceRequest.class;
                 case MESSAGE -> MessageRequest.Message.class;
                 case SNAIL_MAIL -> SnailMailRequest.class;
                 case LETTER -> LetterRequest.class;

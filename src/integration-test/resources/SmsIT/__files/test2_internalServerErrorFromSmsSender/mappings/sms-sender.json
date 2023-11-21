@@ -1,13 +1,13 @@
 {
-    "request": {
-        "method": "POST",
-        "url": "/sms-sender/send/sms"
+  "request": {
+    "method": "POST",
+    "url": "/sms-sender/send/sms"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
     },
-    "response": {
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "bodyFileName": "test2_internalServerErrorFromSmsSender/responses/sms-sender.json",
-        "status": 500
-    }
+    "bodyFileName": "test2_internalServerErrorFromSmsSender/responses/sms-sender.json",
+    "status": 500
+  }
 }

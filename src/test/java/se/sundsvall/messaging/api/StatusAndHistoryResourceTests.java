@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.service.StatisticsService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -35,6 +36,8 @@ class StatusAndHistoryResourceTests {
 
     @Mock
     private HistoryService mockHistoryService;
+    @Mock
+    private StatisticsService mockStatisticsService;
 
     @InjectMocks
     private StatusAndHistoryResource statusAndHistoryResource;
