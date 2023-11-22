@@ -52,7 +52,7 @@ public class StatisticsMapper {
                 toCount(message.get(EMAIL)),
                 // Sum up SMS stats
                 toCount(message.get(SMS)),
-                // In the case of a message not being delivered due to feedback-settings indicating
+                // In the case of a message not being delivered due to contact-settings indicating
                 // that either no settings have been found or that the recipient has opted-out of
                 // receiving messages - treat both cases as "undeliverable" and sum them up
                 ofNullable(message.get(MESSAGE))
