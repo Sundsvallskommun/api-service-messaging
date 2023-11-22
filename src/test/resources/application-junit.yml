@@ -70,7 +70,7 @@ integration:
     client-id: someClientId
     client-secret: someClientSecret
 
-  # FeedbackSettings integration
+  # ContactSettings integration
   contact-settings:
     base-url: http://contact-settings/api
     token-url: http://contact-settings/token

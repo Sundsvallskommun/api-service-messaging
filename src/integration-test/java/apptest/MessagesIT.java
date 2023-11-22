@@ -100,7 +100,7 @@ class MessagesIT extends AbstractMessagingAppTest {
     }
 
     @Test
-    void test3_noFeedbackSettingsFound() throws Exception {
+    void test3_noContactSettingsFound() throws Exception {
         var response = setupCall()
             .withServicePath(SERVICE_PATH)
             .withRequest("request.json")
@@ -135,7 +135,7 @@ class MessagesIT extends AbstractMessagingAppTest {
     }
 
     @Test
-    void test4_noFeedbackWanted() throws Exception {
+    void test4_noContactWanted() throws Exception {
         var response = setupCall()
             .withServicePath(SERVICE_PATH)
             .withRequest("request.json")
