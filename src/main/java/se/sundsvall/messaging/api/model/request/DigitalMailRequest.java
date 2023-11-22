@@ -83,7 +83,6 @@ public record DigitalMailRequest(
             @Schema(description = "Phone number")
             String phoneNumber,
 
-            @NotBlank
             @Schema(description = "URL")
             String url) { }
     }

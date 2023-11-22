@@ -92,24 +92,6 @@ class DigitalMailRequestConstraintValidationTests {
     }
 
     @Test
-    void shouldFailWithSupportInfoWithNullUrl() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withUrl(null));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.url", "must not be blank");
-    }
-
-    @Test
-    void shouldFailWithSupportInfoWithBlankUrl() {
-        var sender = validRequest.sender()
-            .withSupportInfo(validRequest.sender().supportInfo().withUrl(" "));
-
-        assertThat(validRequest.withSender(sender))
-            .hasSingleConstraintViolation("sender.supportInfo.url", "must not be blank");
-    }
-
-    @Test
     void shouldFailWithNullContentType() {
         assertThat(validRequest.withContentType(null))
             .hasConstraintViolation("contentType", "must not be blank")
