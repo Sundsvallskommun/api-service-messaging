@@ -15,7 +15,6 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import generated.se.sundsvall.digitalmailsender.Details;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
-import generated.se.sundsvall.digitalmailsender.PlainText;
 
 @UnitTest
 class DigitalMailSenderIntegrationMapperTests {
@@ -54,9 +53,9 @@ class DigitalMailSenderIntegrationMapperTests {
 
         assertThat(request.getHeaderSubject()).isEqualTo("someSubject");
         assertThat(request.getMunicipalityId()).isEqualTo("someMunicipalityId");
-        assertThat(request.getBodyInformation()).isInstanceOfSatisfying(PlainText.class, plainText -> {
-            assertThat(plainText.getContentType()).isEqualTo(ContentType.TEXT_PLAIN.getValue());
-            assertThat(plainText.getBody()).isEqualTo(dto.body());
+        assertThat(request.getBodyInformation()).satisfies(bodyInformation -> {
+            assertThat(bodyInformation.getContentType()).isEqualTo(ContentType.TEXT_PLAIN.getValue());
+            assertThat(bodyInformation.getBody()).isEqualTo(dto.body());
         });
         assertThat(request.getAttachments()).hasSameSizeAs(dto.attachments());
         assertThat(request.getAttachments().get(0)).satisfies(attachment -> {
