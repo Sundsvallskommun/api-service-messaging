@@ -20,7 +20,7 @@ class LetterRequestTests {
             "somePhoneNumber", "someUrl");
         var sender = new LetterRequest.Sender(supportInfo);
         var attachments = List.of(new LetterRequest.Attachment(LetterRequest.Attachment.DeliveryMode.ANY,
-            "someFilename", "someContentType", "someContent"));
+            "someFilename", "someContentType", "someContent", EnvelopeType.PLAIN));
 
         var request = new LetterRequest(party, "someSubject", sender, "someContentType", "someBody", "someDepartment", "someDeviation", attachments);
 

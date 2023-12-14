@@ -19,7 +19,8 @@
       "deliveryMode": "SNAIL_MAIL",
       "filename": "someFile.txt",
       "contentType": "application/pdf",
-      "content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+      "content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK",
+      "envelopType": "WINDOWED"
     }
   ]
 }

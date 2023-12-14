@@ -4,15 +4,14 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.With;
 
@@ -62,5 +61,9 @@ public record SnailMailRequest(
 
         @ValidBase64
         @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED)
-        String content) { }
+        String content,
+
+        @Schema(description = "The envelope type for the letter", nullable = true)
+        EnvelopeType envelopeType
+    ) { }
 }
