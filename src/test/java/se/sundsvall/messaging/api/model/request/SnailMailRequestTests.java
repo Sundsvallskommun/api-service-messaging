@@ -16,7 +16,7 @@ class SnailMailRequestTests {
     void testConstructorAndGetters() {
         var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
         var party = new SnailMailRequest.Party("somePartyId", externalReferences);
-        var attachments = List.of(new SnailMailRequest.Attachment("someName", "someContentType", "someContent"));
+        var attachments = List.of(new SnailMailRequest.Attachment("someName", "someContentType", "someContent", EnvelopeType.PLAIN));
         var request = new SnailMailRequest(party, "someDepartment", "someDeviation", attachments);
 
         assertThat(request.party()).satisfies(requestParty -> {

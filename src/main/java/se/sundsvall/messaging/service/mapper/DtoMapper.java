@@ -165,6 +165,7 @@ public class DtoMapper {
                         .withName(attachment.name())
                         .withContentType(attachment.contentType())
                         .withContent(attachment.content())
+                        .withEnvelopeType(attachment.envelopeType())
                         .build())
                     .toList())
                 .orElse(null))

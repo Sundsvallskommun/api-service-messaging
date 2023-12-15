@@ -8,7 +8,8 @@
     {
       "content": "aGVsbG8gd29ybGQK",
       "name": "test.txt",
-      "contentType": "text/plain"
+      "contentType": "text/plain",
+      "envelopeType": "WINDOWED"
     }
   ]
 }

@@ -1,13 +1,13 @@
 openapi: 3.0.1
 info:
   title: SnailMailSender
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.2"
+  version: "1.3"
 servers:
-  - url: http://127.0.0.1:8080
+  - url: http://localhost:8080
     description: Generated server url
 tags:
   - name: SnailMailSender
@@ -26,24 +26,20 @@ paths:
               $ref: '#/components/schemas/SendSnailMailRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
+        "400":
+          description: Bad Request
           content:
             '*/*':
               schema:
-                type: object
+                $ref: '#/components/schemas/Problem'
   /api-docs:
     get:
       tags:
@@ -81,6 +77,13 @@ components:
           type: string
           description: The attachment content type
           example: text/plain
+        envelopeType:
+          type: string
+          description: The envelope type for the letter
+          example: WINDOWED
+          enum:
+            - WINDOWED
+            - PLAIN
       description: Attachments
     SendSnailMailRequest:
       required:
@@ -103,6 +106,10 @@ components:
     Problem:
       type: object
       properties:
+        title:
+          type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -115,10 +122,6 @@ components:
             type: object
         status:
           $ref: '#/components/schemas/StatusType'
-        title:
-          type: string
-        detail:
-          type: string
     StatusType:
       type: object
       properties:
@@ -127,4 +130,4 @@ components:
           format: int32
         reasonPhrase:
           type: string
-  securitySchemes: { }
+  securitySchemes: {}

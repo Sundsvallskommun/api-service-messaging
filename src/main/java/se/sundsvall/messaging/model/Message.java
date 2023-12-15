@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.model;
 
+import se.sundsvall.messaging.api.model.request.EnvelopeType;
+
 import lombok.Builder;
 import lombok.With;
 
@@ -13,4 +15,5 @@ public record Message(
     MessageType type,
     MessageType originalType,
     MessageStatus status,
-    String content) {  }
+    String content,
+	EnvelopeType envelopeType) {  }
