@@ -20,51 +20,52 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/DigitalMailIT/", classes = Application.class)
 class DigitalMailIT extends AbstractMessagingAppTest {
 
-    private static final String SERVICE_PATH = "/digital-mail";
+	private static final String SERVICE_PATH = "/digital-mail";
 
-    @Autowired
-    private MessageRepository messageRepository;
+	@Autowired
+	private MessageRepository messageRepository;
 
-    @Autowired
-    private HistoryRepository historyRepository;
+	@Autowired
+	private HistoryRepository historyRepository;
 
-    @Test
-    void test1_successfulRequest() throws Exception {
-        var response = setupCall()
-            .withServicePath(SERVICE_PATH)
-            .withRequest("request.json")
-            .withHttpMethod(POST)
-            .withExpectedResponseStatus(CREATED)
-            .sendRequestAndVerifyResponse()
-            .andReturnBody(MessageBatchResult.class);
+	@Test
+	void test1_successfulRequest() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageBatchResult.class);
 
-        assertThat(response.messages()).hasSize(1);
+		assertThat(response.messages()).hasSize(1);
 
-        var messageId = response.messages().get(0).messageId();
-        var batchId = response.batchId();
+		final var messageId = response.messages().get(0).messageId();
+		final var batchId = response.batchId();
 
-        // Make sure we received a message id and a batch id as proper UUID:s
-        assertValidUuid(messageId);
-        assertValidUuid(batchId);
+		// Make sure we received a message id and a batch id as proper UUID:s
+		assertValidUuid(messageId);
+		assertValidUuid(batchId);
 
-        // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-        // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.findByMessageId(messageId))
-            .isNotNull()
-            .allSatisfy(historyEntry -> {
-                assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-                assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-            });
-    }
+		// Make sure that there doesn't exist a message entity
+		assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+		// Make sure that there exists a history entry with the correct id and status
+		assertThat(historyRepository.findByMessageId(messageId))
+			.isNotNull()
+			.isNotEmpty()
+			.allSatisfy(historyEntry -> {
+				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+			});
+	}
 
-    @Test
-    void test2_internalServerErrorFromDigitalMailSender() {
-        setupCall()
-            .withServicePath(SERVICE_PATH)
-            .withRequest("request.json")
-            .withHttpMethod(POST)
-            .withExpectedResponseStatus(BAD_GATEWAY)
-            .sendRequestAndVerifyResponse();
-    }
+	@Test
+	void test2_internalServerErrorFromDigitalMailSender() {
+		setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(BAD_GATEWAY)
+			.sendRequestAndVerifyResponse();
+	}
 }

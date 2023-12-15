@@ -20,47 +20,48 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/SlackIT/", classes = Application.class)
 class SlackIT extends AbstractMessagingAppTest {
 
-    private static final String SERVICE_PATH = "/slack";
+	private static final String SERVICE_PATH = "/slack";
 
-    @Autowired
-    private MessageRepository messageRepository;
+	@Autowired
+	private MessageRepository messageRepository;
 
-    @Autowired
-    private HistoryRepository historyRepository;
+	@Autowired
+	private HistoryRepository historyRepository;
 
-    @Test
-    void test1_successfulRequest() throws Exception {
-        var response = setupCall()
-            .withServicePath(SERVICE_PATH)
-            .withRequest("request.json")
-            .withHttpMethod(POST)
-            .withExpectedResponseStatus(CREATED)
-            .sendRequestAndVerifyResponse()
-            .andReturnBody(MessageResult.class);
+	@Test
+	void test1_successfulRequest() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageResult.class);
 
-        var messageId = response.messageId();
+		final var messageId = response.messageId();
 
-        // Make sure we received a message id as a proper UUID
-        assertValidUuid(messageId);
+		// Make sure we received a message id as a proper UUID
+		assertValidUuid(messageId);
 
-        // Make sure that there doesn't exist a message entity
-        assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-        // Make sure that there exists a history entry with the correct id and status
-        assertThat(historyRepository.findByMessageId(messageId))
-            .isNotNull()
-            .allSatisfy(historyEntry -> {
-                assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
-                assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-            });
-    }
+		// Make sure that there doesn't exist a message entity
+		assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+		// Make sure that there exists a history entry with the correct id and status
+		assertThat(historyRepository.findByMessageId(messageId))
+			.isNotNull()
+			.isNotEmpty()
+			.allSatisfy(historyEntry -> {
+				assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
+				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+			});
+	}
 
-    @Test
-    void test2_channelNotFoundErrorFromSlack() {
-        setupCall()
-            .withServicePath(SERVICE_PATH)
-            .withRequest("request.json")
-            .withHttpMethod(POST)
-            .withExpectedResponseStatus(BAD_GATEWAY)
-            .sendRequestAndVerifyResponse();
-    }
+	@Test
+	void test2_channelNotFoundErrorFromSlack() {
+		setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(BAD_GATEWAY)
+			.sendRequestAndVerifyResponse();
+	}
 }
