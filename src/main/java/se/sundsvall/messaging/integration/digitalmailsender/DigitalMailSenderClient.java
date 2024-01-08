@@ -19,6 +19,6 @@ interface DigitalMailSenderClient {
     @PostMapping("/send-digital-mail")
     ResponseEntity<DigitalMailResponse> sendDigitalMail(DigitalMailRequest request);
 
-    @PostMapping("/sendDigitalInvoice")
+    @PostMapping("/send-digital-invoice")
     ResponseEntity<DigitalInvoiceResponse> sendDigitalInvoice(DigitalInvoiceRequest request);
 }
