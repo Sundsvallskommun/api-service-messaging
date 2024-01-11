@@ -1,0 +1,241 @@
+openapi: 3.0.1
+info:
+  title: SnailMailSender
+  contact: {}
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "2.0"
+servers:
+ -
+  url: https://microservices-test.sundsvall.se/snailmail-sender
+  description: Generated server url
+tags:
+ -
+  name: SnailMailSender
+  description: SnailMailSender
+paths:
+  /send/snailmail:
+    post:
+      tags:
+       - SnailMailSender
+      summary: Prepare snail mail for batch
+      operationId: sendSnailMail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendSnailMailRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad RequestEntity
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                 -
+                  $ref: '#/components/schemas/Problem'
+                 -
+                  $ref: '#/components/schemas/ConstraintViolation'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+      security:
+       -
+        default: []
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+         - oauth2
+        optional: false
+  /send/batch/{batchId}:
+    post:
+      tags:
+       - SnailMailSender
+      summary: Send batch
+      operationId: sendBatch
+      parameters:
+       -
+        name: batchId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Bad RequestEntity
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                 -
+                  $ref: '#/components/schemas/Problem'
+                 -
+                  $ref: '#/components/schemas/ConstraintViolation'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+  /api-docs:
+    get:
+      tags:
+       - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+components:
+  schemas:
+    Attachment:
+      required:
+       - name
+      type: object
+      properties:
+        content:
+          type: string
+          description: The attachment (file) content as a BASE64-encoded string
+          example: aGVsbG8gd29ybGQK
+        name:
+          type: string
+          description: The attachment filename
+          example: test.pdf
+        contentType:
+          type: string
+          description: The attachment content type
+          example: application/pdf
+          enum:
+           - application/pdf
+        envelopeType:
+          type: string
+          description: The envelope type for the letter
+          example: WINDOWED
+          enum:
+           - WINDOWED
+           - PLAIN
+      description: Attachments
+    SendSnailMailRequest:
+      required:
+       - batchId
+       - department
+      type: object
+      properties:
+        department:
+          type: string
+          description: DepartmentEntity and unit that should be billed
+          example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        deviation:
+          type: string
+          description: If the letter to send deviates from the standard
+          example: A3 Ritning
+        batchId:
+          type: string
+          description: BatchEntity id to be used for creating a csv-file
+          example: 6a5c3d04-412d-11ec-973a-0242ac130043
+        partyId:
+          type: string
+          description: Party id for the person the letter should be sent to
+          example: 6a5c3d04-412d-11ec-973a-0242ac130003
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: '#/components/schemas/Attachment'
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+    ConstraintDescriptorObject:
+      type: object
+      properties:
+        annotation:
+          type: object
+        attributes:
+          type: object
+          additionalProperties:
+            type: object
+        messageTemplate:
+          type: string
+        validationAppliesTo:
+          type: string
+          enum:
+           - IMPLICIT
+           - RETURN_VALUE
+           - PARAMETERS
+        composingConstraints:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstraintDescriptorObject'
+        reportAsSingleViolation:
+          type: boolean
+        valueUnwrapping:
+          type: string
+          enum:
+           - DEFAULT
+           - UNWRAP
+           - SKIP
+    ConstraintViolation:
+      type: object
+      properties:
+        message:
+          type: string
+        executableParameters:
+          type: array
+          items:
+            type: object
+        propertyPath:
+          $ref: '#/components/schemas/Path'
+        messageTemplate:
+          type: string
+        rootBean:
+          type: object
+        leafBean:
+          type: object
+        executableReturnValue:
+          type: object
+        invalidValue:
+          type: object
+        constraintDescriptor:
+          $ref: '#/components/schemas/ConstraintDescriptorObject'
+    Path:
+      type: object

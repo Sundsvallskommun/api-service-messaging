@@ -1,12 +1,12 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import generated.se.sundsvall.snailmail.Attachment;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class SnailMailSenderIntegrationMapperTests {
@@ -23,7 +23,7 @@ class SnailMailSenderIntegrationMapperTests {
         var dto = SnailMailDto.builder()
             .withAttachments(List.of(SnailMailDto.Attachment.builder()
                 .withName("someName")
-                .withContentType("someContentType")
+                .withContentType(Attachment.ContentTypeEnum.APPLICATION_PDF.getValue())
                 .withContent("someContent")
                 .build()))
             .build();

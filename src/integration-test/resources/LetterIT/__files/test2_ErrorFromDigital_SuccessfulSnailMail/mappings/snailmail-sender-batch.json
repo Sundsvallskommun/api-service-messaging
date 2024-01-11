@@ -1,12 +1,12 @@
 {
   "request": {
-    "method": "POST",
-    "url": "/snailmail-sender/send/snailmail"
+    "urlPathPattern" : "/snailmail-sender/send/batch/.*",
+    "method": "POST"
   },
   "response": {
     "headers": {
       "Content-Type": "application/json"
     },
-    "status": 200
+    "status": 201
   }
 }

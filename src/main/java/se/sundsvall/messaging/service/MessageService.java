@@ -1,27 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.Predicates.instanceOf;
-import static io.vavr.control.Try.ofCallable;
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
-import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
-import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +11,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -57,6 +34,29 @@ import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.Predicates.instanceOf;
+import static io.vavr.control.Try.ofCallable;
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Service
 public class MessageService {
@@ -153,14 +153,6 @@ public class MessageService {
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryResult sendSnailMail(final SnailMailRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
-		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
-	}
-
 	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
@@ -194,6 +186,11 @@ public class MessageService {
 			.map(this::sendLetter)
 			.flatMap(Collection::stream)
 			.toList();
+
+		if (isSnailMailSent(deliveryResults)) {
+			// At least one delivery was sent as snail-mail - send the batch
+			snailmailSender.sendBatch(batchId);
+		}
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
@@ -309,9 +306,6 @@ public class MessageService {
 		final var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
 		final var digitalMailRequestAsJson = toJson(digitalMailRequest);
 
-		// Re-map the request as a snail-mail request
-		final var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId());
-		final var snailMailRequestAsJson = toJson(snailMailRequest);
 
 		// Don't make an attempt to deliver as digital mail if there aren't any attachments
 		// intended for it
@@ -325,7 +319,9 @@ public class MessageService {
 				// Deliver it
 				result.add(deliver(reroutedMessage));
 
-				return result;
+				if (SENT.equals(result.getFirst().status())) {
+					return result;
+				}
 			} catch (final Exception e) {
 				LOG.info("Unable to send LETTER as DIGITAL_MAIL");
 
@@ -336,6 +332,9 @@ public class MessageService {
 			LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 		}
 
+		// Re-map the request as a snail-mail request
+		final var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId());
+		final var snailMailRequestAsJson = toJson(snailMailRequest);
 		// Don't make an attempt to deliver as snail mail if there aren't any attachments
 		// intended for it
 		if (!snailMailRequest.attachments().isEmpty()) {
@@ -429,5 +428,10 @@ public class MessageService {
 				dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 			}
 		});
+	}
+
+	private boolean isSnailMailSent(List<InternalDeliveryResult> deliveryResults) {
+		return deliveryResults.stream().anyMatch(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType()) &&
+			SENT.equals(deliveryResult.status()));
 	}
 }
