@@ -1,12 +1,10 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import generated.se.sundsvall.snailmail.Attachment;
 import generated.se.sundsvall.snailmail.SendSnailMailRequest;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 class SnailMailSenderIntegrationMapper {
@@ -23,7 +21,7 @@ class SnailMailSenderIntegrationMapper {
                 .map(attachments -> attachments.stream()
                     .map(attachment -> new Attachment()
                         .name(attachment.name())
-                        .contentType(attachment.contentType())
+                        .contentType(Attachment.ContentTypeEnum.fromValue(attachment.contentType()))
                         .content(attachment.content()))
                     .toList()
                 )

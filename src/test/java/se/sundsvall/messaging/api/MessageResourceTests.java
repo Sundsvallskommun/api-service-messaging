@@ -1,5 +1,27 @@
 package se.sundsvall.messaging.api;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.util.UriComponentsBuilder;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.service.BlacklistService;
+import se.sundsvall.messaging.service.MessageEventDispatcher;
+import se.sundsvall.messaging.service.MessageService;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -12,7 +34,6 @@ import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
-import static se.sundsvall.messaging.TestDataFactory.createValidSnailMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -23,30 +44,6 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.api.model.response.DeliveryResult;
-import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
-import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.service.BlacklistService;
-import se.sundsvall.messaging.service.MessageEventDispatcher;
-import se.sundsvall.messaging.service.MessageService;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -82,9 +79,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(SMS);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(SMS);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, times(1)).sendSms(any(SmsRequest.class));
         verify(mockEventDispatcher, never()).handleSmsRequest(any(SmsRequest.class));
@@ -102,9 +99,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(SMS);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(SMS);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, never()).sendSms(any(SmsRequest.class));
         verify(mockEventDispatcher, times(1)).handleSmsRequest(any(SmsRequest.class));
@@ -122,9 +119,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(EMAIL);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, times(1)).sendEmail(any(EmailRequest.class));
         verify(mockEventDispatcher, never()).handleEmailRequest(any(EmailRequest.class));
@@ -142,9 +139,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(EMAIL);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, never()).sendEmail(any(EmailRequest.class));
         verify(mockEventDispatcher, times(1)).handleEmailRequest(any(EmailRequest.class));
@@ -162,9 +159,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(WEB_MESSAGE);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, times(1)).sendWebMessage(any(WebMessageRequest.class));
         verify(mockEventDispatcher, never()).handleWebMessageRequest(any(WebMessageRequest.class));
@@ -182,9 +179,9 @@ class MessageResourceTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
         assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(WEB_MESSAGE);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
+        assertThat(response.getBody().deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
+        assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+        assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
         verify(mockMessageService, never()).sendWebMessage(any(WebMessageRequest.class));
         verify(mockEventDispatcher, times(1)).handleWebMessageRequest(any(WebMessageRequest.class));
@@ -207,9 +204,9 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(DIGITAL_MAIL);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_MAIL);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 
             });
 
@@ -236,9 +233,9 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(DIGITAL_MAIL);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_MAIL);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
             });
 
         verify(mockMessageService, never()).sendDigitalMail(any(DigitalMailRequest.class));
@@ -266,9 +263,9 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(MESSAGE);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
             });
 
         verify(mockMessageService, times(1)).sendMessages(any(MessageRequest.class));
@@ -297,53 +294,13 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(MESSAGE);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
             });
 
         verify(mockMessageService, never()).sendMessages(any(MessageRequest.class));
         verify(mockEventDispatcher, times(1)).handleMessageRequest(any(MessageRequest.class));
-    }
-
-    @Test
-    void test_sendSnailMail() {
-        when(mockMessageService.sendSnailMail(any(SnailMailRequest.class)))
-            .thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", SNAIL_MAIL, SENT));
-
-        var response = messageResource.sendSnailMail(createValidSnailMailRequest(), false, uriComponentsBuilder);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
-        assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(SNAIL_MAIL);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
-
-        verify(mockMessageService, times(1)).sendSnailMail(any(SnailMailRequest.class));
-        verify(mockEventDispatcher, never()).handleSnailMailRequest(any(SnailMailRequest.class));
-    }
-
-    @Test
-    void test_sendSnailMailAsync() {
-        when(mockEventDispatcher.handleSnailMailRequest(any(SnailMailRequest.class)))
-            .thenReturn(deliveryResult.withMessageType(SNAIL_MAIL));
-
-        var response = messageResource.sendSnailMail(createValidSnailMailRequest(), true, uriComponentsBuilder);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().messageId()).isEqualTo("someMessageId");
-        assertThat(response.getBody().deliveries()).isNotNull().hasSize(1);
-        assertThat(response.getBody().deliveries().get(0).messageType()).isEqualTo(SNAIL_MAIL);
-        assertThat(response.getBody().deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(response.getBody().deliveries().get(0).status()).isEqualTo(SENT);
-
-        verify(mockMessageService, never()).sendSnailMail(any(SnailMailRequest.class));
-        verify(mockEventDispatcher, times(1)).handleSnailMailRequest(any(SnailMailRequest.class));
     }
 
     @Test
@@ -363,9 +320,9 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(LETTER);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(LETTER);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
             });
 
         verify(mockMessageService, times(1)).sendLetter(any(LetterRequest.class));
@@ -391,9 +348,9 @@ class MessageResourceTests {
             .allSatisfy(messageResult -> {
                 assertThat(messageResult.messageId()).isEqualTo("someMessageId");
                 assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-                assertThat(messageResult.deliveries().get(0).messageType()).isEqualTo(LETTER);
-                assertThat(messageResult.deliveries().get(0).deliveryId()).isEqualTo("someDeliveryId");
-                assertThat(messageResult.deliveries().get(0).status()).isEqualTo(SENT);
+                assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(LETTER);
+                assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+                assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
             });
 
         verify(mockMessageService, never()).sendLetter(any(LetterRequest.class));

@@ -1,10 +1,7 @@
 package se.sundsvall.messaging.service;
 
-import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -12,7 +9,6 @@ import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
@@ -20,6 +16,8 @@ import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
+
+import java.util.UUID;
 
 @Component
 public class MessageEventDispatcher {
@@ -99,16 +97,6 @@ public class MessageEventDispatcher {
     }
 
     public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
-        // Check blacklist
-        blacklistService.check(request);
-
-        var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
-
-        return publishMessageEvent(message);
-    }
-
-
-    public InternalDeliveryResult handleSnailMailRequest(final SnailMailRequest request) {
         // Check blacklist
         blacklistService.check(request);
 
