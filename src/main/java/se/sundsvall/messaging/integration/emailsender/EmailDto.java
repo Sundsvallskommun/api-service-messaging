@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.integration.emailsender;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Builder;
 
@@ -11,7 +12,8 @@ public record EmailDto(
         String subject,
         String message,
         String htmlMessage,
-        List<Attachment> attachments) {
+        List<Attachment> attachments,
+        Map<String, List<String>> headers) {
 
     @Builder(setterPrefix = "with")
     public record Sender(

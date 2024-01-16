@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
         <version>4.1</version>
-        <relativePath />
+        <relativePath/>
     </parent>
     <groupId>se.sundsvall.messaging</groupId>
     <artifactId>api-service-messaging</artifactId>
-    <version>4.0</version>
+    <version>4.1</version>
     <name>api-service-messaging</name>
     <properties>
         <docker.image.name>ms-messaging</docker.image.name>
@@ -21,7 +22,8 @@
         <hypersistence-utils.version>3.7.0</hypersistence-utils.version>
         <vavr.version>0.10.4</vavr.version>
         <archunit.version>1.2.1</archunit.version>
-        <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
+        <generated-sources-path>${project.build.directory}/generated-sources
+        </generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
     <dependencies>
@@ -124,7 +126,8 @@
                     <generateSupportingFiles>false</generateSupportingFiles>
                     <configOptions>
                         <sourceFolder>${generated-sources-java-path}</sourceFolder>
-                        <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                        <generatedConstructorWithRequiredArgs>false
+                        </generatedConstructorWithRequiredArgs>
                         <generatePom>false</generatePom>
                         <library>spring-boot</library>
                         <dateLibrary>java8</dateLibrary>
@@ -145,7 +148,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/contact-settings-1.0.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/contact-settings-1.0.yml
+                            </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.contactsettings</modelPackage>
                             </configOptions>
@@ -157,7 +162,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/email-sender-1.0.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/email-sender-1.1.yml
+                            </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.emailsender</modelPackage>
                             </configOptions>
@@ -169,7 +176,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-1.3.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/snailmail-sender-1.3.yml
+                            </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.snailmail</modelPackage>
                             </configOptions>
@@ -181,7 +190,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-1.2.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/sms-sender-1.2.yml
+                            </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.smssender</modelPackage>
                             </configOptions>
@@ -193,7 +204,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-1.1.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/web-message-sender-1.1.yml
+                            </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>
                             </configOptions>
@@ -205,9 +218,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/integrations/digital-mail-sender-2.0.yml</inputSpec>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/integrations/digital-mail-sender-2.0.yml
+                            </inputSpec>
                             <configOptions>
-                                <modelPackage>generated.se.sundsvall.digitalmailsender</modelPackage>
+                                <modelPackage>generated.se.sundsvall.digitalmailsender
+                                </modelPackage>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -240,12 +256,18 @@
                         <exclude>**/se/sundsvall/messaging/Application*</exclude>
                         <exclude>**/se/sundsvall/messaging/api/model/validation/**/**</exclude>
                         <exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
-                        <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
-                        <exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>
+                        <exclude>
+                            **/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**
+                        </exclude>
+                        <exclude>
+                            **/se/sundsvall/messaging/integration/**/**IntegrationProperties**
+                        </exclude>
                         <exclude>**/se/sundsvall/messaging/service/**Blacklist**</exclude>
                         <!-- Exclude JPA specifications and metamodels -->
-                        <exclude>**/se/sundsvall/messaging/integration/db/HistoryRepository$Specs*</exclude>
-                        <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*</exclude>
+                        <exclude>**/se/sundsvall/messaging/integration/db/HistoryRepository$Specs*
+                        </exclude>
+                        <exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*
+                        </exclude>
                         <exclude>**/generated/**</exclude>
                     </excludes>
                 </configuration>

@@ -3,6 +3,7 @@ package se.sundsvall.messaging.api.model.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -46,7 +47,10 @@ public record EmailRequest(
         Sender sender,
 
         @ArraySchema(schema = @Schema(implementation = Attachment.class))
-        List<@Valid Attachment> attachments) {
+        List<@Valid Attachment> attachments,
+
+        @Schema(description = "Headers")
+        Map<Header, List<String>> headers) {
 
     @With
     @Builder(setterPrefix = "with")
@@ -93,5 +97,12 @@ public record EmailRequest(
 
         @ValidBase64
         @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED)
-        String content) { }
+        String content){}
+
+    @Schema(enumAsRef = true)
+    public enum Header {
+        IN_REPLY_TO,
+        REFERENCES,
+        MESSAGE_ID
+    }
 }

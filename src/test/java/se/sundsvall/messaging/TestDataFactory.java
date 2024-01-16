@@ -1,5 +1,8 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
@@ -7,6 +10,7 @@ import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -18,6 +22,7 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -68,6 +73,9 @@ public final class TestDataFactory {
             .withSubject("someSubject")
             .withMessage("someMessage")
             .withHtmlMessage("someHtmlMessage")
+            .withHeaders(Map.of(MESSAGE_ID, List.of("someMessageId"),
+                REFERENCES, List.of("someReferences", "someMoreReferences"),
+                IN_REPLY_TO, List.of("someInReplyTo")))
             .withAttachments(List.of(
                 EmailRequest.Attachment.builder()
                     .withName("someName")
@@ -261,6 +269,29 @@ public final class TestDataFactory {
         return ExternalReference.builder()
             .withKey("someKey")
             .withValue("someValue")
+            .build();
+    }
+
+    public static EmailDto createEmailDto(){
+        return EmailDto.builder()
+            .withSender(EmailDto.Sender.builder()
+                .withName(DEFAULT_SENDER_NAME)
+                .withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
+                .withReplyTo("someReplyTo")
+                .build())
+            .withEmailAddress(DEFAULT_EMAIL_ADDRESS)
+            .withSubject("someSubject")
+            .withMessage("someMessage")
+            .withHtmlMessage("someHtmlMessage")
+            .withHeaders(Map.of("MESSAGE_ID", List.of("someMessageId"),
+                "REFERENCES", List.of("someReferences", "someMoreReferences"),
+                "IN_REPLY_TO", List.of("someInReplyTo")))
+            .withAttachments(List.of(
+                EmailDto.Attachment.builder()
+                    .withName("someName")
+                    .withContentType("someContentType")
+                    .withContent("aGVsbG8gd29ybGQK")
+                    .build()))
             .build();
     }
 }
