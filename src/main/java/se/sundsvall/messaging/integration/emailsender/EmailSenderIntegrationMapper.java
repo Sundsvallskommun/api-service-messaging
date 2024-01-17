@@ -2,16 +2,16 @@ package se.sundsvall.messaging.integration.emailsender;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import generated.se.sundsvall.emailsender.Attachment;
 import generated.se.sundsvall.emailsender.SendEmailRequest;
 import generated.se.sundsvall.emailsender.Sender;
 
+@Component
 class EmailSenderIntegrationMapper {
 
-	private EmailSenderIntegrationMapper() {
-	}
-
-	public static SendEmailRequest toSendEmailRequest(final EmailDto dto) {
+	SendEmailRequest toSendEmailRequest(final EmailDto dto) {
 		if (dto == null) {
 			return null;
 		}

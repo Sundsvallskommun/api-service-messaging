@@ -10,6 +10,7 @@ import static se.sundsvall.messaging.TestDataFactory.createEmailDto;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +29,9 @@ class EmailSenderIntegrationTests {
 
 	@Mock
 	private EmailSenderClient mockClient;
+
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private EmailSenderIntegrationMapper mapper;
 
 	@InjectMocks
 	private EmailSenderIntegration integration;

@@ -6,7 +6,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>4.1</version>
+        <version>4.2.0</version>
         <relativePath/>
     </parent>
     <groupId>se.sundsvall.messaging</groupId>
@@ -22,7 +22,8 @@
         <hypersistence-utils.version>3.7.0</hypersistence-utils.version>
         <vavr.version>0.10.4</vavr.version>
         <archunit.version>1.2.1</archunit.version>
-        <generated-sources-path>${project.build.directory}/generated-sources
+        <generated-sources-path>
+            ${project.build.directory}/generated-sources
         </generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
@@ -222,7 +223,8 @@
                                 ${project.basedir}/src/main/resources/integrations/digital-mail-sender-2.0.yml
                             </inputSpec>
                             <configOptions>
-                                <modelPackage>generated.se.sundsvall.digitalmailsender
+                                <modelPackage>
+                                    generated.se.sundsvall.digitalmailsender
                                 </modelPackage>
                             </configOptions>
                         </configuration>
@@ -241,7 +243,8 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${generated-sources-path}/${generated-sources-java-path}
+                                <source>
+                                    ${generated-sources-path}/${generated-sources-java-path}
                                 </source>
                             </sources>
                         </configuration>

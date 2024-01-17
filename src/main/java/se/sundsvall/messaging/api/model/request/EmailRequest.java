@@ -8,6 +8,7 @@ import java.util.Map;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
@@ -22,87 +23,89 @@ import lombok.With;
 @Builder(setterPrefix = "with")
 public record EmailRequest(
 
-        @Valid
-        @Schema(description = "Party")
-        Party party,
+	@Valid
+	@Schema(description = "Party")
+	Party party,
 
-        @Email
-        @NotBlank
-        @Schema(description = "Recipient e-mail address", requiredMode = REQUIRED)
-        String emailAddress,
+	@Email
+	@NotBlank
+	@Schema(description = "Recipient e-mail address", requiredMode = REQUIRED)
+	String emailAddress,
 
-        @NotBlank
-        @Schema(description = "E-mail subject", requiredMode = REQUIRED)
-        String subject,
+	@NotBlank
+	@Schema(description = "E-mail subject", requiredMode = REQUIRED)
+	String subject,
 
-        @Schema(description = "E-mail plain-text body")
-        String message,
+	@Schema(description = "E-mail plain-text body")
+	String message,
 
-        @ValidBase64(nullable = true)
-        @Schema(description = "E-mail HTML body (BASE64-encoded)")
-        String htmlMessage,
+	@ValidBase64(nullable = true)
+	@Schema(description = "E-mail HTML body (BASE64-encoded)")
+	String htmlMessage,
 
-        @Valid
-        @Schema(description = "Sender")
-        Sender sender,
+	@Valid
+	@Schema(description = "Sender")
+	Sender sender,
 
-        @ArraySchema(schema = @Schema(implementation = Attachment.class))
-        List<@Valid Attachment> attachments,
+	@ArraySchema(schema = @Schema(implementation = Attachment.class))
+	List<@Valid Attachment> attachments,
 
-        @Schema(description = "Headers")
-        Map<Header, List<String>> headers) {
+	@Schema(description = "Headers")
+	Map<Header, List<@Pattern(regexp = "^(<).*@.*(>)$", message = "Message-ID need to begin with '<' contain '@' and end with '>'") String>> headers) {
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(name = "EmailRequestParty")
-    public record Party(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "EmailRequestParty")
+	public record Party(
 
-        @ValidUuid(nullable = true)
-        @Schema(description = "The message party id", format = "uuid")
-        String partyId,
+		@ValidUuid(nullable = true)
+		@Schema(description = "The message party id", format = "uuid")
+		String partyId,
 
-        @Schema(description = "External references")
-        List<@Valid ExternalReference> externalReferences) {
-    }
+		@Schema(description = "External references")
+		List<@Valid ExternalReference> externalReferences) {
+	}
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(name = "EmailSender", description = "Attachment")
-    public record Sender(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "EmailSender", description = "Attachment")
+	public record Sender(
 
-        @NotBlank
-        @Schema(description = "The sender of the e-mail")
-        String name,
+		@NotBlank
+		@Schema(description = "The sender of the e-mail")
+		String name,
 
-        @Email
-        @NotBlank
-        @Schema(description = "Sender e-mail address", example = "sender@sender.se")
-        String address,
+		@Email
+		@NotBlank
+		@Schema(description = "Sender e-mail address", example = "sender@sender.se")
+		String address,
 
-        @Email
-        @Schema(description = "Reply-to e-mail address", example = "sender@sender.se")
-        String replyTo) { }
+		@Email
+		@Schema(description = "Reply-to e-mail address", example = "sender@sender.se")
+		String replyTo) {
+	}
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(name = "EmailAttachment", description = "Attachment")
-    public record Attachment(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "EmailAttachment", description = "Attachment")
+	public record Attachment(
 
-        @NotBlank
-        @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED)
-        String name,
+		@NotBlank
+		@Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED)
+		String name,
 
-        @Schema(description = "The attachment content type", example = "text/plain")
-        String contentType,
+		@Schema(description = "The attachment content type", example = "text/plain")
+		String contentType,
 
-        @ValidBase64
-        @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED)
-        String content){}
+		@ValidBase64
+		@Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED)
+		String content) {
+	}
 
-    @Schema(enumAsRef = true)
-    public enum Header {
-        IN_REPLY_TO,
-        REFERENCES,
-        MESSAGE_ID
-    }
+	@Schema(enumAsRef = true)
+	public enum Header {
+		IN_REPLY_TO,
+		REFERENCES,
+		MESSAGE_ID
+	}
 }

@@ -14,16 +14,18 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @ExtendWith(MockitoExtension.class)
 class EmailSenderIntegrationMapperTests {
 
+	private final EmailSenderIntegrationMapper mapper = new EmailSenderIntegrationMapper();
+
 	@Test
 	void test_toSendEmailRequest_whenRequestIsNull() {
-		assertThat(EmailSenderIntegrationMapper.toSendEmailRequest(null)).isNull();
+		assertThat(mapper.toSendEmailRequest(null)).isNull();
 	}
 
 	@Test
 	void test_toSendEmailRequest() {
 		var dto = createEmailDto();
 
-		var mappedRequest = EmailSenderIntegrationMapper.toSendEmailRequest(dto);
+		var mappedRequest = mapper.toSendEmailRequest(dto);
 
 		assertThat(mappedRequest.getSender().getName()).isEqualTo("someSender");
 		assertThat(mappedRequest.getSender().getAddress()).isEqualTo("noreply@somehost.com");
