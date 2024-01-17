@@ -51,7 +51,7 @@ public record EmailRequest(
 	List<@Valid Attachment> attachments,
 
 	@Schema(description = "Headers")
-	Map<Header, List<@Pattern(regexp = "^<[^>]+@[^>]+>$", message = "Message-ID need to begin with '<' contain '@' and end with '>'") String>> headers) {
+	Map<Header, List<@Pattern(regexp = "^<.{1,1000}@.{1,1000}>$", message = "Message-ID need to begin with '<' contain '@' and end with '>'") String>> headers) {
 
 	@With
 	@Builder(setterPrefix = "with")
