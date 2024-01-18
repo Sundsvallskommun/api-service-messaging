@@ -187,11 +187,11 @@ class EmailRequestConstraintValidationTests {
 	private static Stream<Arguments> invalidHeaderArgumentProvider() {
 		return Stream.of(
 			Arguments.of(Map.of(MESSAGE_ID, List.of("not-a-va<lid-mes@sage->id")), "headers[MESSAGE_ID].<map value>[0].<list element>",
-				"Message-ID need to begin with '<' contain '@' and end with '>'"),
+				"Header values must start with '<', contain '@' and end with '>'"),
 			Arguments.of(Map.of(IN_REPLY_TO, List.of(">not-a-@valid-message-id<")), "headers[IN_REPLY_TO].<map value>[0].<list element>",
-				"Message-ID need to begin with '<' contain '@' and end with '>'"),
+				"Header values must start with '<', contain '@' and end with '>'"),
 			Arguments.of(Map.of(REFERENCES, List.of("<not-a-valid-message-id>")), "headers[REFERENCES].<map value>[0].<list element>",
-				"Message-ID need to begin with '<' contain '@' and end with '>'"));
+				"Header values must start with '<', contain '@' and end with '>'"));
 	}
 
 }
