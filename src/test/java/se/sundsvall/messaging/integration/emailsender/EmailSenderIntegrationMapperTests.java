@@ -1,8 +1,8 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createEmailDto;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,41 +14,29 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @ExtendWith(MockitoExtension.class)
 class EmailSenderIntegrationMapperTests {
 
-    private final EmailSenderIntegrationMapper mapper = new EmailSenderIntegrationMapper();
+	private final EmailSenderIntegrationMapper mapper = new EmailSenderIntegrationMapper();
 
-    @Test
-    void test_toSendEmailRequest_whenRequestIsNull() {
-        assertThat(mapper.toSendEmailRequest(null)).isNull();
-    }
+	@Test
+	void test_toSendEmailRequest_whenRequestIsNull() {
+		assertThat(mapper.toSendEmailRequest(null)).isNull();
+	}
 
-    @Test
-    void test_toSendEmailRequest() {
-        var dto = EmailDto.builder()
-            .withSender(EmailDto.Sender.builder()
-                .withName("someName")
-                .withAddress("someAddress")
-                .withReplyTo("someReplyTo")
-                .build())
-            .withEmailAddress("someEmailAddress")
-            .withSubject("someSubject")
-            .withMessage("someMessage")
-            .withHtmlMessage("someHtmlMessage")
-            .withAttachments(List.of(EmailDto.Attachment.builder()
-                .withName("someName")
-                .withContentType("someContentType")
-                .withContent("someContent")
-                .build()))
-            .build();
+	@Test
+	void test_toSendEmailRequest() {
+		var dto = createEmailDto();
 
-        var mappedRequest = mapper.toSendEmailRequest(dto);
+		var mappedRequest = mapper.toSendEmailRequest(dto);
 
-        assertThat(mappedRequest.getSender().getName()).isEqualTo("someName");
-        assertThat(mappedRequest.getSender().getAddress()).isEqualTo("someAddress");
-        assertThat(mappedRequest.getSender().getReplyTo()).isEqualTo("someReplyTo");
-        assertThat(mappedRequest.getEmailAddress()).isEqualTo("someEmailAddress");
-        assertThat(mappedRequest.getSubject()).isEqualTo("someSubject");
-        assertThat(mappedRequest.getMessage()).isEqualTo("someMessage");
-        assertThat(mappedRequest.getHtmlMessage()).isEqualTo("someHtmlMessage");
-        assertThat(mappedRequest.getAttachments()).hasSize(1);
-    }
+		assertThat(mappedRequest.getSender().getName()).isEqualTo("someSender");
+		assertThat(mappedRequest.getSender().getAddress()).isEqualTo("noreply@somehost.com");
+		assertThat(mappedRequest.getSender().getReplyTo()).isEqualTo("someReplyTo");
+		assertThat(mappedRequest.getEmailAddress()).isEqualTo("someone@somehost.com");
+		assertThat(mappedRequest.getSubject()).isEqualTo("someSubject");
+		assertThat(mappedRequest.getMessage()).isEqualTo("someMessage");
+		assertThat(mappedRequest.getHtmlMessage()).isEqualTo("someHtmlMessage");
+		assertThat(mappedRequest.getAttachments()).hasSize(1);
+		assertThat(mappedRequest.getHeaders().get("MESSAGE_ID").getFirst()).isEqualTo("someMessageId");
+		assertThat(mappedRequest.getHeaders().get("IN_REPLY_TO").getFirst()).isEqualTo("someInReplyTo");
+		assertThat(mappedRequest.getHeaders().get("REFERENCES")).containsExactlyInAnyOrder("someReferences", "someMoreReferences");
+	}
 }

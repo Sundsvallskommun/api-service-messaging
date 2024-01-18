@@ -1,8 +1,12 @@
 package se.sundsvall.messaging.api.model.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +23,11 @@ class EmailRequestTests {
         var sender = new EmailRequest.Sender("someName", "someAddress", "someReplyTo");
         var attachments = List.of(new EmailRequest.Attachment("someName", "someContentType", "someContent"));
         var request = new EmailRequest(party, "someEmailAddress", "someSubject",
-            "someMessage", "someHtmlMessage", sender, attachments);
+            "someMessage", "someHtmlMessage", sender,  attachments,
+            Map.of(
+                MESSAGE_ID, List.of("someMessageId"),
+                REFERENCES, List.of("someReferences", "someMoreReferences"),
+                IN_REPLY_TO, List.of("someInReplyTo")));
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyId()).isEqualTo("somePartyId");
@@ -40,5 +48,9 @@ class EmailRequestTests {
             assertThat(attachment.contentType()).isEqualTo("someContentType");
             assertThat(attachment.content()).isEqualTo("someContent");
         });
+        assertThat(request.headers().get(MESSAGE_ID).getFirst()).isEqualTo("someMessageId");
+        assertThat(request.headers().get(IN_REPLY_TO).getFirst()).isEqualTo("someInReplyTo");
+        assertThat(request.headers().get(REFERENCES).getFirst()).isEqualTo("someReferences");
+        assertThat(request.headers().get(REFERENCES)).hasSize(2);
     }
 }
