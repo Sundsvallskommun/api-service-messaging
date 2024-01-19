@@ -395,7 +395,7 @@ class MessageServiceTests {
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
         verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
         verify(mockRequestMapper).toSnailMailRequest(any(LetterRequest.class), any(String.class));
-        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class));
+        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
         verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
         // Verify transaction template interaction
@@ -437,7 +437,7 @@ class MessageServiceTests {
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
         verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
         verify(mockRequestMapper).toSnailMailRequest(any(LetterRequest.class), any(String.class));
-        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class));
+        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
         verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
         // Verify transaction template interaction
@@ -475,7 +475,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
         verify(mockRequestMapper).toSnailMailRequest(any(LetterRequest.class), any(String.class));
-        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class));
+        verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
         verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
         // Verify transaction template interaction
