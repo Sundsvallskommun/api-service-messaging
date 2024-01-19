@@ -379,7 +379,7 @@ public class MessageService {
 			case DIGITAL_MAIL -> ofCallable(() -> digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
 			case DIGITAL_INVOICE -> ofCallable(() -> digitalMailSender.sendDigitalInvoice(dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
 			case WEB_MESSAGE -> ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
-			case SNAIL_MAIL -> ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request)));
+			case SNAIL_MAIL -> ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
 			case SLACK -> ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
