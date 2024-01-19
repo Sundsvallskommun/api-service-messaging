@@ -6,6 +6,8 @@ import lombok.Builder;
 
 @Builder(setterPrefix = "with")
 public record SnailMailDto(
+        String partyId,
+        String batchId,
         String department,
         String deviation,
         List<Attachment> attachments) {
