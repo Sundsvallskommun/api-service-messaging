@@ -2,12 +2,14 @@ package se.sundsvall.messaging.service;
 
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
+import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
@@ -33,7 +35,8 @@ class MessageEventHandler {
         if (message.type() == MESSAGE) {
             messageService.sendMessage(message);
         } else if (message.type() == LETTER) {
-            messageService.sendLetter(message);
+            var letter = fromJson(message.content(), LetterRequest.class);
+            messageService.sendLetter(letter);
         } else {
             messageService.deliver(message);
         }
