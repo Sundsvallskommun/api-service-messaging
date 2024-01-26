@@ -58,10 +58,15 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 @Service
 public class MessageService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
+
+	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	private final TransactionTemplate transactionTemplate;
 	private final BlacklistService blacklistService;
@@ -189,7 +194,14 @@ public class MessageService {
 
 		if (isSnailMailSent(deliveryResults)) {
 			// At least one delivery was sent as snail-mail - send the batch
+			deliveryResults.forEach(deliveryResult -> {
+				LOG.info("Delivery {} was sent as snail-mail", gson.toJson(deliveryResult));
+			});
 			snailmailSender.sendBatch(batchId);
+		} else {
+			deliveryResults.forEach(deliveryResult -> {
+				LOG.info("Failed deliveries {} was not sent as snail-mail", gson.toJson(deliveryResult));
+			});
 		}
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
@@ -431,6 +443,7 @@ public class MessageService {
 	}
 
 	private boolean isSnailMailSent(List<InternalDeliveryResult> deliveryResults) {
+		LOG.info("Checking if any SNAIL_MAIL has SENT as status");
 		return deliveryResults.stream().anyMatch(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType()) &&
 			SENT.equals(deliveryResult.status()));
 	}
