@@ -46,6 +46,7 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -111,6 +112,8 @@ class MessageServiceTests {
     private DtoMapper mockDtoMapper;
 
     private List<Object> integrations;
+
+    private static final String BATCH_ID = UUID.randomUUID().toString();
 
     @InjectMocks
     private MessageService messageService;
@@ -327,7 +330,7 @@ class MessageServiceTests {
     @Test
     void test_sendLetterDigital() {
         var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, "someBatchId");
+        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
         when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
         when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
@@ -364,7 +367,7 @@ class MessageServiceTests {
     @Test
     void test_sendLetterSnailMailWhenDigitalNotSent() {
         var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, "someBatchId");
+        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
         when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
         when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
@@ -405,7 +408,7 @@ class MessageServiceTests {
     @Test
     void test_sendLetterSnailMailWhenExceptionSendingDigital() {
         var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, "someBatchId");
+        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
         when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
         when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
@@ -452,7 +455,7 @@ class MessageServiceTests {
             .withFilename("someFilename")
             .withContent("someContent")
             .build()));
-        var messages = mockMessageMapper.toMessages(request, "someBatchId");
+        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
         when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
         when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));

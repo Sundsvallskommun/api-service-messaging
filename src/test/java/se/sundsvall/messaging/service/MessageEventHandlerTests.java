@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.ThrowableProblem;
 
+import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
