@@ -178,6 +178,15 @@ public class MessageService {
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
 
+	public InternalDeliveryBatchResult sendLetter(final Message message) {
+		var batchId = message.batchId();
+
+		var deliveryResults = routeAndSendLetter(message);
+		sendSnailMailBatch(deliveryResults, batchId);
+
+		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+	}
+
 	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
@@ -192,6 +201,12 @@ public class MessageService {
 			.flatMap(Collection::stream)
 			.toList();
 
+		sendSnailMailBatch(deliveryResults, batchId);
+
+		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+	}
+
+	private void sendSnailMailBatch(List<InternalDeliveryResult> deliveryResults, String batchId) {
 		if (isSnailMailSent(deliveryResults)) {
 			// At least one delivery was sent as snail-mail - send the batch
 			deliveryResults.forEach(deliveryResult -> LOG.debug("Delivery {} was sent as snail-mail", gson.toJson(deliveryResult)));
@@ -199,8 +214,6 @@ public class MessageService {
 		} else {
 			deliveryResults.forEach(deliveryResult -> LOG.debug("Failed delivery {} was not sent as snail-mail", gson.toJson(deliveryResult)));
 		}
-
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
 
 	public InternalDeliveryResult sendToSlack(final SlackRequest request) {

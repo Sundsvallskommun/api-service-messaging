@@ -56,31 +56,10 @@ class MessageEventHandlerTests {
         if (messageType == MESSAGE) {
             verify(mockMessageService, times(1)).sendMessage(any(Message.class));
         } else if (messageType == LETTER) {
-            verify(mockMessageService, times(1)).sendLetter(null);  //Will be tested in a separate test since it cannot deserialize an empty message
-        }else {
+            verify(mockMessageService, times(1)).sendLetter(any(Message.class));
+        } else {
             verify(mockMessageService, times(1)).deliver(any(Message.class));
         }
-        verifyNoMoreInteractions(mockMessageService);
-    }
-
-    /*
-    A test only for LETTER since we need to deserialize the content to a LetterRequest
-     */
-    @Test
-    void test_handleIncomingMessageEventForLetter() {
-        var message = Optional.of(Message.builder()
-                .withDeliveryId("someDeliveryId")
-                .withContent("{\"party\":{\"partyId\":\"somePartyId\"},\"batchId\":\"someBatchId\",\"type\":\"LETTER\"}")
-                .withType(LETTER)
-                .build());
-        when(mockDbIntegration.getMessageByDeliveryId(any(String.class)))
-                .thenReturn(message);
-
-        messageEventHandler.handleIncomingMessageEvent(event);
-
-        verify(mockDbIntegration, times(1)).getMessageByDeliveryId(any(String.class));
-        verify(mockMessageService, times(1)).sendLetter(any(LetterRequest.class));
-
         verifyNoMoreInteractions(mockMessageService);
     }
 
