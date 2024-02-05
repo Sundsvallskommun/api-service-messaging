@@ -25,9 +25,11 @@ openapi:
 
 # Logbook filtering
 logbook:
-  exclusionfilters:
+  body-filters:
     json-path:
-      '$..attachments[*].content': '[base64]'
-      '$..attachments[*].base64Data': '[base64]'
-      '$..attachments[*].body': '[base64]'
-
+      - key: '$..attachments[*].content'
+        value: '[base64]'
+      - key: '$..attachments[*].base64Data'
+        value: '[base64]'
+      - key: '$..attachments[*].body'
+        value: '[base64]'
