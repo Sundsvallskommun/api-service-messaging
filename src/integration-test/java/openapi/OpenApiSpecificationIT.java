@@ -6,8 +6,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static se.sundsvall.dept44.util.ResourceUtils.asString;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,70 +13,71 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.Resource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+
 import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-import configuration.TestContainersConfiguration;
-
-@UnitTest
+@IntegrationTest
 @SpringBootTest(
-    webEnvironment = RANDOM_PORT,
-    classes = { Application.class, TestContainersConfiguration.class },
-    properties = {
-        "spring.main.banner-mode=off",
-        "logging.level.se.sundsvall.dept44.payload=OFF"
-    }
-)
+	webEnvironment = RANDOM_PORT,
+	classes = { Application.class },
+	properties = {
+		"spring.main.banner-mode=off",
+		"logging.level.se.sundsvall.dept44.payload=OFF"
+	})
 class OpenApiSpecificationIT {
 
-    private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
+	private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 
-    @Value("${openapi.name}")
-    private String openApiName;
-    @Value("${openapi.version}")
-    private String openApiVersion;
+	@Value("${openapi.name}")
+	private String openApiName;
 
-    @Value("classpath:/openapi.yml")
-    private Resource openApiResource;
+	@Value("${openapi.version}")
+	private String openApiVersion;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-    
-    @Test
-    void compareOpenApiSpecifications() {
-        var existingOpenApiSpecification = asString(openApiResource);
-        var currentOpenApiSpecification = getCurrentOpenApiSpecification();
+	@Value("classpath:/openapi.yml")
+	private Resource openApiResource;
 
-        assertThatJson(toJson(existingOpenApiSpecification))
-            .withOptions(IGNORING_ARRAY_ORDER)
-            .whenIgnoringPaths("servers")
-            .isEqualTo(toJson(currentOpenApiSpecification));
-    }
+	@Autowired
+	private TestRestTemplate restTemplate;
 
-    /**
-     * Fetches and returns the current OpenAPI specification in YAML format.
-     *
-     * @return the current OpenAPI specification
-     */
-    private String getCurrentOpenApiSpecification() {
-        var uri = fromPath("/api-docs.yaml")
-            .buildAndExpand(openApiName, openApiVersion)
-            .toUri();
+	@Test
+	void compareOpenApiSpecifications() {
+		final var existingOpenApiSpecification = asString(openApiResource);
+		final var currentOpenApiSpecification = getCurrentOpenApiSpecification();
 
-        return restTemplate.getForObject(uri, String.class);
-    }
+		assertThatJson(toJson(existingOpenApiSpecification))
+			.withOptions(IGNORING_ARRAY_ORDER)
+			.whenIgnoringPaths("servers")
+			.isEqualTo(toJson(currentOpenApiSpecification));
+	}
 
-    /**
-     * Attempts to convert the given YAML (no YAML-check...) to JSON.
-     *
-     * @param yaml the YAML to convert
-     * @return a JSON string
-     */
-    private String toJson(final String yaml) {
-        try {
-            return YAML_MAPPER.readTree(yaml).toString();
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Unable to convert YAML to JSON", e);
-        }
-    }
+	/**
+	 * Fetches and returns the current OpenAPI specification in YAML format.
+	 *
+	 * @return the current OpenAPI specification
+	 */
+	private String getCurrentOpenApiSpecification() {
+		final var uri = fromPath("/api-docs.yaml")
+			.buildAndExpand(openApiName, openApiVersion)
+			.toUri();
+
+		return restTemplate.getForObject(uri, String.class);
+	}
+
+	/**
+	 * Attempts to convert the given YAML (no YAML-check...) to JSON.
+	 *
+	 * @param  yaml the YAML to convert
+	 * @return      a JSON string
+	 */
+	private String toJson(final String yaml) {
+		try {
+			return YAML_MAPPER.readTree(yaml).toString();
+		} catch (final JsonProcessingException e) {
+			throw new IllegalStateException("Unable to convert YAML to JSON", e);
+		}
+	}
 }
