@@ -17,9 +17,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-@UnitTest
+@IntegrationTest
 @SpringBootTest(
 	webEnvironment = RANDOM_PORT,
 	classes = { Application.class },
