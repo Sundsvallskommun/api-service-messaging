@@ -19,7 +19,7 @@
         <published.container.port.test>8701</published.container.port.test>
         <published.container.port.production>8787</published.container.port.production>
         <slack-api-client.version>1.38.1</slack-api-client.version>
-        <hypersistence-utils.version>3.7.1</hypersistence-utils.version>
+        <hypersistence-utils.version>3.7.2</hypersistence-utils.version>
         <vavr.version>0.10.4</vavr.version>
         <archunit.version>1.2.1</archunit.version>
         <generated-sources-path> ${project.build.directory}/generated-sources</generated-sources-path>
