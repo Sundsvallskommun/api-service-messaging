@@ -51,6 +51,7 @@ class DigitalMailSenderIntegrationMapper {
             .type(DigitalInvoiceRequest.TypeEnum.fromValue(dto.type().name()))
             .subject(dto.subject())
             .reference(dto.reference())
+            .payable(dto.payable())
             .details(new Details()
                 .amount(dto.details().amount())
                 .dueDate(dto.details().dueDate())
