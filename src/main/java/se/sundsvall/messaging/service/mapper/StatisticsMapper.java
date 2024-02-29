@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.service.mapper;
 
-import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
@@ -28,12 +27,14 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
-@Component
 public class StatisticsMapper {
 
     static final String OTHER = "Other";
 
-    public Statistics toStatistics(final List<StatsEntry> stats) {
+    private StatisticsMapper() {
+    }
+
+    public static Statistics toStatistics(final List<StatsEntry> stats) {
         // "Extract" MESSAGE entries, since they require special handling
         var message = stats.stream()
             .filter(entry -> entry.originalMessageType() == MESSAGE)
@@ -80,7 +81,7 @@ public class StatisticsMapper {
             .build();
     }
 
-    public DepartmentStatistics toDepartmentStatistics(final List<StatsEntry> stats) {
+    public static DepartmentStatistics toDepartmentStatistics(final List<StatsEntry> stats) {
         final var letters = stats.stream()
             .filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()))
             .collect(groupingBy(StatsEntry::department,
@@ -101,7 +102,17 @@ public class StatisticsMapper {
             .build();
     }
 
-    DepartmentLetter toDepartmentLetter(final String department, final Map<MessageType, Map<MessageStatus, Integer>> letter) {
+    public static Count toCount(final Map<MessageStatus, Integer> stat) {
+        if (stat == null) {
+            return null;
+        }
+
+        return new Count(
+            ofNullable(stat.get(SENT)).orElse(0),
+            ofNullable(stat.get(FAILED)).orElse(0));
+    }
+
+    private static DepartmentLetter toDepartmentLetter(final String department, final Map<MessageType, Map<MessageStatus, Integer>> letter) {
         if (letter == null) {
             return null;
         }
@@ -111,14 +122,5 @@ public class StatisticsMapper {
             .withSnailMail(toCount(letter.get(SNAIL_MAIL)))
             .withDigitalMail(toCount(letter.get(DIGITAL_MAIL)))
             .build();
-    }
-    public Count toCount(final Map<MessageStatus, Integer> stat) {
-        if (stat == null) {
-            return null;
-        }
-
-        return new Count(
-            ofNullable(stat.get(SENT)).orElse(0),
-            ofNullable(stat.get(FAILED)).orElse(0));
     }
 }

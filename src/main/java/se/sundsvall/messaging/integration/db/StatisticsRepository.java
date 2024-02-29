@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
+@CircuitBreaker(name = "statisticsRepository")
 public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long> {
 
     default List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,

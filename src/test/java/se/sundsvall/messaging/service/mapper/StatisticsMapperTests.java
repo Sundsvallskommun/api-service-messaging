@@ -20,10 +20,11 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toCount;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatistics;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
 
 class StatisticsMapperTests {
-
-    private final StatisticsMapper mapper = new StatisticsMapper();
 
     @Test
     void test_toStatistics() {
@@ -55,7 +56,7 @@ class StatisticsMapperTests {
             new StatsEntry(SNAIL_MAIL, SNAIL_MAIL, FAILED)
         );
 
-        var result = mapper.toStatistics(input);
+        var result = toStatistics(input);
 
         assertThat(result).isNotNull();
         assertThat(result.email()).satisfies(email -> assertCount(email, 2, 1));
@@ -94,7 +95,7 @@ class StatisticsMapperTests {
             new StatsEntry(SNAIL_MAIL, LETTER, FAILED),
             new StatsEntry(DIGITAL_MAIL, LETTER, FAILED));
 
-        var result = mapper.toDepartmentStatistics(input);
+        var result = toDepartmentStatistics(input);
 
         assertThat(result).isNotNull();
         assertThat(result.departmentLetters()).isNotEmpty().hasSize(3)
@@ -113,7 +114,7 @@ class StatisticsMapperTests {
     void test_toCount() {
         var input = Map.of(SENT, 3, FAILED, 5);
 
-        var result = mapper.toCount(input);
+        var result = toCount(input);
 
         assertThat(result.sent()).isEqualTo(3);
         assertThat(result.failed()).isEqualTo(5);
@@ -124,7 +125,7 @@ class StatisticsMapperTests {
     void test_toCount_withNoSENT() {
         var input = Map.of(FAILED, 4);
 
-        var result = mapper.toCount(input);
+        var result = toCount(input);
 
         assertThat(result.sent()).isZero();
         assertThat(result.failed()).isEqualTo(4);
@@ -135,7 +136,7 @@ class StatisticsMapperTests {
     void test_toCount_withNoFAILED() {
         var input = Map.of(SENT, 7);
 
-        var result = mapper.toCount(input);
+        var result = toCount(input);
 
         assertThat(result.sent()).isEqualTo(7);
         assertThat(result.failed()).isZero();
