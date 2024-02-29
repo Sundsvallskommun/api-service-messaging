@@ -23,12 +23,16 @@ class DigitalInvoiceRequestTests {
         var files = List.of(new DigitalInvoiceRequest.File("someContentType", "someContent", "someFilename"));
 
         var request = new DigitalInvoiceRequest(party, InvoiceType.INVOICE, "someSubject",
-            "someReference", details, files);
+            "someReference", true, details, files);
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyId()).isEqualTo("somePartyId");
             assertThat(requestParty.externalReferences()).hasSize(1);
         });
+        assertThat(request.type()).isEqualTo(InvoiceType.INVOICE);
+        assertThat(request.subject()).isEqualTo("someSubject");
+        assertThat(request.reference()).isEqualTo("someReference");
+        assertThat(request.payable()).isTrue();
         assertThat(request.details()).satisfies(requestDetails -> {
             assertThat(requestDetails.amount()).isEqualTo(12.34f);
             assertThat(requestDetails.dueDate()).isEqualTo(LocalDate.now().plusDays(30));
