@@ -1,8 +1,23 @@
 package se.sundsvall.messaging.service.mapper;
 
+import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.Count;
+import se.sundsvall.messaging.model.DepartmentLetter;
+import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Statistics;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -13,19 +28,10 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Component;
-
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.Statistics;
-import se.sundsvall.messaging.model.Statistics.Count;
-
 @Component
 public class StatisticsMapper {
+
+    static final String OTHER = "Other";
 
     public Statistics toStatistics(final List<StatsEntry> stats) {
         // "Extract" MESSAGE entries, since they require special handling
@@ -74,6 +80,38 @@ public class StatisticsMapper {
             .build();
     }
 
+    public DepartmentStatistics toDepartmentStatistics(final List<StatsEntry> stats) {
+        final var letters = stats.stream()
+            .filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()))
+            .collect(groupingBy(StatsEntry::department,
+                groupingBy(StatsEntry::messageType,
+                groupingBy(StatsEntry::status, summingInt(n -> 1)))));
+
+        // "Extract" LETTER entries without a department and add them to the "Other" department
+        letters.putAll(stats.stream()
+            .filter(entry -> entry.originalMessageType() == LETTER && isEmpty(entry.department()))
+            .collect(groupingBy(entry -> OTHER,
+                groupingBy(StatsEntry::messageType,
+                groupingBy(StatsEntry::status, summingInt(n -> 1))))));
+
+        final var departmentLetters = letters.keySet().stream().map(department -> toDepartmentLetter(department, letters.get(department))).toList();
+
+        return DepartmentStatistics.builder()
+            .withDepartmentLetters(departmentLetters)
+            .build();
+    }
+
+    DepartmentLetter toDepartmentLetter(final String department, final Map<MessageType, Map<MessageStatus, Integer>> letter) {
+        if (letter == null) {
+            return null;
+        }
+
+        return DepartmentLetter.builder()
+            .withDepartment(department)
+            .withSnailMail(toCount(letter.get(SNAIL_MAIL)))
+            .withDigitalMail(toCount(letter.get(DIGITAL_MAIL)))
+            .build();
+    }
     public Count toCount(final Map<MessageStatus, Integer> stat) {
         if (stat == null) {
             return null;

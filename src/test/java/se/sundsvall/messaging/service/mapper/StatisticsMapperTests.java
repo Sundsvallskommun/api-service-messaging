@@ -1,6 +1,15 @@
 package se.sundsvall.messaging.service.mapper;
 
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.Count;
+import se.sundsvall.messaging.model.DepartmentLetter;
+
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -11,14 +20,6 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.Statistics;
 
 class StatisticsMapperTests {
 
@@ -74,7 +75,36 @@ class StatisticsMapperTests {
         assertThat(result.total()).isEqualTo(18);
     }
 
-    private void assertCount(final Statistics.Count count, final int expectedSent, final int expectedFailed) {
+    @Test
+    void test_toDepartmentStatistics() {
+        final var department_1 = "department_1";
+        final var department_2 = "department_2";
+
+        var input = List.of(
+            // Department 1
+            new StatsEntry(DIGITAL_MAIL, LETTER, SENT, department_1),
+            new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, department_1),
+            new StatsEntry(SNAIL_MAIL, LETTER, FAILED, department_1),
+            // Department 2
+            new StatsEntry(SNAIL_MAIL, LETTER, SENT, department_2),
+            new StatsEntry(SNAIL_MAIL, LETTER, FAILED, department_2),
+            new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, department_2),
+            // Other
+            new StatsEntry(SNAIL_MAIL, LETTER, SENT),
+            new StatsEntry(SNAIL_MAIL, LETTER, FAILED),
+            new StatsEntry(DIGITAL_MAIL, LETTER, FAILED));
+
+        var result = mapper.toDepartmentStatistics(input);
+
+        assertThat(result).isNotNull();
+        assertThat(result.departmentLetters()).isNotEmpty().hasSize(3)
+            .extracting(DepartmentLetter::department, DepartmentLetter::digitalMail, DepartmentLetter::snailMail).containsExactly(
+                tuple(department_1, Count.builder().withSent(1).withFailed(1).build(), Count.builder().withSent(0).withFailed(1).build()),
+                tuple(department_2, Count.builder().withSent(0).withFailed(1).build(), Count.builder().withSent(1).withFailed(1).build()),
+                tuple("Other", Count.builder().withSent(0).withFailed(1).build(), Count.builder().withSent(1).withFailed(1).build()));
+    }
+
+    private void assertCount(final Count count, final int expectedSent, final int expectedFailed) {
         assertThat(count.sent()).isEqualTo(expectedSent);
         assertThat(count.failed()).isEqualTo(expectedFailed);
     }

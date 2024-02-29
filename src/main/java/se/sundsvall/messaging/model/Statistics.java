@@ -1,12 +1,11 @@
 package se.sundsvall.messaging.model;
 
-import static java.util.Optional.ofNullable;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+
+import static java.util.Optional.ofNullable;
 
 @Builder(setterPrefix = "with")
 public record Statistics(
@@ -40,15 +39,6 @@ public record Statistics(
             ofNullable(snailMail).map(Count::total).orElse(0) +
             ofNullable(message).map(Message::total).orElse(0) +
             ofNullable(letter).map(Letter::total).orElse(0);
-    }
-
-    @Builder(setterPrefix = "with")
-    @Schema(name = "StatisticsCounter")
-    public record Count(int sent, int failed) {
-
-        public int total() {
-            return sent + failed;
-        }
     }
 
     @Builder(setterPrefix = "with")

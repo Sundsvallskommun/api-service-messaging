@@ -1,13 +1,12 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
-
+import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.Statistics;
-import se.sundsvall.messaging.model.Statistics.Count;
 import se.sundsvall.messaging.model.Statistics.Letter;
 import se.sundsvall.messaging.model.Statistics.Message;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class StatsResponseTests {
 
@@ -68,7 +67,7 @@ class StatsResponseTests {
         assertThat(response.total()).isEqualTo(30);
     }
 
-    private void assertCount(final Statistics.Count count, final int expectedSent, final int expectedFailed) {
+    private void assertCount(final Count count, final int expectedSent, final int expectedFailed) {
         assertThat(count.sent()).isEqualTo(expectedSent);
         assertThat(count.failed()).isEqualTo(expectedFailed);
     }

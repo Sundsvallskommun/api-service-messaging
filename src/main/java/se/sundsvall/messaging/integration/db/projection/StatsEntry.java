@@ -6,4 +6,9 @@ import se.sundsvall.messaging.model.MessageType;
 public record StatsEntry(
     MessageType messageType,
     MessageType originalMessageType,
-    MessageStatus status) { }
+    MessageStatus status,
+	String department) {
+	public StatsEntry(MessageType messageType, MessageType originalMessageType, MessageStatus status) {
+		this(messageType, originalMessageType, status, null);
+	}
+}
