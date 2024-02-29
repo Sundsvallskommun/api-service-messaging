@@ -15,6 +15,7 @@ public record DigitalInvoiceDto(
         InvoiceType type,
         String subject,
         String reference,
+        Boolean payable,
         Details details,
         List<File> files) {
 

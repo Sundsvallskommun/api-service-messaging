@@ -123,6 +123,7 @@ public class DtoMapper {
 			.withType(request.type())
 			.withSubject(request.subject())
 			.withReference(request.reference())
+			.withPayable(request.payable())
 			.withDetails(DigitalInvoiceDto.Details.builder()
 				.withAmount(request.details().amount())
 				.withDueDate(request.details().dueDate())

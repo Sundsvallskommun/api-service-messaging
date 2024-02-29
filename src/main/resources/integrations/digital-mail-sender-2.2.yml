@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.0"
+  version: "2.2"
 servers:
 - url: http://localhost:8080
   description: Generated server url
@@ -171,22 +171,22 @@ components:
     Problem:
       type: object
       properties:
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
-        status:
-          $ref: '#/components/schemas/StatusType'
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: '#/components/schemas/StatusType'
     StatusType:
       type: object
       properties:
@@ -218,10 +218,10 @@ components:
               lineNumber:
                 type: integer
                 format: int32
-              nativeMethod:
-                type: boolean
               className:
                 type: string
+              nativeMethod:
+                type: boolean
         type:
           type: string
           format: uri
@@ -235,13 +235,13 @@ components:
           type: string
         message:
           type: string
-        instance:
-          type: string
-          format: uri
         parameters:
           type: object
           additionalProperties:
             type: object
+        instance:
+          type: string
+          format: uri
         detail:
           type: string
         suppressed:
@@ -267,10 +267,10 @@ components:
                     lineNumber:
                       type: integer
                       format: int32
-                    nativeMethod:
-                      type: boolean
                     className:
                       type: string
+                    nativeMethod:
+                      type: boolean
               message:
                 type: string
               localizedMessage:
@@ -300,28 +300,28 @@ components:
               lineNumber:
                 type: integer
                 format: int32
-              nativeMethod:
-                type: boolean
               className:
                 type: string
+              nativeMethod:
+                type: boolean
         message:
           type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
-        status:
-          $ref: '#/components/schemas/StatusType'
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: '#/components/schemas/StatusType'
         suppressed:
           type: array
           items:
@@ -345,10 +345,10 @@ components:
                     lineNumber:
                       type: integer
                       format: int32
-                    nativeMethod:
-                      type: boolean
                     className:
                       type: string
+                    nativeMethod:
+                      type: boolean
               message:
                 type: string
               localizedMessage:
@@ -383,7 +383,6 @@ components:
       description: A PDF file/attachment
     BodyInformation:
       required:
-      - body
       - contentType
       type: object
       properties:
@@ -540,6 +539,10 @@ components:
           type: string
           description: Invoice reference
           example: "Faktura #12345"
+        payable:
+          type: boolean
+          description: Whether the invoice is payable
+          default: true
         details:
           $ref: '#/components/schemas/Details'
         files:
