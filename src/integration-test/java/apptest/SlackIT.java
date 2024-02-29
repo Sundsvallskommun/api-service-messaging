@@ -1,10 +1,13 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ class SlackIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageResult.class);
 
