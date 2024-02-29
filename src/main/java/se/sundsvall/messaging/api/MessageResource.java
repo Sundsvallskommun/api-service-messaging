@@ -1,21 +1,26 @@
 package se.sundsvall.messaging.api;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
+
+import java.util.List;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.zalando.problem.Problem;
+
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -32,273 +37,261 @@ import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
-import java.util.List;
-
-import static java.util.stream.Collectors.groupingBy;
-import static org.springframework.http.HttpHeaders.LOCATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.created;
-import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Sending Resources")
 @RestController
 @RequestMapping(
-    consumes = { APPLICATION_JSON_VALUE },
-    produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+	consumes = {APPLICATION_JSON_VALUE},
+	produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
 )
 @ApiResponse(
-    responseCode = "400",
-    description = "Bad Request",
-    content = @Content(schema = @Schema(implementation = Problem.class))
+	responseCode = "400",
+	description = "Bad Request",
+	content = @Content(schema = @Schema(implementation = Problem.class))
 )
 @ApiResponse(
-    responseCode = "500",
-    description = "Internal Server Error",
-    content = @Content(schema = @Schema(implementation = Problem.class))
+	responseCode = "500",
+	description = "Internal Server Error",
+	content = @Content(schema = @Schema(implementation = Problem.class))
 )
 @ApiResponse(
-    responseCode = "502",
-    description = "Bad Gateway",
-    content = @Content(schema = @Schema(implementation = Problem.class))
+	responseCode = "502",
+	description = "Bad Gateway",
+	content = @Content(schema = @Schema(implementation = Problem.class))
 )
 class MessageResource {
 
-    private final MessageService messageService;
-    private final MessageEventDispatcher eventDispatcher;
+	private final MessageService messageService;
+	private final MessageEventDispatcher eventDispatcher;
 
-    MessageResource(final MessageService messageService, final MessageEventDispatcher eventDispatcher) {
-        this.messageService = messageService;
-        this.eventDispatcher = eventDispatcher;
-    }
+	MessageResource(final MessageService messageService, final MessageEventDispatcher eventDispatcher) {
+		this.messageService = messageService;
+		this.eventDispatcher = eventDispatcher;
+	}
 
-    @Operation(
-        summary = "Send a single SMS",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/sms")
-    ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleSmsRequest(request));
-        }
+	@Operation(
+		summary = "Send a single SMS",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/sms")
+	ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleSmsRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendSms(request));
-    }
+		return toResponse(messageService.sendSms(request));
+	}
 
-    @Operation(
-        summary = "Send a single e-mail",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/email")
-    ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleEmailRequest(request));
-        }
+	@Operation(
+		summary = "Send a single e-mail",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/email")
+	ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleEmailRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendEmail(request));
-    }
+		return toResponse(messageService.sendEmail(request));
+	}
 
-    @Operation(
-        summary = "Send a single web message",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/webmessage")
-    ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleWebMessageRequest(request));
-        }
+	@Operation(
+		summary = "Send a single web message",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/webmessage")
+	ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleWebMessageRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendWebMessage(request));
-    }
+		return toResponse(messageService.sendWebMessage(request));
+	}
 
-    @Operation(
-        summary = "Send a single digital mail to one or more parties",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/digital-mail")
-    ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalMailRequest(request));
-        }
+	@Operation(
+		summary = "Send a single digital mail to one or more parties",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/digital-mail")
+	ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleDigitalMailRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendDigitalMail(request));
-    }
+		return toResponse(messageService.sendDigitalMail(request));
+	}
 
-    @Operation(
-        summary = "Send a digital invoice",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/digital-invoice")
-    ResponseEntity<MessageResult> sendDigitalInvoice(@Valid @RequestBody final DigitalInvoiceRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleDigitalInvoiceRequest(request));
-        }
+	@Operation(
+		summary = "Send a digital invoice",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/digital-invoice")
+	ResponseEntity<MessageResult> sendDigitalInvoice(@Valid @RequestBody final DigitalInvoiceRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendDigitalInvoice(request));
-    }
+		return toResponse(messageService.sendDigitalInvoice(request));
+	}
 
-    @Operation(
-        summary = "Send a batch of messages as e-mail or SMS to a list of parties",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/messages")
-    ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleMessageRequest(request));
-        }
+	@Operation(
+		summary = "Send a batch of messages as e-mail or SMS to a list of parties",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/messages")
+	ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleMessageRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendMessages(request));
-    }
+		return toResponse(messageService.sendMessages(request));
+	}
 
-    @Operation(
-        summary = "Send a single letter as digital mail or snail mail",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/letter")
-    ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleLetterRequest(request));
-        }
+	@Operation(
+		summary = "Send a single letter as digital mail or snail mail",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/letter")
+	ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleLetterRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendLetter(request));
-    }
+		return toResponse(messageService.sendLetter(request));
+	}
 
-    @Operation(
-        summary = "Send a single Slack message",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Successful Operation",
-                useReturnTypeSchema = true,
-                headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
-            )
-        }
-    )
-    @PostMapping("/slack")
-    ResponseEntity<MessageResult> sendToSlack(@Valid @RequestBody final SlackRequest request,
-            @Parameter(description = "Whether to send the message asynchronously")
-            @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async,
-            final UriComponentsBuilder uriComponentsBuilder) {
-        if (async) {
-            return toResponse(uriComponentsBuilder, eventDispatcher.handleSlackRequest(request));
-        }
+	@Operation(
+		summary = "Send a single Slack message",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/slack")
+	ResponseEntity<MessageResult> sendToSlack(@Valid @RequestBody final SlackRequest request,
+		@Parameter(description = "Whether to send the message asynchronously")
+		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		if (async) {
+			return toResponse(eventDispatcher.handleSlackRequest(request));
+		}
 
-        return toResponse(uriComponentsBuilder, messageService.sendToSlack(request));
-    }
+		return toResponse(messageService.sendToSlack(request));
+	}
 
-    ResponseEntity<MessageResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,
-            final InternalDeliveryResult deliveryResult) {
-        var uri = uriComponentsBuilder.path(MESSAGE_STATUS_PATH)
-            .buildAndExpand(deliveryResult.messageId())
-            .toUri();
+	ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {
+		var uri = fromPath(MESSAGE_STATUS_PATH)
+			.buildAndExpand(deliveryResult.messageId())
+			.toUri();
 
-        return created(uri)
-            .body(MessageResult.builder()
-                .withMessageId(deliveryResult.messageId())
-                .withDeliveries(List.of(DeliveryResult.builder()
-                    .withDeliveryId(deliveryResult.deliveryId())
-                    .withMessageType(deliveryResult.messageType())
-                    .withStatus(deliveryResult.status())
-                    .build()))
-                .build());
-    }
+		return created(uri)
+			.body(MessageResult.builder()
+				.withMessageId(deliveryResult.messageId())
+				.withDeliveries(List.of(DeliveryResult.builder()
+					.withDeliveryId(deliveryResult.deliveryId())
+					.withMessageType(deliveryResult.messageType())
+					.withStatus(deliveryResult.status())
+					.build()))
+				.build());
+	}
 
-    ResponseEntity<MessageBatchResult> toResponse(final UriComponentsBuilder uriComponentsBuilder,
-            final InternalDeliveryBatchResult deliveryBatchResult) {
-        var uri = uriComponentsBuilder.path(BATCH_STATUS_PATH)
-            .buildAndExpand(deliveryBatchResult.batchId())
-            .toUri();
+	ResponseEntity<MessageBatchResult> toResponse(final InternalDeliveryBatchResult deliveryBatchResult) {
+		var uri = fromPath(BATCH_STATUS_PATH)
+			.buildAndExpand(deliveryBatchResult.batchId())
+			.toUri();
 
-        // Group the deliveries by message id
-        var groupedDeliveries = deliveryBatchResult.deliveries().stream()
-            .collect(groupingBy(InternalDeliveryResult::messageId));
+		// Group the deliveries by message id
+		var groupedDeliveries = deliveryBatchResult.deliveries().stream()
+			.collect(groupingBy(InternalDeliveryResult::messageId));
 
-        return created(uri)
-            .body(MessageBatchResult.builder()
-                .withBatchId(deliveryBatchResult.batchId())
-                .withMessages(groupedDeliveries.entrySet().stream()
-                    .map(message -> MessageResult.builder()
-                        .withMessageId(message.getKey())
-                        .withDeliveries(message.getValue().stream()
-                            .map(delivery -> DeliveryResult.builder()
-                                .withDeliveryId(delivery.deliveryId())
-                                .withMessageType(delivery.messageType())
-                                .withStatus(delivery.status())
-                                .build())
-                            .toList())
-                        .build())
-                    .toList())
-                .build());
-    }
+		return created(uri)
+			.body(MessageBatchResult.builder()
+				.withBatchId(deliveryBatchResult.batchId())
+				.withMessages(groupedDeliveries.entrySet().stream()
+					.map(message -> MessageResult.builder()
+						.withMessageId(message.getKey())
+						.withDeliveries(message.getValue().stream()
+							.map(delivery -> DeliveryResult.builder()
+								.withDeliveryId(delivery.deliveryId())
+								.withMessageType(delivery.messageType())
+								.withStatus(delivery.status())
+								.build())
+							.toList())
+						.build())
+					.toList())
+				.build());
+	}
 }

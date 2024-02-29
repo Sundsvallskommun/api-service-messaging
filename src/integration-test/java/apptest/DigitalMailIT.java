@@ -1,10 +1,13 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +38,13 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
 		assertThat(response.messages()).hasSize(1);
 
-		final var messageId = response.messages().get(0).messageId();
+		final var messageId = response.messages().getFirst().messageId();
 		final var batchId = response.batchId();
 
 		// Make sure we received a message id and a batch id as proper UUID:s
