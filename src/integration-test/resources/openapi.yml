@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: '4.2'
+  version: '4.3'
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -716,14 +716,10 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DepartmentStatistics'
+                $ref: '#/components/schemas/DepartmentStatistics'
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DepartmentStatistics'
+                $ref: '#/components/schemas/DepartmentStatistics'
         "500":
           description: Internal Server Error
           content:
@@ -766,14 +762,10 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DepartmentStatistics'
+                $ref: '#/components/schemas/DepartmentStatistics'
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DepartmentStatistics'
+                $ref: '#/components/schemas/DepartmentStatistics'
         "500":
           description: Internal Server Error
           content:
@@ -971,9 +963,9 @@ components:
             type: object
         status:
           $ref: '#/components/schemas/StatusType'
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object

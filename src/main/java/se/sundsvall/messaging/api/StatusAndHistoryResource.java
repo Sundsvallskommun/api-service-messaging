@@ -328,7 +328,7 @@ class StatusAndHistoryResource {
             @ApiResponse(
                 responseCode = "200",
                 description = "Successful Operation",
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = DepartmentStatistics.class)))
+                useReturnTypeSchema = true
             ),
             @ApiResponse(
                 responseCode = "500",
