@@ -1,18 +1,7 @@
 package se.sundsvall.messaging.integration.db;
 
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.orderByCreatedAtDesc;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtAfter;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtBefore;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withPartyId;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
@@ -20,6 +9,16 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.orderByCreatedAtDesc;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withPartyId;
 
 @Component
 @Transactional
@@ -104,6 +103,12 @@ public class DbIntegration {
     public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
         final LocalDate to) {
         return statisticsRepository.getStats(messageType, from, to);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StatsEntry> getStatsByDepartment(final String department, final MessageType messageType, final LocalDate from,
+        final LocalDate to) {
+        return statisticsRepository.getStatsByDepartment(department, messageType, from, to);
     }
 
     Message mapToMessage(final MessageEntity messageEntity) {

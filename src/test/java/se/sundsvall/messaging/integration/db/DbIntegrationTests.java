@@ -1,5 +1,24 @@
 package se.sundsvall.messaging.integration.db;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -8,26 +27,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.jpa.domain.Specification;
-
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +39,9 @@ class DbIntegrationTests {
     private MessageRepository mockMessageRepository;
     @Mock
     private HistoryRepository mockHistoryRepository;
+
+    @Mock
+    private StatisticsRepository mockStatisticsRepository;
 
     @InjectMocks
     private DbIntegration dbIntegration;
@@ -116,6 +121,33 @@ class DbIntegrationTests {
         assertThat(dbIntegration.saveHistory(Message.builder().build(), null)).isNotNull();
 
         verify(mockHistoryRepository, times(1)).save(any(HistoryEntity.class));
+    }
+
+    @Test
+    void test_getStats() {
+        final var from = LocalDate.now().minusDays(1);
+        final var to = LocalDate.now();
+        final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT);
+
+        when(mockStatisticsRepository.getStats(MESSAGE, from, to)).thenReturn(List.of(statsEntry));
+
+        assertThat(dbIntegration.getStats(MESSAGE, from, to)).isNotEmpty().hasSize(1).contains(statsEntry);
+
+        verify(mockStatisticsRepository).getStats(MESSAGE, from, to);
+    }
+
+    @Test
+    void test_getStatsByDepartment() {
+        final var department = "department";
+        final var from = LocalDate.now().minusDays(1);
+        final var to = LocalDate.now();
+        final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, department);
+
+        when(mockStatisticsRepository.getStatsByDepartment(department, MESSAGE, from, to)).thenReturn(List.of(statsEntry));
+
+        assertThat(dbIntegration.getStatsByDepartment(department, MESSAGE, from, to)).isNotEmpty().hasSize(1).contains(statsEntry);
+
+        verify(mockStatisticsRepository).getStatsByDepartment(department, MESSAGE, from, to);
     }
 
     @Test
