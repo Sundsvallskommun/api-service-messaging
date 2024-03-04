@@ -1,14 +1,12 @@
 package se.sundsvall.messaging.api;
 
-import static java.util.stream.Collectors.groupingBy;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
-
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -32,19 +29,21 @@ import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Statistics;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.service.StatisticsService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 @Tag(name = "Status and History Resources")
 @RestController
@@ -322,6 +321,44 @@ class StatusAndHistoryResource {
 
         return ResponseEntity.ok(stats);
     }
+
+    @Operation(
+        summary = "Get letter delivery statistics by department",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful Operation",
+                useReturnTypeSchema = true
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server Error",
+                content = @Content(schema = @Schema(implementation = Problem.class))
+            )
+        }
+    )
+    @GetMapping(
+        value = {"/statistics/departments","/statistics/departments/{department}"},
+        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
+    )
+    ResponseEntity<DepartmentStatistics> getDepartmentStats(
+        @PathVariable(name = "department", required = false)
+        @Parameter(description = "Department name")
+        final String department,
+
+        @RequestParam(name = "from", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
+        final LocalDate from,
+
+        @RequestParam(name = "to", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
+        final LocalDate to) {
+
+        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(department, from, to));
+    }
+
     DeliveryResult toDeliveryResult(final History deliveryHistory) {
         return DeliveryResult.builder()
             .withDeliveryId(deliveryHistory.deliveryId())
@@ -329,7 +366,6 @@ class StatusAndHistoryResource {
             .withStatus(deliveryHistory.status())
             .build();
     }
-
     HistoryResponse toHistoryResponse(final History history) {
         return HistoryResponse.builder()
             .withMessageType(history.messageType())
