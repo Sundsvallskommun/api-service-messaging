@@ -358,7 +358,8 @@ class StatusAndHistoryResource {
 
         @RequestParam(name = "from", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
+        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
+        final LocalDate from,
 
         @RequestParam(name = "to", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
