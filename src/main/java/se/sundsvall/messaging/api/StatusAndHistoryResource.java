@@ -9,12 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
+import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -29,6 +31,7 @@ import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.validation.ValidNullOrNotEmpty;
 import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
@@ -47,6 +50,7 @@ import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 @Tag(name = "Status and History Resources")
 @RestController
+@Validated
 class StatusAndHistoryResource {
 
     static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
@@ -331,6 +335,11 @@ class StatusAndHistoryResource {
                 useReturnTypeSchema = true
             ),
             @ApiResponse(
+                responseCode = "400",
+                description = "Bad Request",
+                content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))
+            ),
+            @ApiResponse(
                 responseCode = "500",
                 description = "Internal Server Error",
                 content = @Content(schema = @Schema(implementation = Problem.class))
@@ -344,12 +353,12 @@ class StatusAndHistoryResource {
     ResponseEntity<DepartmentStatistics> getDepartmentStats(
         @PathVariable(name = "department", required = false)
         @Parameter(description = "Department name")
+        @ValidNullOrNotEmpty
         final String department,
 
         @RequestParam(name = "from", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-        final LocalDate from,
+        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 
         @RequestParam(name = "to", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

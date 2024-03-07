@@ -209,4 +209,24 @@ class StatusAndHistoryResourceTests {
 
         verify(mockStatisticsService).getDepartmentLetterStatistics(department, from, to);
     }
+
+    @Test
+    void getDepartmentLetterStatisticsWithDepartmentStartingSpace() {
+        final var department = " department";
+        final var from = LocalDate.now().minusDays(2);
+        final var to = LocalDate.now();
+
+        when(mockStatisticsService.getDepartmentLetterStatistics(department, from, to))
+            .thenReturn(DepartmentStatistics.builder().withDepartmentLetters(
+                List.of(DepartmentLetter.builder()
+                    .withDepartment(department)
+                    .withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build());
+
+        var response = statusAndHistoryResource.getDepartmentStats(department, from, to);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+
+        verify(mockStatisticsService).getDepartmentLetterStatistics(department, from, to);
+    }
 }

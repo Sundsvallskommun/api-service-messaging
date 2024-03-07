@@ -1,13 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
-import java.util.List;
-
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -16,6 +9,12 @@ import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.model.Message;
+
+import java.util.List;
+
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Component
 public class RequestMapper {
@@ -107,6 +106,7 @@ public class RequestMapper {
                 .build())
             .withContentType(request.contentType())
             .withSubject(request.subject())
+            .withDepartment(request.department())
             .withBody(request.body())
             .withAttachments(request.attachments().stream()
                 .filter(LetterRequest.Attachment::isIntendedForDigitalMail)
