@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for validating that a string is either null or not empty.
+ * Annotation for validating that a string is either null or not empty and has no starting or trailing spaces.
  */
 @Documented
 @Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})

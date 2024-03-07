@@ -28,7 +28,7 @@ class ValidNullOrNotEmptyConstraintValidatorTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", " department", "department ", " department ", "  department  "})
+	@ValueSource(strings = {"", " ", " test", "test ", " test ", "  test  "})
 	void invalidString(final String value) {
 		assertThat(validator.isValid(value, mockContext)).isFalse();
 	}
