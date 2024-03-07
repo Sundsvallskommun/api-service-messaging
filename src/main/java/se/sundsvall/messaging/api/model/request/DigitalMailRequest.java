@@ -1,22 +1,20 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
+import lombok.Builder;
+import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.With;
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")
@@ -33,6 +31,10 @@ public record DigitalMailRequest(
 
         @Schema(description = "Subject", nullable = true)
         String subject,
+
+        @Schema(description = "Department and unit that should be billed for the message", nullable = true,
+            example = "SBK" + "(Gatuavdelningen, Trafiksektionen)")
+        String department,
 
         @NotBlank
         @OneOf({"text/plain", "text/html"})
