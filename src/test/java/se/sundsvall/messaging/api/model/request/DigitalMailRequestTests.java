@@ -1,13 +1,12 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class DigitalMailRequestTests {
@@ -22,7 +21,7 @@ class DigitalMailRequestTests {
         var attachments = List.of(new DigitalMailRequest.Attachment("someContentType",
             "someContent", "someFilename"));
 
-        var request = new DigitalMailRequest(party, sender, "someSubject", "HTML", "someBody", attachments);
+        var request = new DigitalMailRequest(party, sender, "someSubject", "someDepartment", "HTML", "someBody", attachments);
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyIds()).containsOnly("somePartyId");
@@ -43,5 +42,7 @@ class DigitalMailRequestTests {
                 assertThat(requestAttachment.content()).isEqualTo("someContent");
                 assertThat(requestAttachment.filename()).isEqualTo("someFilename");
             });
+        assertThat(request.subject()).isEqualTo("someSubject");
+        assertThat(request.department()).isEqualTo("someDepartment");
     }
 }
