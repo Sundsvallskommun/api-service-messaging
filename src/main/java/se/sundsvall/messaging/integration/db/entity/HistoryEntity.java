@@ -65,6 +65,12 @@ public class HistoryEntity {
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
 
+    @Column(name = "origin")
+    private String origin;
+
+    @Column(name = "department")
+    private String department;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
