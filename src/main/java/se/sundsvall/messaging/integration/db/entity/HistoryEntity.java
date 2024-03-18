@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.db.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,21 +7,27 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "history")
+@Table(name = "history", indexes = {
+    @Index(name = "idx_history_batch_id", columnList = "batch_id"),
+    @Index(name = "idx_history_message_id", columnList = "message_id"),
+    @Index(name = "idx_history_delivery_id", columnList = "delivery_id"),
+    @Index(name = "idx_history_origin", columnList = "origin"),
+    @Index(name = "idx_history_department", columnList = "department")})
 @Getter
 @Builder(setterPrefix = "with")
 @NoArgsConstructor
@@ -64,6 +68,12 @@ public class HistoryEntity {
 
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
+
+    @Column(name = "origin")
+    private String origin;
+
+    @Column(name = "department")
+    private String department;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
