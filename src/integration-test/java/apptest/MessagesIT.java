@@ -1,5 +1,16 @@
 package apptest;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
@@ -7,18 +18,6 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
 @IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/MessagesIT/", classes = Application.class)
@@ -36,6 +35,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest_bySms() throws Exception {
 		var response = setupCall()
 			.withServicePath(SERVICE_PATH)
+			.withHeader("x-origin", "Test-origin")
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)

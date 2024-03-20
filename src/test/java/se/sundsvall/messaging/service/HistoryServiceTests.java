@@ -1,25 +1,24 @@
 package se.sundsvall.messaging.service;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -69,26 +68,26 @@ class HistoryServiceTests {
 
     @Test
     void test_getHistoryByDeliveryId() {
-        when(mockDbIntegration.getHistoryForDeliveryId(any(String.class)))
+        when(mockDbIntegration.getHistoryByDeliveryId(any(String.class)))
             .thenReturn(Optional.of(History.builder().build()));
 
-        var result = historyService.getHistoryForDeliveryId("someBatchId");
+        var result = historyService.getHistoryByDeliveryId("someBatchId");
 
         assertThat(result).isPresent();
 
-        verify(mockDbIntegration, times(1)).getHistoryForDeliveryId(any(String.class));
+        verify(mockDbIntegration, times(1)).getHistoryByDeliveryId(any(String.class));
     }
 
     @Test
     void test_getHistoryByDeliveryId_whenNoEntityExists() {
-        when(mockDbIntegration.getHistoryForDeliveryId(any(String.class)))
+        when(mockDbIntegration.getHistoryByDeliveryId(any(String.class)))
             .thenReturn(Optional.empty());
 
-        var result = historyService.getHistoryForDeliveryId("someBatchId");
+        var result = historyService.getHistoryByDeliveryId("someBatchId");
 
         assertThat(result).isEmpty();
 
-        verify(mockDbIntegration, times(1)).getHistoryForDeliveryId(any(String.class));
+        verify(mockDbIntegration, times(1)).getHistoryByDeliveryId(any(String.class));
     }
 
     @Test

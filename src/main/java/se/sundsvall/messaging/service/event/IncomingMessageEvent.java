@@ -1,8 +1,7 @@
 package se.sundsvall.messaging.service.event;
 
-import org.springframework.context.ApplicationEvent;
-
 import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
 import se.sundsvall.messaging.model.MessageType;
 
 @Getter
@@ -12,12 +11,14 @@ public final class IncomingMessageEvent extends ApplicationEvent {
 
 	private final MessageType messageType;
 	private final String deliveryId;
+	private final String origin;
 
 	public IncomingMessageEvent(final Object source, final MessageType messageType,
-		final String deliveryId) {
+		final String deliveryId, final String origin) {
 		super(source);
 
 		this.messageType = messageType;
 		this.deliveryId = deliveryId;
+		this.origin = origin;
 	}
 }

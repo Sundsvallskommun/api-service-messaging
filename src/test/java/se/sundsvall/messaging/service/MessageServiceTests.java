@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -49,6 +48,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -140,14 +140,15 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendSms() {
-        var request = createValidSmsRequest();
-        var message = mockMessageMapper.toMessage(request);
+    void sendSms() {
+        final var origin = "origin";
+        final var request = createValidSmsRequest();
+        final var message = mockMessageMapper.toMessage(request);
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(message);
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendSms(request);
+        final var result = messageService.sendSms(origin, request);
 
         assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
         assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
@@ -155,7 +156,7 @@ class MessageServiceTests {
         assertThat(result.status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockSmsSenderIntegration, times(1)).sendSms(any(SmsDto.class));
+        verify(mockSmsSenderIntegration).sendSms(any(SmsDto.class));
         verifyNoMoreInteractions(mockSmsSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockSmsSenderIntegration);
         // Verify db integration interactions
@@ -163,7 +164,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(SmsRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toSmsDto(any(SmsRequest.class));
+        verify(mockDtoMapper).toSmsDto(any(SmsRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
@@ -171,14 +172,15 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendEmail() {
+    void sendEmail() {
+        final var origin = "origin";
         var request = createValidEmailRequest();
         var message = mockMessageMapper.toMessage(request);
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(message);
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendEmail(request);
+        var result = messageService.sendEmail(origin, request);
 
         assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
         assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
@@ -186,7 +188,7 @@ class MessageServiceTests {
         assertThat(result.status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockEmailSenderIntegration, times(1)).sendEmail(any(EmailDto.class));
+        verify(mockEmailSenderIntegration).sendEmail(any(EmailDto.class));
         verifyNoMoreInteractions(mockEmailSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockEmailSenderIntegration);
         // Verify db integration interactions
@@ -194,7 +196,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(EmailRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toEmailDto(any(EmailRequest.class));
+        verify(mockDtoMapper).toEmailDto(any(EmailRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
@@ -202,14 +204,15 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendWebMessage() {
-        var request = createValidWebMessageRequest();
-        var message = mockMessageMapper.toMessage(request);
+    void sendWebMessage() {
+        final var origin = "origin";
+        final var request = createValidWebMessageRequest();
+        final var message = mockMessageMapper.toMessage(request);
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(message);
         when(mockWebMessageSenderIntegration.sendWebMessage(any(WebMessageDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendWebMessage(request);
+        final var result = messageService.sendWebMessage(origin, request);
 
         assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
         assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
@@ -217,7 +220,7 @@ class MessageServiceTests {
         assertThat(result.status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockWebMessageSenderIntegration, times(1)).sendWebMessage(any(WebMessageDto.class));
+        verify(mockWebMessageSenderIntegration).sendWebMessage(any(WebMessageDto.class));
         verifyNoMoreInteractions(mockWebMessageSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockWebMessageSenderIntegration);
         // Verify db integration interactions
@@ -225,7 +228,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(WebMessageRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toWebMessageDto(any(WebMessageRequest.class));
+        verify(mockDtoMapper).toWebMessageDto(any(WebMessageRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
@@ -233,14 +236,15 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendToSlack() {
-        var request = createValidSlackRequest();
-        var message = mockMessageMapper.toMessage(request);
+    void sendToSlack() {
+        final var origin = "origin";
+        final var request = createValidSlackRequest();
+        final var message = mockMessageMapper.toMessage(request);
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(message);
         when(mockSlackIntegration.sendMessage(any(SlackDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendToSlack(request);
+        final var result = messageService.sendToSlack(origin, request);
 
         assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
         assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
@@ -248,7 +252,7 @@ class MessageServiceTests {
         assertThat(result.status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockSlackIntegration, times(1)).sendMessage(any(SlackDto.class));
+        verify(mockSlackIntegration).sendMessage(any(SlackDto.class));
         verifyNoMoreInteractions(mockSlackIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockSlackIntegration);
         // Verify db integration interactions
@@ -256,7 +260,7 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(SlackRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toSlackDto(any(SlackRequest.class));
+        verify(mockDtoMapper).toSlackDto(any(SlackRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
@@ -264,14 +268,15 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendDigitalMail() {
-        var request = createValidDigitalMailRequest();
-        var messages = mockMessageMapper.toMessages(request, "someBatchId");
+    void sendDigitalMail() {
+        final var origin = "origin";
+        final var request = createValidDigitalMailRequest();
+        final var messages = mockMessageMapper.toMessages(request, "someBatchId");
 
-        when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
+        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(messages);
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendDigitalMail(request);
+        var result = messageService.sendDigitalMail(origin, request);
 
         assertThat(result.batchId()).isNotNull();
         assertThat(result.deliveries()).hasSize(1);
@@ -281,7 +286,7 @@ class MessageServiceTests {
         assertThat(result.deliveries().getFirst().status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockDigitalMailSenderIntegration, times(1)).sendDigitalMail(any(DigitalMailDto.class));
+        verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
         // Verify db integration interactions
@@ -289,22 +294,23 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(DigitalMailRequest.class), any(String.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
+        verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
-        verify(mockTransactionTemplate, times(1)).execute(any(TransactionCallbackWithoutResult.class));
+        verify(mockTransactionTemplate).execute(any(TransactionCallbackWithoutResult.class));
     }
 
     @Test
-    void test_sendDigitalInvoice() {
-        var request = createValidDigitalInvoiceRequest();
-        var message = mockMessageMapper.toMessage(request);
+    void sendDigitalInvoice() {
+        final var origin = "origin";
+        final var request = createValidDigitalInvoiceRequest();
+        final var message = mockMessageMapper.toMessage(request);
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(message);
         when(mockDigitalMailSenderIntegration.sendDigitalInvoice(any(DigitalInvoiceDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendDigitalInvoice(request);
+        final var result = messageService.sendDigitalInvoice(origin, request);
 
         assertThat(result.messageId()).isValidUuid().isEqualTo(message.messageId());
         assertThat(result.deliveryId()).isValidUuid().isEqualTo(message.deliveryId());
@@ -312,7 +318,7 @@ class MessageServiceTests {
         assertThat(result.status()).isEqualTo(SENT);
 
         // Verify external integration interactions
-        verify(mockDigitalMailSenderIntegration, times(1)).sendDigitalInvoice(any(DigitalInvoiceDto.class));
+        verify(mockDigitalMailSenderIntegration).sendDigitalInvoice(any(DigitalInvoiceDto.class));
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
         // Verify db integration interactions
@@ -320,23 +326,24 @@ class MessageServiceTests {
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessage(any(DigitalInvoiceRequest.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toDigitalInvoiceDto(any(DigitalInvoiceRequest.class));
+        verify(mockDtoMapper).toDigitalInvoiceDto(any(DigitalInvoiceRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verifyNoInteractions(mockRequestMapper);
         // Verify transaction template interaction
-        verify(mockTransactionTemplate, times(1)).execute(any(TransactionCallbackWithoutResult.class));
+        verify(mockTransactionTemplate).execute(any(TransactionCallbackWithoutResult.class));
     }
 
     @Test
-    void test_sendLetterDigital() {
-        var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
+    void sendLetterDigital() {
+        final var origin = "origin";
+        final var request = createValidLetterRequest();
+        final var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
-        when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
+        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(messages);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenAnswer(i -> i.getArgument(1, Message.class));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(SENT);
 
-        var result = messageService.sendLetter(request);
+        final var result = messageService.sendLetter(origin, request);
 
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(1);
@@ -350,31 +357,32 @@ class MessageServiceTests {
         verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
         verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
         // Verify db integration interactions
-        verify(mockDbIntegration, times(1)).saveHistory(any(Message.class), nullable(String.class));
-        verify(mockDbIntegration, times(1)).deleteMessageByDeliveryId(any(String.class));
+        verify(mockDbIntegration).saveHistory(anyString(), any(Message.class), nullable(String.class));
+        verify(mockDbIntegration).deleteMessageByDeliveryId(any(String.class));
         verifyNoMoreInteractions(mockDbIntegration);
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
+        verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
         verifyNoMoreInteractions(mockDtoMapper);
-        verify(mockRequestMapper, times(1)).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
+        verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
         verifyNoMoreInteractions(mockRequestMapper);
         // Verify transaction template interaction
         verifyTransactionTemplateInteractions();
     }
 
     @Test
-    void test_sendLetterSnailMailWhenDigitalNotSent() {
-        var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
+    void sendLetterSnailMailWhenDigitalNotSent() {
+        final var origin = "origin";
+        final var request = createValidLetterRequest();
+        final var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
-        when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
+        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(messages);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenAnswer(i -> i.getArgument(1, Message.class));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(NOT_SENT);
         when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
 
-        var result = messageService.sendLetter(request);
+        final var result = messageService.sendLetter(origin, request);
 
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(2);
@@ -392,7 +400,7 @@ class MessageServiceTests {
         verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
         verify(mockSnailMailSenderIntegration).sendBatch(anyString());
         // Verify db integration interactions
-        verify(mockDbIntegration, times(2)).saveHistory(any(Message.class), nullable(String.class));
+        verify(mockDbIntegration, times(2)).saveHistory(anyString(), any(Message.class), nullable(String.class));
         verify(mockDbIntegration, times(2)).deleteMessageByDeliveryId(any(String.class));
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
@@ -406,17 +414,18 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendLetterSnailMailWhenExceptionSendingDigital() {
-        var request = createValidLetterRequest();
-        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
+    void sendLetterSnailMailWhenExceptionSendingDigital() {
+        final var origin = "origin";
+        final var request = createValidLetterRequest();
+        final var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
-        when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
+        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(messages);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenAnswer(i -> i.getArgument(1, Message.class));
         when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenThrow(new RuntimeException());
         when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
         when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
 
-        var result = messageService.sendLetter(request);
+        var result = messageService.sendLetter(origin, request);
 
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(2);
@@ -434,7 +443,7 @@ class MessageServiceTests {
         verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
         verify(mockSnailMailSenderIntegration).sendBatch(anyString());
         // Verify db integration interactions
-        verify(mockDbIntegration, times(2)).saveHistory(any(Message.class), nullable(String.class));
+        verify(mockDbIntegration, times(2)).saveHistory(anyString(), any(Message.class), nullable(String.class));
         verify(mockDbIntegration, times(2)).deleteMessageByDeliveryId(any(String.class));
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
@@ -448,20 +457,21 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendLetterSnailMailWhenExceptionSendingSnailMail() {
-        var request = createValidLetterRequest().withAttachments(List.of( LetterRequest.Attachment.builder()
+    void sendLetterSnailMailWhenExceptionSendingSnailMail() {
+        final var origin = "origin";
+        final var request = createValidLetterRequest().withAttachments(List.of( LetterRequest.Attachment.builder()
             .withDeliveryMode(LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL)
             .withContentType(ContentType.APPLICATION_PDF.getValue())
             .withFilename("someFilename")
             .withContent("someContent")
             .build()));
-        var messages = mockMessageMapper.toMessages(request, BATCH_ID);
+        final var messages = mockMessageMapper.toMessages(request, BATCH_ID);
 
-        when(mockDbIntegration.saveMessages(ArgumentMatchers.anyList())).thenReturn(messages);
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
+        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(messages);
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenAnswer(i -> i.getArgument(1, Message.class));
         when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenThrow(new RuntimeException());
 
-        var result = messageService.sendLetter(request);
+        final var result = messageService.sendLetter(origin, request);
 
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(1);
@@ -473,7 +483,7 @@ class MessageServiceTests {
         // Verify external integration interactions
         verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
         // Verify db integration interactions
-        verify(mockDbIntegration).saveHistory(any(Message.class), nullable(String.class));
+        verify(mockDbIntegration).saveHistory(anyString(), any(Message.class), nullable(String.class));
         verify(mockDbIntegration).deleteMessageByDeliveryId(any(String.class));
         // Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
@@ -486,10 +496,11 @@ class MessageServiceTests {
     }
 
     @Test
-    void test_sendMessages() {
+    void sendMessages() {
+        final var origin = "origin";
         var request = createMessageRequest(List.of("partyId1", "partyId2", "partyId3", "partyId4"));
 
-        when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
+        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenAnswer(i -> i.getArgument(1, Message.class));
         when(mockContactSettingsIntegration.getContactSettings(eq("partyId1"), any()))
             .thenReturn(List.of(
                 ContactDto.builder()
@@ -517,7 +528,7 @@ class MessageServiceTests {
         when(mockSmsSenderIntegration.sendSms(any(SmsDto.class))).thenReturn(SENT);
         when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(FAILED);
 
-        var result = messageService.sendMessages(request);
+        var result = messageService.sendMessages(origin, request);
 
         assertThat(result.batchId()).isValidUuid();
         assertThat(result.deliveries()).hasSize(5);
@@ -533,20 +544,20 @@ class MessageServiceTests {
         // Verify external integration interactions
         verify(mockContactSettingsIntegration, times(4)).getContactSettings(any(String.class), any());
         verifyNoMoreInteractions(mockContactSettingsIntegration);
-        verify(mockSmsSenderIntegration, times(1)).sendSms(any(SmsDto.class));
+        verify(mockSmsSenderIntegration).sendSms(any(SmsDto.class));
         verifyNoMoreInteractions(mockSmsSenderIntegration);
-        verify(mockEmailSenderIntegration, times(1)).sendEmail(any(EmailDto.class));
+        verify(mockEmailSenderIntegration).sendEmail(any(EmailDto.class));
         verifyNoMoreInteractions(mockEmailSenderIntegration);
-        verify(mockDbIntegration, times(5)).saveHistory(any(Message.class), nullable(String.class));
+        verify(mockDbIntegration, times(5)).saveHistory(anyString(), any(Message.class), nullable(String.class));
         verify(mockDbIntegration, times(7)).deleteMessageByDeliveryId(any(String.class));
         // Verify mapper interactions (4 instead of 3 on mockMessageMapper since one is in the actual test)
         verify(mockMessageMapper, times(4)).toMessage(any(String.class), any(MessageRequest.Message.class));
         verifyNoMoreInteractions(mockMessageMapper);
-        verify(mockDtoMapper, times(1)).toSmsDto(any(SmsRequest.class));
-        verify(mockDtoMapper, times(1)).toEmailDto(any(EmailRequest.class));
+        verify(mockDtoMapper).toSmsDto(any(SmsRequest.class));
+        verify(mockDtoMapper).toEmailDto(any(EmailRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
-        verify(mockRequestMapper, times(1)).toSmsRequest(any(Message.class), any(String.class));
-        verify(mockRequestMapper, times(1)).toEmailRequest(any(Message.class), any(String.class));
+        verify(mockRequestMapper).toSmsRequest(any(Message.class), any(String.class));
+        verify(mockRequestMapper).toEmailRequest(any(Message.class), any(String.class));
         verifyNoMoreInteractions(mockRequestMapper);
         // Verify transaction template interaction
         verifyTransactionTemplateInteractions(5);
@@ -561,7 +572,7 @@ class MessageServiceTests {
     }
 
     private void verifyDbIntegrationInteractions() {
-        verify(mockDbIntegration).saveHistory(any(Message.class), nullable(String.class));
+        verify(mockDbIntegration).saveHistory(anyString(), any(Message.class), nullable(String.class));
         verify(mockDbIntegration).deleteMessageByDeliveryId(any(String.class));
         verifyNoMoreInteractions(mockDbIntegration);
     }

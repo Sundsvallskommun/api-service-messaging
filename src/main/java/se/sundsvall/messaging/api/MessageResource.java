@@ -1,26 +1,21 @@
 package se.sundsvall.messaging.api;
 
-import static java.util.stream.Collectors.groupingBy;
-import static org.springframework.http.HttpHeaders.LOCATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.created;
-import static org.springframework.web.util.UriComponentsBuilder.fromPath;
-import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
-
-import java.util.List;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -37,13 +32,16 @@ import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.api.StatusAndHistoryResource.MESSAGE_STATUS_PATH;
 
 @Tag(name = "Sending Resources")
 @RestController
@@ -88,14 +86,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/sms")
-	ResponseEntity<MessageResult> sendSms(@Valid @RequestBody final SmsRequest request,
+	ResponseEntity<MessageResult> sendSms(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final SmsRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleSmsRequest(request));
+			return toResponse(eventDispatcher.handleSmsRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendSms(request));
+		return toResponse(messageService.sendSms(origin, request));
 	}
 
 	@Operation(
@@ -110,14 +108,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/email")
-	ResponseEntity<MessageResult> sendEmail(@Valid @RequestBody final EmailRequest request,
+	ResponseEntity<MessageResult> sendEmail(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final EmailRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleEmailRequest(request));
+			return toResponse(eventDispatcher.handleEmailRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendEmail(request));
+		return toResponse(messageService.sendEmail(origin, request));
 	}
 
 	@Operation(
@@ -132,14 +130,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/webmessage")
-	ResponseEntity<MessageResult> sendWebMessage(@Valid @RequestBody final WebMessageRequest request,
+	ResponseEntity<MessageResult> sendWebMessage(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final WebMessageRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleWebMessageRequest(request));
+			return toResponse(eventDispatcher.handleWebMessageRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendWebMessage(request));
+		return toResponse(messageService.sendWebMessage(origin, request));
 	}
 
 	@Operation(
@@ -154,14 +152,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/digital-mail")
-	ResponseEntity<MessageBatchResult> sendDigitalMail(@Valid @RequestBody final DigitalMailRequest request,
+	ResponseEntity<MessageBatchResult> sendDigitalMail(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final DigitalMailRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalMailRequest(request));
+			return toResponse(eventDispatcher.handleDigitalMailRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendDigitalMail(request));
+		return toResponse(messageService.sendDigitalMail(origin, request));
 	}
 
 	@Operation(
@@ -176,14 +174,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/digital-invoice")
-	ResponseEntity<MessageResult> sendDigitalInvoice(@Valid @RequestBody final DigitalInvoiceRequest request,
+	ResponseEntity<MessageResult> sendDigitalInvoice(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final DigitalInvoiceRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(request));
+			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendDigitalInvoice(request));
+		return toResponse(messageService.sendDigitalInvoice(origin, request));
 	}
 
 	@Operation(
@@ -198,14 +196,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/messages")
-	ResponseEntity<MessageBatchResult> sendMessages(@Valid @RequestBody final MessageRequest request,
+	ResponseEntity<MessageBatchResult> sendMessages(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final MessageRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleMessageRequest(request));
+			return toResponse(eventDispatcher.handleMessageRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendMessages(request));
+		return toResponse(messageService.sendMessages(origin, request));
 	}
 
 	@Operation(
@@ -220,14 +218,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/letter")
-	ResponseEntity<MessageBatchResult> sendLetter(@Valid @RequestBody final LetterRequest request,
+	ResponseEntity<MessageBatchResult> sendLetter(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final LetterRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleLetterRequest(request));
+			return toResponse(eventDispatcher.handleLetterRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendLetter(request));
+		return toResponse(messageService.sendLetter(origin, request));
 	}
 
 	@Operation(
@@ -242,14 +240,14 @@ class MessageResource {
 		}
 	)
 	@PostMapping("/slack")
-	ResponseEntity<MessageResult> sendToSlack(@Valid @RequestBody final SlackRequest request,
+	ResponseEntity<MessageResult> sendToSlack(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final SlackRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleSlackRequest(request));
+			return toResponse(eventDispatcher.handleSlackRequest(origin, request));
 		}
 
-		return toResponse(messageService.sendToSlack(request));
+		return toResponse(messageService.sendToSlack(origin, request));
 	}
 
 	ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {
