@@ -110,93 +110,93 @@ public class MessageService {
 		this.dtoMapper = dtoMapper;
 	}
 
-	public InternalDeliveryResult sendSms(final String origin, final SmsRequest request) {
+	public InternalDeliveryResult sendSms(final SmsRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(origin, dbIntegration.saveMessage(origin, messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryResult sendEmail(final String origin, final EmailRequest request) {
+	public InternalDeliveryResult sendEmail(final EmailRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(origin, dbIntegration.saveMessage(origin, messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryResult sendWebMessage(final String origin, final WebMessageRequest request) {
+	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(origin, dbIntegration.saveMessage(origin, messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryBatchResult sendDigitalMail(final String origin, final DigitalMailRequest request) {
+	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
-		final var deliveries = dbIntegration.saveMessages(origin, messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 		// Deliver them
 		final var deliveryResults = deliveries.stream()
-			.map(message -> deliver(origin, message))
+			.map(this::deliver)
 			.toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
 
-	public InternalDeliveryResult sendDigitalInvoice(final String origin, final DigitalInvoiceRequest request) {
+	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(origin, dbIntegration.saveMessage(origin, messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryBatchResult sendMessages(final String origin, final MessageRequest request) {
+	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(batchId, message))
-			.map(message -> dbIntegration.saveMessage(origin, message))
+			.map(message -> messageMapper.toMessage(request.origin(), batchId, message))
+			.map(dbIntegration::saveMessage)
 			.toList();
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
 		final var deliveryResults = messages.stream()
-			.map(message -> sendMessage(origin, message))
+			.map(this::sendMessage)
 			.flatMap(Collection::stream)
 			.toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
 
-	public InternalDeliveryBatchResult sendLetter(final String origin, final Message message) {
+	public InternalDeliveryBatchResult sendLetter(final Message message) {
 		var batchId = message.batchId();
 
-		var deliveryResults = routeAndSendLetter(origin, message);
+		var deliveryResults = routeAndSendLetter(message);
 		sendSnailMailBatch(deliveryResults, batchId);
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults);
 	}
 
-	public InternalDeliveryBatchResult sendLetter(final String origin, final LetterRequest request) {
+	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
-		final var deliveries = dbIntegration.saveMessages(origin, messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
 		final var deliveryResults = deliveries.stream()
-			.map(message -> routeAndSendLetter(origin, message))
+			.map(this::routeAndSendLetter)
 			.flatMap(Collection::stream)
 			.toList();
 
@@ -215,15 +215,15 @@ public class MessageService {
 		}
 	}
 
-	public InternalDeliveryResult sendToSlack(final String origin, final SlackRequest request) {
+	public InternalDeliveryResult sendToSlack(final SlackRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(origin, dbIntegration.saveMessage(origin, messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	List<InternalDeliveryResult> sendMessage(final String origin, final Message message) {
+	List<InternalDeliveryResult> sendMessage(final Message message) {
 		final var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
 		final var partyId = message.partyId();
@@ -240,7 +240,7 @@ public class MessageService {
 			LOG.info("No contact settings found for {} with filters {}", partyId, filters);
 
 			// No contact settings found - can't do anything more here
-			archiveMessage(origin, message.withStatus(NO_CONTACT_SETTINGS_FOUND));
+			archiveMessage(message.withStatus(NO_CONTACT_SETTINGS_FOUND));
 
 			deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_SETTINGS_FOUND));
 		} else {
@@ -269,11 +269,11 @@ public class MessageService {
 							.withContent(requestMapper.toEmailRequest(message, contactSetting.destination()));
 
 						// Save the re-mapped delivery
-						dbIntegration.saveMessage(origin, delivery);
+						dbIntegration.saveMessage(delivery);
 						// Delete the original delivery
 						dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
-						deliveryResults.add(deliver(origin, delivery));
+						deliveryResults.add(deliver(delivery));
 					}
 					case SMS -> {
 						final var deliveryId = UUID.randomUUID().toString();
@@ -286,16 +286,16 @@ public class MessageService {
 							.withContent(requestMapper.toSmsRequest(message, contactSetting.destination()));
 
 						// Save the re-mapped delivery
-						dbIntegration.saveMessage(origin, delivery);
+						dbIntegration.saveMessage(delivery);
 						// Delete the original delivery
 						dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
-						deliveryResults.add(deliver(origin, delivery));
+						deliveryResults.add(deliver(delivery));
 					}
 					case NO_CONTACT -> {
 						LOG.info("No contact wanted for {} ({}). No delivery will be attempted", partyId, contactSetting.contactMethod());
 
-						archiveMessage(origin, message.withStatus(NO_CONTACT_WANTED));
+						archiveMessage(message.withStatus(NO_CONTACT_WANTED));
 
 						deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_WANTED));
 					}
@@ -307,7 +307,7 @@ public class MessageService {
 							"Unknown/missing contact method for message %s and delivery id %s",
 							message.messageId(), message.deliveryId());
 
-						archiveMessage(origin, message.withStatus(FAILED), statusDetail);
+						archiveMessage(message.withStatus(FAILED), statusDetail);
 
 						deliveryResults.add(new InternalDeliveryResult(message, FAILED));
 					}
@@ -318,7 +318,7 @@ public class MessageService {
 		return deliveryResults;
 	}
 
-	List<InternalDeliveryResult> routeAndSendLetter(final String origin, final Message message) {
+	List<InternalDeliveryResult> routeAndSendLetter(final Message message) {
 		final var result = new ArrayList<InternalDeliveryResult>();
 		final var request = fromJson(message.content(), LetterRequest.class);
 
@@ -330,13 +330,13 @@ public class MessageService {
 		// intended for it
 		if (!digitalMailRequest.attachments().isEmpty()) {
 			// "Re-route" the message as digital mail
-			final var reroutedMessage = dbIntegration.saveMessage(origin, message
+			final var reroutedMessage = dbIntegration.saveMessage(message
 				.withType(DIGITAL_MAIL)
 				.withContent(digitalMailRequestAsJson));
 
 			try {
 				// Deliver it
-				result.add(deliver(origin, reroutedMessage));
+				result.add(deliver(reroutedMessage));
 
 				if (SENT.equals(result.getFirst().status())) {
 					return result;
@@ -358,14 +358,14 @@ public class MessageService {
 		// intended for it
 		if (!snailMailRequest.attachments().isEmpty()) {
 			// Re-route the message as snail-mail
-			final var reroutedMessage = dbIntegration.saveMessage(origin, message
+			final var reroutedMessage = dbIntegration.saveMessage(message
 				.withDeliveryId(UUID.randomUUID().toString())
 				.withType(SNAIL_MAIL)
 				.withContent(snailMailRequestAsJson));
 
 			try {
 				// Deliver it
-				result.add(deliver(origin, reroutedMessage));
+				result.add(deliver(reroutedMessage));
 			} catch (final Exception e) {
 				LOG.info("Unable to send LETTER as SNAIL_MAIL");
 
@@ -378,7 +378,7 @@ public class MessageService {
 		return result;
 	}
 
-	InternalDeliveryResult deliver(final String origin, final Message delivery) {
+	InternalDeliveryResult deliver(final Message delivery) {
 		// Re-construct the original request
 		final var request = fromJson(delivery.content(), switch (delivery.type()) {
 			case SMS -> SmsRequest.class;
@@ -406,7 +406,7 @@ public class MessageService {
 		return sendTry
 			.peek(status ->
 			// Archive the message
-			archiveMessage(origin, delivery.withStatus(status)))
+			archiveMessage(delivery.withStatus(status)))
 			// Map to result
 			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
 			// Make sure all exceptions that may occur are throwable problems
@@ -425,25 +425,25 @@ public class MessageService {
 			// If we have a left (i.e. an exception has occurred) - archive the message and throw
 			.peekLeft(throwable -> {
 				// Archive the message
-				archiveMessage(origin, delivery.withStatus(FAILED), throwable.getMessage());
+				archiveMessage(delivery.withStatus(FAILED), throwable.getMessage());
 
 				throw (ThrowableProblem) throwable;
 			})
 			.get();
 	}
 
-	void archiveMessage(final String origin, final Message message) {
-		archiveMessage(origin, message, null);
+	void archiveMessage(final Message message) {
+		archiveMessage(message, null);
 	}
 
-	void archiveMessage(final String origin, final Message message, final String statusDetail) {
+	void archiveMessage(final Message message, final String statusDetail) {
 		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 			@Override
 			protected void doInTransactionWithoutResult(@NotNull final TransactionStatus ignored) {
 				LOG.debug("Moving {} delivery {} with status {} to history", message.type(),
 					message.deliveryId(), message.status());
 
-				dbIntegration.saveHistory(origin, message, statusDetail);
+				dbIntegration.saveHistory(message, statusDetail);
 				dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 			}
 		});

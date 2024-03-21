@@ -51,13 +51,13 @@ public class DbIntegration {
         return messageRepository.findLatestWithStatus(status);
     }
 
-    public Message saveMessage(final String origin, final Message message) {
-        return mapToMessage(messageRepository.save(mapToMessageEntity(origin, message)));
+    public Message saveMessage(final Message message) {
+        return mapToMessage(messageRepository.save(mapToMessageEntity(message)));
     }
 
-    public List<Message> saveMessages(final String origin, final List<Message> messages) {
+    public List<Message> saveMessages(final List<Message> messages) {
         return messages.stream()
-            .map(message -> mapToMessageEntity(origin, message))
+            .map(MessageMapper::mapToMessageEntity)
             .map(messageRepository::save)
             .map(MessageMapper::mapToMessage)
             .toList();
@@ -99,8 +99,8 @@ public class DbIntegration {
             .toList();
     }
 
-    public History saveHistory(final String origin, final Message message, final String failureDetail) {
-        return mapToHistory(historyRepository.save(mapToHistoryEntity(origin, message, failureDetail)));
+    public History saveHistory(final Message message, final String failureDetail) {
+        return mapToHistory(historyRepository.save(mapToHistoryEntity(message, failureDetail)));
     }
 
     @Transactional(readOnly = true)

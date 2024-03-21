@@ -1,16 +1,15 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DigitalInvoiceRequestTests {
 
@@ -23,7 +22,7 @@ class DigitalInvoiceRequestTests {
         var files = List.of(new DigitalInvoiceRequest.File("someContentType", "someContent", "someFilename"));
 
         var request = new DigitalInvoiceRequest(party, InvoiceType.INVOICE, "someSubject",
-            "someReference", true, details, files);
+            "someReference", true, details, "someOrigin", files);
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyId()).isEqualTo("somePartyId");
@@ -32,6 +31,7 @@ class DigitalInvoiceRequestTests {
         assertThat(request.type()).isEqualTo(InvoiceType.INVOICE);
         assertThat(request.subject()).isEqualTo("someSubject");
         assertThat(request.reference()).isEqualTo("someReference");
+        assertThat(request.origin()).isEqualTo("someOrigin");
         assertThat(request.payable()).isTrue();
         assertThat(request.details()).satisfies(requestDetails -> {
             assertThat(requestDetails.amount()).isEqualTo(12.34f);

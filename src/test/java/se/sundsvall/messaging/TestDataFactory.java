@@ -1,18 +1,5 @@
 package se.sundsvall.messaging;
 
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -30,6 +17,19 @@ import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.ReferenceType;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 public final class TestDataFactory {
 
@@ -73,6 +73,7 @@ public final class TestDataFactory {
 			.withSubject("someSubject")
 			.withMessage("someMessage")
 			.withHtmlMessage("someHtmlMessage")
+			.withOrigin("someOrigin")
 			.withHeaders(Map.of(MESSAGE_ID, List.of("<someMessageId@test.com>"),
 				REFERENCES, List.of("<someReferences@test.com>", "<someMoreReferences@test.com>"),
 				IN_REPLY_TO, List.of("<someInReplyTo@test.com>")))
@@ -93,6 +94,7 @@ public final class TestDataFactory {
 				.build())
 			.withDepartment("someDepartment")
 			.withDeviation("someDeviation")
+			.withOrigin("someOrigin")
 			.withAttachments(List.of(
 				SnailMailRequest.Attachment.builder()
 					.withName("someName")
@@ -111,6 +113,7 @@ public final class TestDataFactory {
 			.withSender(DEFAULT_SENDER_NAME)
 			.withMobileNumber(DEFAULT_MOBILE_NUMBER)
 			.withMessage("someMessage")
+			.withOrigin("someOrigin")
 			.build();
 	}
 
@@ -121,6 +124,7 @@ public final class TestDataFactory {
 				.withExternalReferences(List.of(createExternalReference()))
 				.build())
 			.withMessage("someMessage")
+			.withOrigin("someOrigin")
 			.withAttachments(List.of(
 				WebMessageRequest.Attachment.builder()
 					.withFileName("someFileName")
@@ -147,6 +151,8 @@ public final class TestDataFactory {
 			.withSubject("someSubject")
 			.withContentType(ContentType.TEXT_PLAIN.getValue())
 			.withBody("someBody")
+			.withDepartment("someDepartment")
+			.withOrigin("someOrigin")
 			.withAttachments(List.of(
 				DigitalMailRequest.Attachment.builder()
 					.withContentType(ContentType.APPLICATION_PDF.getValue())
@@ -262,6 +268,7 @@ public final class TestDataFactory {
 			.withToken("someToken")
 			.withChannel("someChannel")
 			.withMessage("someMessage")
+			.withOrigin("someOrigin")
 			.build();
 	}
 

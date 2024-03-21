@@ -68,7 +68,7 @@ class DbIntegrationTests {
     void saveMessage() {
         when(mockMessageRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder().build());
 
-        assertThat(dbIntegration.saveMessage("origin", Message.builder().build())).isNotNull();
+        assertThat(dbIntegration.saveMessage(Message.builder().build())).isNotNull();
 
         verify(mockMessageRepository).save(any(MessageEntity.class));
     }
@@ -77,7 +77,7 @@ class DbIntegrationTests {
     void saveMessages() {
         when(mockMessageRepository.save(any(MessageEntity.class))).thenReturn(MessageEntity.builder().build());
 
-        assertThat(dbIntegration.saveMessages("origin", List.of(Message.builder().build(), Message.builder().build()))).hasSize(2);
+        assertThat(dbIntegration.saveMessages(List.of(Message.builder().build(), Message.builder().build()))).hasSize(2);
 
         verify(mockMessageRepository, times(2)).save(any(MessageEntity.class));
     }
@@ -137,7 +137,7 @@ class DbIntegrationTests {
         final String origin = "origin";
         when(mockHistoryRepository.save(any(HistoryEntity.class))).thenReturn(HistoryEntity.builder().build());
 
-        assertThat(dbIntegration.saveHistory(origin, Message.builder().build(), null)).isNotNull();
+        assertThat(dbIntegration.saveHistory(Message.builder().build(), null)).isNotNull();
 
         verify(mockHistoryRepository).save(any(HistoryEntity.class));
     }

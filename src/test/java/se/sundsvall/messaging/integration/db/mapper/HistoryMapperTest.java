@@ -61,12 +61,11 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntityWhenMessageIsNull() {
-		assertThat(HistoryMapper.mapToHistoryEntity(null, null, null)).isNull();
+		assertThat(HistoryMapper.mapToHistoryEntity(null, null)).isNull();
 	}
 
 	@Test
 	void mapToHistoryEntity() {
-		final var origin = "origin";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -75,9 +74,10 @@ class HistoryMapperTest {
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
 			.withContent("{\"department\":\"department\"}")
+			.withOrigin("someOrigin")
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(origin, message, "someStatusDetail");
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -87,14 +87,13 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
 		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo(origin);
+		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getDepartment()).isEqualTo("department");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 	}
 
 	@Test
 	void mapToHistoryEntityNoDepartment() {
-		final var origin = "origin";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -103,9 +102,10 @@ class HistoryMapperTest {
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
 			.withContent("{\"no-department\":\"someValue\"}")
+			.withOrigin("someOrigin")
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(origin, message, "someStatusDetail");
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -115,14 +115,13 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
 		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo(origin);
+		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
 	}
 
 	@Test
 	void mapToHistoryEntityWhenContentIsNull() {
-		final var origin = "origin";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -130,9 +129,10 @@ class HistoryMapperTest {
 			.withPartyId("somePartyId")
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
+			.withOrigin("someOrigin")
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(origin, message, "someStatusDetail");
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -142,7 +142,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
 		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo(origin);
+		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
 	}

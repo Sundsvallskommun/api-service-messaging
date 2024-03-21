@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class LetterRequestTests {
@@ -22,7 +22,7 @@ class LetterRequestTests {
         var attachments = List.of(new LetterRequest.Attachment(LetterRequest.Attachment.DeliveryMode.ANY,
             "someFilename", "someContentType", "someContent"));
 
-        var request = new LetterRequest(party, "someSubject", sender, "someContentType", "someBody", "someDepartment", "someDeviation", attachments);
+        var request = new LetterRequest(party, "someSubject", sender, "someContentType", "someBody", "someDepartment", "someDeviation", "someOrigin", attachments);
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyIds()).containsOnly("somePartyId");

@@ -17,7 +17,7 @@ class MessageMapperTest {
 
 	@Test
 	void mapToMessage() {
-		var messageEntity = MessageEntity.builder()
+		final var messageEntity = MessageEntity.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -25,9 +25,10 @@ class MessageMapperTest {
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
 			.withContent("someContent")
+			.withOrigin("someOrigin")
 			.build();
 
-		var message = MessageMapper.mapToMessage(messageEntity);
+		final var message = MessageMapper.mapToMessage(messageEntity);
 
 		assertThat(message).isNotNull();
 		assertThat(message.batchId()).isEqualTo(messageEntity.getBatchId());
@@ -37,17 +38,17 @@ class MessageMapperTest {
 		assertThat(message.type()).isEqualTo(messageEntity.getType());
 		assertThat(message.status()).isEqualTo(messageEntity.getStatus());
 		assertThat(message.content()).isEqualTo(messageEntity.getContent());
+		assertThat(message.origin()).isEqualTo(messageEntity.getOrigin());
 	}
 
 	@Test
 	void mapToMessageEntityWhenMessageIsNull() {
-		assertThat(MessageMapper.mapToMessageEntity(null, null)).isNull();
+		assertThat(MessageMapper.mapToMessageEntity(null)).isNull();
 	}
 
 	@Test
 	void mapToMessageEntity() {
-		final var origin = "origin";
-		var message = Message.builder()
+		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -55,9 +56,10 @@ class MessageMapperTest {
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
 			.withContent("someContent")
+			.withOrigin("someOrigin")
 			.build();
 
-		var messageEntity = MessageMapper.mapToMessageEntity(origin, message);
+		final var messageEntity = MessageMapper.mapToMessageEntity(message);
 
 		assertThat(messageEntity).isNotNull();
 		assertThat(messageEntity.getBatchId()).isEqualTo(message.batchId());
@@ -67,6 +69,6 @@ class MessageMapperTest {
 		assertThat(messageEntity.getType()).isEqualTo(message.type());
 		assertThat(messageEntity.getStatus()).isEqualTo(message.status());
 		assertThat(messageEntity.getContent()).isEqualTo(message.content());
-		assertThat(messageEntity.getOrigin()).isEqualTo(origin);
+		assertThat(messageEntity.getOrigin()).isEqualTo(message.origin());
 	}
 }

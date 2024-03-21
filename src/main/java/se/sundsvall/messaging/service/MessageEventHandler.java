@@ -30,11 +30,11 @@ class MessageEventHandler {
 
         // Handle it
         if (message.type() == MESSAGE) {
-            messageService.sendMessage(event.getOrigin(), message);
+            messageService.sendMessage(message);
         } else if (message.type() == LETTER) {
-            messageService.sendLetter(event.getOrigin(), message);
+            messageService.sendLetter(message);
         } else {
-            messageService.deliver(event.getOrigin(), message);
+            messageService.deliver(message);
         }
     }
 }

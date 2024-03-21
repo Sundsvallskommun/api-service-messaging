@@ -90,10 +90,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleSmsRequest(origin, request));
+			return toResponse(eventDispatcher.handleSmsRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendSms(origin, request));
+		return toResponse(messageService.sendSms(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -112,10 +112,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleEmailRequest(origin, request));
+			return toResponse(eventDispatcher.handleEmailRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendEmail(origin, request));
+		return toResponse(messageService.sendEmail(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -134,10 +134,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleWebMessageRequest(origin, request));
+			return toResponse(eventDispatcher.handleWebMessageRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendWebMessage(origin, request));
+		return toResponse(messageService.sendWebMessage(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -156,10 +156,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalMailRequest(origin, request));
+			return toResponse(eventDispatcher.handleDigitalMailRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendDigitalMail(origin, request));
+		return toResponse(messageService.sendDigitalMail(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -178,10 +178,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(origin, request));
+			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendDigitalInvoice(origin, request));
+		return toResponse(messageService.sendDigitalInvoice(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -200,10 +200,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleMessageRequest(origin, request));
+			return toResponse(eventDispatcher.handleMessageRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendMessages(origin, request));
+		return toResponse(messageService.sendMessages(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -221,11 +221,12 @@ class MessageResource {
 	ResponseEntity<MessageBatchResult> sendLetter(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final LetterRequest request,
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
-			return toResponse(eventDispatcher.handleLetterRequest(origin, request));
+			return toResponse(eventDispatcher.handleLetterRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendLetter(origin, request));
+		return toResponse(messageService.sendLetter(request.withOrigin(origin)));
 	}
 
 	@Operation(
@@ -244,10 +245,10 @@ class MessageResource {
 		@Parameter(description = "Whether to send the message asynchronously")
 		@RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 		if (async) {
-			return toResponse(eventDispatcher.handleSlackRequest(origin, request));
+			return toResponse(eventDispatcher.handleSlackRequest(request.withOrigin(origin)));
 		}
 
-		return toResponse(messageService.sendToSlack(origin, request));
+		return toResponse(messageService.sendToSlack(request.withOrigin(origin)));
 	}
 
 	ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {

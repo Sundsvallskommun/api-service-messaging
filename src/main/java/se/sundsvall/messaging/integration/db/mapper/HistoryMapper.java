@@ -8,17 +8,15 @@ import se.sundsvall.messaging.model.Message;
 
 import java.time.LocalDateTime;
 
+import static java.util.Optional.ofNullable;
+
 public class HistoryMapper {
 	private static final String DEPARTMENT = "department";
 
 	private HistoryMapper() {}
 
 	public static History mapToHistory(final HistoryEntity historyEntity) {
-		if (null == historyEntity) {
-			return null;
-		}
-
-		return History.builder()
+		return ofNullable(historyEntity).map(entity -> History.builder()
 			.withBatchId(historyEntity.getBatchId())
 			.withMessageId(historyEntity.getMessageId())
 			.withDeliveryId(historyEntity.getDeliveryId())
@@ -27,7 +25,7 @@ public class HistoryMapper {
 			.withStatus(historyEntity.getStatus())
 			.withContent(historyEntity.getContent())
 			.withCreatedAt(historyEntity.getCreatedAt())
-			.build();
+			.build()).orElse(null);
 	}
 
 	public static History mapToHistory(final StatsEntry statsEntry) {
@@ -42,12 +40,8 @@ public class HistoryMapper {
 			.build();
 	}
 
-	public static HistoryEntity mapToHistoryEntity(final String origin, final Message message, final String statusDetail) {
-		if (null == message) {
-			return null;
-		}
-
-		return HistoryEntity.builder()
+	public static HistoryEntity mapToHistoryEntity(final Message message, final String statusDetail) {
+		return ofNullable(message).map(message1 -> HistoryEntity.builder()
 			.withBatchId(message.batchId())
 			.withMessageId(message.messageId())
 			.withDeliveryId(message.deliveryId())
@@ -57,10 +51,10 @@ public class HistoryMapper {
 			.withStatus(message.status())
 			.withStatusDetail(statusDetail)
 			.withContent(message.content())
-			.withOrigin(origin)
+			.withOrigin(message.origin())
 			.withDepartment(toDepartment(message.content()))
 			.withCreatedAt(LocalDateTime.now())
-			.build();
+			.build()).orElse(null);
 	}
 
 	private static String toDepartment(final String content) {

@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,10 +65,11 @@ class MessageResourceTests {
 
 	@Test
 	void sendSms() {
-		when(mockMessageService.sendSms(anyString(), any(SmsRequest.class)))
+		final var request = createValidSmsRequest();
+		when(mockMessageService.sendSms(request.withOrigin(ORIGIN)))
 			.thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", SMS, SENT));
 
-		var response = messageResource.sendSms(ORIGIN, createValidSmsRequest(), false);
+		final var response = messageResource.sendSms(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -80,17 +80,18 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendSms(anyString(), any(SmsRequest.class));
-		verify(mockEventDispatcher, never()).handleSmsRequest(anyString(), any(SmsRequest.class));
+		verify(mockMessageService).sendSms(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher, never()).handleSmsRequest(any(SmsRequest.class));
 	}
 
 	@Test
 	void sendSmsAsync() {
 
-		when(mockEventDispatcher.handleSmsRequest(anyString(), any(SmsRequest.class)))
+		final var request = createValidSmsRequest();
+		when(mockEventDispatcher.handleSmsRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(deliveryResult.withMessageType(SMS));
 
-		var response = messageResource.sendSms(ORIGIN, createValidSmsRequest(), true);
+		final var response = messageResource.sendSms(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -101,16 +102,17 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService, never()).sendSms(anyString(), any(SmsRequest.class));
-		verify(mockEventDispatcher).handleSmsRequest(anyString(), any(SmsRequest.class));
+		verify(mockMessageService, never()).sendSms(any(SmsRequest.class));
+		verify(mockEventDispatcher).handleSmsRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendEmail() {
-		when(mockMessageService.sendEmail(anyString(), any(EmailRequest.class)))
+		final var request = createValidEmailRequest();
+		when(mockMessageService.sendEmail(request.withOrigin(ORIGIN)))
 			.thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", EMAIL, SENT));
 
-		var response = messageResource.sendEmail(ORIGIN, createValidEmailRequest(), false);
+		final var response = messageResource.sendEmail(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -121,16 +123,17 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendEmail(anyString(), any(EmailRequest.class));
-		verify(mockEventDispatcher, never()).handleEmailRequest(anyString(), any(EmailRequest.class));
+		verify(mockMessageService).sendEmail(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher, never()).handleEmailRequest(any(EmailRequest.class));
 	}
 
 	@Test
 	void sendEmailAsync() {
-		when(mockEventDispatcher.handleEmailRequest(anyString(), any(EmailRequest.class)))
+		final var request = createValidEmailRequest();
+		when(mockEventDispatcher.handleEmailRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(deliveryResult.withMessageType(EMAIL));
 
-		var response = messageResource.sendEmail(ORIGIN, createValidEmailRequest(), true);
+		final var response = messageResource.sendEmail(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -141,16 +144,17 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService, never()).sendEmail(anyString(), any(EmailRequest.class));
-		verify(mockEventDispatcher).handleEmailRequest(anyString(), any(EmailRequest.class));
+		verify(mockMessageService, never()).sendEmail(any(EmailRequest.class));
+		verify(mockEventDispatcher).handleEmailRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendWebMessage() {
-		when(mockMessageService.sendWebMessage(anyString(), any(WebMessageRequest.class)))
+		final var request = createValidWebMessageRequest();
+		when(mockMessageService.sendWebMessage(request.withOrigin(ORIGIN)))
 			.thenReturn(new InternalDeliveryResult("someMessageId", "someDeliveryId", WEB_MESSAGE, SENT));
 
-		var response = messageResource.sendWebMessage(ORIGIN, createValidWebMessageRequest(), false);
+		final var response = messageResource.sendWebMessage(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -161,16 +165,17 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendWebMessage(anyString(), any(WebMessageRequest.class));
-		verify(mockEventDispatcher, never()).handleWebMessageRequest(anyString(), any(WebMessageRequest.class));
+		verify(mockMessageService).sendWebMessage(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher, never()).handleWebMessageRequest(any(WebMessageRequest.class));
 	}
 
 	@Test
 	void sendWebMessageAsync() {
-		when(mockEventDispatcher.handleWebMessageRequest(anyString(), any(WebMessageRequest.class)))
+		final var request = createValidWebMessageRequest();
+		when(mockEventDispatcher.handleWebMessageRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(deliveryResult.withMessageType(WEB_MESSAGE));
 
-		var response = messageResource.sendWebMessage(ORIGIN, createValidWebMessageRequest(), true);
+		final var response = messageResource.sendWebMessage(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -181,17 +186,18 @@ class MessageResourceTests {
 		assertThat(response.getBody().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.getBody().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService, never()).sendWebMessage(anyString(), any(WebMessageRequest.class));
-		verify(mockEventDispatcher).handleWebMessageRequest(anyString(), any(WebMessageRequest.class));
+		verify(mockMessageService, never()).sendWebMessage(any(WebMessageRequest.class));
+		verify(mockEventDispatcher).handleWebMessageRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendDigitalMail() {
-		when(mockMessageService.sendDigitalMail(anyString(), any(DigitalMailRequest.class)))
+		final var request = createValidDigitalMailRequest();
+		when(mockMessageService.sendDigitalMail(request.withOrigin(ORIGIN)))
 			.thenReturn(new InternalDeliveryBatchResult("someBatchId",
 				List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", DIGITAL_MAIL, SENT))));
 
-		var response = messageResource.sendDigitalMail(ORIGIN, createValidDigitalMailRequest(), false);
+		final var response = messageResource.sendDigitalMail(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -208,19 +214,20 @@ class MessageResourceTests {
 
 			});
 
-		verify(mockMessageService).sendDigitalMail(anyString(), any(DigitalMailRequest.class));
-		verify(mockEventDispatcher, never()).handleDigitalMailRequest(anyString(), any(DigitalMailRequest.class));
+		verify(mockMessageService).sendDigitalMail(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher, never()).handleDigitalMailRequest(any(DigitalMailRequest.class));
 	}
 
 	@Test
 	void sendDigitalMailAsync() {
-		when(mockEventDispatcher.handleDigitalMailRequest(anyString(), any(DigitalMailRequest.class)))
+		final var request = createValidDigitalMailRequest();
+		when(mockEventDispatcher.handleDigitalMailRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(InternalDeliveryBatchResult.builder()
 				.withBatchId("someBatchId")
 				.withDeliveries(List.of(deliveryResult.withMessageType(DIGITAL_MAIL)))
 				.build());
 
-		var response = messageResource.sendDigitalMail(ORIGIN, createValidDigitalMailRequest(), true);
+		final var response = messageResource.sendDigitalMail(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -236,21 +243,22 @@ class MessageResourceTests {
 				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 			});
 
-		verify(mockMessageService, never()).sendDigitalMail(anyString(), any(DigitalMailRequest.class));
-		verify(mockEventDispatcher).handleDigitalMailRequest(anyString(), any(DigitalMailRequest.class));
+		verify(mockMessageService, never()).sendDigitalMail(any(DigitalMailRequest.class));
+		verify(mockEventDispatcher).handleDigitalMailRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendMessages() {
-		when(mockMessageService.sendMessages(anyString(), any(MessageRequest.class)))
-			.thenReturn(new InternalDeliveryBatchResult("someBatchId",
-				List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", MESSAGE, SENT))));
-
-		var request = MessageRequest.builder()
+		final var request = MessageRequest.builder()
 			.withMessages(List.of(createValidMessageRequestMessage()))
 			.build();
 
-		var response = messageResource.sendMessages(ORIGIN, request, false);
+		when(mockMessageService.sendMessages(request.withOrigin(ORIGIN)))
+			.thenReturn(new InternalDeliveryBatchResult("someBatchId",
+				List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", MESSAGE, SENT))));
+
+
+		final var response = messageResource.sendMessages(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -266,22 +274,22 @@ class MessageResourceTests {
 				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 			});
 
-		verify(mockMessageService).sendMessages(anyString(), any(MessageRequest.class));
-		verify(mockEventDispatcher, never()).handleMessageRequest(anyString(), any(MessageRequest.class));
+		verify(mockMessageService).sendMessages(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher, never()).handleMessageRequest(any(MessageRequest.class));
 	}
 
 	@Test
 	void sendMessagesAsync() {
-		when(mockEventDispatcher.handleMessageRequest(anyString(), any(MessageRequest.class)))
+		final var request = MessageRequest.builder()
+			.withMessages(List.of(createValidMessageRequestMessage()))
+			.build();
+		when(mockEventDispatcher.handleMessageRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(InternalDeliveryBatchResult.builder()
 				.withBatchId("someBatchId")
 				.withDeliveries(List.of(deliveryResult.withMessageType(MESSAGE)))
 				.build());
-		var request = MessageRequest.builder()
-			.withMessages(List.of(createValidMessageRequestMessage()))
-			.build();
 
-		var response = messageResource.sendMessages(ORIGIN, request, true);
+		final var response = messageResource.sendMessages(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -297,17 +305,18 @@ class MessageResourceTests {
 				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 			});
 
-		verify(mockMessageService, never()).sendMessages(anyString(), any(MessageRequest.class));
-		verify(mockEventDispatcher).handleMessageRequest(anyString(), any(MessageRequest.class));
+		verify(mockMessageService, never()).sendMessages(any(MessageRequest.class));
+		verify(mockEventDispatcher).handleMessageRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendLetter() {
-		when(mockMessageService.sendLetter(anyString(), any(LetterRequest.class)))
+		final var request = createValidLetterRequest();
+		when(mockMessageService.sendLetter(request.withOrigin(ORIGIN)))
 			.thenReturn(new InternalDeliveryBatchResult("someBatchId",
 				List.of(new InternalDeliveryResult("someMessageId", "someDeliveryId", LETTER, SENT))));
 
-		var response = messageResource.sendLetter(ORIGIN, createValidLetterRequest(), false);
+		var response = messageResource.sendLetter(ORIGIN, request, false);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -323,19 +332,20 @@ class MessageResourceTests {
 				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 			});
 
-		verify(mockMessageService).sendLetter(anyString(), any(LetterRequest.class));
-		verify(mockEventDispatcher, never()).handleLetterRequest(anyString(), any(LetterRequest.class));
+		verify(mockMessageService).sendLetter(any(LetterRequest.class));
+		verify(mockEventDispatcher, never()).handleLetterRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void sendLetterAsync() {
-		when(mockEventDispatcher.handleLetterRequest(anyString(), any(LetterRequest.class)))
+		final var request = createValidLetterRequest();
+		when(mockEventDispatcher.handleLetterRequest(request.withOrigin(ORIGIN)))
 			.thenReturn(InternalDeliveryBatchResult.builder()
 				.withBatchId("someBatchId")
 				.withDeliveries(List.of(deliveryResult.withMessageType(LETTER)))
 				.build());
 
-		var response = messageResource.sendLetter(ORIGIN, createValidLetterRequest(), true);
+		final var response = messageResource.sendLetter(ORIGIN, request, true);
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(CREATED);
@@ -351,20 +361,20 @@ class MessageResourceTests {
 				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 			});
 
-		verify(mockMessageService, never()).sendLetter(anyString(), any(LetterRequest.class));
-		verify(mockEventDispatcher).handleLetterRequest(anyString(), any(LetterRequest.class));
+		verify(mockMessageService, never()).sendLetter(any(LetterRequest.class));
+		verify(mockEventDispatcher).handleLetterRequest(request.withOrigin(ORIGIN));
 	}
 
 	@Test
 	void toResponse_fromDeliveryResult() {
-		var deliveryResult = InternalDeliveryResult.builder()
+		final var deliveryResult = InternalDeliveryResult.builder()
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
 			.withMessageType(DIGITAL_MAIL)
 			.withStatus(SENT)
 			.build();
 
-		var result = messageResource.toResponse(deliveryResult);
+		final var result = messageResource.toResponse(deliveryResult);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getStatusCode()).isEqualTo(CREATED);
@@ -380,7 +390,7 @@ class MessageResourceTests {
 
 	@Test
 	void toResponse_fromBatchResult() {
-		var deliveryBatchResult = InternalDeliveryBatchResult.builder()
+		final var deliveryBatchResult = InternalDeliveryBatchResult.builder()
 			.withBatchId("someBatchId")
 			.withDeliveries(List.of(
 				InternalDeliveryResult.builder()
@@ -398,7 +408,7 @@ class MessageResourceTests {
 			))
 			.build();
 
-		var result = messageResource.toResponse(deliveryBatchResult);
+		final var result = messageResource.toResponse(deliveryBatchResult);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getStatusCode()).isEqualTo(CREATED);

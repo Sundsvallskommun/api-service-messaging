@@ -48,116 +48,110 @@ class MessageEventDispatcherTests {
     @Test
     void handleMessageRequest() {
         final var origin = "origin";
-        when(mockMessageMapper.toMessage(any(String.class), any(MessageRequest.Message.class)))
+        when(mockMessageMapper.toMessage(anyString(), anyString(), any(MessageRequest.Message.class)))
             .thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleMessageRequest(origin, MessageRequest.builder()
+        messageEventDispatcher.handleMessageRequest(MessageRequest.builder()
+            .withOrigin(origin)
             .withMessages(List.of(MessageRequest.Message.builder().build()))
             .build());
 
-        verify(mockMessageMapper).toMessage(any(String.class), any(MessageRequest.Message.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockMessageMapper).toMessage(anyString(), any(String.class), any(MessageRequest.Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleEmailRequest() {
-        final var origin = "origin";
         when(mockMessageMapper.toMessage(any(EmailRequest.class))).thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleEmailRequest(origin, EmailRequest.builder().build());
+        messageEventDispatcher.handleEmailRequest(EmailRequest.builder().build());
 
         verify(mockMessageMapper).toMessage(any(EmailRequest.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleSmsRequest() {
-        final var origin = "origin";
         when(mockMessageMapper.toMessage(any(SmsRequest.class))).thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleSmsRequest(origin, SmsRequest.builder().build());
+        messageEventDispatcher.handleSmsRequest(SmsRequest.builder().build());
 
         verify(mockMessageMapper).toMessage(any(SmsRequest.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleWebMessageRequest() {
-        final var origin = "origin";
         when(mockMessageMapper.toMessage(any(WebMessageRequest.class))).thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleWebMessageRequest(origin, WebMessageRequest.builder().build());
+        messageEventDispatcher.handleWebMessageRequest(WebMessageRequest.builder().build());
 
         verify(mockMessageMapper).toMessage(any(WebMessageRequest.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleDigitalMailRequest() {
-        final var origin = "origin";
-        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(List.of(Message.builder().build()));
+        when(mockDbIntegration.saveMessages(anyList())).thenReturn(List.of(Message.builder().build()));
 
-        messageEventDispatcher.handleDigitalMailRequest(origin, DigitalMailRequest.builder()
+        messageEventDispatcher.handleDigitalMailRequest(DigitalMailRequest.builder()
                 .withParty(DigitalMailRequest.Party.builder()
                     .withPartyIds(List.of("somePartyId"))
                     .build())
             .build());
 
         verify(mockMessageMapper).toMessages(any(DigitalMailRequest.class), any(String.class));
-        verify(mockDbIntegration).saveMessages(anyString(), anyList());
+        verify(mockDbIntegration).saveMessages(anyList());
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleDigitalInvoiceRequest() {
-        final var origin = "origin";
         when(mockMessageMapper.toMessage(any(DigitalInvoiceRequest.class))).thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleDigitalInvoiceRequest(origin, DigitalInvoiceRequest.builder().build());
+        messageEventDispatcher.handleDigitalInvoiceRequest(DigitalInvoiceRequest.builder().build());
 
         verify(mockMessageMapper).toMessage(any(DigitalInvoiceRequest.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleLetterRequest() {
-        final var origin = "origin";
         when(mockMessageMapper.toMessages(any(LetterRequest.class), any(String.class)))
             .thenReturn(List.of(Message.builder().build()));
-        when(mockDbIntegration.saveMessages(anyString(), anyList())).thenReturn(List.of(Message.builder().build()));
+        when(mockDbIntegration.saveMessages(anyList())).thenReturn(List.of(Message.builder().build()));
 
-        messageEventDispatcher.handleLetterRequest(origin, LetterRequest.builder()
+        messageEventDispatcher.handleLetterRequest(LetterRequest.builder()
             .withParty(LetterRequest.Party.builder()
                 .withPartyIds(List.of("somePartyId"))
                 .build())
             .build());
 
         verify(mockMessageMapper).toMessages(any(LetterRequest.class), any(String.class));
-        verify(mockDbIntegration).saveMessages(anyString(), anyList());
+        verify(mockDbIntegration).saveMessages(anyList());
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
     void handleSlackRequest() {
-        final var origin = "origin";
 
         when(mockMessageMapper.toMessage(any(SlackRequest.class))).thenReturn(Message.builder().build());
-        when(mockDbIntegration.saveMessage(anyString(), any(Message.class))).thenReturn(Message.builder().build());
+        when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-        messageEventDispatcher.handleSlackRequest(origin, SlackRequest.builder().build());
+        messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build());
 
         verify(mockMessageMapper).toMessage(any(SlackRequest.class));
-        verify(mockDbIntegration).saveMessage(anyString(), any(Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 }

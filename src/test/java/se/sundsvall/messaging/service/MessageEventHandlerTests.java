@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -52,11 +51,11 @@ class MessageEventHandlerTests {
         verify(mockDbIntegration).getMessageByDeliveryId(any(String.class));
 
         if (messageType == MESSAGE) {
-            verify(mockMessageService).sendMessage(anyString(), any(Message.class));
+            verify(mockMessageService).sendMessage(any(Message.class));
         } else if (messageType == LETTER) {
-            verify(mockMessageService).sendLetter(anyString(), any(Message.class));
+            verify(mockMessageService).sendLetter(any(Message.class));
         } else {
-            verify(mockMessageService).deliver(anyString(), any(Message.class));
+            verify(mockMessageService).deliver(any(Message.class));
         }
         verifyNoMoreInteractions(mockMessageService);
     }
