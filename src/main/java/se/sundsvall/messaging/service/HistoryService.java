@@ -1,13 +1,12 @@
 package se.sundsvall.messaging.service;
 
+import org.springframework.stereotype.Service;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.model.History;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.model.History;
 
 @Service
 public class HistoryService {
@@ -26,8 +25,8 @@ public class HistoryService {
         return dbIntegration.getHistoryByBatchId(batchId);
     }
 
-    public Optional<History> getHistoryForDeliveryId(final String deliveryId) {
-        return dbIntegration.getHistoryForDeliveryId(deliveryId);
+    public Optional<History> getHistoryByDeliveryId(final String deliveryId) {
+        return dbIntegration.getHistoryByDeliveryId(deliveryId);
     }
 
     public List<History> getConversationHistory(final String partyId, final LocalDate from,

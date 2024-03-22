@@ -7,7 +7,8 @@ info:
     url: https://opensource.org/licenses/MIT
   version: '4.3'
 servers:
-  - url: /
+  - url: http://localhost:8080
+    description: Generated server url
 paths:
   /webmessage:
     post:
@@ -16,6 +17,11 @@ paths:
       summary: Send a single web message
       operationId: sendWebMessage
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -44,15 +50,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -71,6 +68,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /sms:
     post:
       tags:
@@ -78,6 +84,11 @@ paths:
       summary: Send a single SMS
       operationId: sendSms
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -106,15 +117,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -133,6 +135,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /slack:
     post:
       tags:
@@ -140,6 +151,11 @@ paths:
       summary: Send a single Slack message
       operationId: sendToSlack
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -168,15 +184,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -195,6 +202,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /messages:
     post:
       tags:
@@ -202,6 +218,11 @@ paths:
       summary: Send a batch of messages as e-mail or SMS to a list of parties
       operationId: sendMessages
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -230,15 +251,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageBatchResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -257,6 +269,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /letter:
     post:
       tags:
@@ -264,6 +285,11 @@ paths:
       summary: Send a single letter as digital mail or snail mail
       operationId: sendLetter
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -292,15 +318,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageBatchResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -319,6 +336,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /email:
     post:
       tags:
@@ -326,6 +352,11 @@ paths:
       summary: Send a single e-mail
       operationId: sendEmail
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -354,15 +385,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -381,6 +403,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /digital-mail:
     post:
       tags:
@@ -388,6 +419,11 @@ paths:
       summary: Send a single digital mail to one or more parties
       operationId: sendDigitalMail
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -416,15 +452,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageBatchResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -443,6 +470,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /digital-invoice:
     post:
       tags:
@@ -450,6 +486,11 @@ paths:
       summary: Send a digital invoice
       operationId: sendDigitalInvoice
       parameters:
+        - name: x-origin
+          in: header
+          required: false
+          schema:
+            type: string
         - name: async
           in: query
           description: Whether to send the message asynchronously
@@ -478,15 +519,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/MessageResult'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "502":
           description: Bad Gateway
           content:
@@ -498,6 +530,15 @@ paths:
                 $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -976,6 +1017,8 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: '#/components/schemas/StatusType'
         instance:
           type: string
           format: uri
@@ -986,8 +1029,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: '#/components/schemas/StatusType'
         title:
           type: string
         detail:
@@ -1757,6 +1798,8 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: '#/components/schemas/StatusType'
         instance:
           type: string
           format: uri
@@ -1767,8 +1810,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: '#/components/schemas/StatusType'
         title:
           type: string
         detail:

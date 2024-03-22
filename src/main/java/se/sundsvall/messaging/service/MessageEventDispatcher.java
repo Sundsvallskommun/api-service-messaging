@@ -43,7 +43,7 @@ public class MessageEventDispatcher {
         var batchId = UUID.randomUUID().toString();
 
         var messages = request.messages().stream()
-            .map(message -> messageMapper.toMessage(batchId, message))
+            .map(message -> messageMapper.toMessage(request.origin(),batchId, message))
             .map(dbIntegration::saveMessage)
             .toList();
 
@@ -130,7 +130,7 @@ public class MessageEventDispatcher {
     }
 
     private InternalDeliveryResult publishMessageEvent(final Message message) {
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, message.type(), message.deliveryId()));
+        eventPublisher.publishEvent(new IncomingMessageEvent(this, message.type(), message.deliveryId(), message.origin()));
 
         return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type());
     }

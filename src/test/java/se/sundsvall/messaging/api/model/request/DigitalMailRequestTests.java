@@ -21,7 +21,7 @@ class DigitalMailRequestTests {
         var attachments = List.of(new DigitalMailRequest.Attachment("someContentType",
             "someContent", "someFilename"));
 
-        var request = new DigitalMailRequest(party, sender, "someSubject", "someDepartment", "HTML", "someBody", attachments);
+        var request = new DigitalMailRequest(party, sender, "someSubject", "someDepartment", "HTML", "someBody", "someOrigin", attachments);
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyIds()).containsOnly("somePartyId");
@@ -44,5 +44,6 @@ class DigitalMailRequestTests {
             });
         assertThat(request.subject()).isEqualTo("someSubject");
         assertThat(request.department()).isEqualTo("someDepartment");
+        assertThat(request.origin()).isEqualTo("someOrigin");
     }
 }

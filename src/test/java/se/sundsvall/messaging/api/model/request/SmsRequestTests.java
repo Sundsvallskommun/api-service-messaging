@@ -1,13 +1,12 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class SmsRequestTests {
@@ -16,7 +15,7 @@ class SmsRequestTests {
     void testConstructorAndGetters() {
         var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
         var party = new SmsRequest.Party("somePartyId", externalReferences);
-        var request = new SmsRequest(party, "someSender", "someMobileNumber", "someMessage");
+        var request = new SmsRequest(party, "someSender", "someMobileNumber", "someOrigin", "someMessage");
 
         assertThat(request.party()).satisfies(requestParty -> {
             assertThat(requestParty.partyId()).isEqualTo("somePartyId");
@@ -28,5 +27,6 @@ class SmsRequestTests {
         assertThat(request.sender()).isEqualTo("someSender");
         assertThat(request.mobileNumber()).isEqualTo("someMobileNumber");
         assertThat(request.message()).isEqualTo("someMessage");
+        assertThat(request.origin()).isEqualTo("someOrigin");
     }
 }

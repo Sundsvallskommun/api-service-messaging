@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.db.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,10 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +17,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "messages")
@@ -69,6 +67,10 @@ public class MessageEntity {
     @With
     @Column(name = "content", columnDefinition = "LONGTEXT NOT NULL")
     private String content;
+
+    @With
+    @Column(name = "origin")
+    private String origin;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -23,7 +23,8 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,59 +46,61 @@ class MessageEventDispatcherTests {
     private MessageEventDispatcher messageEventDispatcher;
 
     @Test
-    void test_handleMessageRequest() {
-        when(mockMessageMapper.toMessage(any(String.class), any(MessageRequest.Message.class)))
+    void handleMessageRequest() {
+        final var origin = "origin";
+        when(mockMessageMapper.toMessage(anyString(), anyString(), any(MessageRequest.Message.class)))
             .thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleMessageRequest(MessageRequest.builder()
+            .withOrigin(origin)
             .withMessages(List.of(MessageRequest.Message.builder().build()))
             .build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(String.class), any(MessageRequest.Message.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(anyString(), any(String.class), any(MessageRequest.Message.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleEmailRequest() {
+    void handleEmailRequest() {
         when(mockMessageMapper.toMessage(any(EmailRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleEmailRequest(EmailRequest.builder().build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(EmailRequest.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(any(EmailRequest.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleSmsRequest() {
+    void handleSmsRequest() {
         when(mockMessageMapper.toMessage(any(SmsRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleSmsRequest(SmsRequest.builder().build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(SmsRequest.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(any(SmsRequest.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleWebMessageRequest() {
+    void handleWebMessageRequest() {
         when(mockMessageMapper.toMessage(any(WebMessageRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleWebMessageRequest(WebMessageRequest.builder().build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(WebMessageRequest.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(any(WebMessageRequest.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleDigitalMailRequest() {
-        when(mockDbIntegration.saveMessages(any())).thenReturn(List.of(Message.builder().build()));
+    void handleDigitalMailRequest() {
+        when(mockDbIntegration.saveMessages(anyList())).thenReturn(List.of(Message.builder().build()));
 
         messageEventDispatcher.handleDigitalMailRequest(DigitalMailRequest.builder()
                 .withParty(DigitalMailRequest.Party.builder()
@@ -105,28 +108,28 @@ class MessageEventDispatcherTests {
                     .build())
             .build());
 
-        verify(mockMessageMapper, times(1)).toMessages(any(DigitalMailRequest.class), any(String.class));
-        verify(mockDbIntegration, times(1)).saveMessages(any());
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessages(any(DigitalMailRequest.class), any(String.class));
+        verify(mockDbIntegration).saveMessages(anyList());
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleDigitalInvoiceRequest() {
+    void handleDigitalInvoiceRequest() {
         when(mockMessageMapper.toMessage(any(DigitalInvoiceRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleDigitalInvoiceRequest(DigitalInvoiceRequest.builder().build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(DigitalInvoiceRequest.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(any(DigitalInvoiceRequest.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleLetterRequest() {
+    void handleLetterRequest() {
         when(mockMessageMapper.toMessages(any(LetterRequest.class), any(String.class)))
             .thenReturn(List.of(Message.builder().build()));
-        when(mockDbIntegration.saveMessages(any())).thenReturn(List.of(Message.builder().build()));
+        when(mockDbIntegration.saveMessages(anyList())).thenReturn(List.of(Message.builder().build()));
 
         messageEventDispatcher.handleLetterRequest(LetterRequest.builder()
             .withParty(LetterRequest.Party.builder()
@@ -134,20 +137,21 @@ class MessageEventDispatcherTests {
                 .build())
             .build());
 
-        verify(mockMessageMapper, times(1)).toMessages(any(LetterRequest.class), any(String.class));
-        verify(mockDbIntegration, times(1)).saveMessages(any());
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessages(any(LetterRequest.class), any(String.class));
+        verify(mockDbIntegration).saveMessages(anyList());
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
     @Test
-    void test_handleSlackRequest() {
+    void handleSlackRequest() {
+
         when(mockMessageMapper.toMessage(any(SlackRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
         messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build());
 
-        verify(mockMessageMapper, times(1)).toMessage(any(SlackRequest.class));
-        verify(mockDbIntegration, times(1)).saveMessage(any(Message.class));
-        verify(mockEventPublisher, times(1)).publishEvent(any(IncomingMessageEvent.class));
+        verify(mockMessageMapper).toMessage(any(SlackRequest.class));
+        verify(mockDbIntegration).saveMessage(any(Message.class));
+        verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 }

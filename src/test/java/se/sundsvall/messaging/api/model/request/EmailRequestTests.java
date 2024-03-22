@@ -1,17 +1,16 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
 
 @UnitTest
 class EmailRequestTests {
@@ -23,7 +22,7 @@ class EmailRequestTests {
         var sender = new EmailRequest.Sender("someName", "someAddress", "someReplyTo");
         var attachments = List.of(new EmailRequest.Attachment("someName", "someContentType", "someContent"));
         var request = new EmailRequest(party, "someEmailAddress", "someSubject",
-            "someMessage", "someHtmlMessage", sender,  attachments,
+            "someMessage", "someHtmlMessage", sender,  "someOrigin", attachments,
             Map.of(
                 MESSAGE_ID, List.of("someMessageId"),
                 REFERENCES, List.of("someReferences", "someMoreReferences"),
@@ -43,6 +42,7 @@ class EmailRequestTests {
         });
         assertThat(request.message()).isEqualTo("someMessage");
         assertThat(request.htmlMessage()).isEqualTo("someHtmlMessage");
+        assertThat(request.origin()).isEqualTo("someOrigin");
         assertThat(request.attachments()).hasSize(1).element(0).satisfies(attachment -> {
             assertThat(attachment.name()).isEqualTo("someName");
             assertThat(attachment.contentType()).isEqualTo("someContentType");

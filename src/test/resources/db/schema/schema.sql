@@ -23,6 +23,7 @@
         content LONGTEXT NOT NULL,
         delivery_id varchar(255),
         message_id varchar(255),
+        origin varchar(255),
         party_id varchar(255),
         message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),
         original_message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),

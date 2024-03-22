@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -44,6 +45,10 @@ public record DigitalMailRequest(
         @NotBlank
         @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')")
         String body,
+
+        @Schema(description = "Origin of request", example = "web", hidden = true)
+        @JsonIgnore
+        String origin,
 
         @Schema(description = "Attachments")
         List<@Valid Attachment> attachments) {

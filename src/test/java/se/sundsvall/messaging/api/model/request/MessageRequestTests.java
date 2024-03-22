@@ -1,14 +1,13 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.util.LinkedMultiValueMap;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.util.LinkedMultiValueMap;
-
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class MessageRequestTests {
@@ -30,8 +29,9 @@ class MessageRequestTests {
         );
         var filters = new LinkedMultiValueMap<>(Map.of(FILTER_KEY, List.<String>of()));
         var message = new MessageRequest.Message(party, filters, sender, SUBJECT, MESSAGE, HTML_MESSAGE);
-        var request = new MessageRequest(List.of(message));
+        var request = new MessageRequest("someOrigin", List.of(message));
 
+        assertThat(request.origin()).isEqualTo("someOrigin");
         assertThat(request.messages()).hasSize(1);
         assertThat(request.messages().get(0)).satisfies(requestMessage -> {
             assertThat(requestMessage.party()).isNotNull().satisfies(requestParty -> {

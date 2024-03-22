@@ -245,7 +245,7 @@ class StatusAndHistoryResource {
     )
     ResponseEntity<DeliveryResult> getDeliveryStatus(
             @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
-        return historyService.getHistoryForDeliveryId(deliveryId)
+        return historyService.getHistoryByDeliveryId(deliveryId)
             .map(this::toDeliveryResult)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());

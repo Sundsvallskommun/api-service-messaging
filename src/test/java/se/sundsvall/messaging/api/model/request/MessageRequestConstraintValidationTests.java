@@ -1,16 +1,15 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
-import static se.sundsvall.messaging.api.model.request.RequestValidationAssertions.MessageRequestAssertions.assertThat;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.util.List;
+
+import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
+import static se.sundsvall.messaging.api.model.request.RequestValidationAssertions.MessageRequestAssertions.assertThat;
 
 @UnitTest
 class MessageRequestConstraintValidationTests {
@@ -128,6 +127,6 @@ class MessageRequestConstraintValidationTests {
     }
 
     private MessageRequest createMessageRequest(final MessageRequest.Message message) {
-        return new MessageRequest(List.of(message));
+        return new MessageRequest("someOrigin", List.of(message));
     }
 }
