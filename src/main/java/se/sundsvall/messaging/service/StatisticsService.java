@@ -7,9 +7,10 @@ import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Statistics;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatistics;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatisticsList;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
 
 @Service
@@ -26,8 +27,8 @@ public class StatisticsService {
         return toStatistics(dbIntegration.getStats(messageType, from, to));
     }
 
-    public DepartmentStatistics getDepartmentLetterStatistics(final String department, final LocalDate from,
+    public List<DepartmentStatistics> getDepartmentLetterStatistics(final String origin, final String department, final LocalDate from,
             final LocalDate to) {
-        return toDepartmentStatistics(dbIntegration.getStatsByDepartment(department, LETTER, from, to));
+        return toDepartmentStatisticsList(dbIntegration.getStatsByOriginAndDepartment(origin, department, LETTER, from, to));
     }
 }

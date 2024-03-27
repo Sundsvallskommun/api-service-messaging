@@ -122,7 +122,7 @@ class DbIntegrationTests {
     }
 
     @Test
-    void getHistory() {
+    void getHistoryWithNullValues() {
         when(mockHistoryRepository.findAll(ArgumentMatchers.<Specification<HistoryEntity>>any()))
             .thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
 
@@ -133,8 +133,21 @@ class DbIntegrationTests {
     }
 
     @Test
+    void getHistory() {
+        final var partyId = "partyId";
+        final var from = LocalDate.now().minusDays(1);
+        final var to = LocalDate.now();
+        when(mockHistoryRepository.findAll(ArgumentMatchers.<Specification<HistoryEntity>>any()))
+            .thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
+
+        assertThat(dbIntegration.getHistory(partyId, from, to)).hasSize(2);
+
+        verify(mockHistoryRepository)
+            .findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
+    }
+
+    @Test
     void saveHistory() {
-        final String origin = "origin";
         when(mockHistoryRepository.save(any(HistoryEntity.class))).thenReturn(HistoryEntity.builder().build());
 
         assertThat(dbIntegration.saveHistory(Message.builder().build(), null)).isNotNull();
@@ -148,7 +161,11 @@ class DbIntegrationTests {
         final var to = LocalDate.now();
         final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT);
 
-        when(mockStatisticsRepository.getStats(MESSAGE, from, to)).thenReturn(List.of(statsEntry));
+        when(mockStatisticsRepository.getStats(MESSAGE, from, to)).thenReturn(List.of(HistoryEntity.builder()
+            .withOriginalMessageType(MESSAGE)
+            .withMessageType(MESSAGE)
+            .withStatus(SENT)
+            .build()));
 
         assertThat(dbIntegration.getStats(MESSAGE, from, to)).isNotEmpty().hasSize(1).contains(statsEntry);
 
@@ -156,16 +173,23 @@ class DbIntegrationTests {
     }
 
     @Test
-    void getStatsByDepartment() {
+    void getStatsByDepartmentAndOrigin() {
         final var department = "department";
+        final var origin = "origin";
         final var from = LocalDate.now().minusDays(1);
         final var to = LocalDate.now();
-        final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, department);
+        final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department);
 
-        when(mockStatisticsRepository.getStatsByDepartment(department, MESSAGE, from, to)).thenReturn(List.of(statsEntry));
+        when(mockStatisticsRepository.getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to)).thenReturn(List.of(HistoryEntity.builder()
+            .withOriginalMessageType(MESSAGE)
+            .withMessageType(MESSAGE)
+            .withStatus(SENT)
+            .withDepartment(department)
+            .withOrigin(origin)
+            .build()));
 
-        assertThat(dbIntegration.getStatsByDepartment(department, MESSAGE, from, to)).isNotEmpty().hasSize(1).contains(statsEntry);
+        assertThat(dbIntegration.getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to)).hasSize(1).contains(statsEntry);
 
-        verify(mockStatisticsRepository).getStatsByDepartment(department, MESSAGE, from, to);
+        verify(mockStatisticsRepository).getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to);
     }
 }

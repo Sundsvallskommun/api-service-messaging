@@ -7,8 +7,9 @@ public record StatsEntry(
     MessageType messageType,
     MessageType originalMessageType,
     MessageStatus status,
+	String origin,
 	String department) {
 	public StatsEntry(MessageType messageType, MessageType originalMessageType, MessageStatus status) {
-		this(messageType, originalMessageType, status, null);
+		this(messageType, originalMessageType, status, null, null);
 	}
 }
