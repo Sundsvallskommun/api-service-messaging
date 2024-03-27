@@ -350,11 +350,15 @@ class StatusAndHistoryResource {
         value = {"/statistics/departments","/statistics/departments/{department}"},
         produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
     )
-    ResponseEntity<DepartmentStatistics> getDepartmentStats(
+    ResponseEntity<List<DepartmentStatistics>> getDepartmentStats(
         @PathVariable(name = "department", required = false)
         @Parameter(description = "Department name")
         @ValidNullOrNotEmpty
         final String department,
+
+        @RequestParam(name = "origin", required = false)
+        @Parameter(description = "Origin name")
+        final String origin,
 
         @RequestParam(name = "from", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -366,7 +370,7 @@ class StatusAndHistoryResource {
         @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
         final LocalDate to) {
 
-        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(department, from, to));
+        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(department, origin, from, to));
     }
 
     DeliveryResult toDeliveryResult(final History deliveryHistory) {

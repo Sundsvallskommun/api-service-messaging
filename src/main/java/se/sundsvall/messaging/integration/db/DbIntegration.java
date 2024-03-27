@@ -15,14 +15,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.orderByCreatedAtDesc;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtAfter;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withCreatedAtBefore;
-import static se.sundsvall.messaging.integration.db.HistoryRepository.Specs.withPartyId;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessageEntity;
+import static se.sundsvall.messaging.integration.db.mapper.StatsEntryMapper.toStatsEntries;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.orderByCreatedAtDesc;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withPartyId;
 
 @Component
 @Transactional
@@ -106,12 +107,12 @@ public class DbIntegration {
     @Transactional(readOnly = true)
     public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
         final LocalDate to) {
-        return statisticsRepository.getStats(messageType, from, to);
+        return toStatsEntries(statisticsRepository.getStats(messageType, from, to));
     }
 
     @Transactional(readOnly = true)
-    public List<StatsEntry> getStatsByDepartment(final String department, final MessageType messageType, final LocalDate from,
+    public List<StatsEntry> getStatsByOriginAndDepartment(final String origin, final String department, final MessageType messageType, final LocalDate from,
         final LocalDate to) {
-        return statisticsRepository.getStatsByDepartment(department, messageType, from, to);
+        return toStatsEntries(statisticsRepository.getStatsByOriginAndDepartment(origin, department, messageType, from, to));
     }
 }
