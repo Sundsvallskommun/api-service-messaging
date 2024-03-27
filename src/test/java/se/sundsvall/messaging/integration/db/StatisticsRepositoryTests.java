@@ -1,79 +1,107 @@
 package se.sundsvall.messaging.integration.db;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.SMS;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-@UnitTest
-@ExtendWith(MockitoExtension.class)
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = NONE)
+@ActiveProfiles("junit")
+@Sql(scripts = {
+	"/db/scripts/truncate.sql",
+	"/db/scripts/testdata-junit.sql"
+})
 class StatisticsRepositoryTests {
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private StatisticsRepository mockStatisticsRepository;
+	@Autowired
+	private StatisticsRepository statisticsRepository;
 
-    @Captor
-    private ArgumentCaptor<LocalDateTime> fromCaptor;
-    @Captor
-    private ArgumentCaptor<LocalDateTime> toCaptor;
 
-    @Test
-    void test_getStats() {
-        when(mockStatisticsRepository.getStats(any(MessageType.class), any(LocalDateTime.class), any(LocalDateTime.class)))
-            .thenReturn(List.of(new StatsEntry(SMS, SMS, SENT)));
+	@Test
+	void getStats() {
 
-        var from = LocalDate.of(2023, 3, 27);
-        var to = LocalDate.of(2023, 3, 28);
+		final var statsEntries = statisticsRepository.getStats(SMS, null, null);
 
-        var result = mockStatisticsRepository.getStats(SMS, from, to);
+		// Assert that the map contains the expected keys
+		assertThat(statsEntries).extracting(HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+			.containsExactly(
+				tuple(SMS, SMS, SENT),
+				tuple(SMS, SMS, SENT));
+	}
 
-        assertThat(result).isNotNull().hasSize(1);
+	@Test
+	void getStatsWithFromAndTo() {
 
-        verify(mockStatisticsRepository, times(1)).getStats(eq(SMS), fromCaptor.capture(), toCaptor.capture());
+		final var statsEntries = statisticsRepository.getStats(SMS, LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
 
-        assertThat(fromCaptor.getValue().toLocalDate()).isEqualTo(from);
-        assertThat(toCaptor.getValue()).satisfies(capturedTo -> {
-            assertThat(capturedTo.toLocalDate()).isEqualTo(to);
-            assertThat(capturedTo.getHour()).isEqualTo(23);
-            assertThat(capturedTo.getMinute()).isEqualTo(59);
-            assertThat(capturedTo.getSecond()).isEqualTo(59);
-        });
-    }
+		// Assert that the map contains the expected keys
+		assertThat(statsEntries).extracting(HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+			.containsExactly(
+				tuple(SMS, SMS, SENT));
+	}
 
-    @Test
-    void test_getStats_withNullFromAndTo() {
-        when(mockStatisticsRepository.getStats(any(MessageType.class), nullable(LocalDateTime.class), nullable(LocalDateTime.class)))
-            .thenReturn(List.of(new StatsEntry(EMAIL, EMAIL, FAILED)));
+	@ParameterizedTest()
+	@MethodSource("provideDateParameters")
+	void getStatsByOriginAndDepartment(LocalDate from, LocalDate to) {
 
-        var result = mockStatisticsRepository.getStats(SMS, (LocalDate) null, null);
+		final var origin = "origin1";
+		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
-        assertThat(result).isNotNull().hasSize(1);
 
-        verify(mockStatisticsRepository, times(1)).getStats(eq(SMS), ArgumentMatchers.<LocalDateTime>isNull(), isNull());
-    }
+		// Assert that the map contains the expected keys
+		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+			.containsExactly(
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
+	}
+
+	@Test
+	void getStatsByDepartmentNoOriginAndDepartment() {
+
+		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, null, LETTER, null, null);
+
+
+		// Assert that the map contains the expected keys
+		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+			.containsExactlyInAnyOrder(
+				tuple("BOU Förskola", SNAIL_MAIL, LETTER, FAILED),
+				tuple("Kultur och fritid", SNAIL_MAIL, LETTER, FAILED),
+				tuple("Stadsbyggnadskontoret", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED),
+				tuple("Kommunstyrelsekontoret", SNAIL_MAIL, LETTER, SENT),
+				tuple("", SNAIL_MAIL, LETTER, SENT),
+				tuple("", SNAIL_MAIL, LETTER, FAILED),
+				tuple(null, SNAIL_MAIL, LETTER, SENT));
+	}
+
+	private static Stream<Arguments> provideDateParameters() {
+		return Stream.of(
+			Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
+			Arguments.of(LocalDate.of(2024, 1, 1), null),
+			Arguments.of(null, LocalDate.now()));
+	}
+
 }

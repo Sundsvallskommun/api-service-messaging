@@ -8,6 +8,7 @@ import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Statistics;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -81,25 +82,30 @@ public class StatisticsMapper {
             .build();
     }
 
-    public static DepartmentStatistics toDepartmentStatistics(final List<StatsEntry> stats) {
-        final var letters = stats.stream()
-            .filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()))
-            .collect(groupingBy(StatsEntry::department,
-                groupingBy(StatsEntry::messageType,
-                groupingBy(StatsEntry::status, summingInt(n -> 1)))));
+    public static List<DepartmentStatistics> toDepartmentStatisticsList(final List<StatsEntry> stats) {
 
-        // "Extract" LETTER entries without a department and add them to the "Other" department
-        letters.putAll(stats.stream()
-            .filter(entry -> entry.originalMessageType() == LETTER && isEmpty(entry.department()))
-            .collect(groupingBy(entry -> OTHER,
+        final var statsWithOther = stats.stream()
+            .filter(entry -> entry.originalMessageType() == LETTER)
+            .map(entry -> {
+                if (isEmpty(entry.origin())) {
+                    return new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), OTHER, entry.department());
+                }
+                return entry;
+            }).map(entry -> {
+                if (isEmpty(entry.department())) {
+                    return new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), OTHER);
+                }
+                return entry;
+            }).toList();
+
+        final var letterStats = statsWithOther.stream()
+            .filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()) && isNotEmpty(entry.origin()))
+            .collect(groupingBy(StatsEntry::origin,
+                groupingBy(StatsEntry::department,
                 groupingBy(StatsEntry::messageType,
                 groupingBy(StatsEntry::status, summingInt(n -> 1))))));
 
-        final var departmentLetters = letters.keySet().stream().map(department -> toDepartmentLetter(department, letters.get(department))).toList();
-
-        return DepartmentStatistics.builder()
-            .withDepartmentLetters(departmentLetters)
-            .build();
+        return sortDepartmentStatistics(letterStats.keySet().stream().map(origin -> toDepartmentStatistics(origin, letterStats.get(origin))).toList());
     }
 
     public static Count toCount(final Map<MessageStatus, Integer> stat) {
@@ -122,5 +128,45 @@ public class StatisticsMapper {
             .withSnailMail(toCount(letter.get(SNAIL_MAIL)))
             .withDigitalMail(toCount(letter.get(DIGITAL_MAIL)))
             .build();
+    }
+
+    private static DepartmentStatistics toDepartmentStatistics(final String origin, final Map<String, Map<MessageType, Map<MessageStatus, Integer>>> letters) {
+        return DepartmentStatistics.builder()
+            .withOrigin(origin)
+            .withDepartmentLetters(letters.keySet().stream()
+                .map(department -> toDepartmentLetter(department, letters.get(department)))
+                .toList())
+            .build();
+    }
+
+    private static List<DepartmentStatistics> sortDepartmentStatistics(final List<DepartmentStatistics> departmentStatistics) {
+        List<DepartmentStatistics> sortedOnOriginList = new ArrayList<>();
+        departmentStatistics.stream()
+            .filter(departmentStatistics1 -> !OTHER.equals(departmentStatistics1.origin()))
+            .forEach(sortedOnOriginList::add);
+        departmentStatistics.stream()
+            .filter(departmentStatistics1 -> OTHER.equals(departmentStatistics1.origin()))
+            .forEach(sortedOnOriginList::add);
+
+        List<DepartmentStatistics> sortedList = new ArrayList<>();
+        sortedOnOriginList.stream()
+            .map(departmentStatistics1 -> DepartmentStatistics.builder()
+                .withOrigin(departmentStatistics1.origin())
+                .withDepartmentLetters(sortDepartmentLetters(departmentStatistics1.departmentLetters()))
+                .build())
+            .forEach(sortedList::add);
+        return sortedList;
+    }
+
+    private static List<DepartmentLetter> sortDepartmentLetters(final List<DepartmentLetter> departmentLetters) {
+        List<DepartmentLetter> sortedOnDepartmentList = new ArrayList<>();
+        departmentLetters.stream()
+            .filter(departmentLetter -> !OTHER.equals(departmentLetter.department()))
+            .forEach(sortedOnDepartmentList::add);
+        departmentLetters.stream()
+            .filter(departmentLetter -> OTHER.equals(departmentLetter.department()))
+            .forEach(sortedOnDepartmentList::add);
+
+        return sortedOnDepartmentList;
     }
 }
