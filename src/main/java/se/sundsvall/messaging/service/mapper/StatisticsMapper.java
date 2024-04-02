@@ -86,17 +86,9 @@ public class StatisticsMapper {
 
         final var statsWithOther = stats.stream()
             .filter(entry -> entry.originalMessageType() == LETTER)
-            .map(entry -> {
-                if (isEmpty(entry.origin())) {
-                    return new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), OTHER, entry.department());
-                }
-                return entry;
-            }).map(entry -> {
-                if (isEmpty(entry.department())) {
-                    return new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), OTHER);
-                }
-                return entry;
-            }).toList();
+            .map(entry -> isEmpty(entry.origin()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), OTHER, entry.department()) : entry)
+            .map(entry -> isEmpty(entry.department()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), OTHER) : entry)
+            .toList();
 
         final var letterStats = statsWithOther.stream()
             .filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()) && isNotEmpty(entry.origin()))
