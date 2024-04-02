@@ -9,6 +9,7 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
+import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
@@ -53,16 +54,21 @@ class StatisticsServiceTests {
     @Test
     void getDepartmentLetterStats() {
         final var department = "department";
-        when(mockDbIntegration.getStatsByDepartment(anyString(), any(MessageType.class), any(LocalDate.class), any(LocalDate.class)))
-            .thenReturn(List.of(new StatsEntry(SNAIL_MAIL, LETTER, SENT, department)));
+        final var origin = "origin";
+        final var fromDate = LocalDate.now();
+        final var toDate = LocalDate.now().plusMonths(1);
+        when(mockDbIntegration.getStatsByOriginAndDepartment(anyString(), anyString(), any(MessageType.class), any(LocalDate.class), any(LocalDate.class)))
+            .thenReturn(List.of(new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin, department)));
 
-        var result = statisticsService.getDepartmentLetterStatistics(department, LocalDate.now(), LocalDate.now().plusMonths(1));
+        var result = statisticsService.getDepartmentLetterStatistics(origin, department, fromDate, toDate);
 
-        assertThat(result).isNotNull();
+        assertThat(result).hasSize(1)
+            .extracting(DepartmentStatistics::origin, DepartmentStatistics::departmentLetters).containsExactly(
+                tuple(origin, List.of(DepartmentLetter.builder()
+                        .withDepartment(department)
+                        .withSnailMail(Count.builder().withSent(1).withFailed(0).build())
+                        .build())));
 
-        assertThat(result.departmentLetters()).extracting(DepartmentLetter::department, DepartmentLetter::snailMail, DepartmentLetter::digitalMail)
-            .containsOnly(tuple(department, Count.builder().withSent(1).build(), null));
-
-        verify(mockDbIntegration).getStatsByDepartment(anyString(), any(MessageType.class), any(LocalDate.class), any(LocalDate.class));
+        verify(mockDbIntegration).getStatsByOriginAndDepartment(origin, department, LETTER, fromDate, toDate);
     }
 }
