@@ -370,7 +370,7 @@ class StatusAndHistoryResource {
         @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
         final LocalDate to) {
 
-        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(department, origin, from, to));
+        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to));
     }
 
     DeliveryResult toDeliveryResult(final History deliveryHistory) {
