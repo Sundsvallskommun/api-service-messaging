@@ -1,0 +1,14 @@
+[
+	{
+		"ORIGIN": "origin1",
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			}
+		]
+	}
+]

@@ -1,0 +1,73 @@
+[
+	{
+		"ORIGIN": "origin2",
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			}
+		]
+	},
+	{
+		"ORIGIN": "origin1",
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 1
+				}
+			},
+			{
+				"DEPARTMENT": "Kommunstyrelsekontoret",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			},
+			{
+				"DEPARTMENT": "Kultur och fritid",
+				"SNAIL_MAIL": {
+					"sent": 0,
+					"failed": 1
+				}
+			},
+			{
+				"DEPARTMENT": "Stadsbyggnadskontoret",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			},
+			{
+				"DEPARTMENT": "BOU Förskola",
+				"SNAIL_MAIL": {
+					"sent": 0,
+					"failed": 1
+				}
+			},
+			{
+				"DEPARTMENT": "Other",
+				"SNAIL_MAIL": {
+					"sent": 2,
+					"failed": 1
+				}
+			}
+		]
+	},
+	{
+		"ORIGIN": "Other",
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			}
+		]
+	}
+]

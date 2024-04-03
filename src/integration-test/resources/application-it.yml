@@ -7,6 +7,12 @@ spring:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:mariadb:10.6.4:///
 
+  sql:
+    init:
+      data-locations: classpath:db/scripts/truncate.sql, classpath:db/scripts/testdata.sql
+      encoding: utf-8
+      mode: always
+
 # Defaults
 messaging:
   defaults:

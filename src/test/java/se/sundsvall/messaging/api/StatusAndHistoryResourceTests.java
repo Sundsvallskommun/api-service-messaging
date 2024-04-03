@@ -205,7 +205,7 @@ class StatusAndHistoryResourceTests {
                 .withDepartment(department)
                 .withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build()));
 
-        var response = statusAndHistoryResource.getDepartmentStats(origin, department, from, to);
+        var response = statusAndHistoryResource.getDepartmentStats(department, origin, from, to);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(OK);

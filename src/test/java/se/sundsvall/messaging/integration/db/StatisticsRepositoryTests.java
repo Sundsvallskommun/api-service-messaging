@@ -28,7 +28,7 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 @ActiveProfiles("junit")
 @Sql(scripts = {
 	"/db/scripts/truncate.sql",
-	"/db/scripts/testdata-junit.sql"
+	"/db/scripts/testdata.sql"
 })
 class StatisticsRepositoryTests {
 
@@ -66,10 +66,23 @@ class StatisticsRepositoryTests {
 		final var origin = "origin1";
 		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
+		// Assert that the map contains the expected keys
+		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+			.containsExactly(
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
+	}
+
+	@ParameterizedTest()
+	@MethodSource("provideDateParameters")
+	void getStatsByDepartment(LocalDate from, LocalDate to) {
+
+		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
 			.containsExactly(
+				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
@@ -79,7 +92,6 @@ class StatisticsRepositoryTests {
 	void getStatsByDepartmentNoOriginAndDepartment() {
 
 		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, null, LETTER, null, null);
-
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
@@ -101,7 +113,8 @@ class StatisticsRepositoryTests {
 		return Stream.of(
 			Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
 			Arguments.of(LocalDate.of(2024, 1, 1), null),
-			Arguments.of(null, LocalDate.now()));
+			Arguments.of(null, LocalDate.now()),
+			Arguments.of(null, null));
 	}
 
 }
