@@ -19,7 +19,6 @@ import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHi
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessageEntity;
-import static se.sundsvall.messaging.integration.db.mapper.StatsEntryMapper.toStatsEntries;
 import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.orderByCreatedAtDesc;
 import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtAfter;
 import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtBefore;
@@ -107,12 +106,12 @@ public class DbIntegration {
     @Transactional(readOnly = true)
     public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
         final LocalDate to) {
-        return toStatsEntries(statisticsRepository.getStats(messageType, from, to));
+        return statisticsRepository.getStats(messageType, from, to);
     }
 
     @Transactional(readOnly = true)
     public List<StatsEntry> getStatsByOriginAndDepartment(final String origin, final String department, final MessageType messageType, final LocalDate from,
         final LocalDate to) {
-        return toStatsEntries(statisticsRepository.getStatsByOriginAndDepartment(origin, department, messageType, from, to));
+        return statisticsRepository.getStatsByOriginAndDepartment(origin, department, messageType, from, to);
     }
 }
