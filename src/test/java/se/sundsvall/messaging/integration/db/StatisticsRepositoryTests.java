@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
@@ -42,7 +42,7 @@ class StatisticsRepositoryTests {
 		final var statsEntries = statisticsRepository.getStats(SMS, null, null);
 
 		// Assert that the map contains the expected keys
-		assertThat(statsEntries).extracting(HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+		assertThat(statsEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactly(
 				tuple(SMS, SMS, SENT),
 				tuple(SMS, SMS, SENT));
@@ -54,7 +54,7 @@ class StatisticsRepositoryTests {
 		final var statsEntries = statisticsRepository.getStats(SMS, LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
 
 		// Assert that the map contains the expected keys
-		assertThat(statsEntries).extracting(HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+		assertThat(statsEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactly(
 				tuple(SMS, SMS, SENT));
 	}
@@ -67,7 +67,7 @@ class StatisticsRepositoryTests {
 		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactly(
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
@@ -80,7 +80,7 @@ class StatisticsRepositoryTests {
 		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactly(
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
@@ -94,7 +94,7 @@ class StatisticsRepositoryTests {
 		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, null, LETTER, null, null);
 
 		// Assert that the map contains the expected keys
-		assertThat(historyEntities).extracting(HistoryEntity::getDepartment, HistoryEntity::getMessageType, HistoryEntity::getOriginalMessageType, HistoryEntity::getStatus)
+		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactlyInAnyOrder(
 				tuple("BOU Förskola", SNAIL_MAIL, LETTER, FAILED),
 				tuple("Kultur och fritid", SNAIL_MAIL, LETTER, FAILED),
@@ -116,5 +116,4 @@ class StatisticsRepositoryTests {
 			Arguments.of(null, LocalDate.now()),
 			Arguments.of(null, null));
 	}
-
 }

@@ -161,11 +161,7 @@ class DbIntegrationTests {
         final var to = LocalDate.now();
         final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT);
 
-        when(mockStatisticsRepository.getStats(MESSAGE, from, to)).thenReturn(List.of(HistoryEntity.builder()
-            .withOriginalMessageType(MESSAGE)
-            .withMessageType(MESSAGE)
-            .withStatus(SENT)
-            .build()));
+        when(mockStatisticsRepository.getStats(MESSAGE, from, to)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT)));
 
         assertThat(dbIntegration.getStats(MESSAGE, from, to)).isNotEmpty().hasSize(1).contains(statsEntry);
 
@@ -180,13 +176,7 @@ class DbIntegrationTests {
         final var to = LocalDate.now();
         final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department);
 
-        when(mockStatisticsRepository.getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to)).thenReturn(List.of(HistoryEntity.builder()
-            .withOriginalMessageType(MESSAGE)
-            .withMessageType(MESSAGE)
-            .withStatus(SENT)
-            .withDepartment(department)
-            .withOrigin(origin)
-            .build()));
+        when(mockStatisticsRepository.getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department)));
 
         assertThat(dbIntegration.getStatsByOriginAndDepartment(origin, department, MESSAGE, from, to)).hasSize(1).contains(statsEntry);
 
