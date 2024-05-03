@@ -1,13 +1,18 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/digital-mail-sender/send-digital-mail"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test1_successfulRequestByDigital/responses/digital-mail-sender.json",
-    "status": 200
-  }
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "POST",
+		"url": "/digital-mail-sender/send-digital-mail"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successfulRequestByDigital/responses/digital-mail-sender.json",
+		"status": 200
+	}
 }
