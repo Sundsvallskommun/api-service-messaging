@@ -1,23 +1,23 @@
 {
-  "party": {
-    "partyId": "e4e37771-397b-45b5-bb89-f389f8525e53"
-  },
-  "subject": "Invoice #12345",
-  "type": "INVOICE",
-  "reference": "12345",
-  "details": {
-    "amount": 12.50,
-    "dueDate": "2023-11-30",
-    "paymentReferenceType": "SE_OCR",
-    "paymentReference": "8719827398",
-    "accountType": "BANKGIRO",
-    "accountNumber": "1234567"
-  },
-  "files": [
-    {
-      "contentType": "application/pdf",
-      "filename": "invoice_12345.pdf",
-      "content": "someContent"
-    }
-  ]
+	"party": {
+		"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53"
+	},
+	"subject": "Invoice #12345",
+	"type": "INVOICE",
+	"reference": "12345",
+	"details": {
+		"amount": 12.50,
+		"dueDate": "2023-11-30",
+		"paymentReferenceType": "SE_OCR",
+		"paymentReference": "8719827398",
+		"accountType": "BANKGIRO",
+		"accountNumber": "1234567"
+	},
+	"files": [
+		{
+			"contentType": "application/pdf",
+			"filename": "invoice_12345.pdf",
+			"content": "someContent"
+		}
+	]
 }

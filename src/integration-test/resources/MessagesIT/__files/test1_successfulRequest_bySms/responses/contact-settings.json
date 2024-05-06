@@ -1,19 +1,19 @@
 [
-  {
-    "id": "0d64c132-3aea-11ec-8d3d-0242ac130003",
-    "partyId": "f427952b-247c-4d3b-b081-675a467b3619",
-    "createdById": "9ca9425e-42cf-4145-a9e7-d77e1ea9e5b0",
-    "alias": "My contact-settings",
-    "virtual": false,
-    "contactChannels": [
-      {
-        "contactMethod": "SMS",
-        "alias": "Private phone",
-        "destination": "+46701234567",
-        "disabled": false
-      }
-    ],
-    "created": "2020-08-30T23:30:00Z",
-    "modified": "2020-08-30T23:30:00Z"
-  }
+	{
+		"id": "0d64c132-3aea-11ec-8d3d-0242ac130003",
+		"partyId": "f427952b-247c-4d3b-b081-675a467b3619",
+		"createdById": "9ca9425e-42cf-4145-a9e7-d77e1ea9e5b0",
+		"alias": "My contact-settings",
+		"virtual": false,
+		"contactChannels": [
+			{
+				"contactMethod": "SMS",
+				"alias": "Private phone",
+				"destination": "+46701234567",
+				"disabled": false
+			}
+		],
+		"created": "2020-08-30T23:30:00Z",
+		"modified": "2020-08-30T23:30:00Z"
+	}
 ]

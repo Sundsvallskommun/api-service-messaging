@@ -1,13 +1,13 @@
 {
-  "party": {
-    "partyId": "f427952b-247c-4d3b-b081-675a467b3619"
-  },
-  "message": "This is a test message",
-  "attachments": [
-    {
-      "fileName": "someFile.txt",
-      "mimeType": "text/plain",
-      "base64Data": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
-    }
-  ]
+	"party": {
+		"partyId": "f427952b-247c-4d3b-b081-675a467b3619"
+	},
+	"message": "This is a test message",
+	"attachments": [
+		{
+			"fileName": "someFile.txt",
+			"mimeType": "text/plain",
+			"base64Data": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+		}
+	]
 }

@@ -1,17 +1,22 @@
 {
-  "request": {
-    "method": "GET",
-    "urlPath": "/contact-settings/settings",
-    "queryParameters": {
-      "partyId": {
-        "equalTo": "f427952b-247c-4d3b-b081-675a467b3619"
-      }
-    }
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "status": 404
-  }
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "GET",
+		"urlPath": "/contact-settings/settings",
+		"queryParameters": {
+			"partyId": {
+				"equalTo": "f427952b-247c-4d3b-b081-675a467b3619"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"status": 404
+	}
 }

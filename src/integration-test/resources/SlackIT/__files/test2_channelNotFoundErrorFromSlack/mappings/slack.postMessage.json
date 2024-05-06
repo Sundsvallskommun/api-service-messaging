@@ -1,17 +1,17 @@
 {
-  "request": {
-    "method": "POST",
-    "url": "/slack/chat.postMessage"
-  },
-  "response": {
-    "headers": {
-      "Authorization": "Bearer xoxb-8077485541522-1058560177533-6c6NBHvCc8JBkmQ4L5Z0ZpwT",
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    "status": 200,
-    "jsonBody": {
-      "ok": false,
-      "error": "channel_not_found"
-    }
-  }
+	"request": {
+		"method": "POST",
+		"url": "/slack/chat.postMessage"
+	},
+	"response": {
+		"headers": {
+			"Authorization": "Bearer xoxb-8077485541522-1058560177533-6c6NBHvCc8JBkmQ4L5Z0ZpwT",
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		"status": 200,
+		"jsonBody": {
+			"ok": false,
+			"error": "channel_not_found"
+		}
+	}
 }
