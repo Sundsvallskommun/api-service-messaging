@@ -112,7 +112,7 @@ class MessageMapperTests {
 
         assertThat(messages).hasSize(1);
 
-        final var message = messages.get(0);
+		final var message = messages.getFirst();
 
         assertThat(message.batchId()).isEqualTo("someBatchId");
         assertThat(message.messageId()).isNotNull();

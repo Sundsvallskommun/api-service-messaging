@@ -12,65 +12,65 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class SmsRequestConstraintValidationTests {
 
-    private final SmsRequest validRequest = createValidSmsRequest();
+	private final SmsRequest validRequest = createValidSmsRequest();
 
-    @Test
-    void shouldPassForValidRequest() {
-        assertThat(validRequest).hasNoConstraintViolations();
-    }
+	@Test
+	void shouldPassForValidRequest() {
+		assertThat(validRequest).hasNoConstraintViolations();
+	}
 
-    @Test
-    void shouldPassWithoutParty() {
-        assertThat(validRequest.withParty(null)).hasNoConstraintViolations();
-    }
+	@Test
+	void shouldPassWithoutParty() {
+		assertThat(validRequest.withParty(null)).hasNoConstraintViolations();
+	}
 
-    @Test
-    void shouldFailWithInvalidPartyId() {
-        var request = validRequest.withParty(validRequest.party().withPartyId("not-a-uuid"));
+	@Test
+	void shouldFailWithInvalidPartyId() {
+		var request = validRequest.withParty(validRequest.party().withPartyId("not-a-uuid"));
 
-        assertThat(request).hasSingleConstraintViolation("party.partyId", "not a valid UUID");
-    }
+		assertThat(request).hasSingleConstraintViolation("party.partyId", "not a valid UUID");
+	}
 
-    @Test
-    void shouldFailWithInvalidExternalReference() {
-        var externalReference = validRequest.party().externalReferences().get(0);
+	@Test
+	void shouldFailWithInvalidExternalReference() {
+		var externalReference = validRequest.party().externalReferences().get(0);
 
-        // Test invalid external reference key
-        var request = validRequest.withParty(validRequest.party()
-            .withExternalReferences(List.of(externalReference.withKey(null))));
+		// Test invalid external reference key
+		var request = validRequest.withParty(validRequest.party()
+			.withExternalReferences(List.of(externalReference.withKey(null))));
 
-        assertThat(request)
-            .hasSingleConstraintViolation("party.externalReferences[0].key", "must not be blank");
+		assertThat(request)
+			.hasSingleConstraintViolation("party.externalReferences[0].key", "must not be blank");
 
-        // Test invalid external reference value
-        request = validRequest.withParty(validRequest.party()
-            .withExternalReferences(List.of(externalReference.withValue(null))));
+		// Test invalid external reference value
+		request = validRequest.withParty(validRequest.party()
+			.withExternalReferences(List.of(externalReference.withValue(null))));
 
-        assertThat(request)
-            .hasSingleConstraintViolation("party.externalReferences[0].value", "must not be blank");
-    }
+		assertThat(request)
+			.hasSingleConstraintViolation("party.externalReferences[0].value", "must not be blank");
+	}
 
-    @Test
-    void shouldFailWithNullMobileNumber() {
-        assertThat(validRequest.withMobileNumber(null))
-            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
-    }
+	@Test
+	void shouldFailWithNullMobileNumber() {
+		assertThat(validRequest.withMobileNumber(null))
+			.hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
+	}
 
-    @Test
-    void shouldFailWithInvalidMobileNumber() {
-        assertThat(validRequest.withMobileNumber("not-a-mobile-number"))
-            .hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
-    }
+	@Test
+	void shouldFailWithInvalidMobileNumber() {
+		assertThat(validRequest.withMobileNumber("not-a-mobile-number"))
+			.hasSingleConstraintViolation("mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
+	}
 
-    @Test
-    void shouldFailWithNullMessage() {
-        assertThat(validRequest.withMessage(null))
-            .hasSingleConstraintViolation("message", "must not be blank");
-    }
+	@Test
+	void shouldFailWithNullMessage() {
+		assertThat(validRequest.withMessage(null))
+			.hasSingleConstraintViolation("message", "must not be blank");
+	}
 
-    @Test
-    void shouldFailWithBlankMessage() {
-        assertThat(validRequest.withMessage(""))
-            .hasSingleConstraintViolation("message", "must not be blank");
-    }
+	@Test
+	void shouldFailWithBlankMessage() {
+		assertThat(validRequest.withMessage(""))
+			.hasSingleConstraintViolation("message", "must not be blank");
+	}
 }

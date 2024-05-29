@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.messaging.model.ExternalReference;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,16 +21,11 @@ import lombok.With;
 
 @With
 @Builder(setterPrefix = "with")
-public record EmailRequest(
+public record EmailBatchRequest(
 
 	@Valid
-	@Schema(description = "Party")
-	Party party,
-
-	@Email
-	@NotBlank
-	@Schema(description = "Recipient e-mail address", requiredMode = REQUIRED)
-	String emailAddress,
+	@ArraySchema(arraySchema = @Schema(implementation = Party.class))
+	List<Party> parties,
 
 	@NotBlank
 	@Schema(description = "E-mail subject", requiredMode = REQUIRED)
@@ -60,15 +54,16 @@ public record EmailRequest(
 
 	@With
 	@Builder(setterPrefix = "with")
-	@Schema(name = "EmailRequestParty")
 	public record Party(
 
 		@ValidUuid(nullable = true)
-		@Schema(description = "The message party id", format = "uuid")
+		@Schema(description = "The message parties id", format = "uuid", example = "e8660aab-6df9-4ed5-86d1-d9b90a5f7e87")
 		String partyId,
 
-		@Schema(description = "External references")
-		List<@Valid ExternalReference> externalReferences) {
+		@Email
+		@NotBlank
+		@Schema(description = "Recipient e-mail address", requiredMode = REQUIRED, example = "someone@somewhere.com")
+		String emailAddress) {
 	}
 
 	@With
@@ -106,4 +101,5 @@ public record EmailRequest(
 		@Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED)
 		String content) {
 	}
+
 }

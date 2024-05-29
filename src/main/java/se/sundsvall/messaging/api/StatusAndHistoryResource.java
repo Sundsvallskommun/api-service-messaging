@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.violations.ConstraintViolationProblem;
+
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -53,349 +55,341 @@ import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 @Validated
 class StatusAndHistoryResource {
 
-    static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
-    static final String MESSAGE_STATUS_PATH = "/status/message/{messageId}";
-    static final String DELIVERY_STATUS_PATH = "/status/delivery/{deliveryId}";
+	static final String BATCH_STATUS_PATH = "/status/batch/{batchId}";
+	static final String MESSAGE_STATUS_PATH = "/status/message/{messageId}";
+	static final String DELIVERY_STATUS_PATH = "/status/delivery/{deliveryId}";
 
-    private final HistoryService historyService;
-    private final StatisticsService statisticsService;
+	private final HistoryService historyService;
+	private final StatisticsService statisticsService;
 
-    StatusAndHistoryResource(final HistoryService historyService,
-            final StatisticsService statisticsService) {
-        this.historyService = historyService;
-        this.statisticsService = statisticsService;
-    }
+	StatusAndHistoryResource(final HistoryService historyService,
+		final StatisticsService statisticsService) {
+		this.historyService = historyService;
+		this.statisticsService = statisticsService;
+	}
 
-    @Operation(
+	@Operation(
         summary = "Get the entire conversation history for a given party",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = "/conversation-history/{partyId}",
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<List<HistoryResponse>> getConversationHistory(
-            @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String partyId,
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = "/conversation-history/{partyId}",
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<List<HistoryResponse>> getConversationHistory(
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String partyId,
 
-            @RequestParam(name = "from", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-            final LocalDate from,
+		@RequestParam(name = "from", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 
-            @RequestParam(name = "to", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-            final LocalDate to) {
-        return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
-            .map(this::toHistoryResponse)
-            .toList());
-    }
+		@RequestParam(name = "to", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
+		return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
+			.map(this::toHistoryResponse)
+			.toList());
+	}
 
-    @Operation(
-        summary = "Get the status for a message batch, its messages and their deliveries",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageBatchResult.class))
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Not Found",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = BATCH_STATUS_PATH,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<MessageBatchResult> getBatchStatus(
-            @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String batchId) {
-        var history = historyService.getHistoryByBatchId(batchId);
-        if (history.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+	@Operation(
+		summary = "Get the status for a message batch, its messages and their deliveries",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(schema = @Schema(implementation = MessageBatchResult.class))
+			),
+			@ApiResponse(
+				responseCode = "404",
+				description = "Not Found",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = BATCH_STATUS_PATH,
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<MessageBatchResult> getBatchStatus(
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String batchId) {
+		var history = historyService.getHistoryByBatchId(batchId);
+		if (history.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
 
-        // Group the history first by batchId and then by messageId
-        var groupedHistory = history.stream()
-            .collect(groupingBy(History::batchId, groupingBy(History::messageId)));
+		// Group the history first by batchId and then by messageId
+		var groupedHistory = history.stream()
+			.collect(groupingBy(History::batchId, groupingBy(History::messageId)));
 
-        // Sanity check - we should only have a single "root" entry, but just to be safe...
-        if (groupedHistory.size() != 1) {
-            throw Problem.valueOf(Status.NOT_FOUND, "Unable to get batch status");
-        }
+		// Sanity check - we should only have a single "root" entry, but just to be safe...
+		if (groupedHistory.size() != 1) {
+			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get batch status");
+		}
 
-        // Grab the first (and only) "root" entry
-        var batch = groupedHistory
-            .entrySet()
-            .iterator()
-            .next();
+		// Grab the first (and only) "root" entry
+		var batch = groupedHistory
+			.entrySet()
+			.iterator()
+			.next();
 
-        var result = MessageBatchResult.builder()
-            .withBatchId(batch.getKey())
-            .withMessages(batch.getValue().entrySet().stream()
-                .map(message -> MessageResult.builder()
-                    .withMessageId(message.getKey())
-                    .withDeliveries(message.getValue().stream()
-                        .map(this::toDeliveryResult)
-                        .toList())
-                    .build())
-                .toList())
-            .build();
+		var result = MessageBatchResult.builder()
+			.withBatchId(batch.getKey())
+			.withMessages(batch.getValue().entrySet().stream()
+				.map(message -> MessageResult.builder()
+					.withMessageId(message.getKey())
+					.withDeliveries(message.getValue().stream()
+						.map(this::toDeliveryResult)
+						.toList())
+					.build())
+				.toList())
+			.build();
 
-        return ResponseEntity.ok(result);
-    }
+		return ResponseEntity.ok(result);
+	}
 
-    @Operation(
-        summary = "Get the status for a single message and its deliveries",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = MessageResult.class))
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Not Found",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = MESSAGE_STATUS_PATH,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<MessageResult> getMessageStatus(
-            @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
-        var history = historyService.getHistoryByMessageId(messageId);
+	@Operation(
+		summary = "Get the status for a single message and its deliveries",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(schema = @Schema(implementation = MessageResult.class))
+			),
+			@ApiResponse(
+				responseCode = "404",
+				description = "Not Found",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = MESSAGE_STATUS_PATH,
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<MessageResult> getMessageStatus(
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
+		var history = historyService.getHistoryByMessageId(messageId);
 
-        if (history.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+		if (history.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
 
-        // Group the history by messageId
-        var groupedHistory = history.stream().collect(Collectors.groupingBy(History::messageId));
+		// Group the history by messageId
+		var groupedHistory = history.stream().collect(Collectors.groupingBy(History::messageId));
 
-        // Sanity check - we should only have a single "root" entry, but just to be safe...
-        if (groupedHistory.size() != 1) {
-            throw Problem.valueOf(Status.NOT_FOUND, "Unable to get message status");
-        }
+		// Sanity check - we should only have a single "root" entry, but just to be safe...
+		if (groupedHistory.size() != 1) {
+			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get message status");
+		}
 
-        // Grab the first (and only) "root" entry
-        var message = groupedHistory
-            .entrySet()
-            .iterator()
-            .next();
+		// Grab the first (and only) "root" entry
+		var message = groupedHistory
+			.entrySet()
+			.iterator()
+			.next();
 
-        var result = MessageResult.builder()
-            .withMessageId(message.getKey())
-            .withDeliveries(message.getValue().stream()
-                .map(this::toDeliveryResult)
-                .toList())
-            .build();
+		var result = MessageResult.builder()
+			.withMessageId(message.getKey())
+			.withDeliveries(message.getValue().stream()
+				.map(this::toDeliveryResult)
+				.toList())
+			.build();
 
-        return ResponseEntity.ok(result);
-    }
+		return ResponseEntity.ok(result);
+	}
 
-    @Operation(
-        summary = "Get the status for a single delivery",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(schema = @Schema(implementation = DeliveryResult.class))
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Not Found",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = DELIVERY_STATUS_PATH,
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<DeliveryResult> getDeliveryStatus(
-            @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
-        return historyService.getHistoryByDeliveryId(deliveryId)
-            .map(this::toDeliveryResult)
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	@Operation(
+		summary = "Get the status for a single delivery",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(schema = @Schema(implementation = DeliveryResult.class))
+			),
+			@ApiResponse(
+				responseCode = "404",
+				description = "Not Found",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = DELIVERY_STATUS_PATH,
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<DeliveryResult> getDeliveryStatus(
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
+		return historyService.getHistoryByDeliveryId(deliveryId)
+			.map(this::toDeliveryResult)
+			.map(ResponseEntity::ok)
+			.orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
-    @Operation(
-        summary = "Get a message and all its deliveries",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                description = "Not Found",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = "/message/{messageId}",
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<List<HistoryResponse>> getMessage(
-            @Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
-        var history = historyService.getHistoryByMessageId(messageId).stream()
-            .map(this::toHistoryResponse)
-            .toList();
+	@Operation(
+		summary = "Get a message and all its deliveries",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoryResponse.class)))
+			),
+			@ApiResponse(
+				responseCode = "404",
+				description = "Not Found",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = "/message/{messageId}",
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<List<HistoryResponse>> getMessage(
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
+		var history = historyService.getHistoryByMessageId(messageId).stream()
+			.map(this::toHistoryResponse)
+			.toList();
 
-        if (history.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+		if (history.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
 
-        return ResponseEntity.ok(history);
-    }
+		return ResponseEntity.ok(history);
+	}
 
-    @Operation(
-        summary = "Get delivery statistics",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = Statistics.class)))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = "/statistics",
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<Statistics> getStats(
-            @RequestParam(name = "messageType", required = false)
-            @Parameter(description = "Message type")
-            final MessageType messageType,
+	@Operation(
+		summary = "Get delivery statistics",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				content = @Content(array = @ArraySchema(schema = @Schema(implementation = Statistics.class)))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = "/statistics",
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<Statistics> getStats(
+		@RequestParam(name = "messageType", required = false)
+		@Parameter(description = "Message type") final MessageType messageType,
 
-            @RequestParam(name = "from", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-            final LocalDate from,
+		@RequestParam(name = "from", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 
-            @RequestParam(name = "to", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-            final LocalDate to) {
-        var stats = statisticsService.getStatistics(messageType, from, to);
+		@RequestParam(name = "to", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
+		var stats = statisticsService.getStatistics(messageType, from, to);
 
-        return ResponseEntity.ok(stats);
-    }
+		return ResponseEntity.ok(stats);
+	}
 
-    @Operation(
-        summary = "Get letter delivery statistics by department",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful Operation",
-                useReturnTypeSchema = true
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Bad Request",
-                content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))
-            ),
-            @ApiResponse(
-                responseCode = "500",
-                description = "Internal Server Error",
-                content = @Content(schema = @Schema(implementation = Problem.class))
-            )
-        }
-    )
-    @GetMapping(
-        value = {"/statistics/departments","/statistics/departments/{department}"},
-        produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE }
-    )
-    ResponseEntity<List<DepartmentStatistics>> getDepartmentStats(
-        @PathVariable(name = "department", required = false)
-        @Parameter(description = "Department name")
-        @ValidNullOrNotEmpty
-        final String department,
+	@Operation(
+		summary = "Get letter delivery statistics by department",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful Operation",
+				useReturnTypeSchema = true
+			),
+			@ApiResponse(
+				responseCode = "400",
+				description = "Bad Request",
+				content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))
+			),
+			@ApiResponse(
+				responseCode = "500",
+				description = "Internal Server Error",
+				content = @Content(schema = @Schema(implementation = Problem.class))
+			)
+		}
+	)
+	@GetMapping(
+		value = {"/statistics/departments", "/statistics/departments/{department}"},
+		produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE}
+	)
+	ResponseEntity<List<DepartmentStatistics>> getDepartmentStats(
+		@PathVariable(name = "department", required = false)
+		@Parameter(description = "Department name")
+		@ValidNullOrNotEmpty final String department,
 
-        @RequestParam(name = "origin", required = false)
-        @Parameter(description = "Origin name")
-        final String origin,
+		@RequestParam(name = "origin", required = false)
+		@Parameter(description = "Origin name") final String origin,
 
-        @RequestParam(name = "from", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-        final LocalDate from,
+		@RequestParam(name = "from", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 
-        @RequestParam(name = "to", required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)")
-        final LocalDate to) {
+		@RequestParam(name = "to", required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		@Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
-        return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to));
-    }
+		return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to));
+	}
 
-    DeliveryResult toDeliveryResult(final History deliveryHistory) {
-        return DeliveryResult.builder()
-            .withDeliveryId(deliveryHistory.deliveryId())
-            .withMessageType(deliveryHistory.messageType())
-            .withStatus(deliveryHistory.status())
-            .build();
-    }
-    HistoryResponse toHistoryResponse(final History history) {
-        return HistoryResponse.builder()
-            .withMessageType(history.messageType())
-            .withStatus(history.status())
-            .withContent(fromJson(history.content(), switch (history.messageType()) {
-                case EMAIL -> EmailRequest.class;
-                case SMS -> SmsRequest.class;
-                case WEB_MESSAGE -> WebMessageRequest.class;
-                case DIGITAL_MAIL -> DigitalMailRequest.class;
-                case DIGITAL_INVOICE -> DigitalInvoiceRequest.class;
-                case MESSAGE -> MessageRequest.Message.class;
-                case SNAIL_MAIL -> SnailMailRequest.class;
-                case LETTER -> LetterRequest.class;
-                case SLACK -> SlackRequest.class;
-            }))
-            .withTimestamp(history.createdAt())
-            .build();
-    }
+	DeliveryResult toDeliveryResult(final History deliveryHistory) {
+		return DeliveryResult.builder()
+			.withDeliveryId(deliveryHistory.deliveryId())
+			.withMessageType(deliveryHistory.messageType())
+			.withStatus(deliveryHistory.status())
+			.build();
+	}
+
+	HistoryResponse toHistoryResponse(final History history) {
+		return HistoryResponse.builder()
+			.withMessageType(history.messageType())
+			.withStatus(history.status())
+			.withContent(fromJson(history.content(), switch (history.messageType()) {
+				case EMAIL -> EmailRequest.class;
+				case SMS -> SmsRequest.class;
+				case WEB_MESSAGE -> WebMessageRequest.class;
+				case DIGITAL_MAIL -> DigitalMailRequest.class;
+				case DIGITAL_INVOICE -> DigitalInvoiceRequest.class;
+				case MESSAGE -> MessageRequest.Message.class;
+				case SNAIL_MAIL -> SnailMailRequest.class;
+				case LETTER -> LetterRequest.class;
+				case SLACK -> SlackRequest.class;
+			}))
+			.withTimestamp(history.createdAt())
+			.build();
+	}
 }

@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.zalando.problem.ThrowableProblem;
 
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
@@ -79,14 +81,22 @@ public class MessageEventDispatcher {
         return publishMessageEvent(message);
     }
 
-    public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
-        // Check blacklist
-        blacklistService.check(request);
+	public InternalDeliveryBatchResult handleEmailBatchRequest(final EmailBatchRequest request) {
+		var batchId = UUID.randomUUID().toString();
 
-        var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+		var deliveryResults = ofNullable(request.parties()).orElse(Collections.emptyList()).stream()
+			.filter(party -> isWhitelisted(MessageType.EMAIL, party.emailAddress()))
+			.map(party -> requestMapper.toEmailBatchRequest(request, party))
+			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId))
+			.map(dbIntegration::saveMessage)
+			.map(this::publishMessageEvent)
+			.toList();
 
-        return publishMessageEvent(message);
-    }
+		return InternalDeliveryBatchResult.builder()
+			.withDeliveries(deliveryResults)
+			.withBatchId(batchId)
+			.build();
+	}
 
 	public InternalDeliveryBatchResult handleSmsBatchRequest(final SmsBatchRequest request) {
 		var batchId = UUID.randomUUID().toString();
@@ -105,9 +115,18 @@ public class MessageEventDispatcher {
 			.build();
 	}
 
-    public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
-        // Check blacklist
-        blacklistService.check(request);
+	public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
+		// Check blacklist
+		blacklistService.check(request);
+
+		var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+
+		return publishMessageEvent(message);
+	}
+
+	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
+		// Check blacklist
+		blacklistService.check(request);
 
         var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
@@ -163,7 +182,7 @@ public class MessageEventDispatcher {
     }
 
     private InternalDeliveryResult publishMessageEvent(final Message message) {
-        eventPublisher.publishEvent(new IncomingMessageEvent(this, message.type(), message.deliveryId(), message.origin()));
+		eventPublisher.publishEvent(new IncomingMessageEvent(this, message.type(), message.deliveryId(), message.origin()));
 
         return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type());
     }

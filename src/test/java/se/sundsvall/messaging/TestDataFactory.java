@@ -1,8 +1,8 @@
 package se.sundsvall.messaging;
 
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
@@ -15,7 +15,9 @@ import java.util.UUID;
 
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
@@ -37,9 +39,13 @@ public final class TestDataFactory {
 	public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
 
 	public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
+	public static final String BLACKLISTED_EMAIL_ADDRESS = "blacklisted@somehost.com";
 
 	public static final String DEFAULT_SENDER_NAME = "someSender";
 	public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
+	public static final String DEFAULT_SENDER_REPLY_TO = "replyTo@someone.com";
+
+	public static final String HEADER_VALUE = "<test@test>";
 
 	private TestDataFactory() {}
 
@@ -84,6 +90,70 @@ public final class TestDataFactory {
 					.withContentType("someContentType")
 					.withContent("aGVsbG8gd29ybGQK")
 					.build()))
+			.build();
+	}
+
+	public static EmailBatchRequest.Party createValidEmailBatchRequestParty() {
+		return EmailBatchRequest.Party.builder()
+			.withEmailAddress(DEFAULT_EMAIL_ADDRESS)
+			.withPartyId(UUID.randomUUID().toString())
+			.build();
+	}
+
+	public static EmailBatchRequest.Party createBlacklistedEmailBatchRequestParty() {
+		return EmailBatchRequest.Party.builder()
+			.withEmailAddress(BLACKLISTED_EMAIL_ADDRESS)
+			.withPartyId(UUID.randomUUID().toString())
+			.build();
+	}
+
+	public static EmailBatchRequest.Sender createValidEmailBatchRequestSender() {
+		return EmailBatchRequest.Sender.builder()
+			.withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
+			.withName(DEFAULT_SENDER_NAME)
+			.withReplyTo(DEFAULT_SENDER_REPLY_TO)
+			.build();
+	}
+
+	public static EmailBatchRequest.Attachment createValidEmailBatchRequestAttachment() {
+		return EmailBatchRequest.Attachment.builder()
+			.withContentType("text/plain")
+			.withContent("c29tZUJhc2U2NENvbnRlbnQ=")
+			.withName("someName")
+			.build();
+	}
+
+	public static Map<Header, List<String>> createValidHeaders() {
+		return Map.of(MESSAGE_ID, List.of(HEADER_VALUE),
+			REFERENCES, List.of(HEADER_VALUE, HEADER_VALUE),
+			IN_REPLY_TO, List.of(HEADER_VALUE));
+
+	}
+
+	public static EmailBatchRequest createValidEmailBatchRequestWithABlacklistedEmail() {
+		return EmailBatchRequest.builder()
+			.withParties(List.of(createValidEmailBatchRequestParty(), createBlacklistedEmailBatchRequestParty()))
+			.withHeaders(createValidHeaders())
+			.withHtmlMessage("someHtmlMessage")
+			.withMessage("someMessage")
+			.withOrigin("someOrigin")
+			.withSubject("someSubject")
+			.withSender(createValidEmailBatchRequestSender())
+			.withAttachments(List.of(createValidEmailBatchRequestAttachment()))
+			.build();
+
+	}
+
+	public static EmailBatchRequest createValidEmailBatchRequest() {
+		return EmailBatchRequest.builder()
+			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
+			.withHeaders(createValidHeaders())
+			.withHtmlMessage("someHtmlMessage")
+			.withMessage("someMessage")
+			.withOrigin("someOrigin")
+			.withSubject("someSubject")
+			.withSender(createValidEmailBatchRequestSender())
+			.withAttachments(List.of(createValidEmailBatchRequestAttachment()))
 			.build();
 	}
 
@@ -312,6 +382,29 @@ public final class TestDataFactory {
 					.withContentType("someContentType")
 					.withContent("aGVsbG8gd29ybGQK")
 					.build()))
+			.build();
+	}
+
+	public static EmailBatchRequest createEmailBatchRequest() {
+		return EmailBatchRequest.builder()
+			.withAttachments(List.of(
+				EmailBatchRequest.Attachment.builder()
+					.withContentType("text/plain")
+					.withContent("c29tZUJhc2U2NENvbnRlbnQ=")
+					.withName("someName")
+					.build()))
+			.withSender(EmailBatchRequest.Sender.builder()
+				.withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
+				.withName(DEFAULT_SENDER_NAME)
+				.withReplyTo("test@testorsson.com")
+				.build())
+			.withHeaders(Map.of(MESSAGE_ID, List.of(HEADER_VALUE),
+				REFERENCES, List.of(HEADER_VALUE, HEADER_VALUE),
+				IN_REPLY_TO, List.of(HEADER_VALUE)))
+			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
+			.withHtmlMessage("someHtmlMessage")
+			.withSubject("someSubject")
+			.withOrigin("someOrigin")
 			.build();
 	}
 }

@@ -1,6 +1,11 @@
 package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
 
 import java.util.List;
 
@@ -208,5 +213,66 @@ class RequestMapperTests {
 				.withFilename(filename + DeliveryMode.DIGITAL_MAIL)
 				.withDeliveryMode(DeliveryMode.DIGITAL_MAIL)
 				.build());
+	}
+
+	@Test
+	void toEmailRequest() {
+		var emailBatchRequest = createValidEmailBatchRequest();
+		var party = createValidEmailBatchRequestParty();
+
+		var emailRequest = mapper.toEmailBatchRequest(emailBatchRequest, party);
+
+		assertThat(emailRequest.emailAddress()).isEqualTo(party.emailAddress());
+		assertThat(emailRequest.headers()).isEqualTo(emailBatchRequest.headers());
+		assertThat(emailRequest.message()).isEqualTo(emailBatchRequest.message());
+		assertThat(emailRequest.subject()).isEqualTo(emailBatchRequest.subject());
+		assertThat(emailRequest.origin()).isEqualTo(emailBatchRequest.origin());
+		assertThat(emailRequest.htmlMessage()).isEqualTo(emailBatchRequest.htmlMessage());
+
+		assertThat(emailRequest.sender()).satisfies(s -> {
+			assertThat(s.address()).isEqualTo(emailBatchRequest.sender().address());
+			assertThat(s.name()).isEqualTo(emailBatchRequest.sender().name());
+			assertThat(s.replyTo()).isEqualTo(emailBatchRequest.sender().replyTo());
+		});
+
+		assertThat(emailRequest.attachments()).extracting("contentType", "content", "name")
+			.containsExactlyInAnyOrder(tuple("text/plain", "c29tZUJhc2U2NENvbnRlbnQ=", "someName"));
+
+		//Verify that all party-fields are set correctly
+		assertThat(emailRequest.party()).satisfies(p -> assertThat(p.partyId()).isEqualTo(party.partyId()));
+	}
+
+	@Test
+	void toEmailRequestSender() {
+		var sender = createValidEmailBatchRequestSender();
+
+		var emailRequestSender = mapper.toEmailRequestSender(sender);
+
+		assertThat(emailRequestSender).isNotNull();
+		assertThat(emailRequestSender.address()).isEqualTo(sender.address());
+		assertThat(emailRequestSender.name()).isEqualTo(sender.name());
+		assertThat(emailRequestSender.replyTo()).isEqualTo(sender.replyTo());
+	}
+
+	@Test
+	void toEmailRequestParty() {
+		var party = createValidEmailBatchRequestParty();
+
+		var emailRequestParty = mapper.toEmailRequestParty(party);
+
+		assertThat(emailRequestParty).isNotNull();
+		assertThat(emailRequestParty.partyId()).isEqualTo(party.partyId());
+	}
+
+	@Test
+	void toEmailRequestAttachment() {
+		var attachment = createValidEmailBatchRequestAttachment();
+
+		var emailRequestAttachment = mapper.toEmailRequestAttachment(attachment);
+
+		assertThat(emailRequestAttachment).isNotNull();
+		assertThat(emailRequestAttachment.contentType()).isEqualTo(attachment.contentType());
+		assertThat(emailRequestAttachment.content()).isEqualTo(attachment.content());
+		assertThat(emailRequestAttachment.name()).isEqualTo(attachment.name());
 	}
 }

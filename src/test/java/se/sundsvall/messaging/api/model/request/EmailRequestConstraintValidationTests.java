@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.api.model.request;
 
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
 import static se.sundsvall.messaging.api.model.request.RequestValidationAssertions.EmailRequestAssertions.assertThat;
 
 import java.util.List;
@@ -179,7 +179,7 @@ class EmailRequestConstraintValidationTests {
 
 	@ParameterizedTest
 	@MethodSource("invalidHeaderArgumentProvider")
-	void shouldFailWithInvalidHeaderValues(final Map<EmailRequest.Header, List<String>> map, final String field, final String message) {
+	void shouldFailWithInvalidHeaderValues(final Map<Header, List<String>> map, final String field, final String message) {
 		assertThat(validRequest.withHeaders(map))
 			.hasSingleConstraintViolation(field, message);
 	}

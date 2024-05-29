@@ -55,9 +55,13 @@ public class BlacklistService {
         check(EMAIL, request.emailAddress());
     }
 
-    public void check(final DigitalMailRequest request) {
-        request.party().partyIds().forEach(partyId -> check(DIGITAL_MAIL, partyId));
-    }
+	public void check(final String emailAddress) {
+		check(EMAIL, emailAddress);
+	}
+
+	public void check(final DigitalMailRequest request) {
+		request.party().partyIds().forEach(partyId -> check(DIGITAL_MAIL, partyId));
+	}
 
     public void check(final DigitalInvoiceRequest request) {
         check(EMAIL, request.party().partyId());

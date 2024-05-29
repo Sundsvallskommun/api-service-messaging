@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
@@ -136,6 +137,24 @@ class MessageResource {
 		}
 
 		return toResponse(messageService.sendEmail(request.withOrigin(origin)));
+	}
+
+	@Operation(
+		summary = "Send a batch of e-mails asynchronously",
+		responses = {
+			@ApiResponse(
+				responseCode = "201",
+				description = "Successful Operation",
+				useReturnTypeSchema = true,
+				headers = @Header(name = LOCATION, schema = @Schema(type = "string"))
+			)
+		}
+	)
+	@PostMapping("/email/batch")
+	ResponseEntity<MessageBatchResult> sendEmailBatch(
+		@RequestHeader(value = "x-origin", required = false) String origin,
+		@Valid @RequestBody final EmailBatchRequest request) {
+		return toResponse(eventDispatcher.handleEmailBatchRequest(request.withOrigin(origin)));
 	}
 
 	@Operation(
