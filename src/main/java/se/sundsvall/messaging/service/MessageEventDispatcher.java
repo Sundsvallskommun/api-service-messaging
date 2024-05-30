@@ -1,39 +1,55 @@
 package se.sundsvall.messaging.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.zalando.problem.ThrowableProblem;
+
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
-
-import java.util.UUID;
+import se.sundsvall.messaging.service.mapper.RequestMapper;
 
 @Component
 public class MessageEventDispatcher {
+
+	private static final Logger LOG = LoggerFactory.getLogger(MessageEventDispatcher.class);
 
     private final ApplicationEventPublisher eventPublisher;
     private final BlacklistService blacklistService;
     private final DbIntegration dbIntegration;
     private final MessageMapper messageMapper;
+	private final RequestMapper requestMapper;
 
     public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher,
             final BlacklistService blacklistService, final DbIntegration dbIntegration,
-            final MessageMapper messageMapper) {
+		final MessageMapper messageMapper,
+		final RequestMapper requestMapper) {
         this.eventPublisher = eventPublisher;
         this.blacklistService = blacklistService;
         this.dbIntegration = dbIntegration;
         this.messageMapper = messageMapper;
+		this.requestMapper = requestMapper;
     }
 
     public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
@@ -71,6 +87,23 @@ public class MessageEventDispatcher {
 
         return publishMessageEvent(message);
     }
+
+	public InternalDeliveryBatchResult handleSmsBatchRequest(final SmsBatchRequest request) {
+		var batchId = UUID.randomUUID().toString();
+
+		var deliveryResults = ofNullable(request.parties()).orElse(emptyList()).stream()
+			.filter(party -> isWhitelisted(SMS, party.mobileNumber()))
+			.map(party -> requestMapper.toSmsRequest(request, party))
+			.map(message -> messageMapper.toMessage(message, batchId))
+			.map(dbIntegration::saveMessage)
+			.map(message -> publishMessageEvent(message.withBatchId(batchId)))
+			.toList();
+
+		return InternalDeliveryBatchResult.builder()
+			.withDeliveries(deliveryResults)
+			.withBatchId(batchId)
+			.build();
+	}
 
     public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
         // Check blacklist
@@ -134,4 +167,15 @@ public class MessageEventDispatcher {
 
         return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type());
     }
+
+	private boolean isWhitelisted(MessageType type, String destination) {
+		try {
+			blacklistService.check(type, destination);
+		} catch (ThrowableProblem e) {
+			LOG.info("Found blacklisted {} destination: {}, skipping.", type, destination);
+			// Skipping blacklisted destination
+			return false;
+		}
+		return true;
+	}
 }

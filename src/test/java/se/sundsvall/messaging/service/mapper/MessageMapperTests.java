@@ -1,12 +1,5 @@
 package se.sundsvall.messaging.service.mapper;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
@@ -25,8 +18,13 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
 @UnitTest
-@ExtendWith(MockitoExtension.class)
 class MessageMapperTests {
 
     private final MessageMapper messageMapper = new MessageMapper();
@@ -77,6 +75,22 @@ class MessageMapperTests {
     }
 
     @Test
+	void test_toMessage_withSmsRequestAndBatchId() {
+		var request = createValidSmsRequest();
+		var batchId = UUID.randomUUID().toString();
+
+		var message = messageMapper.toMessage(request, batchId);
+
+		assertThat(message.messageId()).isNotNull();
+		assertThat(message.deliveryId()).isNotNull();
+		assertThat(message.batchId()).isEqualTo(batchId);
+		assertThat(message.type()).isEqualTo(SMS);
+		assertThat(message.status()).isEqualTo(PENDING);
+		assertThat(message.content()).isEqualTo(toJson(request));
+		assertThat(message.origin()).isEqualTo(request.origin());
+	}
+
+	@Test
     void test_toMessage_withWebMessageRequest() {
         final var request = createValidWebMessageRequest();
 

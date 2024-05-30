@@ -1,11 +1,25 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
@@ -17,19 +31,6 @@ import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.ReferenceType;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 public final class TestDataFactory {
 
@@ -112,6 +113,18 @@ public final class TestDataFactory {
 				.build())
 			.withSender(DEFAULT_SENDER_NAME)
 			.withMobileNumber(DEFAULT_MOBILE_NUMBER)
+			.withMessage("someMessage")
+			.withOrigin("someOrigin")
+			.build();
+	}
+
+	public static SmsBatchRequest createValidSmsBatchRequest() {
+		return SmsBatchRequest.builder()
+			.withParties(List.of(SmsBatchRequest.Party.builder()
+				.withPartyId(UUID.randomUUID().toString())
+				.withMobileNumber(DEFAULT_MOBILE_NUMBER)
+				.build()))
+			.withSender(DEFAULT_SENDER_NAME)
 			.withMessage("someMessage")
 			.withOrigin("someOrigin")
 			.build();

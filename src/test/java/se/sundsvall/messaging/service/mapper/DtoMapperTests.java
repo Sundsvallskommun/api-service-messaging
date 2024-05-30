@@ -8,12 +8,9 @@ import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFER
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.sundsvall.messaging.configuration.Defaults;
 
-@ExtendWith(MockitoExtension.class)
 class DtoMapperTests {
 
 	private DtoMapper dtoMapper;
