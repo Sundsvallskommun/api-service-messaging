@@ -10,9 +10,9 @@
         department varchar(255),
         origin varchar(255),
         status_detail LONGTEXT,
-        message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),
-        original_message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),
-        status enum ('PENDING','AWAITING_FEEDBACK','SENT','NOT_SENT','FAILED','NO_CONTACT_SETTINGS_FOUND','NO_CONTACT_WANTED'),
+        message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
+        original_message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
+        status enum ('AWAITING_FEEDBACK','FAILED','NOT_SENT','NO_CONTACT_SETTINGS_FOUND','NO_CONTACT_WANTED','PENDING','SENT'),
         primary key (id)
     ) engine=InnoDB;
 
@@ -25,23 +25,23 @@
         message_id varchar(255),
         origin varchar(255),
         party_id varchar(255),
-        message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),
-        original_message_type enum ('MESSAGE','EMAIL','SMS','WEB_MESSAGE','DIGITAL_MAIL','DIGITAL_INVOICE','SNAIL_MAIL','LETTER','SLACK'),
-        status enum ('PENDING','AWAITING_FEEDBACK','SENT','NOT_SENT','FAILED','NO_CONTACT_SETTINGS_FOUND','NO_CONTACT_WANTED'),
+        message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
+        original_message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
+        status enum ('AWAITING_FEEDBACK','FAILED','NOT_SENT','NO_CONTACT_SETTINGS_FOUND','NO_CONTACT_WANTED','PENDING','SENT'),
         primary key (id)
     ) engine=InnoDB;
 
-    create index idx_history_batch_id
+    create index idx_history_batch_id 
        on history (batch_id);
 
-    create index idx_history_message_id
+    create index idx_history_message_id 
        on history (message_id);
 
-    create index idx_history_delivery_id
+    create index idx_history_delivery_id 
        on history (delivery_id);
 
-    create index idx_history_origin
+    create index idx_history_origin 
        on history (origin);
 
-    create index idx_history_department
+    create index idx_history_department 
        on history (department);
