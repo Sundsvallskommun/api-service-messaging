@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.assertj.core.api.AbstractAssert;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-
-import org.assertj.core.api.AbstractAssert;
 
 abstract class RequestValidationAssertions<R>
         extends AbstractAssert<RequestValidationAssertions<R>, R> {
@@ -80,6 +80,17 @@ abstract class RequestValidationAssertions<R>
             return new SmsRequestAssertions(request);
         }
     }
+
+	static class SmsBatchRequestAssertions extends RequestValidationAssertions<SmsBatchRequest> {
+
+		private SmsBatchRequestAssertions(final SmsBatchRequest request) {
+			super(request, SmsBatchRequestAssertions.class);
+		}
+
+		static SmsBatchRequestAssertions assertThat(final SmsBatchRequest request) {
+			return new SmsBatchRequestAssertions(request);
+		}
+	}
 
     static class DigitalMailRequestAssertions extends RequestValidationAssertions<DigitalMailRequest> {
 

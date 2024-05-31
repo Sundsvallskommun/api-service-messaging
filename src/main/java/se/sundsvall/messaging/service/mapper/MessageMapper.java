@@ -1,21 +1,5 @@
 package se.sundsvall.messaging.service.mapper;
 
-import org.springframework.stereotype.Component;
-import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SlackRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.model.Message;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -27,6 +11,23 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.Message;
 
 @Component
 public class MessageMapper {
@@ -45,6 +46,11 @@ public class MessageMapper {
             .withOrigin(request.origin())
             .build();
     }
+
+	public Message toMessage(final SmsRequest request, String batchId) {
+		return toMessage(request)
+			.withBatchId(batchId);
+	}
 
     public Message toMessage(final SmsRequest request) {
         return Message.builder()

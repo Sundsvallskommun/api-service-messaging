@@ -1,36 +1,18 @@
 package se.sundsvall.messaging.api;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.api.model.response.DeliveryResult;
-import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
-import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.service.BlacklistService;
-import se.sundsvall.messaging.service.MessageEventDispatcher;
-import se.sundsvall.messaging.service.MessageService;
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
+import static se.sundsvall.messaging.TestDataFactory.createValidSmsBatchRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
@@ -43,6 +25,27 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.service.MessageEventDispatcher;
+import se.sundsvall.messaging.service.MessageService;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class MessageResourceTests {
@@ -52,13 +55,14 @@ class MessageResourceTests {
 		.withDeliveryId("someDeliveryId")
 		.withStatus(SENT)
 		.build();
+
 	private static final String ORIGIN = "origin";
+
 	@Mock
 	private MessageService mockMessageService;
+
 	@Mock
 	private MessageEventDispatcher mockEventDispatcher;
-	@Mock
-	private BlacklistService mockBlacklist;
 
 	@InjectMocks
 	private MessageResource messageResource;
@@ -104,6 +108,41 @@ class MessageResourceTests {
 
 		verify(mockMessageService, never()).sendSms(any(SmsRequest.class));
 		verify(mockEventDispatcher).handleSmsRequest(request.withOrigin(ORIGIN));
+	}
+
+	@Test
+	void sendSmsBatch() {
+		final var request = createValidSmsBatchRequest();
+		final var deliveryBatchResult = InternalDeliveryBatchResult.builder()
+			.withBatchId("someBatchId")
+			.withDeliveries(List.of(InternalDeliveryResult.builder()
+				.withMessageId("someMessageId")
+				.withDeliveryId("someDeliveryId")
+				.withMessageType(SMS)
+				.withStatus(SENT)
+				.build()))
+			.build();
+
+		when(mockEventDispatcher.handleSmsBatchRequest(request.withOrigin(ORIGIN))).thenReturn(deliveryBatchResult);
+
+		final var response = messageResource.sendSmsBatch(ORIGIN, request);
+		final var body = response.getBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getStatusCode()).isEqualTo(CREATED);
+		assertThat(body).isNotNull();
+
+		assertThat(body.batchId()).isEqualTo("someBatchId");
+		assertThat(body.messages()).isNotNull().hasSize(1);
+		assertThat(body.messages().getFirst().messageId()).isEqualTo("someMessageId");
+		assertThat(body.messages().getFirst().deliveries()).isNotNull().hasSize(1);
+		assertThat(body.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(body.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(body.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher).handleSmsBatchRequest(request.withOrigin(ORIGIN));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
 	}
 
 	@Test

@@ -1,32 +1,43 @@
 package se.sundsvall.messaging.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
+
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
+import se.sundsvall.messaging.service.mapper.RequestMapper;
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -34,13 +45,18 @@ class MessageEventDispatcherTests {
 
     @Mock
     private ApplicationEventPublisher mockEventPublisher;
+
     @Mock
     private BlacklistService mockBlacklistService;
+
     @Mock
     private DbIntegration mockDbIntegration;
 
     @Mock
-    private MessageMapper mockMessageMapper;
+	private MessageMapper mockMessageMapper;
+
+	@Mock
+	private RequestMapper mockRequestMapper;
 
     @InjectMocks
     private MessageEventDispatcher messageEventDispatcher;
@@ -86,7 +102,34 @@ class MessageEventDispatcherTests {
         verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
     }
 
-    @Test
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void handleSmsBatchRequest(boolean whitelisted) {
+		final var message = Message.builder().build();
+		final var smsRequest = SmsRequest.builder().build();
+		final var party = SmsBatchRequest.Party.builder().build();
+		final var smsBatchRequest = SmsBatchRequest.builder().withParties(List.of(party)).build();
+
+		if (whitelisted) {
+			when(mockRequestMapper.toSmsRequest(any(SmsBatchRequest.class), any(SmsBatchRequest.Party.class))).thenReturn(smsRequest);
+			when(mockMessageMapper.toMessage(any(SmsRequest.class), any(String.class))).thenReturn(message);
+			when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
+		} else {
+			doThrow(Problem.valueOf(Status.BAD_REQUEST)).when(mockBlacklistService).check(any(), any());
+		}
+
+		assertThat(messageEventDispatcher.handleSmsBatchRequest(smsBatchRequest).batchId()).isNotEmpty();
+
+		if (whitelisted) {
+			verify(mockRequestMapper).toSmsRequest(smsBatchRequest, party);
+			verify(mockMessageMapper).toMessage(eq(smsRequest), any(String.class));
+			verify(mockDbIntegration).saveMessage(message);
+			verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
+		}
+		verifyNoMoreInteractions(mockRequestMapper, mockMessageMapper, mockDbIntegration, mockEventPublisher);
+	}
+
+	@Test
     void handleWebMessageRequest() {
         when(mockMessageMapper.toMessage(any(WebMessageRequest.class))).thenReturn(Message.builder().build());
         when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());

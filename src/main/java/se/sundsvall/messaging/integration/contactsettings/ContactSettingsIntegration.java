@@ -24,7 +24,7 @@ public class ContactSettingsIntegration {
 	public List<ContactDto> getContactSettings(final String partyId, final MultiValueMap<String, String> filters) {
 		final var response = client.getSettings(partyId, filters);
 
-		if (response.getStatusCode().is2xxSuccessful() && (response.getBody() != null)) {
+		if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
 			return response.getBody().stream()
 				.map(ContactSetting::getContactChannels)
 				.flatMap(Collection::stream)

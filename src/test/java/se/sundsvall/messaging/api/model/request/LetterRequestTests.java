@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.api.model.request;
 
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class LetterRequestTests {

@@ -86,7 +86,7 @@ public class BlacklistService {
         check(SLACK, request.channel());
     }
 
-    void check(final MessageType messageType, final String value) {
+	public void check(final MessageType messageType, final String value) {
         if (!properties.enabled() || isEmpty(properties.blockedRecipients())) {
             LOG.debug("Blacklist is NOT ENABLED, or no blocked recipients have been defined");
 

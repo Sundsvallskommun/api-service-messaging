@@ -1,20 +1,22 @@
 package se.sundsvall.messaging.service.mapper;
 
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
+
+import java.util.List;
+
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.model.Message;
-
-import java.util.List;
-
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Component
 public class RequestMapper {
@@ -140,4 +142,16 @@ public class RequestMapper {
             .withOrigin(request.origin())
             .build();
     }
+
+	public SmsRequest toSmsRequest(final SmsBatchRequest request, final SmsBatchRequest.Party party) {
+		return SmsRequest.builder()
+			.withParty(SmsRequest.Party.builder()
+				.withPartyId(party.partyId())
+				.build())
+			.withMessage(request.message())
+			.withMobileNumber(party.mobileNumber())
+			.withOrigin(request.origin())
+			.withSender(request.sender())
+			.build();
+	}
 }
