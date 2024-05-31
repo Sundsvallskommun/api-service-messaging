@@ -53,7 +53,7 @@ class MessageEventDispatcherTests {
     private DbIntegration mockDbIntegration;
 
     @Mock
-    private MessageMapper mockMessageMapper;
+	private MessageMapper mockMessageMapper;
 
 	@Mock
 	private RequestMapper mockRequestMapper;

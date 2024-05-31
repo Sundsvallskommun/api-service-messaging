@@ -96,7 +96,7 @@ public class MessageEventDispatcher {
 			.map(party -> requestMapper.toSmsRequest(request, party))
 			.map(message -> messageMapper.toMessage(message, batchId))
 			.map(dbIntegration::saveMessage)
-			.map(message -> publishMessageEvent(message.withBatchId(batchId)))
+			.map(this::publishMessageEvent)
 			.toList();
 
 		return InternalDeliveryBatchResult.builder()
