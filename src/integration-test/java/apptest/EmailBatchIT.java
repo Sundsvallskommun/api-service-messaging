@@ -79,7 +79,6 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
 			.withExpectedResponse("response.json")
-			.sendRequestAndVerifyResponse()
-			.andReturnBody(MessageBatchResult.class);
+			.sendRequestAndVerifyResponse();
 	}
 }
