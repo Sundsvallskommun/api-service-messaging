@@ -206,7 +206,7 @@ class MessageEventDispatcherTests {
 		var validEmailBatchRequest = TestDataFactory.createValidEmailBatchRequest();
 
 		doNothing().when(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
-		when(mockRequestMapper.toEmailBatchRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
+		when(mockRequestMapper.toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
 			.thenReturn(EmailRequest.builder().build());
 
 		var message = TestDataFactory.createMessage(MessageType.EMAIL, "someContent");
@@ -218,7 +218,7 @@ class MessageEventDispatcherTests {
 		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
 
 		verify(mockBlacklistService, times(2)).check(MessageType.EMAIL, "someone@somehost.com");
-		verify(mockRequestMapper, times(2)).toEmailBatchRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
+		verify(mockRequestMapper, times(2)).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
 		verify(mockMessageMapper, times(2)).toMessage(any(EmailRequest.class), anyString());
 		verify(mockEventPublisher, times(2)).publishEvent(any(IncomingMessageEvent.class));
 
@@ -231,7 +231,7 @@ class MessageEventDispatcherTests {
 
 		doNothing().when(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
 		doThrow(Problem.valueOf(Status.BAD_REQUEST)).when(mockBlacklistService).check(MessageType.EMAIL, "blacklisted@somehost.com");
-		when(mockRequestMapper.toEmailBatchRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
+		when(mockRequestMapper.toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
 			.thenReturn(EmailRequest.builder().build());
 
 		var message = TestDataFactory.createMessage(MessageType.EMAIL, "someContent");
@@ -243,7 +243,7 @@ class MessageEventDispatcherTests {
 		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
 
 		verify(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
-		verify(mockRequestMapper).toEmailBatchRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
+		verify(mockRequestMapper).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
 		verify(mockMessageMapper).toMessage(any(EmailRequest.class), anyString());
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 

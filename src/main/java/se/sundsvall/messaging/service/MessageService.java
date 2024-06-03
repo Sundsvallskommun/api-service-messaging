@@ -267,7 +267,7 @@ public class MessageService {
 						final var delivery = message
 							.withDeliveryId(deliveryId)
 							.withType(EMAIL)
-							.withContent(requestMapper.toEmailBatchRequest(message, contactSetting.destination()));
+							.withContent(requestMapper.toEmailRequest(message, contactSetting.destination()));
 
 						// Save the re-mapped delivery
 						dbIntegration.saveMessage(delivery);

@@ -86,7 +86,7 @@ public class MessageEventDispatcher {
 
 		var deliveryResults = ofNullable(request.parties()).orElse(Collections.emptyList()).stream()
 			.filter(party -> isWhitelisted(MessageType.EMAIL, party.emailAddress()))
-			.map(party -> requestMapper.toEmailBatchRequest(request, party))
+			.map(party -> requestMapper.toEmailRequest(request, party))
 			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId))
 			.map(dbIntegration::saveMessage)
 			.map(this::publishMessageEvent)

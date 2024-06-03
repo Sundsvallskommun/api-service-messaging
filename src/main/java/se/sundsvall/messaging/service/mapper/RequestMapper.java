@@ -61,7 +61,7 @@ public class RequestMapper {
 		return toJson(smsRequest);
 	}
 
-	public String toEmailBatchRequest(final Message message, final String emailAddress) {
+	public String toEmailRequest(final Message message, final String emailAddress) {
 		var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
 		var sender = ofNullable(originalMessage.sender())
@@ -157,7 +157,7 @@ public class RequestMapper {
 	}
 
 
-	public EmailRequest toEmailBatchRequest(final EmailBatchRequest request, final EmailBatchRequest.Party party) {
+	public EmailRequest toEmailRequest(final EmailBatchRequest request, final EmailBatchRequest.Party party) {
 		return EmailRequest.builder()
 			.withSender(toEmailRequestSender(request.sender()))
 			.withParty(toEmailRequestParty(party))

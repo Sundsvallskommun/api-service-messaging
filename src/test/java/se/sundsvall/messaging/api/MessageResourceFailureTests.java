@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static se.sundsvall.messaging.TestDataFactory.createEmailBatchRequest;
-import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
@@ -29,7 +28,6 @@ import org.zalando.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.Header;
-import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
@@ -41,7 +39,6 @@ class MessageResourceFailureTests {
 	private static final EmailBatchRequest.Party PARTY = createValidEmailBatchRequestParty();
 	private static final EmailBatchRequest.Sender SENDER = createValidEmailBatchRequestSender();
 	private static final EmailBatchRequest.Attachment ATTACHMENT = createValidEmailBatchRequestAttachment();
-	private static final ExternalReference EXTERNAL_REFERENCE = createExternalReference();
 
 	@Autowired
 	private WebTestClient webTestClient;

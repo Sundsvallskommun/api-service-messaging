@@ -220,7 +220,7 @@ class RequestMapperTests {
 		var emailBatchRequest = createValidEmailBatchRequest();
 		var party = createValidEmailBatchRequestParty();
 
-		var emailRequest = mapper.toEmailBatchRequest(emailBatchRequest, party);
+		var emailRequest = mapper.toEmailRequest(emailBatchRequest, party);
 
 		assertThat(emailRequest.emailAddress()).isEqualTo(party.emailAddress());
 		assertThat(emailRequest.headers()).isEqualTo(emailBatchRequest.headers());

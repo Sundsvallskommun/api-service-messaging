@@ -547,7 +547,7 @@ class MessageServiceTests {
         verify(mockDtoMapper).toEmailDto(any(EmailRequest.class));
         verifyNoMoreInteractions(mockDtoMapper);
         verify(mockRequestMapper).toSmsRequest(any(Message.class), any(String.class));
-        verify(mockRequestMapper).toEmailBatchRequest(any(Message.class), any(String.class));
+        verify(mockRequestMapper).toEmailRequest(any(Message.class), any(String.class));
         verifyNoMoreInteractions(mockRequestMapper);
         // Verify transaction template interaction
         verifyTransactionTemplateInteractions(5);

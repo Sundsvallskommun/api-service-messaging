@@ -1176,11 +1176,11 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
       properties:
@@ -1613,6 +1613,7 @@ components:
       description: Sender
     EmailBatchRequest:
       required:
+        - parties
         - subject
       type: object
       properties:

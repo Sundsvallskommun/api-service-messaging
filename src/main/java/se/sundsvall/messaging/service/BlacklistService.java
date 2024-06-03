@@ -7,7 +7,6 @@ import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SLACK;
 import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
@@ -25,7 +24,6 @@ import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.configuration.BlacklistProperties;
 import se.sundsvall.messaging.model.MessageType;
@@ -55,20 +53,12 @@ public class BlacklistService {
         check(EMAIL, request.emailAddress());
     }
 
-	public void check(final String emailAddress) {
-		check(EMAIL, emailAddress);
-	}
-
 	public void check(final DigitalMailRequest request) {
 		request.party().partyIds().forEach(partyId -> check(DIGITAL_MAIL, partyId));
 	}
 
     public void check(final DigitalInvoiceRequest request) {
         check(EMAIL, request.party().partyId());
-    }
-
-    public void check(final SnailMailRequest request) {
-        check(SNAIL_MAIL, request.party().partyId());
     }
 
     public void check(final MessageRequest request) {
