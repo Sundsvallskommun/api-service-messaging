@@ -17,7 +17,7 @@ public class WebMessageSenderIntegration {
     private final WebMessageSenderClient client;
     private final WebMessageSenderIntegrationMapper mapper;
 
-    public WebMessageSenderIntegration(final WebMessageSenderClient client,
+    WebMessageSenderIntegration(final WebMessageSenderClient client,
             final WebMessageSenderIntegrationMapper mapper) {
         this.client = client;
         this.mapper = mapper;

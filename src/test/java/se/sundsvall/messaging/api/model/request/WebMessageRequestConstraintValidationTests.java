@@ -6,6 +6,8 @@ import static se.sundsvall.messaging.api.model.request.RequestValidationAssertio
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
@@ -34,7 +36,7 @@ class WebMessageRequestConstraintValidationTests {
 
 	@Test
 	void shouldFailWithInvalidExternalReference() {
-		var externalReference = validRequest.party().externalReferences().get(0);
+		var externalReference = validRequest.party().externalReferences().getFirst();
 
 		// Test invalid external reference key
 		var request = validRequest.withParty(validRequest.party()
@@ -49,6 +51,19 @@ class WebMessageRequestConstraintValidationTests {
 
 		assertThat(request)
 			.hasSingleConstraintViolation("party.externalReferences[0].value", "must not be blank");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"", " ", "invalid"})
+	void shouldFailWithInvalidOepInstance(String oepInstance) {
+		assertThat(validRequest.withOepInstance(oepInstance))
+			.hasSingleConstraintViolation("oepInstance", "instance must be 'internal' or 'external'");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"external", "internal", "interNaL", "eXtErNaL"})
+	void shouldPassWithValidOepInstance(String oepInstance) {
+		assertThat(validRequest.withOepInstance(oepInstance)).hasNoConstraintViolations();
 	}
 
 	@Test

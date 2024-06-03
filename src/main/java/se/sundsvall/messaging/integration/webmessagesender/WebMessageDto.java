@@ -8,14 +8,16 @@ import lombok.Builder;
 
 @Builder(setterPrefix = "with")
 public record WebMessageDto(
-        String partyId,
-        List<ExternalReference> externalReferences,
-        String message,
-        List<Attachment> attachments) {
+	String partyId,
+	List<ExternalReference> externalReferences,
+	String message,
+	String oepInstance,
+	List<Attachment> attachments) {
 
-    @Builder(setterPrefix = "with")
-    public record Attachment(
-        String fileName,
-        String mimeType,
-        String base64Data) { }
+	@Builder(setterPrefix = "with")
+	public record Attachment(
+		String fileName,
+		String mimeType,
+		String base64Data) {
+	}
 }

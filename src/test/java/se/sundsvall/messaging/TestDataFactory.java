@@ -208,6 +208,7 @@ public final class TestDataFactory {
 				.build())
 			.withMessage("someMessage")
 			.withOrigin("someOrigin")
+			.withOepInstance("internal")
 			.withAttachments(List.of(
 				WebMessageRequest.Attachment.builder()
 					.withFileName("someFileName")

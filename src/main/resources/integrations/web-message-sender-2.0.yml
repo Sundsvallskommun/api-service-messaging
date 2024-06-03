@@ -1,19 +1,22 @@
 openapi: 3.0.1
 info:
   title: api-web-message-sender
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: '1.1'
+  version: "2.0"
+servers:
+  - url: http://localhost:61920
+    description: Generated server url
 tags:
-- name: WebMessages
-  description: Web messages
+  - name: WebMessages
+    description: Web messages
 paths:
   /webmessages:
     post:
       tags:
-      - WebMessages
+        - WebMessages
       summary: Create web message
       operationId: createWebMessage
       requestBody:
@@ -29,14 +32,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
         "404":
           description: Not found
           content:
@@ -49,6 +44,14 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
         "201":
           description: Successful operation
           headers:
@@ -59,40 +62,20 @@ paths:
   /webmessages/{id}:
     get:
       tags:
-      - WebMessages
+        - WebMessages
       summary: Get web message by ID
       operationId: getWebMessageById
       parameters:
-      - name: id
-        in: path
-        description: Web message ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: id
+          in: path
+          description: Web message ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
         "502":
           description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -106,36 +89,46 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/WebMessage'
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
     delete:
       tags:
-      - WebMessages
+        - WebMessages
       summary: Delete web message by ID
       operationId: deleteWebMessageById
       parameters:
-      - name: id
-        in: path
-        description: Web message ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: id
+          in: path
+          description: Web message ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "204":
-          description: Successful operation
         "502":
           description: Bad gateway
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
         "404":
           description: Not found
           content:
@@ -148,43 +141,33 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        "204":
+          description: Successful operation
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
   /webmessages/recipients/{partyId}:
     get:
       tags:
-      - WebMessages
+        - WebMessages
       summary: Get web messages by partyId
       operationId: getWebMessagesByPartyId
       parameters:
-      - name: partyId
-        in: path
-        description: PartyID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: partyId
+          in: path
+          description: PartyID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
         "502":
           description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -197,54 +180,59 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WebMessage'
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebMessage'
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
   /webmessages/external-references/{key}/{value}:
     get:
       tags:
-      - WebMessages
+        - WebMessages
       summary: Get web messages by externalReference
       operationId: getWebMessagesByExternalReference
       parameters:
-      - name: key
-        in: path
-        description: The external-reference key
-        required: true
-        schema:
-          maxLength: 128
-          minLength: 3
-          type: string
-        example: flowInstanceId
-      - name: value
-        in: path
-        description: The external-reference value
-        required: true
-        schema:
-          maxLength: 128
-          minLength: 3
-          type: string
-        example: 356t4r34f
+        - name: key
+          in: path
+          description: The external-reference key
+          required: true
+          schema:
+            maxLength: 128
+            minLength: 3
+            type: string
+          example: flowInstanceId
+        - name: value
+          in: path
+          description: The external-reference value
+          required: true
+          schema:
+            maxLength: 128
+            minLength: 3
+            type: string
+          example: 356t4r34f
       responses:
         "502":
           description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -257,10 +245,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WebMessage'
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebMessage'
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -276,6 +289,8 @@ paths:
 components:
   schemas:
     Attachment:
+      required:
+        - fileName
       type: object
       properties:
         fileName:
@@ -287,7 +302,7 @@ components:
           readOnly: true
         base64Data:
           type: string
-          description: "Base 64 encoded file, max size 10 mb"
+          description: "Base 64 encoded file, max size 10 MB"
           format: base64
       description: File attachment
     CreateWebMessageRequest:
@@ -301,6 +316,14 @@ components:
           type: string
           description: The message
           example: This is a message
+        oepInstance:
+          type: string
+          description: Determines if the message should be added to the internal or
+            external OeP instance
+          example: internal
+          enum:
+            - internal
+            - external
         externalReferences:
           type: array
           items:
@@ -373,10 +396,10 @@ components:
               lineNumber:
                 type: integer
                 format: int32
-              nativeMethod:
-                type: boolean
               className:
                 type: string
+              nativeMethod:
+                type: boolean
         type:
           type: string
           format: uri
@@ -404,35 +427,6 @@ components:
           items:
             type: object
             properties:
-              cause:
-                type: object
-                properties:
-                  stackTrace:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        classLoaderName:
-                          type: string
-                        moduleName:
-                          type: string
-                        moduleVersion:
-                          type: string
-                        methodName:
-                          type: string
-                        fileName:
-                          type: string
-                        lineNumber:
-                          type: integer
-                          format: int32
-                        nativeMethod:
-                          type: boolean
-                        className:
-                          type: string
-                  message:
-                    type: string
-                  localizedMessage:
-                    type: string
               stackTrace:
                 type: array
                 items:
@@ -451,10 +445,10 @@ components:
                     lineNumber:
                       type: integer
                       format: int32
-                    nativeMethod:
-                      type: boolean
                     className:
                       type: string
+                    nativeMethod:
+                      type: boolean
               message:
                 type: string
               localizedMessage:
@@ -484,10 +478,10 @@ components:
               lineNumber:
                 type: integer
                 format: int32
-              nativeMethod:
-                type: boolean
               className:
                 type: string
+              nativeMethod:
+                type: boolean
         message:
           type: string
         instance:
@@ -511,35 +505,6 @@ components:
           items:
             type: object
             properties:
-              cause:
-                type: object
-                properties:
-                  stackTrace:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        classLoaderName:
-                          type: string
-                        moduleName:
-                          type: string
-                        moduleVersion:
-                          type: string
-                        methodName:
-                          type: string
-                        fileName:
-                          type: string
-                        lineNumber:
-                          type: integer
-                          format: int32
-                        nativeMethod:
-                          type: boolean
-                        className:
-                          type: string
-                  message:
-                    type: string
-                  localizedMessage:
-                    type: string
               stackTrace:
                 type: array
                 items:
@@ -558,10 +523,10 @@ components:
                     lineNumber:
                       type: integer
                       format: int32
-                    nativeMethod:
-                      type: boolean
                     className:
                       type: string
+                    nativeMethod:
+                      type: boolean
               message:
                 type: string
               localizedMessage:
@@ -590,6 +555,10 @@ components:
           type: string
           description: The message
           example: This is a message
+        oepInstance:
+          type: string
+          description: The oep instance
+          example: internal
         externalReferences:
           type: array
           items:
@@ -604,4 +573,4 @@ components:
           items:
             $ref: '#/components/schemas/Attachment'
       description: WebMessage model
-  securitySchemes: {}
+  securitySchemes: { }

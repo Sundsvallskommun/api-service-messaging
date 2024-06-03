@@ -17,7 +17,7 @@ public class EmailSenderIntegration {
 	private final EmailSenderIntegrationMapper mapper;
 	private final EmailSenderClient client;
 
-	public EmailSenderIntegration(final EmailSenderClient client, final EmailSenderIntegrationMapper mapper) {
+	EmailSenderIntegration(final EmailSenderClient client, final EmailSenderIntegrationMapper mapper) {
 		this.client = client;
 		this.mapper = mapper;
 	}

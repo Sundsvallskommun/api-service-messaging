@@ -390,25 +390,34 @@ public class MessageService {
 			case WEB_MESSAGE -> WebMessageRequest.class;
 			case SNAIL_MAIL -> SnailMailRequest.class;
 			case SLACK -> SlackRequest.class;
-			default -> throw new IllegalArgumentException("Unknown request type: " + delivery.type());
+			default ->
+				throw new IllegalArgumentException("Unknown request type: " + delivery.type());
 		});
 
 		// Get the try call to start out with
 		final var sendTry = switch (delivery.type()) {
-			case SMS -> ofCallable(() -> smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
-			case EMAIL -> ofCallable(() -> emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
-			case DIGITAL_MAIL -> ofCallable(() -> digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
-			case DIGITAL_INVOICE -> ofCallable(() -> digitalMailSender.sendDigitalInvoice(dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
-			case WEB_MESSAGE -> ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
-			case SNAIL_MAIL -> ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
-			case SLACK -> ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
-			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
+			case SMS ->
+				ofCallable(() -> smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
+			case EMAIL ->
+				ofCallable(() -> emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
+			case DIGITAL_MAIL ->
+				ofCallable(() -> digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
+			case DIGITAL_INVOICE ->
+				ofCallable(() -> digitalMailSender.sendDigitalInvoice(dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
+			case WEB_MESSAGE ->
+				ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
+			case SNAIL_MAIL ->
+				ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
+			case SLACK ->
+				ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
+			default ->
+				throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
 
 		return sendTry
 			.peek(status ->
-			// Archive the message
-			archiveMessage(delivery.withStatus(status)))
+				// Archive the message
+				archiveMessage(delivery.withStatus(status)))
 			// Map to result
 			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
 			// Make sure all exceptions that may occur are throwable problems

@@ -3,6 +3,7 @@ package se.sundsvall.messaging.service.mapper;
 import static java.util.Optional.ofNullable;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ import se.sundsvall.messaging.model.ContentType;
 
 @Component
 public class DtoMapper {
-    
+
 	private final String defaultSmsDtoSender;
 	private final EmailDto.Sender defaultEmailDtoSender;
 	private final String defaultDigitalMailDtoMunicipalityId;
@@ -151,6 +152,8 @@ public class DtoMapper {
 				.map(WebMessageRequest.Party::externalReferences)
 				.orElse(null))
 			.withMessage(request.message())
+			.withOepInstance(Optional.ofNullable(request.oepInstance())
+				.orElse("external"))
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> WebMessageDto.Attachment.builder()
