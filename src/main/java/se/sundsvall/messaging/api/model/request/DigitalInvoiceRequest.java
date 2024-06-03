@@ -1,13 +1,17 @@
 package se.sundsvall.messaging.api.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
 import lombok.Builder;
 import lombok.With;
+
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
@@ -26,92 +30,95 @@ import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 @Builder(setterPrefix = "with")
 public record DigitalInvoiceRequest(
 
-        @Valid
-        @NotNull
-        @Schema(description = "Party", requiredMode = REQUIRED)
-        Party party,
+	@Valid
+	@NotNull
+	@Schema(description = "Party", requiredMode = REQUIRED)
+	Party party,
 
-        @NotNull
-        @Schema(description = "Invoice type", requiredMode = REQUIRED)
-        InvoiceType type,
+	@NotNull
+	@Schema(description = "Invoice type", requiredMode = REQUIRED)
+	InvoiceType type,
 
-        @Schema(description = "Subject", nullable = true)
-        String subject,
+	@Schema(description = "Subject", nullable = true)
+	String subject,
 
-        @Schema(description = "Invoice reference", example = "Faktura #12345")
-        String reference,
+	@Schema(description = "Invoice reference", example = "Faktura #12345")
+	String reference,
 
-        @Schema(description = "Whether the invoice is payable", defaultValue = "true")
-        Boolean payable,
+	@Schema(description = "Whether the invoice is payable", defaultValue = "true")
+	Boolean payable,
 
-        @NotNull
-        @Valid
-        @Schema(requiredMode = REQUIRED)
-        Details details,
+	@NotNull
+	@Valid
+	@Schema(requiredMode = REQUIRED)
+	Details details,
 
-        @Schema(description = "Origin of request", example = "web", hidden = true)
-        @JsonIgnore
-        String origin,
+	@Schema(description = "Origin of request", example = "web", hidden = true)
+	@JsonIgnore
+	String origin,
 
-        @Schema(description = "Files")
-        List<@Valid File> files) {
+	@Schema(description = "Files")
+	List<@Valid File> files) {
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(name = "DigitalInvoiceParty")
-    public record Party(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "DigitalInvoiceParty")
+	public record Party(
 
-        @ValidUuid
+		@ValidUuid
         @Schema(description = "The recipient party id", format = "uuid")
-        String partyId,
+		String partyId,
 
-        @Schema(description = "External references")
-        List<@Valid ExternalReference> externalReferences) { }
+		@Schema(description = "External references")
+		List<@Valid ExternalReference> externalReferences) {
+	}
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(description = "Invoice details")
-    public record Details(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(description = "Invoice details")
+	public record Details(
 
-        @NotNull
-        @Positive
-        @Schema(description = "The invoice amount", example = "123.45", requiredMode = REQUIRED)
-        Float amount,
+		@NotNull
+		@Positive
+		@Schema(description = "The invoice amount", example = "123.45", requiredMode = REQUIRED)
+		Float amount,
 
-        @NotNull
-        @Schema(description = "The invoice due date", example = "2023-10-09", requiredMode = REQUIRED)
-        LocalDate dueDate,
+		@NotNull
+		@Schema(description = "The invoice due date", example = "2023-10-09", requiredMode = REQUIRED)
+		LocalDate dueDate,
 
-        @NotNull
-        @Schema(requiredMode = REQUIRED)
-        ReferenceType paymentReferenceType,
+		@NotNull
+		@Schema(requiredMode = REQUIRED)
+		ReferenceType paymentReferenceType,
 
-        @NotBlank
-        @Schema(description = "The payment reference number", maxLength = 25, example = "426523791", requiredMode = REQUIRED)
-        String paymentReference,
+		@NotBlank
+		@Schema(description = "The payment reference number", maxLength = 25, example = "426523791", requiredMode = REQUIRED)
+		String paymentReference,
 
-        @NotNull
-        @Schema(requiredMode = REQUIRED)
-        AccountType accountType,
+		@NotNull
+		@Schema(requiredMode = REQUIRED)
+		AccountType accountType,
 
-        @NotBlank
-        @Schema(description = "The receiving account (a valid BANKGIRO or PLUSGIRO number)", example = "12345", requiredMode = REQUIRED)
-        String accountNumber) { }
+		@NotBlank
+		@Schema(description = "The receiving account (a valid BANKGIRO or PLUSGIRO number)", example = "12345", requiredMode = REQUIRED)
+		String accountNumber) {
+	}
 
-    @With
-    @Builder(setterPrefix = "with")
-    @Schema(name = "DigitalInvoiceFile")
-    public record File(
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "DigitalInvoiceFile")
+	public record File(
 
-        @OneOf(APPLICATION_PDF_VALUE)
-        @Schema(description = "Content type", allowableValues = {APPLICATION_PDF_VALUE}, requiredMode = REQUIRED)
-        String contentType,
+		@OneOf(APPLICATION_PDF_VALUE)
+		@Schema(description = "Content type", allowableValues = {APPLICATION_PDF_VALUE}, requiredMode = REQUIRED)
+		String contentType,
 
-        @ValidBase64
-        @Schema(description = "Content (BASE64-encoded)", requiredMode = REQUIRED)
-        String content,
+		@ValidBase64
+		@Schema(description = "Content (BASE64-encoded)", requiredMode = REQUIRED)
+		String content,
 
-        @NotBlank
-        @Schema(description = "Filename", requiredMode = REQUIRED)
-        String filename) { }
+		@NotBlank
+		@Schema(description = "Filename", requiredMode = REQUIRED)
+		String filename) {
+	}
 }

@@ -2,9 +2,9 @@ package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.EmailRequest.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

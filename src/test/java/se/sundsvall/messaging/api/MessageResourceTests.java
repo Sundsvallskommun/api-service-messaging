@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMessage;
@@ -55,7 +56,6 @@ class MessageResourceTests {
 		.withDeliveryId("someDeliveryId")
 		.withStatus(SENT)
 		.build();
-
 	private static final String ORIGIN = "origin";
 
 	@Mock
@@ -185,6 +185,29 @@ class MessageResourceTests {
 
 		verify(mockMessageService, never()).sendEmail(any(EmailRequest.class));
 		verify(mockEventDispatcher).handleEmailRequest(request.withOrigin(ORIGIN));
+	}
+
+	@Test
+	void sendEmailBatch() {
+		final var request = createValidEmailBatchRequest();
+		when(mockEventDispatcher.handleEmailBatchRequest(request.withOrigin(ORIGIN)))
+			.thenReturn(new InternalDeliveryBatchResult("someBatchId", List.of(deliveryResult.withMessageType(EMAIL))));
+
+		final var response = messageResource.sendEmailBatch(ORIGIN, request);
+
+		assertThat(response).isNotNull();
+		assertThat(response.getStatusCode()).isEqualTo(CREATED);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().batchId()).isEqualTo("someBatchId");
+		assertThat(response.getBody().messages())
+			.hasSize(1)
+			.allSatisfy(messageResult -> {
+				assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+				assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+				assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+				assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+				assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
+			});
 	}
 
 	@Test
@@ -406,13 +429,6 @@ class MessageResourceTests {
 
 	@Test
 	void toResponse_fromDeliveryResult() {
-		final var deliveryResult = InternalDeliveryResult.builder()
-			.withMessageId("someMessageId")
-			.withDeliveryId("someDeliveryId")
-			.withMessageType(DIGITAL_MAIL)
-			.withStatus(SENT)
-			.build();
-
 		final var result = messageResource.toResponse(deliveryResult);
 
 		assertThat(result).isNotNull();

@@ -5,10 +5,11 @@ import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
@@ -20,128 +21,128 @@ import se.sundsvall.messaging.model.Message;
 
 @Component
 public class RequestMapper {
-
-    private final String defaultSmsRequestSender;
-    private final EmailRequest.Sender defaultEmailRequestSender;
+	
+	private final String defaultSmsRequestSender;
+	private final EmailRequest.Sender defaultEmailRequestSender;
 
     public RequestMapper(final Defaults defaults) {
         defaultSmsRequestSender = defaults.sms().name();
 
-        defaultEmailRequestSender = EmailRequest.Sender.builder()
-            .withName(defaults.email().name())
-            .withAddress(defaults.email().address())
-            .withReplyTo(defaults.email().replyTo())
-            .build();
-    }
+		defaultEmailRequestSender = EmailRequest.Sender.builder()
+			.withName(defaults.email().name())
+			.withAddress(defaults.email().address())
+			.withReplyTo(defaults.email().replyTo())
+			.build();
+	}
 
-    public String toSmsRequest(final Message message, final String mobileNumber) {
-        var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
+	public String toSmsRequest(final Message message, final String mobileNumber) {
+		var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
-        var sender = ofNullable(originalMessage.sender())
-            .map(MessageRequest.Message.Sender::sms)
-            .map(MessageRequest.Message.Sender.Sms::name)
-            .orElse(defaultSmsRequestSender);
+		var sender = ofNullable(originalMessage.sender())
+			.map(MessageRequest.Message.Sender::sms)
+			.map(MessageRequest.Message.Sender.Sms::name)
+			.orElse(defaultSmsRequestSender);
 
-        var smsRequest = SmsRequest.builder()
-            .withParty(SmsRequest.Party.builder()
-                .withPartyId(ofNullable(originalMessage.party())
-                    .map(MessageRequest.Message.Party::partyId)
-                    .orElse(null))
-                .withExternalReferences(ofNullable(originalMessage.party())
-                    .map(MessageRequest.Message.Party::externalReferences)
-                    .orElse(null))
-                .build())
-            .withSender(sender)
-            .withMobileNumber(mobileNumber)
-            .withMessage(originalMessage.message())
-            .withOrigin(message.origin())
-            .build();
+		var smsRequest = SmsRequest.builder()
+			.withParty(SmsRequest.Party.builder()
+				.withPartyId(ofNullable(originalMessage.party())
+					.map(MessageRequest.Message.Party::partyId)
+					.orElse(null))
+				.withExternalReferences(ofNullable(originalMessage.party())
+					.map(MessageRequest.Message.Party::externalReferences)
+					.orElse(null))
+				.build())
+			.withSender(sender)
+			.withMobileNumber(mobileNumber)
+			.withMessage(originalMessage.message())
+			.withOrigin(message.origin())
+			.build();
 
-        return toJson(smsRequest);
-    }
+		return toJson(smsRequest);
+	}
 
-    public String toEmailRequest(final Message message, final String emailAddress) {
-        var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
+	public String toEmailRequest(final Message message, final String emailAddress) {
+		var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
-        var sender = ofNullable(originalMessage.sender())
-            .map(MessageRequest.Message.Sender::email)
-            .map(emailSender -> EmailRequest.Sender.builder()
-                .withName(emailSender.name())
-                .withAddress(emailSender.address())
-                .withReplyTo(emailSender.replyTo())
-                .build())
-            .orElse(defaultEmailRequestSender);
+		var sender = ofNullable(originalMessage.sender())
+			.map(MessageRequest.Message.Sender::email)
+			.map(emailSender -> EmailRequest.Sender.builder()
+				.withName(emailSender.name())
+				.withAddress(emailSender.address())
+				.withReplyTo(emailSender.replyTo())
+				.build())
+			.orElse(defaultEmailRequestSender);
 
-        var emailRequest = EmailRequest.builder()
-            .withParty(EmailRequest.Party.builder()
-                .withPartyId(ofNullable(originalMessage.party())
-                    .map(MessageRequest.Message.Party::partyId)
-                    .orElse(null))
-                .withExternalReferences(ofNullable(originalMessage.party())
-                    .map(MessageRequest.Message.Party::externalReferences)
-                    .orElse(null))
-                .build())
-            .withSender(sender)
-            .withEmailAddress(emailAddress)
-            .withSubject(originalMessage.subject())
-            .withMessage(originalMessage.message())
-            .withHtmlMessage(originalMessage.htmlMessage())
-            .withOrigin(message.origin())
-            .build();
+		var emailRequest = EmailRequest.builder()
+			.withParty(EmailRequest.Party.builder()
+				.withPartyId(ofNullable(originalMessage.party())
+					.map(MessageRequest.Message.Party::partyId)
+					.orElse(null))
+				.withExternalReferences(ofNullable(originalMessage.party())
+					.map(MessageRequest.Message.Party::externalReferences)
+					.orElse(null))
+				.build())
+			.withSender(sender)
+			.withEmailAddress(emailAddress)
+			.withSubject(originalMessage.subject())
+			.withMessage(originalMessage.message())
+			.withHtmlMessage(originalMessage.htmlMessage())
+			.withOrigin(message.origin())
+			.build();
 
-        return toJson(emailRequest);
-    }
+		return toJson(emailRequest);
+	}
 
-    public DigitalMailRequest toDigitalMailRequest(final LetterRequest request, final String partyId) {
-        return DigitalMailRequest.builder()
-            .withSender(DigitalMailRequest.Sender.builder()
-                .withSupportInfo(ofNullable(request.sender()).map(LetterRequest.Sender::supportInfo)
-                    .map(supportInfo -> DigitalMailRequest.Sender.SupportInfo.builder()
-                        .withText(supportInfo.text())
-                        .withUrl(supportInfo.url())
-                        .withEmailAddress(supportInfo.emailAddress())
-                        .withPhoneNumber(supportInfo.phoneNumber())
-                        .build())
-                    .orElse(null))
-                .build())
-            .withParty(DigitalMailRequest.Party.builder()
-                .withPartyIds(List.of(partyId))
-                .withExternalReferences(request.party().externalReferences())
-                .build())
-            .withContentType(request.contentType())
-            .withSubject(request.subject())
-            .withDepartment(request.department())
-            .withBody(request.body())
-            .withAttachments(request.attachments().stream()
-                .filter(LetterRequest.Attachment::isIntendedForDigitalMail)
-                .map(attachment -> DigitalMailRequest.Attachment.builder()
-                    .withFilename(attachment.filename())
-                    .withContent(attachment.content())
-                    .withContentType(attachment.contentType())
-                    .build())
-                .toList())
-            .withOrigin(request.origin())
-            .build();
-    }
+	public DigitalMailRequest toDigitalMailRequest(final LetterRequest request, final String partyId) {
+		return DigitalMailRequest.builder()
+			.withSender(DigitalMailRequest.Sender.builder()
+				.withSupportInfo(ofNullable(request.sender()).map(LetterRequest.Sender::supportInfo)
+					.map(supportInfo -> DigitalMailRequest.Sender.SupportInfo.builder()
+						.withText(supportInfo.text())
+						.withUrl(supportInfo.url())
+						.withEmailAddress(supportInfo.emailAddress())
+						.withPhoneNumber(supportInfo.phoneNumber())
+						.build())
+					.orElse(null))
+				.build())
+			.withParty(DigitalMailRequest.Party.builder()
+				.withPartyIds(List.of(partyId))
+				.withExternalReferences(request.party().externalReferences())
+				.build())
+			.withContentType(request.contentType())
+			.withSubject(request.subject())
+			.withDepartment(request.department())
+			.withBody(request.body())
+			.withAttachments(request.attachments().stream()
+				.filter(LetterRequest.Attachment::isIntendedForDigitalMail)
+				.map(attachment -> DigitalMailRequest.Attachment.builder()
+					.withFilename(attachment.filename())
+					.withContent(attachment.content())
+					.withContentType(attachment.contentType())
+					.build())
+				.toList())
+			.withOrigin(request.origin())
+			.build();
+	}
 
-    public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId) {
-        return SnailMailRequest.builder()
-            .withParty(SnailMailRequest.Party.builder()
-                .withPartyId(partyId)
-                .build())
-            .withDepartment(request.department())
-            .withDeviation(request.deviation())
-            .withAttachments(request.attachments().stream()
-                .filter(LetterRequest.Attachment::isIntendedForSnailMail)
-                .map(attachment -> SnailMailRequest.Attachment.builder()
-                    .withName(attachment.filename())
-                    .withContent(attachment.content())
-                    .withContentType(attachment.contentType())
-                    .build())
-                .toList())
-            .withOrigin(request.origin())
-            .build();
-    }
+	public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId) {
+		return SnailMailRequest.builder()
+			.withParty(SnailMailRequest.Party.builder()
+				.withPartyId(partyId)
+				.build())
+			.withDepartment(request.department())
+			.withDeviation(request.deviation())
+			.withAttachments(request.attachments().stream()
+				.filter(LetterRequest.Attachment::isIntendedForSnailMail)
+				.map(attachment -> SnailMailRequest.Attachment.builder()
+					.withName(attachment.filename())
+					.withContent(attachment.content())
+					.withContentType(attachment.contentType())
+					.build())
+				.toList())
+			.withOrigin(request.origin())
+			.build();
+	}
 
 	public SmsRequest toSmsRequest(final SmsBatchRequest request, final SmsBatchRequest.Party party) {
 		return SmsRequest.builder()
@@ -152,6 +153,51 @@ public class RequestMapper {
 			.withMobileNumber(party.mobileNumber())
 			.withOrigin(request.origin())
 			.withSender(request.sender())
+			.build();
+	}
+
+
+	public EmailRequest toEmailRequest(final EmailBatchRequest request, final EmailBatchRequest.Party party) {
+		return EmailRequest.builder()
+			.withSender(toEmailRequestSender(request.sender()))
+			.withParty(toEmailRequestParty(party))
+			.withEmailAddress(party.emailAddress())
+			.withOrigin(request.origin())
+			.withSubject(request.subject())
+			.withMessage(request.message())
+			.withHeaders(request.headers())
+			.withHtmlMessage(request.htmlMessage())
+			.withAttachments(toEmailRequestAttachments(request.attachments()))
+			.build();
+	}
+
+	public EmailRequest.Sender toEmailRequestSender(final EmailBatchRequest.Sender sender) {
+		return EmailRequest.Sender.builder()
+			.withAddress(sender.address())
+			.withName(sender.name())
+			.withReplyTo(sender.replyTo())
+			.build();
+	}
+
+	public EmailRequest.Party toEmailRequestParty(final EmailBatchRequest.Party party) {
+		return EmailRequest.Party.builder()
+			.withPartyId(party.partyId())
+			.build();
+	}
+
+	public List<EmailRequest.Attachment> toEmailRequestAttachments(final List<EmailBatchRequest.Attachment> attachments) {
+		return Optional.ofNullable(attachments)
+			.map(list -> list.stream()
+				.map(this::toEmailRequestAttachment)
+				.toList())
+			.orElse(null);
+	}
+
+	public EmailRequest.Attachment toEmailRequestAttachment(final EmailBatchRequest.Attachment attachment) {
+		return EmailRequest.Attachment.builder()
+			.withContentType(attachment.contentType())
+			.withContent(attachment.content())
+			.withName(attachment.name())
 			.build();
 	}
 }

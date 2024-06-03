@@ -125,7 +125,17 @@ abstract class RequestValidationAssertions<R>
         }
     }
 
-    static class WebMessageRequestAssertions extends RequestValidationAssertions<WebMessageRequest> {
+	static class EmailBatchRequestAssertions extends RequestValidationAssertions<EmailBatchRequest> {
+		private EmailBatchRequestAssertions(final EmailBatchRequest request) {
+			super(request, EmailBatchRequestAssertions.class);
+		}
+
+		static EmailBatchRequestAssertions assertThat(final EmailBatchRequest request) {
+			return new EmailBatchRequestAssertions(request);
+		}
+	}
+
+	static class WebMessageRequestAssertions extends RequestValidationAssertions<WebMessageRequest> {
 
         private WebMessageRequestAssertions(final WebMessageRequest request) {
             super(request, WebMessageRequestAssertions.class);

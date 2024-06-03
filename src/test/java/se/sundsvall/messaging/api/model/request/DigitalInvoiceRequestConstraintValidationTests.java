@@ -72,7 +72,7 @@ class DigitalInvoiceRequestConstraintValidationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(floats = { 0.0f, -12.34f })
+	@ValueSource(floats = {0.0f, -12.34f})
 	void shouldFailWithDetailsWithNonPositiveAmount(final float amount) {
 		final var details = validRequest.details().withAmount(amount);
 
@@ -130,7 +130,7 @@ class DigitalInvoiceRequestConstraintValidationTests {
 
 	@ParameterizedTest
 	@NullSource
-	@ValueSource(strings = { "", "text/plain" })
+	@ValueSource(strings = {"", "text/plain"})
 	void shouldFailWithFileWithInvalidContentType(final String contentType) {
 		final var file = validRequest.files().get(0).withContentType(contentType);
 
