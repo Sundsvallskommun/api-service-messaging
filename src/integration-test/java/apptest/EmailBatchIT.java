@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.CREATED;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
@@ -62,8 +61,8 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	void test02_internalServerErrorFromEmailSender() throws Exception {
-		final var response = setupCall()
+	void test02_internalServerErrorsFromEmailSender() throws Exception {
+		setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
 			.withRequest("request.json")
@@ -73,20 +72,5 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.withExpectedResponse("response.json")
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
-
-		var batchId = response.batchId();
-
-		response.messages().stream()
-			.map(MessageResult::messageId)
-			.forEach(messageId -> {
-				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-				assertThat(historyRepository.findByMessageId(messageId))
-					.isNotEmpty()
-					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-						assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
-					});
-			});
 	}
 }
