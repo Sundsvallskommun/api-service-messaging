@@ -1,12 +1,14 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +46,26 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
-		var batchId = response.batchId();
+		final var batchId = response.batchId();
 
-		response.messages().stream()
-			.map(MessageResult::messageId)
-			.forEach(messageId -> {
-				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-				assertThat(historyRepository.findByMessageId(messageId))
-					.isNotEmpty()
-					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+
+				response.messages().stream()
+					.map(MessageResult::messageId)
+					.forEach(messageId -> {
+						assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+						assertThat(historyRepository.findByMessageId(messageId))
+							.isNotEmpty()
+							.allSatisfy(historyEntry -> {
+								assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
+								assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+								assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+							});
 					});
+
+				return true;
 			});
 	}
 

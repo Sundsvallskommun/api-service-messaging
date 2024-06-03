@@ -1,26 +1,21 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "4.5"
 servers:
-<<<<<<< HEAD
-  - url: http://localhost:53024
-    description: Generated server url
-=======
-- url: http://localhost:54890
+- url: http://localhost:53468
   description: Generated server url
->>>>>>> 480d6aa (UF-8598: Added priority attribute to sms and batch sms requests)
 paths:
   /webmessage:
     post:
       tags:
       - Sending Resources
       summary: Send a single web message
-      operationId: sendWebMessage 
+      operationId: sendWebMessage
       parameters:
       - name: x-origin
         in: header
@@ -1159,8 +1154,8 @@ components:
             external OeP instance
           example: internal
           enum:
-            - internal
-            - external
+          - internal
+          - external
         attachments:
           maxItems: 10
           minItems: 0
@@ -1182,9 +1177,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -1262,7 +1257,7 @@ components:
           description: Message
         priority:
           type: string
-          description: Priority (optional, will be defaulted to NORMAL if not present)
+          description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
           - HIGH
           - NORMAL
@@ -1294,7 +1289,7 @@ components:
           description: Message to send as sms
         priority:
           type: string
-          description: Priority (optional, will be defaulted to NORMAL if not present)
+          description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
           - HIGH
           - NORMAL
@@ -2054,9 +2049,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         suppressed:
           type: array
@@ -2146,4 +2141,4 @@ components:
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

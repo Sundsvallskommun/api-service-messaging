@@ -1,6 +1,7 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
@@ -8,6 +9,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ class WebMessageIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/webmessage";
 	private static final String REQUEST_FILE = "request.json";
-
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -50,15 +51,22 @@ class WebMessageIT extends AbstractMessagingAppTest {
 		// Make sure we received a message id as a proper UUID
 		assertValidUuid(messageId);
 
-		// Make sure that there doesn't exist a message entity
-		assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-		// Make sure that there exists a history entry with the correct id and status
-		assertThat(historyRepository.findByMessageId(messageId))
-			.isNotNull()
-			.isNotEmpty()
-			.allSatisfy(historyEntry -> {
-				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
-				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+
+				// Make sure that there doesn't exist a message entity
+				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByMessageId(messageId))
+					.isNotNull()
+					.isNotEmpty()
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
 			});
 	}
 
