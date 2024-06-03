@@ -1,0 +1,13 @@
+{
+	"sender": "Joker",
+	"message": "Your day of reckoning is here",
+	"priority": "HIGH",
+	"parties": [
+		{
+			"mobileNumber": "+46701112233"
+		},
+		{
+			"mobileNumber": "+46702223344"
+		}
+	]
+}

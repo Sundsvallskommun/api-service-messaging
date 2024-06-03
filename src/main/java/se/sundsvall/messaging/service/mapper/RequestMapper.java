@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -21,12 +22,12 @@ import se.sundsvall.messaging.model.Message;
 
 @Component
 public class RequestMapper {
-	
+
 	private final String defaultSmsRequestSender;
 	private final EmailRequest.Sender defaultEmailRequestSender;
 
-    public RequestMapper(final Defaults defaults) {
-        defaultSmsRequestSender = defaults.sms().name();
+	public RequestMapper(final Defaults defaults) {
+		defaultSmsRequestSender = defaults.sms().name();
 
 		defaultEmailRequestSender = EmailRequest.Sender.builder()
 			.withName(defaults.email().name())
@@ -36,14 +37,14 @@ public class RequestMapper {
 	}
 
 	public String toSmsRequest(final Message message, final String mobileNumber) {
-		var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
+		final var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
-		var sender = ofNullable(originalMessage.sender())
+		final var sender = ofNullable(originalMessage.sender())
 			.map(MessageRequest.Message.Sender::sms)
 			.map(MessageRequest.Message.Sender.Sms::name)
 			.orElse(defaultSmsRequestSender);
 
-		var smsRequest = SmsRequest.builder()
+		final var smsRequest = SmsRequest.builder()
 			.withParty(SmsRequest.Party.builder()
 				.withPartyId(ofNullable(originalMessage.party())
 					.map(MessageRequest.Message.Party::partyId)
@@ -62,9 +63,9 @@ public class RequestMapper {
 	}
 
 	public String toEmailRequest(final Message message, final String emailAddress) {
-		var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
+		final var originalMessage = fromJson(message.content(), MessageRequest.Message.class);
 
-		var sender = ofNullable(originalMessage.sender())
+		final var sender = ofNullable(originalMessage.sender())
 			.map(MessageRequest.Message.Sender::email)
 			.map(emailSender -> EmailRequest.Sender.builder()
 				.withName(emailSender.name())
@@ -73,7 +74,7 @@ public class RequestMapper {
 				.build())
 			.orElse(defaultEmailRequestSender);
 
-		var emailRequest = EmailRequest.builder()
+		final var emailRequest = EmailRequest.builder()
 			.withParty(EmailRequest.Party.builder()
 				.withPartyId(ofNullable(originalMessage.party())
 					.map(MessageRequest.Message.Party::partyId)
@@ -152,10 +153,10 @@ public class RequestMapper {
 			.withMessage(request.message())
 			.withMobileNumber(party.mobileNumber())
 			.withOrigin(request.origin())
+			.withPriority(request.priority())
 			.withSender(request.sender())
 			.build();
 	}
-
 
 	public EmailRequest toEmailRequest(final EmailBatchRequest request, final EmailBatchRequest.Party party) {
 		return EmailRequest.builder()

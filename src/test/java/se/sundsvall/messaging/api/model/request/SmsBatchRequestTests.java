@@ -11,17 +11,18 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class SmsBatchRequestTests {
 
-    @Test
-    void testConstructorAndGetters() {
-		var party = new SmsBatchRequest.Party("somePartyId", "someMobileNumber");
-		var request = new SmsBatchRequest("someSender", "someOrigin", "someMessage", List.of(party));
+	@Test
+	void testConstructorAndGetters() {
+		final var party = new SmsBatchRequest.Party("somePartyId", "someMobileNumber");
+		final var request = new SmsBatchRequest("someSender", "someOrigin", "someMessage", Priority.HIGH, List.of(party));
 
 		assertThat(request.parties()).isNotNull().hasSize(1).allSatisfy(requestParty -> {
-            assertThat(requestParty.partyId()).isEqualTo("somePartyId");
+			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
 			assertThat(requestParty.mobileNumber()).isEqualTo("someMobileNumber");
-        });
-        assertThat(request.sender()).isEqualTo("someSender");
-        assertThat(request.message()).isEqualTo("someMessage");
-        assertThat(request.origin()).isEqualTo("someOrigin");
-    }
+		});
+		assertThat(request.sender()).isEqualTo("someSender");
+		assertThat(request.message()).isEqualTo("someMessage");
+		assertThat(request.origin()).isEqualTo("someOrigin");
+		assertThat(request.priority()).isEqualTo(Priority.HIGH);
+	}
 }

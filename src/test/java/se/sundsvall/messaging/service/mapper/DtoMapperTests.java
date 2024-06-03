@@ -2,6 +2,7 @@ package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
 import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
 import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
@@ -9,6 +10,7 @@ import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.configuration.Defaults;
 
 class DtoMapperTests {
@@ -27,9 +29,9 @@ class DtoMapperTests {
 
 	@Test
 	void toEmailDtoTest() {
-		var emailRequest = createValidEmailRequest();
+		final var emailRequest = createValidEmailRequest();
 
-		var emailDto = dtoMapper.toEmailDto(emailRequest);
+		final var emailDto = dtoMapper.toEmailDto(emailRequest);
 
 		assertThat(emailDto.emailAddress()).isEqualTo(emailRequest.emailAddress());
 		assertThat(emailDto.sender().name()).isEqualTo(emailRequest.sender().name());
@@ -42,5 +44,30 @@ class DtoMapperTests {
 		assertThat(emailDto.headers().get("IN_REPLY_TO")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(IN_REPLY_TO));
 		assertThat(emailDto.headers().get("REFERENCES")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(REFERENCES));
 
+	}
+
+	@Test
+	void toSmsDtoTest() {
+		final var smsRequest = createValidSmsRequest();
+
+		final var smsDto = dtoMapper.toSmsDto(smsRequest);
+
+		assertThat(smsDto.message()).isEqualTo(smsRequest.message());
+		assertThat(smsDto.mobileNumber()).isEqualTo(smsRequest.mobileNumber());
+		assertThat(smsDto.priority()).isEqualTo(smsRequest.priority());
+		assertThat(smsDto.sender()).isEqualTo(smsRequest.sender());
+	}
+
+	@Test
+	void toSmsDtoWithoutSetPriorityTest() {
+		final var smsRequest = createValidSmsRequest()
+			.withPriority(null);
+
+		final var smsDto = dtoMapper.toSmsDto(smsRequest);
+
+		assertThat(smsDto.message()).isEqualTo(smsRequest.message());
+		assertThat(smsDto.mobileNumber()).isEqualTo(smsRequest.mobileNumber());
+		assertThat(smsDto.priority()).isEqualTo(Priority.NORMAL);
+		assertThat(smsDto.sender()).isEqualTo(smsRequest.sender());
 	}
 }
