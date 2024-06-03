@@ -4,22 +4,24 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.Builder;
-import lombok.With;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import se.sundsvall.dept44.common.validators.annotation.ValidMSISDN;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.With;
 
 @With
 @Builder(setterPrefix = "with")
 public record SmsBatchRequest(
 
-	@Schema(description = "Sender") String sender,
+	@Schema(description = "Sender", accessMode = Schema.AccessMode.READ_ONLY) String sender,
 
 	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
 

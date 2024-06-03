@@ -11,6 +11,7 @@ public record WebMessageDto(
         String partyId,
         List<ExternalReference> externalReferences,
         String message,
+        String oepInstance,
         List<Attachment> attachments) {
 
     @Builder(setterPrefix = "with")

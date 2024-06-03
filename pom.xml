@@ -19,7 +19,8 @@
         <hypersistence-utils.version>3.7.5</hypersistence-utils.version>
         <vavr.version>0.10.4</vavr.version>
         <archunit.version>1.3.0</archunit.version>
-        <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
+        <generated-sources-path>${project.build.directory}/generated-sources
+        </generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
     <dependencies>
@@ -196,7 +197,7 @@
                         </goals>
                         <configuration>
                             <inputSpec>
-                                ${project.basedir}/src/main/resources/integrations/web-message-sender-1.1.yml
+                                ${project.basedir}/src/main/resources/integrations/web-message-sender-2.0.yml
                             </inputSpec>
                             <configOptions>
                                 <modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>

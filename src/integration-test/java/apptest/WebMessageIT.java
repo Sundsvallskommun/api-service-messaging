@@ -1,16 +1,5 @@
 package apptest;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
@@ -18,11 +7,25 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.CREATED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
+
 @IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/WebMessageIT/", classes = Application.class)
 class WebMessageIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/webmessage";
+	private static final String REQUEST_FILE = "request.json";
+
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -35,7 +38,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
@@ -63,7 +66,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 	void test2_internalServerErrorFromWebMessageSender() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();
