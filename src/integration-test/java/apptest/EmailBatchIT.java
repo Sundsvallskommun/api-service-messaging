@@ -33,7 +33,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	private HistoryRepository historyRepository;
 
 	@Test
-	void test1_successfulRequest() throws Exception {
+	void test01_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
@@ -62,7 +62,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	void test2_internalServerErrorFromEmailSender() throws Exception {
+	void test02_internalServerErrorFromEmailSender() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
