@@ -1283,7 +1283,6 @@ components:
         sender:
           type: string
           description: Sender
-          readOnly: true
         message:
           type: string
           description: Message to send as sms
