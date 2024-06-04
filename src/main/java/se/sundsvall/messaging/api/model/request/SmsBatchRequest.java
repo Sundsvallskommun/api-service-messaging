@@ -27,6 +27,8 @@ public record SmsBatchRequest(
 
 	@NotBlank @Schema(description = "Message to send as sms", requiredMode = REQUIRED) String message,
 
+	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
+
 	@NotEmpty @Schema(description = "Parties to send the sms message to", requiredMode = REQUIRED) List<@Valid Party> parties) {
 
 	@With

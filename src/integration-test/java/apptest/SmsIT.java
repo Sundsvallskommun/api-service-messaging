@@ -1,6 +1,7 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
@@ -10,6 +11,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +53,23 @@ class SmsIT extends AbstractMessagingAppTest {
 		// Make sure we received a message id as a proper UUID
 		assertValidUuid(messageId);
 
-		// Make sure that there doesn't exist a message entity
-		assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-		// Make sure that there exists a history entry with the correct id and status
-		assertThat(historyRepository.findByMessageId(messageId))
-			.isNotNull()
-			.isNotEmpty()
-			.allSatisfy(historyEntry -> {
-				assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
-				assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+
+				// Make sure that there doesn't exist a message entity
+				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByMessageId(messageId))
+					.isNotNull()
+					.isNotEmpty()
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
 			});
 	}
 
@@ -72,6 +81,42 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test5_successfulHighPriorityRequest() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withHeader("x-origin", "Test-origin")
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageResult.class);
+
+		final var messageId = response.messageId();
+
+		// Make sure we received a message id as a proper UUID
+		assertValidUuid(messageId);
+
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+				// Make sure that there doesn't exist a message entity
+				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByMessageId(messageId))
+					.isNotNull()
+					.isNotEmpty()
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
+			});
 	}
 
 	@Test
@@ -88,23 +133,30 @@ class SmsIT extends AbstractMessagingAppTest {
 
 		final var batchId = response.batchId();
 		final var messageIds = response.messages().stream().map(MessageResult::messageId).toList();
-		
+
 		// Make sure we received a batch id and message ids as a proper UUID
 		assertValidUuid(batchId);
 		messageIds.forEach(this::assertValidUuid);
 
-		// Make sure that there doesn't exist any message entities
-		messageIds.forEach(messageId -> {
-			assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-		});
-		
-		// Make sure that there exists a history entry with the correct id and status
-		assertThat(historyRepository.findByBatchId(batchId))
-			.isNotNull()
-			.hasSize(2)
-			.allSatisfy(historyEntry -> {
-				assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+
+				// Make sure that there doesn't exist any message entities
+				messageIds.forEach(messageId -> {
+					assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				});
+
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByBatchId(batchId))
+					.isNotNull()
+					.hasSize(2)
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
 			});
 	}
 
@@ -127,21 +179,67 @@ class SmsIT extends AbstractMessagingAppTest {
 		assertValidUuid(batchId);
 		messageIds.forEach(this::assertValidUuid);
 
-		// Make sure that there doesn't exist any message entities
-		messageIds.forEach(messageId -> {
-			assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-		});
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+				// Make sure that there doesn't exist any message entities
+				messageIds.forEach(messageId -> {
+					assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				});
 
-		// Make sure that there exists a history entry with the correct id and status
-		assertThat(historyRepository.findByBatchId(batchId))
-			.isNotNull()
-			.hasSize(2)
-			.satisfiesExactlyInAnyOrder(historyEntry -> {
-				assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-			}, historyEntry -> {
-				assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-				assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByBatchId(batchId))
+					.isNotNull()
+					.hasSize(2)
+					.satisfiesExactlyInAnyOrder(historyEntry -> {
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					}, historyEntry -> {
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
+					});
+
+				return true;
+			});
+	}
+
+	@Test
+	void test6_successfulHighPriorityBatchRequest() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH + "/batch")
+			.withHeader("x-origin", "Test-origin")
+			.withRequest("request.json")
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageBatchResult.class);
+
+		final var batchId = response.batchId();
+		final var messageIds = response.messages().stream().map(MessageResult::messageId).toList();
+
+		// Make sure we received a batch id and message ids as a proper UUID
+		assertValidUuid(batchId);
+		messageIds.forEach(this::assertValidUuid);
+
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+				// Make sure that there doesn't exist any message entities
+				messageIds.forEach(messageId -> {
+					assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				});
+
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByBatchId(batchId))
+					.isNotNull()
+					.hasSize(2)
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
 			});
 	}
 }

@@ -1,0 +1,28 @@
+{
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "POST",
+		"url": "/sms-sender/send/sms",
+		"bodyPatterns": [{
+			"equalToJson": {
+				"sender": {
+					"name": "SomeSender"
+				},
+				"mobileNumber": "+46708971080",
+				"priority": "HIGH",
+				"message": "This is a high priority message"
+			}
+		}]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
+		"status": 200
+	}
+}

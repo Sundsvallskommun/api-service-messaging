@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
@@ -57,6 +58,7 @@ public class DtoMapper {
 				.orElse(defaultSmsDtoSender))
 			.withMobileNumber(request.mobileNumber())
 			.withMessage(request.message())
+			.withPriority(ofNullable(request.priority()).orElse(Priority.NORMAL))
 			.build();
 	}
 

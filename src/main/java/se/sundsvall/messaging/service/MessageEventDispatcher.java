@@ -104,7 +104,7 @@ public class MessageEventDispatcher {
 		var deliveryResults = ofNullable(request.parties()).orElse(emptyList()).stream()
 			.filter(party -> isWhitelisted(SMS, party.mobileNumber()))
 			.map(party -> requestMapper.toSmsRequest(request, party))
-			.map(message -> messageMapper.toMessage(message, batchId))
+			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId))
 			.map(dbIntegration::saveMessage)
 			.map(this::publishMessageEvent)
 			.toList();

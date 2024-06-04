@@ -1,0 +1,6 @@
+{
+	"sender": "SomeSender",
+	"mobileNumber": "+46708971080",
+	"message": "This is a high priority message",
+	"priority": "HIGH"
+}

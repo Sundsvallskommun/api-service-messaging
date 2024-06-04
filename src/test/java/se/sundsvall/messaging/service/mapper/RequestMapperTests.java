@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
+import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -113,7 +114,7 @@ class RequestMapperTests {
 
 		assertThat(digitalMailRequest.subject()).isEqualTo(subject);
 	}
-	
+
 	@Test
 	void toSnailMailRequest() {
 		// Arrange
@@ -177,6 +178,7 @@ class RequestMapperTests {
 			.withOrigin(origin)
 			.withParties(List.of(party))
 			.withSender(sender)
+			.withPriority(Priority.HIGH)
 			.build();
 
 		// Act
@@ -191,6 +193,7 @@ class RequestMapperTests {
 			assertThat(smsParty.externalReferences()).isNullOrEmpty();
 			assertThat(smsParty.partyId()).isEqualTo(partyId);
 		});
+		assertThat(smsRequest.priority()).isEqualTo(Priority.HIGH);
 	}
 
 	private List<LetterRequest.Attachment> createAttachments(String content, String contentType, String filename) {
@@ -217,10 +220,10 @@ class RequestMapperTests {
 
 	@Test
 	void toEmailRequest() {
-		var emailBatchRequest = createValidEmailBatchRequest();
-		var party = createValidEmailBatchRequestParty();
+		final var emailBatchRequest = createValidEmailBatchRequest();
+		final var party = createValidEmailBatchRequestParty();
 
-		var emailRequest = mapper.toEmailRequest(emailBatchRequest, party);
+		final var emailRequest = mapper.toEmailRequest(emailBatchRequest, party);
 
 		assertThat(emailRequest.emailAddress()).isEqualTo(party.emailAddress());
 		assertThat(emailRequest.headers()).isEqualTo(emailBatchRequest.headers());
@@ -238,15 +241,15 @@ class RequestMapperTests {
 		assertThat(emailRequest.attachments()).extracting("contentType", "content", "name")
 			.containsExactlyInAnyOrder(tuple("text/plain", "c29tZUJhc2U2NENvbnRlbnQ=", "someName"));
 
-		//Verify that all party-fields are set correctly
+		// Verify that all party-fields are set correctly
 		assertThat(emailRequest.party()).satisfies(p -> assertThat(p.partyId()).isEqualTo(party.partyId()));
 	}
 
 	@Test
 	void toEmailRequestSender() {
-		var sender = createValidEmailBatchRequestSender();
+		final var sender = createValidEmailBatchRequestSender();
 
-		var emailRequestSender = mapper.toEmailRequestSender(sender);
+		final var emailRequestSender = mapper.toEmailRequestSender(sender);
 
 		assertThat(emailRequestSender).isNotNull();
 		assertThat(emailRequestSender.address()).isEqualTo(sender.address());
@@ -256,9 +259,9 @@ class RequestMapperTests {
 
 	@Test
 	void toEmailRequestParty() {
-		var party = createValidEmailBatchRequestParty();
+		final var party = createValidEmailBatchRequestParty();
 
-		var emailRequestParty = mapper.toEmailRequestParty(party);
+		final var emailRequestParty = mapper.toEmailRequestParty(party);
 
 		assertThat(emailRequestParty).isNotNull();
 		assertThat(emailRequestParty.partyId()).isEqualTo(party.partyId());
@@ -266,9 +269,9 @@ class RequestMapperTests {
 
 	@Test
 	void toEmailRequestAttachment() {
-		var attachment = createValidEmailBatchRequestAttachment();
+		final var attachment = createValidEmailBatchRequestAttachment();
 
-		var emailRequestAttachment = mapper.toEmailRequestAttachment(attachment);
+		final var emailRequestAttachment = mapper.toEmailRequestAttachment(attachment);
 
 		assertThat(emailRequestAttachment).isNotNull();
 		assertThat(emailRequestAttachment.contentType()).isEqualTo(attachment.contentType());

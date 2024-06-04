@@ -20,6 +20,7 @@ import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
@@ -185,6 +186,7 @@ public final class TestDataFactory {
 			.withMobileNumber(DEFAULT_MOBILE_NUMBER)
 			.withMessage("someMessage")
 			.withOrigin("someOrigin")
+			.withPriority(Priority.HIGH)
 			.build();
 	}
 
@@ -242,8 +244,7 @@ public final class TestDataFactory {
 					.withContentType(ContentType.APPLICATION_PDF.getValue())
 					.withContent("someContent")
 					.withFilename("someFilename")
-					.build()
-			))
+					.build()))
 			.build();
 	}
 
@@ -269,8 +270,7 @@ public final class TestDataFactory {
 					.withContentType(ContentType.APPLICATION_PDF.getValue())
 					.withContent("c29tZUNvbnRlbnQK")
 					.withFilename("someFilename")
-					.build()
-			))
+					.build()))
 			.build();
 	}
 
@@ -310,8 +310,7 @@ public final class TestDataFactory {
 					.withContentType(ContentType.APPLICATION_PDF.getValue())
 					.withFilename("someFilename")
 					.withContent("someContent")
-					.build()
-			))
+					.build()))
 			.build();
 	}
 
