@@ -77,14 +77,14 @@ class SmsRequestConstraintValidationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"ab", "1abc", "A_123456", "Abcdefghijklmnop"})
+	@ValueSource(strings = {"ab", "1abc", "A_123456", "Abcdefghijkl"})
 	void shouldFailWithInvalidSender(final String sender) {
 		assertThat(validRequest.withSender(sender))
 			.hasSingleConstraintViolation("sender", "sender must be between 3-11 characters and start with a non-numeric character");
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"abc", "abc12", "Min Bank"})
+	@ValueSource(strings = {"abc", "abc12", "Min Bankman"})
 	void shouldPassWithValidSender(final String sender) {
 		assertThat(validRequest.withSender(sender)).hasNoConstraintViolations();
 	}
