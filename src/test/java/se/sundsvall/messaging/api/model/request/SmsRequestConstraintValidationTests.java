@@ -89,4 +89,17 @@ class SmsRequestConstraintValidationTests {
 		assertThat(validRequest.withSender(sender)).hasNoConstraintViolations();
 	}
 
+	@Test
+	void shouldFailWithNullSender() {
+		assertThat(validRequest.withSender(null))
+			.hasSingleConstraintViolation("sender", "must not be blank");
+	}
+
+	@Test
+	void shouldFailWithBlankSender() {
+		assertThat(validRequest.withSender(""))
+			.hasConstraintViolation("sender", "must not be blank")
+			.hasConstraintViolation("sender", "sender must be between 3-11 characters and start with a non-numeric character");
+	}
+
 }

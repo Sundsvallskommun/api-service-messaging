@@ -27,6 +27,7 @@ public record SmsRequest(
 	@Schema(description = "The sender of the SMS, must be between 3-11 characters and start with a non-numeric character",
 		requiredMode = REQUIRED, maxLength = 11, minLength = 3, example = "sender")
 	@Pattern(regexp = "^[a-zA-Z ][a-zA-Z0-9 ]{2,10}$", message = "sender must be between 3-11 characters and start with a non-numeric character")
+	@NotBlank
 	String sender,
 
 	@ValidMSISDN @Schema(description = "Mobile number. Should start with +467x", requiredMode = REQUIRED) String mobileNumber,
