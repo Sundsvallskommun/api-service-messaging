@@ -84,15 +84,14 @@ class SmsBatchRequestConstraintValidationTests {
 	}
 
 	@Test
-	void shouldFailWithNullSender() {
+	void shouldPassWithNullSender() {
 		assertThat(createValidSmsBatchRequest().withSender(null))
-			.hasSingleConstraintViolation("sender", "must not be blank");
+			.hasNoConstraintViolations();
 	}
 
 	@Test
 	void shouldFailWithBlankSender() {
 		assertThat(createValidSmsBatchRequest().withSender(""))
-			.hasConstraintViolation("sender", "must not be blank")
 			.hasConstraintViolation("sender", "sender must be between 3-11 characters (allowed characters: a-z, A-Z, 0-9, whitespace) and start with a non-numeric character");
 	}
 }
