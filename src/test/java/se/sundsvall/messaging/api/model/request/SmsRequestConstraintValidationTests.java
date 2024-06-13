@@ -6,6 +6,8 @@ import static se.sundsvall.messaging.api.model.request.RequestValidationAssertio
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
@@ -73,4 +75,30 @@ class SmsRequestConstraintValidationTests {
 		assertThat(validRequest.withMessage(""))
 			.hasSingleConstraintViolation("message", "must not be blank");
 	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"a", "ab", "Abcdefghijkl"})
+	void shouldFailWithInvalidSender(final String sender) {
+		assertThat(validRequest.withSender(sender))
+			.hasSingleConstraintViolation("sender", "size must be between 3 and 11");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"abc", "abc12", "Min Bankman"})
+	void shouldPassWithValidSender(final String sender) {
+		assertThat(validRequest.withSender(sender)).hasNoConstraintViolations();
+	}
+
+	@Test
+	void shouldPassWithNullSender() {
+		assertThat(validRequest.withSender(null))
+			.hasNoConstraintViolations();
+	}
+
+	@Test
+	void shouldFailWithBlankSender() {
+		assertThat(validRequest.withSender(""))
+			.hasConstraintViolation("sender", "size must be between 3 and 11");
+	}
+
 }

@@ -4,16 +4,19 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.With;
+import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import se.sundsvall.dept44.common.validators.annotation.ValidMSISDN;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.With;
 
 @With
 @Builder(setterPrefix = "with")
@@ -21,7 +24,10 @@ public record SmsRequest(
 
 	@Valid @Schema(description = "Party") Party party,
 
-	@Schema(description = "Sender") String sender,
+	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively",
+		maxLength = 11, minLength = 3, example = "sender")
+	@Size(max = 11, min = 3)
+	String sender,
 
 	@ValidMSISDN @Schema(description = "Mobile number. Should start with +467x", requiredMode = REQUIRED) String mobileNumber,
 

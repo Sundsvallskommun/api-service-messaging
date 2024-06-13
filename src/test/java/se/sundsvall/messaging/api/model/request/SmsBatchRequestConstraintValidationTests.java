@@ -6,27 +6,29 @@ import static se.sundsvall.messaging.api.model.request.RequestValidationAssertio
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class SmsBatchRequestConstraintValidationTests {
 
-    @Test
-    void shouldPassForValidRequest() {
+	@Test
+	void shouldPassForValidRequest() {
 		assertThat(createValidSmsBatchRequest()).hasNoConstraintViolations();
-    }
+	}
 
-    @Test
-    void shouldPassWithoutParty() {
+	@Test
+	void shouldPassWithoutParty() {
 		final var request = createValidSmsBatchRequest();
 		request.parties().getFirst().withPartyId(null);
 
 		assertThat(request).hasNoConstraintViolations();
-    }
+	}
 
-    @Test
-    void shouldFailWithInvalidPartyId() {
+	@Test
+	void shouldFailWithInvalidPartyId() {
 		final var request = createValidSmsBatchRequest()
 			.withParties(List.of(SmsBatchRequest.Party.builder()
 				.withPartyId("not-a-uuid")
@@ -34,9 +36,9 @@ class SmsBatchRequestConstraintValidationTests {
 				.build()));
 
 		assertThat(request).hasSingleConstraintViolation("parties[0].partyId", "not a valid UUID");
-    }
+	}
 
-    @Test
+	@Test
 	void shouldFailWithNullMobileNumber() {
 		final var request = createValidSmsBatchRequest()
 			.withParties(List.of(SmsBatchRequest.Party.builder()
@@ -44,9 +46,9 @@ class SmsBatchRequestConstraintValidationTests {
 				.build()));
 
 		assertThat(request).hasSingleConstraintViolation("parties[0].mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
-    }
+	}
 
-    @Test
+	@Test
 	void shouldFailWithInvalidMobileNumber() {
 		final var request = createValidSmsBatchRequest()
 			.withParties(List.of(SmsBatchRequest.Party.builder()
@@ -54,17 +56,42 @@ class SmsBatchRequestConstraintValidationTests {
 				.build()));
 
 		assertThat(request).hasSingleConstraintViolation("parties[0].mobileNumber", message -> message.startsWith("must be a valid MSISDN"));
-    }
+	}
 
-    @Test
-    void shouldFailWithNullMessage() {
+	@Test
+	void shouldFailWithNullMessage() {
 		assertThat(createValidSmsBatchRequest().withMessage(null))
-            .hasSingleConstraintViolation("message", "must not be blank");
-    }
+			.hasSingleConstraintViolation("message", "must not be blank");
+	}
 
-    @Test
-    void shouldFailWithBlankMessage() {
+	@Test
+	void shouldFailWithBlankMessage() {
 		assertThat(createValidSmsBatchRequest().withMessage(""))
-            .hasSingleConstraintViolation("message", "must not be blank");
-    }
+			.hasSingleConstraintViolation("message", "must not be blank");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"a", "ab", "Abcdefghijkl"})
+	void shouldFailWithInvalidSender(final String sender) {
+		assertThat(createValidSmsBatchRequest().withSender(sender))
+			.hasSingleConstraintViolation("sender", "size must be between 3 and 11");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"abc", "abc12", "Min bankman"})
+	void shouldPassWithValidSender(final String sender) {
+		assertThat(createValidSmsBatchRequest().withSender(sender)).hasNoConstraintViolations();
+	}
+
+	@Test
+	void shouldPassWithNullSender() {
+		assertThat(createValidSmsBatchRequest().withSender(null))
+			.hasNoConstraintViolations();
+	}
+
+	@Test
+	void shouldFailWithBlankSender() {
+		assertThat(createValidSmsBatchRequest().withSender(""))
+			.hasConstraintViolation("sender", "size must be between 3 and 11");
+	}
 }
