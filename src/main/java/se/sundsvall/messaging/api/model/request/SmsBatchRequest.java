@@ -7,7 +7,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,9 +22,9 @@ import lombok.With;
 @Builder(setterPrefix = "with")
 public record SmsBatchRequest(
 
-	@Schema(description = "The sender of the SMS, must be between 3-11 characters (allowed characters: a-z, A-Z, 0-9, whitespace) and start with a non-numeric character",
-		requiredMode = REQUIRED, maxLength = 11, minLength = 3, example = "sender")
-	@Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9 ]{2,10}$", message = "sender must be between 3-11 characters (allowed characters: a-z, A-Z, 0-9, whitespace) and start with a non-numeric character")
+	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively",
+		maxLength = 11, minLength = 3, example = "sender")
+	@Size(max = 11, min = 3)
 	String sender,
 
 	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,

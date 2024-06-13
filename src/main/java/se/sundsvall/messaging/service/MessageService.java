@@ -5,6 +5,7 @@ import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Try.ofCallable;
 import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
@@ -112,11 +113,13 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
+		var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
+
 		// Check blacklist
-		blacklistService.check(request);
+		blacklistService.check(cleanedRequest);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest)));
 	}
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {
