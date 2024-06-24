@@ -18,6 +18,7 @@ class SmsRequestTests {
 		final var party = new SmsRequest.Party("somePartyId", externalReferences);
 		final var request = new SmsRequest(party, "someSender", "someMobileNumber", "someOrigin", "someMessage", Priority.HIGH);
 
+		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(request.party()).satisfies(requestParty -> {
 			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
 			assertThat(requestParty.externalReferences()).hasSize(1).element(0).satisfies(extRef -> {
@@ -30,5 +31,10 @@ class SmsRequestTests {
 		assertThat(request.message()).isEqualTo("someMessage");
 		assertThat(request.origin()).isEqualTo("someOrigin");
 		assertThat(request.priority()).isEqualTo(Priority.HIGH);
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(SmsRequest.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

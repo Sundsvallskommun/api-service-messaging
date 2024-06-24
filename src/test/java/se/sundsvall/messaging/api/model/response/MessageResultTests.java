@@ -11,14 +11,20 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResultTests {
 
-    @Test
-    void testBuilderAndGetters() {
-        var messageResult = MessageResult.builder()
-            .withMessageId("someMessageId")
-            .withDeliveries(List.of(DeliveryResult.builder().build()))
-            .build();
+	@Test
+	void testBuilderAndGetters() {
+		final var messageResult = MessageResult.builder()
+			.withMessageId("someMessageId")
+			.withDeliveries(List.of(DeliveryResult.builder().build()))
+			.build();
 
-        assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-        assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-    }
+		assertThat(messageResult).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+		assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(MessageResult.builder().build()).hasAllNullFieldsOrProperties();
+	}
 }

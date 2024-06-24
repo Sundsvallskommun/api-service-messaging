@@ -14,12 +14,13 @@ class WebMessageRequestTests {
 
 	@Test
 	void testConstructorAndGetters() {
-		var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
-		var party = new WebMessageRequest.Party("somePartyId", externalReferences);
-		var attachments = List.of(new WebMessageRequest.Attachment("someName", "someMimeType", "someBase64Data"));
-		var oepInstance = "internal";
-		var request = new WebMessageRequest(party, "someMessage", "someOrigin", oepInstance, attachments);
+		final var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
+		final var party = new WebMessageRequest.Party("somePartyId", externalReferences);
+		final var attachments = List.of(new WebMessageRequest.Attachment("someName", "someMimeType", "someBase64Data"));
+		final var oepInstance = "internal";
+		final var request = new WebMessageRequest(party, "someMessage", "someOrigin", oepInstance, attachments);
 
+		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(request.party()).satisfies(requestParty -> {
 			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
 			assertThat(requestParty.externalReferences()).hasSize(1).element(0).satisfies(extRef -> {
@@ -35,5 +36,10 @@ class WebMessageRequestTests {
 			assertThat(attachment.mimeType()).isEqualTo("someMimeType");
 			assertThat(attachment.base64Data()).isEqualTo("someBase64Data");
 		});
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(WebMessageRequest.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

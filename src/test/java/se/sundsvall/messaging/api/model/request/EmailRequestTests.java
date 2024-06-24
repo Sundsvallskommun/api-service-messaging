@@ -18,17 +18,18 @@ class EmailRequestTests {
 
 	@Test
 	void testConstructorAndGetters() {
-		var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
-		var party = new EmailRequest.Party("somePartyId", externalReferences);
-		var sender = new EmailRequest.Sender("someName", "someAddress", "someReplyTo");
-		var attachments = List.of(new EmailRequest.Attachment("someName", "someContentType", "someContent"));
-		var request = new EmailRequest(party, "someEmailAddress", "someSubject",
+		final var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
+		final var party = new EmailRequest.Party("somePartyId", externalReferences);
+		final var sender = new EmailRequest.Sender("someName", "someAddress", "someReplyTo");
+		final var attachments = List.of(new EmailRequest.Attachment("someName", "someContentType", "someContent"));
+		final var request = new EmailRequest(party, "someEmailAddress", "someSubject",
 			"someMessage", "someHtmlMessage", sender, "someOrigin", attachments,
 			Map.of(
 				MESSAGE_ID, List.of("someMessageId"),
 				REFERENCES, List.of("someReferences", "someMoreReferences"),
 				IN_REPLY_TO, List.of("someInReplyTo")));
 
+		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(request.party()).satisfies(requestParty -> {
 			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
 			assertThat(requestParty.externalReferences()).hasSize(1).element(0).satisfies(extRef -> {
@@ -53,5 +54,10 @@ class EmailRequestTests {
 		assertThat(request.headers().get(IN_REPLY_TO).getFirst()).isEqualTo("someInReplyTo");
 		assertThat(request.headers().get(REFERENCES).getFirst()).isEqualTo("someReferences");
 		assertThat(request.headers().get(REFERENCES)).hasSize(2);
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(EmailRequest.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

@@ -11,16 +11,21 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageBatchResultTests {
 
-    @Test
-    void testBuilderAndGetters() {
-        var messageBatchResult = MessageBatchResult.builder()
-            .withBatchId("someBatchId")
-            .withMessages(List.of(
-                MessageResult.builder().build()
-            ))
-            .build();
+	@Test
+	void testBuilderAndGetters() {
+		final var messageBatchResult = MessageBatchResult.builder()
+			.withBatchId("someBatchId")
+			.withMessages(List.of(
+				MessageResult.builder().build()))
+			.build();
 
-        assertThat(messageBatchResult.batchId()).isEqualTo("someBatchId");
-        assertThat(messageBatchResult.messages()).hasSize(1);
-    }
+		assertThat(messageBatchResult).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(messageBatchResult.batchId()).isEqualTo("someBatchId");
+		assertThat(messageBatchResult.messages()).hasSize(1);
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(MessageBatchResult.builder().build()).hasAllNullFieldsOrProperties();
+	}
 }

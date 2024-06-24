@@ -11,16 +11,22 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class DeliveryResultTests {
 
-    @Test
-    void testBuilderAndGetters() {
-        var deliveryResult = DeliveryResult.builder()
-            .withDeliveryId("someDeliveryId")
-            .withMessageType(SMS)
-            .withStatus(SENT)
-            .build();
+	@Test
+	void testBuilderAndGetters() {
+		final var deliveryResult = DeliveryResult.builder()
+			.withDeliveryId("someDeliveryId")
+			.withMessageType(SMS)
+			.withStatus(SENT)
+			.build();
 
-        assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(deliveryResult.messageType()).isEqualTo(SMS);
-        assertThat(deliveryResult.status()).isEqualTo(SENT);
-    }
+		assertThat(deliveryResult).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(deliveryResult.messageType()).isEqualTo(SMS);
+		assertThat(deliveryResult.status()).isEqualTo(SENT);
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(DeliveryResult.builder().build()).hasAllNullFieldsOrProperties();
+	}
 }

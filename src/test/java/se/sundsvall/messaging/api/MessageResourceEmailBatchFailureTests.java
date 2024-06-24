@@ -33,21 +33,45 @@ import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
-class MessageResourceFailureTests {
+class MessageResourceEmailBatchFailureTests {
 
+	private static final String URL = "/email/batch";
 	private static final EmailBatchRequest REQUEST = createEmailBatchRequest();
 	private static final EmailBatchRequest.Party PARTY = createValidEmailBatchRequestParty();
 	private static final EmailBatchRequest.Sender SENDER = createValidEmailBatchRequestSender();
 	private static final EmailBatchRequest.Attachment ATTACHMENT = createValidEmailBatchRequestAttachment();
-
-	@Autowired
-	private WebTestClient webTestClient;
 
 	@MockBean
 	private MessageService messageServiceMock;
 
 	@MockBean
 	private MessageEventDispatcher eventDispatcherMock;
+
+	@Autowired
+	private WebTestClient webTestClient;
+
+	@ParameterizedTest
+	@MethodSource("emailBatchRequestBadRequestProvider")
+	void sendBatch(final EmailBatchRequest request, final String field, final String message) {
+
+		final var response = webTestClient.post()
+			.uri(URL)
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getTitle()).isEqualTo("Constraint Violation");
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple(field, message));
+
+		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
+	}
 
 	private static Stream<Arguments> emailBatchRequestBadRequestProvider() {
 		return Stream.of(
@@ -71,31 +95,6 @@ class MessageResourceFailureTests {
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withName(""))), "attachments[0].name", "must not be blank"),
 			Arguments.of(REQUEST.withHeaders(Map.of(Header.MESSAGE_ID, List.of("not a valid message id"))), "headers[MESSAGE_ID][0]", "Header values must start with '<', contain '@' and end with '>'"),
 			Arguments.of(REQUEST.withHeaders(Map.of(Header.IN_REPLY_TO, List.of("not a valid in reply to"))), "headers[IN_REPLY_TO][0]", "Header values must start with '<', contain '@' and end with '>'"),
-			Arguments.of(REQUEST.withHeaders(Map.of(Header.REFERENCES, List.of("not a valid reference"))), "headers[REFERENCES][0]", "Header values must start with '<', contain '@' and end with '>'")
-		);
+			Arguments.of(REQUEST.withHeaders(Map.of(Header.REFERENCES, List.of("not a valid reference"))), "headers[REFERENCES][0]", "Header values must start with '<', contain '@' and end with '>'"));
 	}
-
-	@ParameterizedTest
-	@MethodSource("emailBatchRequestBadRequestProvider")
-	void sendEmailBatch(final EmailBatchRequest request, final String field, final String message) {
-
-		var response = webTestClient.post()
-			.uri(uriBuilder -> uriBuilder.path("/email/batch").build())
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getTitle()).isEqualTo("Constraint Violation");
-		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactlyInAnyOrder(tuple(field, message));
-
-		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
-	}
-
 }

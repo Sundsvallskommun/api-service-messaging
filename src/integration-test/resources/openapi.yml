@@ -1,34 +1,34 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "4.6"
 servers:
-  - url: http://localhost:59546
-    description: Generated server url
+- url: http://localhost:50915
+  description: Generated server url
 paths:
   /webmessage:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single web message
       operationId: sendWebMessage
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -59,8 +59,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -68,8 +68,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -80,22 +80,22 @@ paths:
   /sms:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single SMS
       operationId: sendSms
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -126,8 +126,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -135,8 +135,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -147,15 +147,15 @@ paths:
   /sms/batch:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of sms asynchronously
       operationId: sendSmsBatch
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -186,8 +186,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -195,8 +195,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -207,22 +207,22 @@ paths:
   /slack:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single Slack message
       operationId: sendToSlack
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -253,8 +253,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -262,8 +262,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -274,22 +274,22 @@ paths:
   /messages:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of messages as e-mail or SMS to a list of parties
       operationId: sendMessages
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -320,8 +320,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -329,8 +329,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -341,22 +341,22 @@ paths:
   /letter:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single letter as digital mail or snail mail
       operationId: sendLetter
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -387,8 +387,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -396,8 +396,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -408,22 +408,22 @@ paths:
   /email:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single e-mail
       operationId: sendEmail
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -454,8 +454,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -463,8 +463,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -475,15 +475,15 @@ paths:
   /email/batch:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of e-mails asynchronously
       operationId: sendEmailBatch
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -514,8 +514,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -523,8 +523,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -535,22 +535,22 @@ paths:
   /digital-mail:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single digital mail to one or more parties
       operationId: sendDigitalMail
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -581,8 +581,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -590,8 +590,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -602,22 +602,22 @@ paths:
   /digital-invoice:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a digital invoice
       operationId: sendDigitalInvoice
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: async
+        in: query
+        description: Whether to send the message asynchronously
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -648,8 +648,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -657,8 +657,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -669,16 +669,16 @@ paths:
   /status/message/{messageId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the status for a single message and its deliveries
       operationId: getMessageStatus
       parameters:
-        - name: messageId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -689,6 +689,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -710,16 +723,16 @@ paths:
   /status/delivery/{deliveryId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the status for a single delivery
       operationId: getDeliveryStatus
       parameters:
-        - name: deliveryId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: deliveryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -739,6 +752,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -751,16 +777,16 @@ paths:
   /status/batch/{batchId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: "Get the status for a message batch, its messages and their deliveries"
       operationId: getBatchStatus
       parameters:
-        - name: batchId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -771,6 +797,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -792,40 +831,40 @@ paths:
   /statistics:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get delivery statistics
-      operationId: getStats
+      operationId: getStatistics
       parameters:
-        - name: messageType
-          in: query
-          description: Message type
-          required: false
-          schema:
-            type: string
-            enum:
-              - MESSAGE
-              - EMAIL
-              - SMS
-              - WEB_MESSAGE
-              - DIGITAL_MAIL
-              - DIGITAL_INVOICE
-              - SNAIL_MAIL
-              - LETTER
-              - SLACK
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: messageType
+        in: query
+        description: Message type
+        required: false
+        schema:
+          type: string
+          enum:
+          - MESSAGE
+          - EMAIL
+          - SMS
+          - WEB_MESSAGE
+          - DIGITAL_MAIL
+          - DIGITAL_INVOICE
+          - SNAIL_MAIL
+          - LETTER
+          - SLACK
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -840,6 +879,19 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Statistics"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -852,30 +904,30 @@ paths:
   /statistics/departments:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get letter delivery statistics by department
-      operationId: getDepartmentStats
+      operationId: getDepartmentStatistics
       parameters:
-        - name: origin
-          in: query
-          description: Origin name
-          required: false
-          schema:
-            type: string
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: origin
+        in: query
+        description: Origin name
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -896,13 +948,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -915,36 +967,36 @@ paths:
   /statistics/departments/{department}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get letter delivery statistics by department
-      operationId: getDepartmentStats_1
+      operationId: getDepartmentStatistics_1
       parameters:
-        - name: department
-          in: path
-          description: Department name
-          required: true
-          schema:
-            type: string
-        - name: origin
-          in: query
-          description: Origin name
-          required: false
-          schema:
-            type: string
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: department
+        in: path
+        description: Department name
+        required: true
+        schema:
+          type: string
+      - name: origin
+        in: query
+        description: Origin name
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -965,13 +1017,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -984,16 +1036,16 @@ paths:
   /message/{messageId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get a message and all its deliveries
       operationId: getMessage
       parameters:
-        - name: messageId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -1008,6 +1060,19 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HistoryResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -1029,30 +1094,30 @@ paths:
   /conversation-history/{partyId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the entire conversation history for a given party
       operationId: getConversationHistory
       parameters:
-        - name: partyId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -1067,6 +1132,19 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/HistoryResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -1079,7 +1157,7 @@ paths:
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -1096,8 +1174,8 @@ components:
   schemas:
     ExternalReference:
       required:
-        - key
-        - value
+      - key
+      - value
       type: object
       properties:
         key:
@@ -1124,7 +1202,7 @@ components:
       description: Attachment
     WebMessageParty:
       required:
-        - partyId
+      - partyId
       type: object
       properties:
         partyId:
@@ -1139,8 +1217,8 @@ components:
       description: Party
     WebMessageRequest:
       required:
-        - message
-        - party
+      - message
+      - party
       type: object
       properties:
         party:
@@ -1154,8 +1232,8 @@ components:
             external OeP instance
           example: internal
           enum:
-            - internal
-            - external
+          - internal
+          - external
         attachments:
           maxItems: 10
           minItems: 0
@@ -1177,9 +1255,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -1218,30 +1296,30 @@ components:
       type: string
       description: Status
       enum:
-        - PENDING
-        - AWAITING_FEEDBACK
-        - SENT
-        - NOT_SENT
-        - FAILED
-        - NO_CONTACT_SETTINGS_FOUND
-        - NO_CONTACT_WANTED
+      - PENDING
+      - AWAITING_FEEDBACK
+      - SENT
+      - NOT_SENT
+      - FAILED
+      - NO_CONTACT_SETTINGS_FOUND
+      - NO_CONTACT_WANTED
     MessageType:
       type: string
       description: Message type
       enum:
-        - MESSAGE
-        - EMAIL
-        - SMS
-        - WEB_MESSAGE
-        - DIGITAL_MAIL
-        - DIGITAL_INVOICE
-        - SNAIL_MAIL
-        - LETTER
-        - SLACK
+      - MESSAGE
+      - EMAIL
+      - SMS
+      - WEB_MESSAGE
+      - DIGITAL_MAIL
+      - DIGITAL_INVOICE
+      - SNAIL_MAIL
+      - LETTER
+      - SLACK
     SmsRequest:
       required:
-        - message
-        - mobileNumber
+      - message
+      - mobileNumber
       type: object
       properties:
         party:
@@ -1263,8 +1341,8 @@ components:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
-            - HIGH
-            - NORMAL
+          - HIGH
+          - NORMAL
     SmsRequestParty:
       type: object
       properties:
@@ -1280,8 +1358,8 @@ components:
       description: Party
     SmsBatchRequest:
       required:
-        - message
-        - parties
+      - message
+      - parties
       type: object
       properties:
         sender:
@@ -1298,8 +1376,8 @@ components:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
-            - HIGH
-            - NORMAL
+          - HIGH
+          - NORMAL
         parties:
           type: array
           description: Parties to send the sms message to
@@ -1307,7 +1385,7 @@ components:
             $ref: "#/components/schemas/SmsBatchRequestParty"
     SmsBatchRequestParty:
       required:
-        - mobileNumber
+      - mobileNumber
       type: object
       properties:
         partyId:
@@ -1333,9 +1411,9 @@ components:
       description: Message batch result
     SlackRequest:
       required:
-        - channel
-        - message
-        - token
+      - channel
+      - message
+      - token
       type: object
       properties:
         token:
@@ -1349,8 +1427,8 @@ components:
           description: Message (supports Slack markdown formatting)
     Email:
       required:
-        - address
-        - name
+      - address
+      - name
       type: object
       properties:
         name:
@@ -1366,8 +1444,8 @@ components:
           example: sender@sender.se
     Message:
       required:
-        - message
-        - party
+      - message
+      - party
       type: object
       properties:
         party:
@@ -1379,7 +1457,7 @@ components:
             description: Filters
             example:
               someAttributeName:
-                - someAttributeValue
+              - someAttributeValue
             items:
               type: string
               description: Filters
@@ -1387,7 +1465,7 @@ components:
           description: Filters
           example:
             someAttributeName:
-              - someAttributeValue
+            - someAttributeValue
         sender:
           $ref: "#/components/schemas/MessageSender"
         subject:
@@ -1402,7 +1480,7 @@ components:
       description: The messages to be sent
     MessageParty:
       required:
-        - partyId
+      - partyId
       type: object
       properties:
         partyId:
@@ -1417,7 +1495,7 @@ components:
       description: Party
     MessageRequest:
       required:
-        - messages
+      - messages
       type: object
       properties:
         messages:
@@ -1435,7 +1513,7 @@ components:
       description: Sender
     Sms:
       required:
-        - name
+      - name
       type: object
       properties:
         name:
@@ -1446,9 +1524,9 @@ components:
           example: sender
     LetterAttachment:
       required:
-        - content
-        - deliveryMode
-        - filename
+      - content
+      - deliveryMode
+      - filename
       type: object
       properties:
         deliveryMode:
@@ -1457,9 +1535,9 @@ components:
             Delivery mode, to indicate whether an attachment is intended/allowed to be used for
             digital mail, snail-mail or any of them
           enum:
-            - ANY
-            - DIGITAL_MAIL
-            - SNAIL_MAIL
+          - ANY
+          - DIGITAL_MAIL
+          - SNAIL_MAIL
         filename:
           type: string
           description: Filename
@@ -1467,14 +1545,14 @@ components:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
       description: Attachment
     LetterParty:
       required:
-        - partyIds
+      - partyIds
       type: object
       properties:
         partyIds:
@@ -1492,10 +1570,10 @@ components:
       description: Party
     LetterRequest:
       required:
-        - attachments
-        - department
-        - party
-        - subject
+      - attachments
+      - department
+      - party
+      - subject
       type: object
       properties:
         party:
@@ -1509,8 +1587,8 @@ components:
           type: string
           description: Content type
           enum:
-            - text/plain
-            - text/html
+          - text/plain
+          - text/html
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
@@ -1530,7 +1608,7 @@ components:
             $ref: "#/components/schemas/LetterAttachment"
     LetterSender:
       required:
-        - supportInfo
+      - supportInfo
       type: object
       properties:
         supportInfo:
@@ -1538,7 +1616,7 @@ components:
       description: Sender
     LetterSenderSupportInfo:
       required:
-        - text
+      - text
       type: object
       properties:
         text:
@@ -1556,8 +1634,8 @@ components:
       description: Support info
     EmailAttachment:
       required:
-        - content
-        - name
+      - content
+      - name
       type: object
       properties:
         name:
@@ -1575,8 +1653,8 @@ components:
       description: Attachment
     EmailRequest:
       required:
-        - emailAddress
-        - subject
+      - emailAddress
+      - subject
       type: object
       properties:
         party:
@@ -1623,8 +1701,8 @@ components:
       description: Party
     EmailSender:
       required:
-        - address
-        - name
+      - address
+      - name
       type: object
       properties:
         name:
@@ -1641,8 +1719,8 @@ components:
       description: Sender
     EmailBatchRequest:
       required:
-        - parties
-        - subject
+      - parties
+      - subject
       type: object
       properties:
         parties:
@@ -1675,7 +1753,7 @@ components:
           description: Headers
     Party:
       required:
-        - emailAddress
+      - emailAddress
       type: object
       properties:
         partyId:
@@ -1689,15 +1767,15 @@ components:
           example: someone@somewhere.com
     DigitalMailAttachment:
       required:
-        - content
-        - filename
+      - content
+      - filename
       type: object
       properties:
         contentType:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
@@ -1707,7 +1785,7 @@ components:
       description: Attachment
     DigitalMailParty:
       required:
-        - partyIds
+      - partyIds
       type: object
       properties:
         partyIds:
@@ -1725,9 +1803,9 @@ components:
       description: Party
     DigitalMailRequest:
       required:
-        - body
-        - contentType
-        - party
+      - body
+      - contentType
+      - party
       type: object
       properties:
         party:
@@ -1747,8 +1825,8 @@ components:
           type: string
           description: Content type
           enum:
-            - text/plain
-            - text/html
+          - text/plain
+          - text/html
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
@@ -1760,7 +1838,7 @@ components:
             $ref: "#/components/schemas/DigitalMailAttachment"
     DigitalMailSender:
       required:
-        - supportInfo
+      - supportInfo
       type: object
       properties:
         supportInfo:
@@ -1768,7 +1846,7 @@ components:
       description: Sender
     DigitalMailSenderSupportInfo:
       required:
-        - text
+      - text
       type: object
       properties:
         text:
@@ -1786,12 +1864,12 @@ components:
       description: Support info
     Details:
       required:
-        - accountNumber
-        - accountType
-        - amount
-        - dueDate
-        - paymentReference
-        - paymentReferenceType
+      - accountNumber
+      - accountType
+      - amount
+      - dueDate
+      - paymentReference
+      - paymentReferenceType
       type: object
       properties:
         amount:
@@ -1807,8 +1885,8 @@ components:
         paymentReferenceType:
           type: string
           enum:
-            - SE_OCR
-            - TENANT_REF
+          - SE_OCR
+          - TENANT_REF
         paymentReference:
           maxLength: 25
           type: string
@@ -1817,8 +1895,8 @@ components:
         accountType:
           type: string
           enum:
-            - BANKGIRO
-            - PLUSGIRO
+          - BANKGIRO
+          - PLUSGIRO
         accountNumber:
           type: string
           description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
@@ -1826,16 +1904,16 @@ components:
       description: Invoice details
     DigitalInvoiceFile:
       required:
-        - content
-        - contentType
-        - filename
+      - content
+      - contentType
+      - filename
       type: object
       properties:
         contentType:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
@@ -1858,9 +1936,9 @@ components:
       description: Party
     DigitalInvoiceRequest:
       required:
-        - details
-        - party
-        - type
+      - details
+      - party
+      - type
       type: object
       properties:
         party:
@@ -1869,8 +1947,8 @@ components:
           type: string
           description: Invoice type
           enum:
-            - INVOICE
-            - REMINDER
+          - INVOICE
+          - REMINDER
         subject:
           type: string
           description: Subject
@@ -1890,49 +1968,6 @@ components:
           description: Files
           items:
             $ref: "#/components/schemas/DigitalInvoiceFile"
-    LetterStatistics:
-      type: object
-      properties:
-        SNAIL_MAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-        DIGITAL_MAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-    MessageStatistics:
-      type: object
-      properties:
-        EMAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-        SMS:
-          $ref: "#/components/schemas/StatisticsCounter"
-        UNDELIVERABLE:
-          type: integer
-          format: int32
-    Statistics:
-      type: object
-      properties:
-        EMAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-        SMS:
-          $ref: "#/components/schemas/StatisticsCounter"
-        WEB_MESSAGE:
-          $ref: "#/components/schemas/StatisticsCounter"
-        DIGITAL_MAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-        SNAIL_MAIL:
-          $ref: "#/components/schemas/StatisticsCounter"
-        MESSAGE:
-          $ref: "#/components/schemas/MessageStatistics"
-        LETTER:
-          $ref: "#/components/schemas/LetterStatistics"
-    StatisticsCounter:
-      type: object
-      properties:
-        sent:
-          type: integer
-          format: int32
-        failed:
-          type: integer
-          format: int32
     ConstraintViolationProblem:
       type: object
       properties:
@@ -2056,9 +2091,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         suppressed:
           type: array
@@ -2100,6 +2135,49 @@ components:
           type: string
         message:
           type: string
+    LetterStatistics:
+      type: object
+      properties:
+        SNAIL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        DIGITAL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+    MessageStatistics:
+      type: object
+      properties:
+        EMAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        SMS:
+          $ref: "#/components/schemas/StatisticsCounter"
+        UNDELIVERABLE:
+          type: integer
+          format: int32
+    Statistics:
+      type: object
+      properties:
+        EMAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        SMS:
+          $ref: "#/components/schemas/StatisticsCounter"
+        WEB_MESSAGE:
+          $ref: "#/components/schemas/StatisticsCounter"
+        DIGITAL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        SNAIL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        MESSAGE:
+          $ref: "#/components/schemas/MessageStatistics"
+        LETTER:
+          $ref: "#/components/schemas/LetterStatistics"
+    StatisticsCounter:
+      type: object
+      properties:
+        sent:
+          type: integer
+          format: int32
+        failed:
+          type: integer
+          format: int32
     DepartmentLetterStatistics:
       type: object
       properties:
@@ -2124,28 +2202,28 @@ components:
         messageType:
           type: string
           enum:
-            - MESSAGE
-            - EMAIL
-            - SMS
-            - WEB_MESSAGE
-            - DIGITAL_MAIL
-            - DIGITAL_INVOICE
-            - SNAIL_MAIL
-            - LETTER
-            - SLACK
+          - MESSAGE
+          - EMAIL
+          - SMS
+          - WEB_MESSAGE
+          - DIGITAL_MAIL
+          - DIGITAL_INVOICE
+          - SNAIL_MAIL
+          - LETTER
+          - SLACK
         status:
           type: string
           enum:
-            - PENDING
-            - AWAITING_FEEDBACK
-            - SENT
-            - NOT_SENT
-            - FAILED
-            - NO_CONTACT_SETTINGS_FOUND
-            - NO_CONTACT_WANTED
+          - PENDING
+          - AWAITING_FEEDBACK
+          - SENT
+          - NOT_SENT
+          - FAILED
+          - NO_CONTACT_SETTINGS_FOUND
+          - NO_CONTACT_WANTED
         content:
           type: object
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

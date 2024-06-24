@@ -13,18 +13,24 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class HistoryResponseTests {
 
-    @Test
-    void testBuilderAndGetters() {
-        var historyResponse = HistoryResponse.builder()
-            .withMessageType(WEB_MESSAGE)
-            .withStatus(SENT)
-            .withContent("someContent")
-            .withTimestamp(LocalDateTime.now())
-            .build();
+	@Test
+	void testBuilderAndGetters() {
+		final var historyResponse = HistoryResponse.builder()
+			.withMessageType(WEB_MESSAGE)
+			.withStatus(SENT)
+			.withContent("someContent")
+			.withTimestamp(LocalDateTime.now())
+			.build();
 
-        assertThat(historyResponse.messageType()).isEqualTo(WEB_MESSAGE);
-        assertThat(historyResponse.status()).isEqualTo(SENT);
-        assertThat(historyResponse.content()).isEqualTo("someContent");
-        assertThat(historyResponse.timestamp()).isNotNull();
-    }
+		assertThat(historyResponse).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(historyResponse.messageType()).isEqualTo(WEB_MESSAGE);
+		assertThat(historyResponse.status()).isEqualTo(SENT);
+		assertThat(historyResponse.content()).isEqualTo("someContent");
+		assertThat(historyResponse.timestamp()).isNotNull();
+	}
+
+	@Test
+	void testNoDirtOnCreatedBean() {
+		assertThat(HistoryResponse.builder().build()).hasAllNullFieldsOrProperties();
+	}
 }
