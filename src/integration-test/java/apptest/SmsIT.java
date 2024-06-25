@@ -29,6 +29,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class SmsIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/sms";
+	private static final String REQUEST_FILE = "request.json";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -41,7 +42,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
@@ -77,46 +78,10 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test2_internalServerErrorFromSmsSender() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test5_successfulHighPriorityRequest() throws Exception {
-		final var response = setupCall()
-			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
-			.withHttpMethod(POST)
-			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
-			.sendRequestAndVerifyResponse()
-			.andReturnBody(MessageResult.class);
-
-		final var messageId = response.messageId();
-
-		// Make sure we received a message id as a proper UUID
-		assertValidUuid(messageId);
-
-		await()
-			.atMost(10, TimeUnit.SECONDS)
-			.until(() -> {
-				// Make sure that there doesn't exist a message entity
-				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByMessageId(messageId))
-					.isNotNull()
-					.isNotEmpty()
-					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
-						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-					});
-
-				return true;
-			});
 	}
 
 	@Test
@@ -124,7 +89,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
@@ -165,7 +130,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
@@ -204,11 +169,47 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
+	void test5_successfulHighPriorityRequest() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withHeader("x-origin", "Test-origin")
+			.withRequest(REQUEST_FILE)
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageResult.class);
+
+		final var messageId = response.messageId();
+
+		// Make sure we received a message id as a proper UUID
+		assertValidUuid(messageId);
+
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+				// Make sure that there doesn't exist a message entity
+				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByMessageId(messageId))
+					.isNotNull()
+					.isNotEmpty()
+					.allSatisfy(historyEntry -> {
+						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
+						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
+			});
+	}
+
+	@Test
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader("x-origin", "Test-origin")
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
