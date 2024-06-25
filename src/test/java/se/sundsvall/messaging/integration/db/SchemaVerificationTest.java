@@ -1,10 +1,7 @@
 package se.sundsvall.messaging.integration.db;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -12,12 +9,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
-@ActiveProfiles("junit")
+@UnitTest
 class SchemaVerificationTest {
 
 	private static final String STORED_SCHEMA_FILE = "db/schema/schema.sql";
