@@ -44,7 +44,7 @@ class OpenApiSpecificationIT {
 	void compareOpenApiSpecifications() {
 		final var existingOpenApiSpecification = asString(openApiResource);
 		final var currentOpenApiSpecification = getCurrentOpenApiSpecification();
-		System.err.println(currentOpenApiSpecification);
+
 		assertThatJson(toJson(existingOpenApiSpecification))
 			.withOptions(IGNORING_ARRAY_ORDER)
 			.whenIgnoringPaths("servers")
