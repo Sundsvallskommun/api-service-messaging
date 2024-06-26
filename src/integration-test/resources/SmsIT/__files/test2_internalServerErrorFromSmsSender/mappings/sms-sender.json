@@ -6,7 +6,17 @@
 			}
 		},
 		"method": "POST",
-		"url": "/sms-sender/send/sms"
+		"url": "/sms-sender/send/sms",
+		"bodyPatterns": [{
+			"equalToJson": {
+				"sender": {
+					"name": "SomeSender"
+				},
+				"mobileNumber": "+46708971081",
+				"priority": "NORMAL",
+				"message": "This is the message"
+			}
+		}]
 	},
 	"response": {
 		"headers": {
