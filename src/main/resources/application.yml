@@ -33,3 +33,5 @@ logbook:
         value: '[base64]'
       - key: '$..attachments[*].body'
         value: '[base64]'
+      - key: '$..files[*].body'
+        value: '[base64]'
