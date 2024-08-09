@@ -77,7 +77,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId)))
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -107,10 +107,10 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + CONVERSATION_HISTORY_PATH)
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH)
 				.queryParam("from", fromDate)
 				.queryParam("to", toDate)
-				.build(Map.of("partyId", partyId)))
+				.build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -134,7 +134,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		var result = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId)))
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(History.class)
@@ -163,7 +163,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId)))
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(DeliveryResult.class)
@@ -190,7 +190,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId)))
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -217,7 +217,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + BATCH_STATUS_PATH).build(Map.of("batchId", batchId)))
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(MessageBatchResult.class)
@@ -241,7 +241,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + BATCH_STATUS_PATH).build(Map.of("batchId", batchId)))
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -268,7 +268,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(MessageResult.class)
@@ -292,7 +292,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -319,7 +319,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -347,7 +347,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -379,7 +379,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri("/" + MUNICIPALITY_ID + STATISTICS_PATH)
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(Statistics.class)
@@ -408,11 +408,11 @@ class StatusAndHistoryResourceTest {
 		// Act
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.path("/" + MUNICIPALITY_ID + STATISTICS_PATH)
+				.path(STATISTICS_PATH)
 				.queryParam("messageType", messageType)
 				.queryParam("from", from)
 				.queryParam("to", to)
-				.build())
+				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(Statistics.class)
@@ -440,7 +440,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri("/" + MUNICIPALITY_ID + STATISTICS_FOR_DEPARTMENTS_PATH)
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_DEPARTMENTS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)
@@ -469,7 +469,7 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH).build(Map.of("department", department)))
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH).build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)
@@ -501,11 +501,11 @@ class StatusAndHistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/" + MUNICIPALITY_ID + STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH)
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH)
 				.queryParam("origin", origin)
 				.queryParam("from", from)
 				.queryParam("to", to)
-				.build(Map.of("department", department)))
+				.build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)

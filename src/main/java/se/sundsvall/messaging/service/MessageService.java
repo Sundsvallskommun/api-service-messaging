@@ -162,7 +162,7 @@ public class MessageService {
 			.map((Message delivery) -> deliver(delivery, municipalityId))
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
 	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request, final String municipalityId) {
@@ -190,7 +190,7 @@ public class MessageService {
 			.flatMap(Collection::stream)
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
 	public InternalDeliveryBatchResult sendLetter(final Message message, final String municipalityId) {
@@ -199,7 +199,7 @@ public class MessageService {
 		final var deliveryResults = routeAndSendLetter(message, municipalityId);
 		sendSnailMailBatch(deliveryResults, batchId);
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
 	public InternalDeliveryBatchResult sendLetter(final LetterRequest request, final String municipalityId) {
@@ -219,7 +219,7 @@ public class MessageService {
 
 		sendSnailMailBatch(deliveryResults, batchId);
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
 	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId) {
@@ -432,7 +432,7 @@ public class MessageService {
 				// Archive the message
 				archiveMessage(delivery.withStatus(status)))
 			// Map to result
-			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
+			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, municipalityId))
 			// Make sure all exceptions that may occur are throwable problems
 			.mapFailure(
 				Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> {

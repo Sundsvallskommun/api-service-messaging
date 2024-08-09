@@ -45,12 +45,14 @@ class MessageResourceMessageTest {
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withMessageType(MESSAGE)
 		.withStatus(SENT)
 		.build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
@@ -77,7 +79,7 @@ class MessageResourceMessageTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -113,7 +115,7 @@ class MessageResourceMessageTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()

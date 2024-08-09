@@ -43,7 +43,7 @@ class SlackIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/message/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageResult.class);
 

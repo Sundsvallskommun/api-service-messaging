@@ -49,6 +49,7 @@ class MessageResourceWebMessageTest {
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(WEB_MESSAGE)
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withStatus(SENT)
 		.build();
 
@@ -92,7 +93,7 @@ class MessageResourceWebMessageTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()
@@ -128,7 +129,7 @@ class MessageResourceWebMessageTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()

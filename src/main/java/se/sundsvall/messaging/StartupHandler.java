@@ -37,7 +37,7 @@ class StartupHandler implements CommandLineRunner {
 					LOG.info("Processing {} with id {} and delivery id {}", message.getType(),
 						message.getMessageId(), message.getDeliveryId());
 
-					return new IncomingMessageEvent(this, "2281", message.getType(), message.getDeliveryId(), message.getOrigin());
+					return new IncomingMessageEvent(this, message.getMunicipalityId(), message.getType(), message.getDeliveryId(), message.getOrigin());
 				})
 				.forEach(eventPublisher::publishEvent);
 		}

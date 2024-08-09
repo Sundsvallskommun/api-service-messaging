@@ -35,6 +35,8 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class StatusAndHistoryResourceFailureTest {
 
+	private static final String MUNICIPALITY_ID = "2281";
+
 	@MockBean
 	private HistoryService mockHistoryService;
 
@@ -51,7 +53,7 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId)))
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -75,7 +77,7 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + BATCH_STATUS_PATH).build(Map.of("batchId", batchId)))
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -99,7 +101,7 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -123,7 +125,7 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId)))
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -147,7 +149,7 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -169,9 +171,9 @@ class StatusAndHistoryResourceFailureTest {
 		// Act
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.path("/2281" + STATISTICS_PATH)
+				.path(STATISTICS_PATH)
 				.queryParam("messageType", "not-valid-type")
-				.build())
+				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -195,8 +197,8 @@ class StatusAndHistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/2281" + STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH)
-				.build(Map.of("department", department)))
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH)
+				.build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)

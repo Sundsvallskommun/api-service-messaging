@@ -74,7 +74,7 @@ public class MessageEventDispatcher {
 			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveries);
+		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
 	}
 
 	public InternalDeliveryResult handleEmailRequest(final EmailRequest request, final String municipalityId) {
@@ -100,6 +100,7 @@ public class MessageEventDispatcher {
 		return InternalDeliveryBatchResult.builder()
 			.withDeliveries(deliveryResults)
 			.withBatchId(batchId)
+			.withMunicipalityId(municipalityId)
 			.build();
 	}
 
@@ -118,6 +119,7 @@ public class MessageEventDispatcher {
 		return InternalDeliveryBatchResult.builder()
 			.withDeliveries(deliveryResults)
 			.withBatchId(batchId)
+			.withMunicipalityId(municipalityId)
 			.build();
 	}
 
@@ -154,7 +156,7 @@ public class MessageEventDispatcher {
 			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveries);
+		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
 	}
 
 	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request, final String municipalityId) {
@@ -179,7 +181,7 @@ public class MessageEventDispatcher {
 			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveries);
+		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
 	}
 
 	public InternalDeliveryResult handleSlackRequest(final SlackRequest request, final String municipalityId) {
@@ -194,7 +196,7 @@ public class MessageEventDispatcher {
 	private InternalDeliveryResult publishMessageEvent(final Message message, final String municipalityId) {
 		eventPublisher.publishEvent(new IncomingMessageEvent(this, municipalityId, message.type(), message.deliveryId(), message.origin()));
 
-		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type());
+		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(), municipalityId);
 	}
 
 	private boolean isWhitelisted(final MessageType type, final String destination) {

@@ -42,6 +42,7 @@ class MessageResourceDigitalInvoiceTest {
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(DIGITAL_INVOICE)
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withStatus(SENT)
 		.build();
 
@@ -68,7 +69,7 @@ class MessageResourceDigitalInvoiceTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()
@@ -101,7 +102,7 @@ class MessageResourceDigitalInvoiceTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()

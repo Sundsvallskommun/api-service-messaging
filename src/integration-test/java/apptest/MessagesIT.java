@@ -44,7 +44,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -86,7 +86,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -128,7 +128,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -170,7 +170,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -211,7 +211,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 

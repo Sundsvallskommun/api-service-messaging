@@ -11,15 +11,17 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class InternalDeliveryBatchResultTest {
 
-    @Test
-    void testDefaultConstructor() {
-        var deliveryBatchResult = new InternalDeliveryBatchResult("someBatchId",
-            List.of(new InternalDeliveryResult("someMessageId")));
+	@Test
+	void testDefaultConstructor() {
+		var deliveryBatchResult = new InternalDeliveryBatchResult("someBatchId",
+			List.of(new InternalDeliveryResult("someMessageId")), "someMunicipalityId");
 
-        assertThat(deliveryBatchResult.batchId()).isEqualTo("someBatchId");
-        assertThat(deliveryBatchResult.deliveries())
-            .hasSize(1)
-            .extracting(InternalDeliveryResult::messageId)
-            .containsExactly("someMessageId");
-    }
+		assertThat(deliveryBatchResult.batchId()).isEqualTo("someBatchId");
+		assertThat(deliveryBatchResult.municipalityId()).isEqualTo("someMunicipalityId");
+		assertThat(deliveryBatchResult.deliveries())
+			.hasSize(1)
+			.extracting(InternalDeliveryResult::messageId)
+			.containsExactly("someMessageId");
+	}
+
 }

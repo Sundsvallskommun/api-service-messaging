@@ -45,12 +45,14 @@ class MessageResourceDigitalMailTest {
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withMessageType(DIGITAL_MAIL)
 		.withStatus(SENT)
 		.build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
@@ -78,7 +80,7 @@ class MessageResourceDigitalMailTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -115,7 +117,7 @@ class MessageResourceDigitalMailTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()

@@ -47,11 +47,13 @@ class MessageResourceLetterTest {
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(LETTER)
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withStatus(SENT)
 		.build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
@@ -79,7 +81,7 @@ class MessageResourceLetterTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -116,7 +118,7 @@ class MessageResourceLetterTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
