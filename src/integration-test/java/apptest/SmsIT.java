@@ -28,7 +28,10 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/SmsIT/", classes = Application.class)
 class SmsIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/sms";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/sms";
+
 	private static final String REQUEST_FILE = "request.json";
 
 	@Autowired
@@ -61,7 +64,7 @@ class SmsIT extends AbstractMessagingAppTest {
 				// Make sure that there doesn't exist a message entity
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByMessageId(messageId))
+				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
@@ -113,7 +116,7 @@ class SmsIT extends AbstractMessagingAppTest {
 				});
 
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByBatchId(batchId))
+				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
 					.allSatisfy(historyEntry -> {
@@ -153,7 +156,7 @@ class SmsIT extends AbstractMessagingAppTest {
 				});
 
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByBatchId(batchId))
+				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
 					.satisfiesExactlyInAnyOrder(historyEntry -> {
@@ -191,7 +194,7 @@ class SmsIT extends AbstractMessagingAppTest {
 				// Make sure that there doesn't exist a message entity
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByMessageId(messageId))
+				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
@@ -232,7 +235,7 @@ class SmsIT extends AbstractMessagingAppTest {
 				});
 
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByBatchId(batchId))
+				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
 					.allSatisfy(historyEntry -> {
@@ -243,4 +246,5 @@ class SmsIT extends AbstractMessagingAppTest {
 				return true;
 			});
 	}
+
 }

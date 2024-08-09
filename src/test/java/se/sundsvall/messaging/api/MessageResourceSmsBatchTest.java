@@ -37,15 +37,21 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSmsBatchTest {
 
-	private static final String URL = "/sms/batch";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/sms/batch";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(SMS)
 		.withStatus(SENT)
 		.build();
+
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
 		.withDeliveries(List.of(DELIVERY_RESULT))
@@ -60,13 +66,25 @@ class MessageResourceSmsBatchTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Stream<Arguments> requestProvider() {
+		return Stream.of(
+			Arguments.of("abc", UUID.randomUUID().toString()),
+			Arguments.of("abc12", UUID.randomUUID().toString()),
+			Arguments.of("Min Bankman", UUID.randomUUID().toString()),
+			Arguments.of(null, UUID.randomUUID().toString()),
+			Arguments.of("abc", null),
+			Arguments.of("abc12", null),
+			Arguments.of("Min Bankman", null),
+			Arguments.of(null, null));
+	}
+
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendBatch(String senderName, String partyId) {
+	void sendBatch(final String senderName, final String partyId) {
 		// Arrange
-		final var request = createValidSmsBatchRequest().withSender(senderName);
-		request.parties().getFirst().withPartyId(partyId);
-		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		var request = createValidSmsBatchRequest();
+		request = request.withSender(senderName).withParties(List.of(request.parties().getFirst().withPartyId(partyId)));
+		when(mockEventDispatcher.handleSmsBatchRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -92,20 +110,9 @@ class MessageResourceSmsBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsBatchRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleSmsBatchRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
-	private static Stream<Arguments> requestProvider() {
-		return Stream.of(
-			Arguments.of("abc", UUID.randomUUID().toString()),
-			Arguments.of("abc12", UUID.randomUUID().toString()),
-			Arguments.of("Min Bankman", UUID.randomUUID().toString()),
-			Arguments.of(null, UUID.randomUUID().toString()),
-			Arguments.of("abc", null),
-			Arguments.of("abc12", null),
-			Arguments.of("Min Bankman", null),
-			Arguments.of(null, null));
-	}
 }

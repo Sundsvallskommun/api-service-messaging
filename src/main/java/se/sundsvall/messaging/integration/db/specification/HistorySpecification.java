@@ -1,13 +1,15 @@
 package se.sundsvall.messaging.integration.db.specification;
 
-import org.springframework.data.jpa.domain.Specification;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import static java.lang.Boolean.TRUE;
+import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.CREATED_AT;
+import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.PARTY_ID;
 
 import java.time.LocalDate;
 
-import static java.lang.Boolean.TRUE;
-import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.CREATED_AT;
-import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.PARTY_ID;
+import org.springframework.data.jpa.domain.Specification;
+
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 public interface HistorySpecification {
 
@@ -33,6 +35,10 @@ public interface HistorySpecification {
 		return (entity, cq, cb) -> cb.greaterThanOrEqualTo(entity.get(CREATED_AT), when.atStartOfDay().plusDays(1));
 	}
 
+	static Specification<HistoryEntity> withMunicipalityId(final String municipalityId) {
+		return (entity, cq, cb) -> cb.equal(entity.get(MUNICIPALITY_ID), municipalityId);
+	}
+
 	static Specification<HistoryEntity> orderByCreatedAtDesc(final Specification<HistoryEntity> specification) {
 		return (entity, cq, cb) -> {
 			cq.orderBy(cb.desc(entity.get(CREATED_AT)));
@@ -40,4 +46,5 @@ public interface HistorySpecification {
 			return specification.toPredicate(entity, cq, cb);
 		};
 	}
+
 }

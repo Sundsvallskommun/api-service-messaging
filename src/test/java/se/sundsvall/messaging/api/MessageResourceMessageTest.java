@@ -34,15 +34,21 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceMessageTest {
 
-	private static final String URL = "/messages";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/messages";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(MESSAGE)
 		.withStatus(SENT)
 		.build();
+
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
 		.withDeliveries(List.of(DELIVERY_RESULT))
@@ -61,7 +67,7 @@ class MessageResourceMessageTest {
 	void sendSynchronous() {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendMessages(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -88,7 +94,7 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendMessages(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendMessages(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -97,7 +103,7 @@ class MessageResourceMessageTest {
 	void sendAsynchronous() {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		when(mockEventDispatcher.handleMessageRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleMessageRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -124,8 +130,9 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleMessageRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleMessageRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }

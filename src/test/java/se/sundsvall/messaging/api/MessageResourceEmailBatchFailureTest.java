@@ -35,10 +35,16 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceEmailBatchFailureTest {
 
-	private static final String URL = "/email/batch";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/email/batch";
+
 	private static final EmailBatchRequest REQUEST = createEmailBatchRequest();
+
 	private static final EmailBatchRequest.Party PARTY = createValidEmailBatchRequestParty();
+
 	private static final EmailBatchRequest.Sender SENDER = createValidEmailBatchRequestSender();
+
 	private static final EmailBatchRequest.Attachment ATTACHMENT = createValidEmailBatchRequestAttachment();
 
 	@MockBean
@@ -49,29 +55,6 @@ class MessageResourceEmailBatchFailureTest {
 
 	@Autowired
 	private WebTestClient webTestClient;
-
-	@ParameterizedTest
-	@MethodSource("emailBatchRequestBadRequestProvider")
-	void sendBatch(final EmailBatchRequest request, final String field, final String message) {
-
-		final var response = webTestClient.post()
-			.uri(URL)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getTitle()).isEqualTo("Constraint Violation");
-		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple(field, message));
-
-		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
-	}
 
 	private static Stream<Arguments> emailBatchRequestBadRequestProvider() {
 		return Stream.of(
@@ -97,4 +80,28 @@ class MessageResourceEmailBatchFailureTest {
 			Arguments.of(REQUEST.withHeaders(Map.of(Header.IN_REPLY_TO, List.of("not a valid in reply to"))), "headers[IN_REPLY_TO][0]", "Header values must start with '<', contain '@' and end with '>'"),
 			Arguments.of(REQUEST.withHeaders(Map.of(Header.REFERENCES, List.of("not a valid reference"))), "headers[REFERENCES][0]", "Header values must start with '<', contain '@' and end with '>'"));
 	}
+
+	@ParameterizedTest
+	@MethodSource("emailBatchRequestBadRequestProvider")
+	void sendBatch(final EmailBatchRequest request, final String field, final String message) {
+
+		final var response = webTestClient.post()
+			.uri(URL)
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getTitle()).isEqualTo("Constraint Violation");
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple(field, message));
+
+		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
+	}
+
 }

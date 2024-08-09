@@ -1,11 +1,12 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
+import java.util.Optional;
+
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
 
-import java.util.Optional;
-
 public class MessageMapper {
+
 	private MessageMapper() {}
 
 	public static Message mapToMessage(final MessageEntity messageEntity) {
@@ -14,6 +15,7 @@ public class MessageMapper {
 			.withMessageId(messageEntity.getMessageId())
 			.withDeliveryId(messageEntity.getDeliveryId())
 			.withPartyId(messageEntity.getPartyId())
+			.withMunicipalityId(messageEntity.getMunicipalityId())
 			.withType(messageEntity.getType())
 			.withOriginalType(messageEntity.getOriginalMessageType())
 			.withStatus(messageEntity.getStatus())
@@ -28,6 +30,7 @@ public class MessageMapper {
 			.withMessageId(message.messageId())
 			.withDeliveryId(message.deliveryId())
 			.withPartyId(message.partyId())
+			.withMunicipalityId(message.municipalityId())
 			.withType(message.type())
 			.withOriginalMessageType(message.originalType())
 			.withStatus(message.status())
@@ -35,4 +38,5 @@ public class MessageMapper {
 			.withOrigin(message.origin())
 			.build()).orElse(null);
 	}
+
 }

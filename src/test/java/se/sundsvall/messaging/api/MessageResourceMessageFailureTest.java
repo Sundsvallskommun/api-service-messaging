@@ -31,7 +31,10 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
 class MessageResourceMessageFailureTest {
-	private static final String URL = "/messages";
+
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/messages";
 
 	@MockBean
 	private MessageService mockMessageService;
@@ -76,7 +79,7 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " ", "not-a-uuid" })
+	@ValueSource(strings = {"", " ", "not-a-uuid"})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest
@@ -203,7 +206,7 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "not-a-valid-email-address" })
+	@ValueSource(strings = {" ", "not-a-valid-email-address"})
 	@NullAndEmptySource
 	void shouldFailWithInvalidSender_WhenSenderEmailIsInvalid(String address) {
 		final var message = validRequest.messages().getFirst();
@@ -235,7 +238,7 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "not-a-valid-email-address" })
+	@ValueSource(strings = {" ", "not-a-valid-email-address"})
 	void shouldFailWithInvalidEmailReplyTo(String replyTo) {
 		final var message = validRequest.messages().getFirst();
 		final var email = message.sender().email().withReplyTo(replyTo);
@@ -290,4 +293,5 @@ class MessageResourceMessageFailureTest {
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
+
 }

@@ -16,6 +16,7 @@ import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 class MessageEventHandler {
 
 	private final MessageService messageService;
+
 	private final DbIntegration dbIntegration;
 
 	MessageEventHandler(final MessageService messageService, final DbIntegration dbIntegration) {
@@ -28,17 +29,18 @@ class MessageEventHandler {
 	public void handleIncomingMessageEvent(final IncomingMessageEvent event) {
 
 		// Get the message (delivery)
-		var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
+		final var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
 			.orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
 				"Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
 
 		// Handle it
 		if (message.type() == MESSAGE) {
-			messageService.sendMessage(message);
+			messageService.sendMessage(message, event.getMunicipalityId());
 		} else if (message.type() == LETTER) {
-			messageService.sendLetter(message);
+			messageService.sendLetter(message, event.getMunicipalityId());
 		} else {
-			messageService.deliver(message);
+			messageService.deliver(message, event.getMunicipalityId());
 		}
 	}
+
 }

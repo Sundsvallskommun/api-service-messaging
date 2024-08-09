@@ -1,19 +1,23 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
+import static java.util.Optional.ofNullable;
+
+import java.time.LocalDateTime;
+
 import com.google.gson.JsonParser;
+
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 
-import java.time.LocalDateTime;
+public final class HistoryMapper {
 
-import static java.util.Optional.ofNullable;
-
-public class HistoryMapper {
 	private static final String DEPARTMENT = "department";
 
-	private HistoryMapper() {}
+	private HistoryMapper() {
+		// Intentionally empty to prevent instantiation
+	}
 
 	public static History mapToHistory(final HistoryEntity historyEntity) {
 		return ofNullable(historyEntity).map(entity -> History.builder()
@@ -25,6 +29,7 @@ public class HistoryMapper {
 			.withStatus(historyEntity.getStatus())
 			.withContent(historyEntity.getContent())
 			.withCreatedAt(historyEntity.getCreatedAt())
+			.withMunicipalityId(historyEntity.getMunicipalityId())
 			.build()).orElse(null);
 	}
 
@@ -37,6 +42,7 @@ public class HistoryMapper {
 			.withMessageType(statsEntry.messageType())
 			.withOriginalMessageType(statsEntry.originalMessageType())
 			.withStatus(statsEntry.status())
+			.withMunicipalityId(statsEntry.municipalityId())
 			.build();
 	}
 
@@ -54,6 +60,7 @@ public class HistoryMapper {
 			.withOrigin(message.origin())
 			.withDepartment(toDepartment(message.content()))
 			.withCreatedAt(LocalDateTime.now())
+			.withMunicipalityId(message.municipalityId())
 			.build()).orElse(null);
 	}
 
@@ -66,4 +73,5 @@ public class HistoryMapper {
 
 		return jsonObject.has(DEPARTMENT) ? jsonObject.get(DEPARTMENT).getAsString() : null;
 	}
+
 }

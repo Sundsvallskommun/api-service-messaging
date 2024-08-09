@@ -1,20 +1,24 @@
 package apptest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.OK;
+
 import org.junit.jupiter.api.Test;
+
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.model.Statistics;
 import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.OK;
-
 @IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/StatisticsIT/", classes = Application.class)
 class StatisticsIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/statistics";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/statistics";
+
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test

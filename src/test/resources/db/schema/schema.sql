@@ -8,6 +8,7 @@
         party_id varchar(36),
         content LONGTEXT,
         department varchar(255),
+        municipality_id varchar(255),
         origin varchar(255),
         status_detail LONGTEXT,
         message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
@@ -23,6 +24,7 @@
         content LONGTEXT NOT NULL,
         delivery_id varchar(255),
         message_id varchar(255),
+        municipality_id varchar(255),
         origin varchar(255),
         party_id varchar(255),
         message_type enum ('DIGITAL_INVOICE','DIGITAL_MAIL','EMAIL','LETTER','MESSAGE','SLACK','SMS','SNAIL_MAIL','WEB_MESSAGE'),
@@ -45,3 +47,6 @@
 
     create index idx_history_department 
        on history (department);
+
+    create index idx_history_municipality_id 
+       on history (municipality_id);

@@ -34,15 +34,21 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceDigitalMailTest {
 
-	private static final String URL = "/digital-mail";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-mail";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(DIGITAL_MAIL)
 		.withStatus(SENT)
 		.build();
+
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
 		.withDeliveries(List.of(DELIVERY_RESULT))
@@ -58,11 +64,11 @@ class MessageResourceDigitalMailTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
-	void sendSynchronous(boolean hasSender) {
+	@ValueSource(booleans = {true, false})
+	void sendSynchronous(final boolean hasSender) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
-		when(mockMessageService.sendDigitalMail(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendDigitalMail(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -89,17 +95,17 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendDigitalMail(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendDigitalMail(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
-	void sendAsynchronous(boolean hasSender) {
+	@ValueSource(booleans = {true, false})
+	void sendAsynchronous(final boolean hasSender) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
-		when(mockEventDispatcher.handleDigitalMailRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleDigitalMailRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -126,8 +132,9 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleDigitalMailRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleDigitalMailRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }

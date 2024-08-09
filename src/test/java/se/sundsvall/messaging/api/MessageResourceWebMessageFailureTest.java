@@ -33,7 +33,10 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
 class MessageResourceWebMessageFailureTest {
-	private static final String URL = "/webmessage";
+
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/webmessage";
 
 	@MockBean
 	private MessageService mockMessageService;
@@ -78,7 +81,7 @@ class MessageResourceWebMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "not-a-uuid" })
+	@ValueSource(strings = {" ", "not-a-uuid"})
 	@NullAndEmptySource
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
@@ -166,7 +169,7 @@ class MessageResourceWebMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " ", "invalid" })
+	@ValueSource(strings = {"", " ", "invalid"})
 	void shouldFailWithInvalidOepInstance(String oepInstance) {
 		// Arrange
 		final var request = validRequest.withOepInstance(oepInstance);
@@ -258,4 +261,5 @@ class MessageResourceWebMessageFailureTest {
 
 		return list;
 	}
+
 }

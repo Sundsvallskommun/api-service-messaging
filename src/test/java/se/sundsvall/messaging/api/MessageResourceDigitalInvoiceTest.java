@@ -30,9 +30,14 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceDigitalInvoiceTest {
 
-	private static final String URL = "/digital-invoice";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-invoice";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
@@ -53,7 +58,7 @@ class MessageResourceDigitalInvoiceTest {
 	void sendSynchronous() {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
-		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
+		when(mockMessageService.sendDigitalInvoice(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -77,7 +82,7 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendDigitalInvoice(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendDigitalInvoice(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -86,7 +91,7 @@ class MessageResourceDigitalInvoiceTest {
 	void sendAsynchronous() {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
-		when(mockEventDispatcher.handleDigitalInvoiceRequest(any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleDigitalInvoiceRequest(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -110,8 +115,9 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleDigitalInvoiceRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleDigitalInvoiceRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }

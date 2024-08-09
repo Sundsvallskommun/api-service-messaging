@@ -35,9 +35,14 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceEmailTest {
 
-	private static final String URL = "/email";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/email";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
@@ -54,13 +59,21 @@ class MessageResourceEmailTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Stream<Arguments> requestProvider() {
+		final var validRequest = createValidEmailRequest();
+
+		return Stream.of(Arguments.of("sender@sender.se", validRequest.party()),
+			Arguments.of("sender@sender.se", null),
+			Arguments.of(null, null));
+	}
+
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendSynchronous(String replyTo, Party party) {
+	void sendSynchronous(final String replyTo, final Party party) {
 		// Arrange
-		final var request = createValidEmailRequest().withParty(party);
-		request.sender().withReplyTo(replyTo);
-		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
+		var request = createValidEmailRequest();
+		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
+		when(mockMessageService.sendEmail(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -84,18 +97,19 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendEmail(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendEmail(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendAsynchronous(String replyTo, Party party) {
+	void sendAsynchronous(final String replyTo, final Party party) {
 		// Arrange
-		final var request = createValidEmailRequest().withParty(party);
-		request.sender().withReplyTo(replyTo);
-		when(mockEventDispatcher.handleEmailRequest(any())).thenReturn(DELIVERY_RESULT);
+		var request = createValidEmailRequest();
+		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
+
+		when(mockEventDispatcher.handleEmailRequest(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -119,16 +133,9 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleEmailRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
-	private static Stream<Arguments> requestProvider() {
-		final var validRequest = createValidEmailRequest();
-
-		return Stream.of(Arguments.of("sender@sender.se", validRequest.party()),
-			Arguments.of("sender@sender.se", null),
-			Arguments.of(null, null));
-	}
 }

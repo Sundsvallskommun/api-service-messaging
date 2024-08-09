@@ -35,9 +35,14 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSmsTest {
 
-	private static final String URL = "/sms";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/sms";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
@@ -54,11 +59,20 @@ class MessageResourceSmsTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Stream<Arguments> requestProvider() {
+		final var validRequest = createValidSmsRequest();
+
+		return Stream.of(Arguments.of("abc", validRequest.party()),
+			Arguments.of("abc12", validRequest.party()),
+			Arguments.of("Min Bankman", null),
+			Arguments.of(null, null));
+	}
+
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendSynchronous(String senderName, Party party) {
+	void sendSynchronous(final String senderName, final Party party) {
 		// Arrange
-		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
+		when(mockMessageService.sendSms(any(), any())).thenReturn(DELIVERY_RESULT);
 		final var request = createValidSmsRequest()
 			.withParty(party)
 			.withSender(senderName);
@@ -85,21 +99,21 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendSms(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendSms(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendAsynchronous(String senderName, Party party) {
+	void sendAsynchronous() {
 		// Arrange
 		final var request = createValidSmsRequest();
-		when(mockEventDispatcher.handleSmsRequest(any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleSmsRequest(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
-			.uri("/sms?async=true")
+			.uri(URL + "?async=true")
 			.header(ORIGIN_HEADER, ORIGIN)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -119,17 +133,9 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleSmsRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
-	private static Stream<Arguments> requestProvider() {
-		final var validRequest = createValidSmsRequest();
-
-		return Stream.of(Arguments.of("abc", validRequest.party()),
-			Arguments.of("abc12", validRequest.party()),
-			Arguments.of("Min Bankman", null),
-			Arguments.of(null, null));
-	}
 }

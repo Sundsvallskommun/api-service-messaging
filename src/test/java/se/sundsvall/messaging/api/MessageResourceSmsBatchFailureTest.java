@@ -33,7 +33,9 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSmsBatchFailureTest {
 
-	private static final String URL = "/sms/batch";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/sms/batch";
 
 	@MockBean
 	private MessageService mockMessageService;
@@ -52,7 +54,7 @@ class MessageResourceSmsBatchFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "ab", "abcdefghijkl" })
+	@ValueSource(strings = {"ab", "abcdefghijkl"})
 	void shoudFailWithInvalidSender(String sender) {
 		// Arrange
 		final var request = validRequest.withSender(sender);
@@ -157,4 +159,5 @@ class MessageResourceSmsBatchFailureTest {
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
+
 }
