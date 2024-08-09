@@ -1,16 +1,17 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.Message;
-
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.Test;
+
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.Message;
 
 class HistoryMapperTest {
 
@@ -33,6 +34,7 @@ class HistoryMapperTest {
 			.withPartyId("somePartyId")
 			.withMessageType(SNAIL_MAIL)
 			.withStatus(FAILED)
+			.withMunicipalityId("someMunicipalityId")
 			.withContent("someContent")
 			.withCreatedAt(LocalDateTime.now())
 			.build();
@@ -46,17 +48,19 @@ class HistoryMapperTest {
 		assertThat(history.status()).isEqualTo(historyEntity.getStatus());
 		assertThat(history.content()).isEqualTo(historyEntity.getContent());
 		assertThat(history.createdAt()).isEqualTo(historyEntity.getCreatedAt());
+		assertThat(history.municipalityId()).isEqualTo(historyEntity.getMunicipalityId());
 	}
 
 	@Test
 	void mapToHistoryFromStatsEntry() {
-		final var statsEntry = new StatsEntry(SNAIL_MAIL, LETTER, FAILED);
+		final var statsEntry = new StatsEntry(SNAIL_MAIL, LETTER, FAILED, "2281");
 
 		final var history = HistoryMapper.mapToHistory(statsEntry);
 
 		assertThat(history.messageType()).isEqualTo(statsEntry.messageType());
 		assertThat(history.originalMessageType()).isEqualTo(statsEntry.originalMessageType());
 		assertThat(history.status()).isEqualTo(statsEntry.status());
+		assertThat(history.municipalityId()).isEqualTo(statsEntry.municipalityId());
 	}
 
 	@Test
@@ -75,6 +79,7 @@ class HistoryMapperTest {
 			.withStatus(FAILED)
 			.withContent("{\"department\":\"department\"}")
 			.withOrigin("someOrigin")
+			.withMunicipalityId("someMunicipalityId")
 			.build();
 
 		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
@@ -90,6 +95,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getDepartment()).isEqualTo("department");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
 	}
 
 	@Test
@@ -103,6 +109,7 @@ class HistoryMapperTest {
 			.withStatus(FAILED)
 			.withContent("{\"no-department\":\"someValue\"}")
 			.withOrigin("someOrigin")
+			.withMunicipalityId("someMunicipalityId")
 			.build();
 
 		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
@@ -118,6 +125,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
 	}
 
 	@Test
@@ -130,6 +138,7 @@ class HistoryMapperTest {
 			.withType(SNAIL_MAIL)
 			.withStatus(FAILED)
 			.withOrigin("someOrigin")
+			.withMunicipalityId("someMunicipalityId")
 			.build();
 
 		var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
@@ -145,5 +154,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
 	}
+
 }

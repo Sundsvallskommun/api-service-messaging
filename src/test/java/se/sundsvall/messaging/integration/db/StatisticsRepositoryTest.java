@@ -36,10 +36,18 @@ class StatisticsRepositoryTest {
 	@Autowired
 	private StatisticsRepository statisticsRepository;
 
+	private static Stream<Arguments> provideDateParameters() {
+		return Stream.of(
+			Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
+			Arguments.of(LocalDate.of(2024, 1, 1), null),
+			Arguments.of(null, LocalDate.now()),
+			Arguments.of(null, null));
+	}
+
 	@Test
 	void getStats() {
 
-		final var statsEntries = statisticsRepository.getStats(SMS, null, null);
+		final var statsEntries = statisticsRepository.getStats(SMS, null, null, null);
 
 		// Assert that the map contains the expected keys
 		assertThat(statsEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -51,7 +59,7 @@ class StatisticsRepositoryTest {
 	@Test
 	void getStatsWithFromAndTo() {
 
-		final var statsEntries = statisticsRepository.getStats(SMS, LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
+		final var statsEntries = statisticsRepository.getStats(SMS, LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25), "2281");
 
 		// Assert that the map contains the expected keys
 		assertThat(statsEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -61,10 +69,10 @@ class StatisticsRepositoryTest {
 
 	@ParameterizedTest()
 	@MethodSource("provideDateParameters")
-	void getStatsByOriginAndDepartment(LocalDate from, LocalDate to) {
+	void getStatsBMunicipalityIdAndyOriginAndDepartment(LocalDate from, LocalDate to) {
 
 		final var origin = "origin1";
-		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
+		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -77,7 +85,7 @@ class StatisticsRepositoryTest {
 	@MethodSource("provideDateParameters")
 	void getStatsByDepartment(LocalDate from, LocalDate to) {
 
-		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
+		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -91,7 +99,7 @@ class StatisticsRepositoryTest {
 	@Test
 	void getStatsByDepartmentNoOriginAndDepartment() {
 
-		final var historyEntities = statisticsRepository.getStatsByOriginAndDepartment(null, null, LETTER, null, null);
+		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", null, null, LETTER, null, null);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -109,11 +117,4 @@ class StatisticsRepositoryTest {
 				tuple(null, SNAIL_MAIL, LETTER, SENT));
 	}
 
-	private static Stream<Arguments> provideDateParameters() {
-		return Stream.of(
-			Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
-			Arguments.of(LocalDate.of(2024, 1, 1), null),
-			Arguments.of(null, LocalDate.now()),
-			Arguments.of(null, null));
-	}
 }

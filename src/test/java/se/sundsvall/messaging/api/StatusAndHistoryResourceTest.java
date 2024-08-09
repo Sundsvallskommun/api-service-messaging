@@ -54,6 +54,8 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class StatusAndHistoryResourceTest {
 
+	private static final String MUNICIPALITY_ID = "2281";
+
 	@MockBean
 	private HistoryService mockHistoryService;
 
@@ -71,11 +73,11 @@ class StatusAndHistoryResourceTest {
 		final var history = History.builder()
 			.withMessageType(messageType)
 			.build();
-		when(mockHistoryService.getConversationHistory(any(), any(), any())).thenReturn(List.of(history));
+		when(mockHistoryService.getConversationHistory(any(), any(), any(), any())).thenReturn(List.of(history));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId)))
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -86,7 +88,7 @@ class StatusAndHistoryResourceTest {
 		assertThat(response).isNotNull().hasSize(1)
 			.extracting(HistoryResponse::messageType).containsExactly(messageType);
 
-		verify(mockHistoryService).getConversationHistory(partyId, null, null);
+		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, null, null);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -101,14 +103,14 @@ class StatusAndHistoryResourceTest {
 		final var history = History.builder()
 			.withMessageType(messageType)
 			.build();
-		when(mockHistoryService.getConversationHistory(any(), any(), any())).thenReturn(List.of(history));
+		when(mockHistoryService.getConversationHistory(any(), any(), any(), any())).thenReturn(List.of(history));
 
 		// Act
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH)
 				.queryParam("from", fromDate)
 				.queryParam("to", toDate)
-				.build(Map.of("partyId", partyId)))
+				.build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -119,25 +121,30 @@ class StatusAndHistoryResourceTest {
 		assertThat(response).isNotNull().hasSize(1)
 			.extracting(HistoryResponse::messageType).containsExactly(messageType);
 
-		verify(mockHistoryService).getConversationHistory(partyId, fromDate, toDate);
+		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, fromDate, toDate);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
 
+	@Test
 	void getConversationHistoryWhenNoHistoryExists() {
 		// Arrange
 		final var partyId = UUID.randomUUID().toString();
-		when(mockHistoryService.getConversationHistory(any(), any(), any())).thenReturn(emptyList());
+		when(mockHistoryService.getConversationHistory(any(), any(), any(), any())).thenReturn(emptyList());
 
 		// Act
-		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId)))
+		var result = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
-			.expectStatus().isNotFound()
-			.expectBody().isEmpty();
+			.expectStatus().isOk()
+			.expectBodyList(History.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(result).isEmpty();
 
 		// Assert and verify
-		verify(mockHistoryService).getConversationHistory(partyId, null, null);
+		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, null, null);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -152,11 +159,11 @@ class StatusAndHistoryResourceTest {
 			.withStatus(SENT)
 			.build();
 
-		when(mockHistoryService.getHistoryByDeliveryId(any())).thenReturn(Optional.of(history));
+		when(mockHistoryService.getHistoryByMunicipalityIdAndDeliveryId(any(), any())).thenReturn(Optional.of(history));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId)))
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(DeliveryResult.class)
@@ -164,12 +171,12 @@ class StatusAndHistoryResourceTest {
 			.getResponseBody();
 
 		// Assert and verify
-		assertThat(response).hasAllNullFieldsOrPropertiesExcept("deliveryId", "messageType", "status");
+		assertThat(response).isNotNull().hasAllNullFieldsOrPropertiesExcept("deliveryId", "messageType", "status");
 		assertThat(response.deliveryId()).isEqualTo(history.deliveryId());
 		assertThat(response.messageType()).isEqualTo(history.messageType());
 		assertThat(response.status()).isEqualTo(history.status());
 
-		verify(mockHistoryService).getHistoryByDeliveryId(deliveryId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndDeliveryId(MUNICIPALITY_ID, deliveryId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -179,17 +186,17 @@ class StatusAndHistoryResourceTest {
 		// Arrange
 		final var deliveryId = UUID.randomUUID().toString();
 
-		when(mockHistoryService.getHistoryByDeliveryId(any())).thenReturn(Optional.empty());
+		when(mockHistoryService.getHistoryByMunicipalityIdAndDeliveryId(any(), any())).thenReturn(Optional.empty());
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId)))
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
 
 		// Assert and verify
-		verify(mockHistoryService).getHistoryByDeliveryId(deliveryId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndDeliveryId(MUNICIPALITY_ID, deliveryId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -206,11 +213,11 @@ class StatusAndHistoryResourceTest {
 			.withStatus(SENT)
 			.build();
 
-		when(mockHistoryService.getHistoryByBatchId(any())).thenReturn(List.of(history));
+		when(mockHistoryService.getHistoryByMunicipalityIdAndBatchId(any(), any())).thenReturn(List.of(history));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId)))
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(MessageBatchResult.class)
@@ -221,7 +228,7 @@ class StatusAndHistoryResourceTest {
 		assertThat(response).isNotNull().hasSize(1)
 			.extracting(MessageBatchResult::batchId).containsExactly(batchId);
 
-		verify(mockHistoryService).getHistoryByBatchId(batchId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -230,17 +237,17 @@ class StatusAndHistoryResourceTest {
 	void getBatchStatusWhenNoHistoryExists() {
 		// Arrange
 		final var batchId = UUID.randomUUID().toString();
-		when(mockHistoryService.getHistoryByBatchId(any())).thenReturn(emptyList());
+		when(mockHistoryService.getHistoryByMunicipalityIdAndBatchId(any(), any())).thenReturn(emptyList());
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId)))
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
 
 		// Assert and verify
-		verify(mockHistoryService).getHistoryByBatchId(batchId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -257,11 +264,11 @@ class StatusAndHistoryResourceTest {
 			.withStatus(SENT)
 			.build();
 
-		when(mockHistoryService.getHistoryByMessageId(any())).thenReturn(List.of(history));
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(any(), any())).thenReturn(List.of(history));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(MessageResult.class)
@@ -272,7 +279,7 @@ class StatusAndHistoryResourceTest {
 		assertThat(response).isNotNull().hasSize(1)
 			.extracting(MessageResult::messageId).containsExactly(messageId);
 
-		verify(mockHistoryService).getHistoryByMessageId(messageId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -281,17 +288,17 @@ class StatusAndHistoryResourceTest {
 	void getMessageStatusWhenNoHistoryExists() {
 		// Arrange
 		final var messageId = UUID.randomUUID().toString();
-		when(mockHistoryService.getHistoryByMessageId(any())).thenReturn(emptyList());
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(any(), any())).thenReturn(emptyList());
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
 
 		// Assert and verify
-		verify(mockHistoryService).getHistoryByMessageId(messageId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -308,11 +315,11 @@ class StatusAndHistoryResourceTest {
 			.withStatus(SENT)
 			.build();
 
-		when(mockHistoryService.getHistoryByMessageId(any())).thenReturn(List.of(history));
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(any(), any())).thenReturn(List.of(history));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -326,7 +333,7 @@ class StatusAndHistoryResourceTest {
 				assertThat(hr.status()).isEqualTo(SENT);
 			});
 
-		verify(mockHistoryService).getHistoryByMessageId(messageId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 
@@ -336,17 +343,17 @@ class StatusAndHistoryResourceTest {
 	void getMessageAndDeliveryWhenNoHistoryExists() {
 		// Arrange
 		final var messageId = UUID.randomUUID().toString();
-		when(mockHistoryService.getHistoryByMessageId(any())).thenReturn(emptyList());
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(any(), any())).thenReturn(emptyList());
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
 
 		// Assert and verify
-		verify(mockHistoryService).getHistoryByMessageId(messageId);
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
 		verifyNoInteractions(mockStatisticsService);
 
@@ -368,11 +375,11 @@ class StatusAndHistoryResourceTest {
 			.withSnailMail(Count.builder().withSent(4).withFailed(3).build())
 			.withWebMessage(Count.builder().withSent(3).withFailed(2).build())
 			.build();
-		when(mockStatisticsService.getStatistics(any(), any(), any())).thenReturn(statistics);
+		when(mockStatisticsService.getStatistics(any(), any(), any(), any())).thenReturn(statistics);
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(STATISTICS_PATH)
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(Statistics.class)
@@ -382,7 +389,7 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		assertThat(response).isEqualTo(statistics);
 
-		verify(mockStatisticsService).getStatistics(null, null, null);
+		verify(mockStatisticsService).getStatistics(null, null, null, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockStatisticsService);
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -396,7 +403,7 @@ class StatusAndHistoryResourceTest {
 		final var statistics = Statistics.builder()
 			.withDigitalMail(Count.builder().withSent(1).withFailed(2).build())
 			.build();
-		when(mockStatisticsService.getStatistics(any(), any(), any())).thenReturn(statistics);
+		when(mockStatisticsService.getStatistics(any(), any(), any(), any())).thenReturn(statistics);
 
 		// Act
 		final var response = webTestClient.get()
@@ -405,7 +412,7 @@ class StatusAndHistoryResourceTest {
 				.queryParam("messageType", messageType)
 				.queryParam("from", from)
 				.queryParam("to", to)
-				.build())
+				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(Statistics.class)
@@ -415,7 +422,7 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		assertThat(response).isEqualTo(statistics);
 
-		verify(mockStatisticsService).getStatistics(messageType, from, to);
+		verify(mockStatisticsService).getStatistics(messageType, from, to, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockStatisticsService);
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -429,11 +436,11 @@ class StatusAndHistoryResourceTest {
 				List.of(DepartmentLetter.builder()
 					.withDepartment("department")
 					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any())).thenReturn(List.of(statistics));
+		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(STATISTICS_FOR_DEPARTMENTS_PATH)
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_DEPARTMENTS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)
@@ -443,7 +450,7 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		assertThat(response).containsExactly(statistics);
 
-		verify(mockStatisticsService).getDepartmentLetterStatistics(null, null, null, null);
+		verify(mockStatisticsService).getDepartmentLetterStatistics(null, null, null, null, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockStatisticsService);
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -458,11 +465,11 @@ class StatusAndHistoryResourceTest {
 				List.of(DepartmentLetter.builder()
 					.withDepartment(department)
 					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any())).thenReturn(List.of(statistics));
+		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH).build(Map.of("department", department)))
+			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH).build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)
@@ -472,7 +479,7 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		assertThat(response).containsExactly(statistics);
 
-		verify(mockStatisticsService).getDepartmentLetterStatistics(null, department, null, null);
+		verify(mockStatisticsService).getDepartmentLetterStatistics(null, department, null, null, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockStatisticsService);
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -490,7 +497,7 @@ class StatusAndHistoryResourceTest {
 				List.of(DepartmentLetter.builder()
 					.withDepartment(department)
 					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any())).thenReturn(List.of(statistics));
+		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
 
 		// Act
 		final var response = webTestClient.get()
@@ -498,7 +505,7 @@ class StatusAndHistoryResourceTest {
 				.queryParam("origin", origin)
 				.queryParam("from", from)
 				.queryParam("to", to)
-				.build(Map.of("department", department)))
+				.build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(DepartmentStatistics.class)
@@ -508,8 +515,9 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		assertThat(response).containsExactly(statistics);
 
-		verify(mockStatisticsService).getDepartmentLetterStatistics(origin, department, from, to);
+		verify(mockStatisticsService).getDepartmentLetterStatistics(origin, department, from, to, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockStatisticsService);
 		verifyNoInteractions(mockHistoryService);
 	}
+
 }

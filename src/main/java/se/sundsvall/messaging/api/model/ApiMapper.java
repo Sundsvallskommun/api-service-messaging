@@ -31,11 +31,12 @@ import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 
 public class ApiMapper {
+
 	private ApiMapper() {}
 
 	public static ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {
 		final var uri = fromPath(MESSAGE_STATUS_PATH)
-			.buildAndExpand(deliveryResult.messageId())
+			.buildAndExpand(deliveryResult.municipalityId(), deliveryResult.messageId())
 			.toUri();
 
 		return created(uri)
@@ -51,7 +52,7 @@ public class ApiMapper {
 
 	public static ResponseEntity<MessageBatchResult> toResponse(final InternalDeliveryBatchResult deliveryBatchResult) {
 		final var uri = fromPath(BATCH_STATUS_PATH)
-			.buildAndExpand(deliveryBatchResult.batchId())
+			.buildAndExpand(deliveryBatchResult.municipalityId(), deliveryBatchResult.batchId())
 			.toUri();
 
 		// Group the deliveries by message id
@@ -154,4 +155,5 @@ public class ApiMapper {
 				.toList())
 			.build();
 	}
+
 }

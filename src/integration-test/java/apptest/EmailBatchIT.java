@@ -25,7 +25,9 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/EmailBatchIT/", classes = Application.class)
 class EmailBatchIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/email/batch";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/email/batch";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -41,7 +43,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withExpectedResponse("response.json")
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
@@ -56,7 +58,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 					.map(MessageResult::messageId)
 					.forEach(messageId -> {
 						assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
-						assertThat(historyRepository.findByMessageId(messageId))
+						assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 							.isNotEmpty()
 							.allSatisfy(historyEntry -> {
 								assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
@@ -70,15 +72,16 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	void test02_internalServerErrorsFromEmailSender() throws Exception {
+	void test02_internalServerErrorsFromEmailSender() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader("x-origin", "Test-origin")
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withExpectedResponse("response.json")
 			.sendRequestAndVerifyResponse();
 	}
+
 }

@@ -70,18 +70,29 @@ public class MessageService {
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	private final TransactionTemplate transactionTemplate;
+
 	private final BlacklistService blacklistService;
+
 	private final DbIntegration dbIntegration;
+
 	private final ContactSettingsIntegration contactSettingsIntegration;
+
 	private final SmsSenderIntegration smsSender;
+
 	private final EmailSenderIntegration emailSender;
+
 	private final DigitalMailSenderIntegration digitalMailSender;
+
 	private final WebMessageSenderIntegration webMessageSender;
+
 	private final SnailMailSenderIntegration snailmailSender;
+
 	private final SlackIntegration slackIntegration;
 
 	private final MessageMapper messageMapper;
+
 	private final RequestMapper requestMapper;
+
 	private final DtoMapper dtoMapper;
 
 	public MessageService(final TransactionTemplate transactionTemplate,
@@ -112,56 +123,57 @@ public class MessageService {
 		this.dtoMapper = dtoMapper;
 	}
 
-	public InternalDeliveryResult sendSms(final SmsRequest request) {
-		var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
+	public InternalDeliveryResult sendSms(final SmsRequest request, final String municipalityId) {
+		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 
 		// Check blacklist
 		blacklistService.check(cleanedRequest);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest).withMunicipalityId(municipalityId)), municipalityId);
 	}
 
-	public InternalDeliveryResult sendEmail(final EmailRequest request) {
+	public InternalDeliveryResult sendEmail(final EmailRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId)), municipalityId);
 	}
 
-	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
+	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId)), municipalityId);
 	}
 
-	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
+	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
-		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream()
+			.map(message -> message.withMunicipalityId(municipalityId)).toList());
 		// Deliver them
 		final var deliveryResults = deliveries.stream()
-			.map(this::deliver)
+			.map((Message delivery) -> deliver(delivery, municipalityId))
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
-	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
+	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId)), municipalityId);
 	}
 
-	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
+	public InternalDeliveryBatchResult sendMessages(final MessageRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
@@ -174,42 +186,43 @@ public class MessageService {
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
 		final var deliveryResults = messages.stream()
-			.map(this::sendMessage)
+			.map((Message message) -> sendMessage(message, municipalityId))
 			.flatMap(Collection::stream)
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
-	public InternalDeliveryBatchResult sendLetter(final Message message) {
-		var batchId = message.batchId();
+	public InternalDeliveryBatchResult sendLetter(final Message message, final String municipalityId) {
+		final var batchId = message.batchId();
 
-		var deliveryResults = routeAndSendLetter(message);
+		final var deliveryResults = routeAndSendLetter(message, municipalityId);
 		sendSnailMailBatch(deliveryResults, batchId);
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
-	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
+	public InternalDeliveryBatchResult sendLetter(final LetterRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
-		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream()
+			.map(message -> message.withMunicipalityId(municipalityId)).toList());
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
 		final var deliveryResults = deliveries.stream()
-			.map(this::routeAndSendLetter)
+			.map((Message message) -> routeAndSendLetter(message, municipalityId))
 			.flatMap(Collection::stream)
 			.toList();
 
 		sendSnailMailBatch(deliveryResults, batchId);
 
-		return new InternalDeliveryBatchResult(batchId, deliveryResults);
+		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
-	private void sendSnailMailBatch(List<InternalDeliveryResult> deliveryResults, String batchId) {
+	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId) {
 		if (isSnailMailSent(deliveryResults)) {
 			// At least one delivery was sent as snail-mail - send the batch
 			deliveryResults.forEach(deliveryResult -> LOG.debug("Delivery {} was sent as snail-mail", gson.toJson(deliveryResult)));
@@ -219,15 +232,15 @@ public class MessageService {
 		}
 	}
 
-	public InternalDeliveryResult sendToSlack(final SlackRequest request) {
+	public InternalDeliveryResult sendToSlack(final SlackRequest request, final String municipalityId) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId)), municipalityId);
 	}
 
-	List<InternalDeliveryResult> sendMessage(final Message message) {
+	List<InternalDeliveryResult> sendMessage(final Message message, final String municipalityId) {
 		final var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
 		final var partyId = message.partyId();
@@ -277,7 +290,7 @@ public class MessageService {
 						// Delete the original delivery
 						dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
-						deliveryResults.add(deliver(delivery));
+						deliveryResults.add(deliver(delivery, municipalityId));
 					}
 					case SMS -> {
 						final var deliveryId = UUID.randomUUID().toString();
@@ -294,7 +307,7 @@ public class MessageService {
 						// Delete the original delivery
 						dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 
-						deliveryResults.add(deliver(delivery));
+						deliveryResults.add(deliver(delivery, municipalityId));
 					}
 					case NO_CONTACT -> {
 						LOG.info("No contact wanted for {} ({}). No delivery will be attempted", partyId, contactSetting.contactMethod());
@@ -322,7 +335,7 @@ public class MessageService {
 		return deliveryResults;
 	}
 
-	List<InternalDeliveryResult> routeAndSendLetter(final Message message) {
+	List<InternalDeliveryResult> routeAndSendLetter(final Message message, final String municipalityId) {
 		final var result = new ArrayList<InternalDeliveryResult>();
 		final var request = fromJson(message.content(), LetterRequest.class);
 
@@ -340,7 +353,7 @@ public class MessageService {
 
 			try {
 				// Deliver it
-				result.add(deliver(reroutedMessage));
+				result.add(deliver(reroutedMessage, municipalityId));
 
 				if (SENT.equals(result.getFirst().status())) {
 					return result;
@@ -369,7 +382,7 @@ public class MessageService {
 
 			try {
 				// Deliver it
-				result.add(deliver(reroutedMessage));
+				result.add(deliver(reroutedMessage, municipalityId));
 			} catch (final Exception e) {
 				LOG.info("Unable to send LETTER as SNAIL_MAIL");
 
@@ -383,7 +396,7 @@ public class MessageService {
 	}
 
 	@SuppressWarnings("unchecked")
-	InternalDeliveryResult deliver(final Message delivery) {
+	InternalDeliveryResult deliver(final Message delivery, final String municipalityId) {
 		// Re-construct the original request
 		final var request = fromJson(delivery.content(), switch (delivery.type()) {
 			case SMS -> SmsRequest.class;
@@ -393,14 +406,12 @@ public class MessageService {
 			case WEB_MESSAGE -> WebMessageRequest.class;
 			case SNAIL_MAIL -> SnailMailRequest.class;
 			case SLACK -> SlackRequest.class;
-			default ->
-				throw new IllegalArgumentException("Unknown request type: " + delivery.type());
+			default -> throw new IllegalArgumentException("Unknown request type: " + delivery.type());
 		});
 
 		// Get the try call to start out with
 		final var sendTry = switch (delivery.type()) {
-			case SMS ->
-				ofCallable(() -> smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
+			case SMS -> ofCallable(() -> smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
 			case EMAIL ->
 				ofCallable(() -> emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
 			case DIGITAL_MAIL ->
@@ -413,8 +424,7 @@ public class MessageService {
 				ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
 			case SLACK ->
 				ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
-			default ->
-				throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
+			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
 
 		return sendTry
@@ -422,7 +432,7 @@ public class MessageService {
 				// Archive the message
 				archiveMessage(delivery.withStatus(status)))
 			// Map to result
-			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status))
+			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, municipalityId))
 			// Make sure all exceptions that may occur are throwable problems
 			.mapFailure(
 				Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> {
@@ -452,6 +462,7 @@ public class MessageService {
 
 	void archiveMessage(final Message message, final String statusDetail) {
 		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
 			@Override
 			protected void doInTransactionWithoutResult(@NotNull final TransactionStatus ignored) {
 				LOG.debug("Moving {} delivery {} with status {} to history", message.type(),
@@ -463,9 +474,10 @@ public class MessageService {
 		});
 	}
 
-	private boolean isSnailMailSent(List<InternalDeliveryResult> deliveryResults) {
+	private boolean isSnailMailSent(final List<InternalDeliveryResult> deliveryResults) {
 		LOG.info("Checking if any SNAIL_MAIL has SENT as status");
 		return deliveryResults.stream().anyMatch(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType()) &&
 			SENT.equals(deliveryResult.status()));
 	}
+
 }

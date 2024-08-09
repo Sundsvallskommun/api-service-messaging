@@ -35,17 +35,25 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceLetterTest {
 
-	private static final String URL = "/letter";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/letter";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(LETTER)
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withStatus(SENT)
 		.build();
+
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
@@ -59,11 +67,11 @@ class MessageResourceLetterTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
-	void sendSynchronous(boolean hasSender) {
+	@ValueSource(booleans = {true, false})
+	void sendSynchronous(final boolean hasSender) {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
-		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendLetter(any(LetterRequest.class), any(String.class))).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -73,7 +81,7 @@ class MessageResourceLetterTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -90,17 +98,17 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendLetter(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
-	void sendAsynchronous(boolean hasSender) {
+	@ValueSource(booleans = {true, false})
+	void sendAsynchronous(final boolean hasSender) {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
-		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class), any(String.class))).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -110,7 +118,7 @@ class MessageResourceLetterTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -127,8 +135,9 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleLetterRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleLetterRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }
