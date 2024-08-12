@@ -1,27 +1,37 @@
 openapi: 3.0.1
 info:
   title: SnailMailSender
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "2.0"
+servers:
+  - url: http://localhost:54638
+    description: Generated server url
 tags:
- -
-  name: SnailMailSender
-  description: SnailMailSender
+  - name: SnailMailSender
+    description: SnailMailSender
 paths:
-  /send/snailmail:
+  /{municipalityId}/send/snailmail:
     post:
       tags:
-       - SnailMailSender
+        - SnailMailSender
       summary: Prepare snail mail for batch
       operationId: sendSnailMail
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SendSnailMailRequest'
+              $ref: "#/components/schemas/SendSnailMailRequest"
         required: true
       responses:
         "400":
@@ -30,41 +40,35 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                 -
-                  $ref: '#/components/schemas/Problem'
-                 -
-                  $ref: '#/components/schemas/ConstraintViolation'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolation"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
-      security:
-       -
-        default: []
-      x-throttling-tier: Unlimited
-      x-wso2-application-security:
-        security-types:
-         - oauth2
-        optional: false
-  /send/batch/{batchId}:
+  /{municipalityId}/send/batch/{batchId}:
     post:
       tags:
-       - SnailMailSender
+        - SnailMailSender
       summary: Send batch
       operationId: sendBatch
       parameters:
-       -
-        name: batchId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "400":
           description: Bad RequestEntity
@@ -72,22 +76,20 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                 -
-                  $ref: '#/components/schemas/Problem'
-                 -
-                  $ref: '#/components/schemas/ConstraintViolation'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolation"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
   /api-docs:
     get:
       tags:
-       - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -97,11 +99,14 @@ paths:
             application/yaml:
               schema:
                 type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
 components:
   schemas:
     Attachment:
       required:
-       - name
+        - name
       type: object
       properties:
         content:
@@ -117,19 +122,19 @@ components:
           description: The attachment content type
           example: application/pdf
           enum:
-           - application/pdf
+            - application/pdf
         envelopeType:
           type: string
           description: The envelope type for the letter
           example: WINDOWED
           enum:
-           - WINDOWED
-           - PLAIN
+            - WINDOWED
+            - PLAIN
       description: Attachments
     SendSnailMailRequest:
       required:
-       - batchId
-       - department
+        - batchId
+        - department
       type: object
       properties:
         department:
@@ -152,7 +157,7 @@ components:
           type: array
           description: Attachments
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
     Problem:
       type: object
       properties:
@@ -167,7 +172,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -175,11 +180,11 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     ConstraintDescriptorObject:
       type: object
       properties:
@@ -194,44 +199,45 @@ components:
         validationAppliesTo:
           type: string
           enum:
-           - IMPLICIT
-           - RETURN_VALUE
-           - PARAMETERS
+            - IMPLICIT
+            - RETURN_VALUE
+            - PARAMETERS
+        valueUnwrapping:
+          type: string
+          enum:
+            - DEFAULT
+            - UNWRAP
+            - SKIP
         composingConstraints:
           uniqueItems: true
           type: array
           items:
-            $ref: '#/components/schemas/ConstraintDescriptorObject'
+            $ref: "#/components/schemas/ConstraintDescriptorObject"
         reportAsSingleViolation:
           type: boolean
-        valueUnwrapping:
-          type: string
-          enum:
-           - DEFAULT
-           - UNWRAP
-           - SKIP
     ConstraintViolation:
       type: object
       properties:
         message:
           type: string
+        invalidValue:
+          type: object
+        propertyPath:
+          $ref: "#/components/schemas/Path"
+        messageTemplate:
+          type: string
+        leafBean:
+          type: object
+        rootBean:
+          type: object
         executableParameters:
           type: array
           items:
             type: object
-        propertyPath:
-          $ref: '#/components/schemas/Path'
-        messageTemplate:
-          type: string
-        rootBean:
-          type: object
-        leafBean:
-          type: object
         executableReturnValue:
           type: object
-        invalidValue:
-          type: object
         constraintDescriptor:
-          $ref: '#/components/schemas/ConstraintDescriptorObject'
+          $ref: "#/components/schemas/ConstraintDescriptorObject"
     Path:
       type: object
+  securitySchemes: { }

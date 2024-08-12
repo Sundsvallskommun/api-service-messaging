@@ -385,7 +385,7 @@ class MessageServiceTest {
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
 		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(NOT_SENT);
-		when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
+		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
 
 		final var result = messageService.sendLetter(request, "2281");
 
@@ -402,8 +402,8 @@ class MessageServiceTest {
 
 		// Verify external integration interactions
 		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
-		verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
-		verify(mockSnailMailSenderIntegration).sendBatch(anyString());
+		verify(mockSnailMailSenderIntegration).sendSnailMail(anyString(), any(SnailMailDto.class));
+		verify(mockSnailMailSenderIntegration).sendBatch(anyString(), anyString());
 		// Verify db integration interactions
 		verify(mockDbIntegration, times(2)).saveHistory(any(Message.class), nullable(String.class));
 		verify(mockDbIntegration, times(2)).deleteMessageByDeliveryId(any(String.class));
@@ -426,8 +426,8 @@ class MessageServiceTest {
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
 		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenThrow(new RuntimeException());
-		when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
-		when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenReturn(SENT);
+		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
+		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
 
 		final var result = messageService.sendLetter(request, "2281");
 
@@ -444,8 +444,8 @@ class MessageServiceTest {
 
 		// Verify external integration interactions
 		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
-		verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
-		verify(mockSnailMailSenderIntegration).sendBatch(anyString());
+		verify(mockSnailMailSenderIntegration).sendSnailMail(anyString(), any(SnailMailDto.class));
+		verify(mockSnailMailSenderIntegration).sendBatch(anyString(), anyString());
 		// Verify db integration interactions
 		verify(mockDbIntegration, times(2)).saveHistory(any(Message.class), nullable(String.class));
 		verify(mockDbIntegration, times(2)).deleteMessageByDeliveryId(any(String.class));
@@ -472,7 +472,7 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockSnailMailSenderIntegration.sendSnailMail(any())).thenThrow(new RuntimeException());
+		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenThrow(new RuntimeException());
 
 		final var result = messageService.sendLetter(request, "2281");
 
@@ -484,7 +484,7 @@ class MessageServiceTest {
 		assertThat(result.deliveries().getFirst().status()).isEqualTo(FAILED);
 
 		// Verify external integration interactions
-		verify(mockSnailMailSenderIntegration).sendSnailMail(any(SnailMailDto.class));
+		verify(mockSnailMailSenderIntegration).sendSnailMail(anyString(), any(SnailMailDto.class));
 		// Verify db integration interactions
 		verify(mockDbIntegration).saveHistory(any(Message.class), nullable(String.class));
 		verify(mockDbIntegration).deleteMessageByDeliveryId(any(String.class));
