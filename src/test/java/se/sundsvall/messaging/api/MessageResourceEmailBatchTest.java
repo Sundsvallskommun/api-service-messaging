@@ -33,15 +33,21 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceEmailBatchTest {
 
-	private static final String URL = "/email/batch";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/email/batch";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(EMAIL)
 		.withStatus(SENT)
 		.build();
+
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
 		.withDeliveries(List.of(DELIVERY_RESULT))
@@ -57,13 +63,12 @@ class MessageResourceEmailBatchTest {
 	private WebTestClient webTestClient;
 
 	@Test
-	void sendBatch(String senderName, String partyId) {
+	public void sendBatch() {
 		// Arrange
 
 		final var request = createValidEmailBatchRequest();
-		request.withSender(request.sender().withName(senderName));
 
-		when(mockEventDispatcher.handleEmailBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleEmailBatchRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -89,8 +94,9 @@ class MessageResourceEmailBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailBatchRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleEmailBatchRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }

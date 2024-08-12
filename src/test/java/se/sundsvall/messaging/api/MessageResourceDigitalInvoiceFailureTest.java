@@ -31,7 +31,10 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
 class MessageResourceDigitalInvoiceFailureTest {
-	private static final String URL = "/digital-invoice";
+
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-invoice";
 
 	@MockBean
 	private MessageService mockMessageService;
@@ -76,7 +79,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " ", "not-a-uuid" })
+	@ValueSource(strings = {"", " ", "not-a-uuid"})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
@@ -241,7 +244,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(floats = { 0.0f, -12.34f })
+	@ValueSource(floats = {0.0f, -12.34f})
 	void shouldFailWithDetailsWithNonPositiveAmount(final float amount) {
 		// Arrange
 		final var request = validRequest.withDetails(validRequest.details().withAmount(amount));
@@ -402,7 +405,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "text/plain" })
+	@ValueSource(strings = {" ", "text/plain"})
 	@NullAndEmptySource
 	void shouldFailWithFileWithInvalidContentType(final String contentType) {
 		// Arrange
@@ -484,4 +487,5 @@ class MessageResourceDigitalInvoiceFailureTest {
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
+
 }

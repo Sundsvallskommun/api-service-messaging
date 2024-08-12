@@ -30,12 +30,18 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSlackTest {
 
-	private static final String URL = "/slack";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/slack";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withMessageType(SLACK)
 		.withStatus(SENT)
 		.build();
@@ -53,7 +59,7 @@ class MessageResourceSlackTest {
 	void sendSynchronous() {
 		// Arrange
 		final var request = createValidSlackRequest();
-		when(mockMessageService.sendToSlack(any())).thenReturn(DELIVERY_RESULT);
+		when(mockMessageService.sendToSlack(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -63,7 +69,7 @@ class MessageResourceSlackTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()
@@ -77,7 +83,7 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendToSlack(request.withOrigin(ORIGIN));
+		verify(mockMessageService).sendToSlack(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -86,7 +92,7 @@ class MessageResourceSlackTest {
 	void sendAsynchronous() {
 		// Arrange
 		final var request = createValidSlackRequest();
-		when(mockEventDispatcher.handleSlackRequest(any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleSlackRequest(any(), any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -96,7 +102,7 @@ class MessageResourceSlackTest {
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageResult.class)
 			.returnResult()
@@ -110,8 +116,9 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSlackRequest(request.withOrigin(ORIGIN));
+		verify(mockEventDispatcher).handleSlackRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
+
 }

@@ -25,7 +25,10 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/WebMessageIT/", classes = Application.class)
 class WebMessageIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/webmessage";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/webmessage";
+
 	private static final String REQUEST_FILE = "request.json";
 
 	@Autowired
@@ -42,7 +45,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/message/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/message/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageResult.class);
 
@@ -58,7 +61,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 				// Make sure that there doesn't exist a message entity
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 				// Make sure that there exists a history entry with the correct id and status
-				assertThat(historyRepository.findByMessageId(messageId))
+				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
@@ -79,4 +82,5 @@ class WebMessageIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();
 	}
+
 }

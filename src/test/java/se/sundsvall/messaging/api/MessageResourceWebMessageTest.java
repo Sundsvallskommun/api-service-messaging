@@ -37,13 +37,19 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceWebMessageTest {
 
-	private static final String URL = "/webmessage";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/webmessage";
+
 	private static final String ORIGIN_HEADER = "x-origin";
+
 	private static final String ORIGIN = "origin";
+
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
 		.withMessageType(WEB_MESSAGE)
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.withStatus(SENT)
 		.build();
 
@@ -55,78 +61,6 @@ class MessageResourceWebMessageTest {
 
 	@Autowired
 	private WebTestClient webTestClient;
-
-	@ParameterizedTest
-	@MethodSource("argumentProvider")
-	void sendSynchronous(String oepInstance, List<Attachment> attachments) {
-		// Arrange
-		final var request = createValidWebMessageRequest()
-			.withAttachments(attachments)
-			.withOepInstance(oepInstance);
-		when(mockMessageService.sendWebMessage(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendWebMessage(request.withOrigin(ORIGIN));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	@ParameterizedTest
-	@MethodSource("argumentProvider")
-	void sendAsynchronous(String oepInstance, List<Attachment> attachments) {
-		// Arrange
-		final var request = createValidWebMessageRequest()
-			.withAttachments(attachments)
-			.withOepInstance(oepInstance);
-		when(mockEventDispatcher.handleWebMessageRequest(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/message/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleWebMessageRequest(request.withOrigin(ORIGIN));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
 
 	private static Stream<Arguments> argumentProvider() {
 		return Stream.of(
@@ -141,4 +75,77 @@ class MessageResourceWebMessageTest {
 			Arguments.of("interNaL", null),
 			Arguments.of("interNaL", emptyList()));
 	}
+
+	@ParameterizedTest
+	@MethodSource("argumentProvider")
+	void sendSynchronous(final String oepInstance, final List<Attachment> attachments) {
+		// Arrange
+		final var request = createValidWebMessageRequest()
+			.withAttachments(attachments)
+			.withOepInstance(oepInstance);
+		when(mockMessageService.sendWebMessage(any(), any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.header(ORIGIN_HEADER, ORIGIN)
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService).sendWebMessage(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
+	@ParameterizedTest
+	@MethodSource("argumentProvider")
+	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments) {
+		// Arrange
+		final var request = createValidWebMessageRequest()
+			.withAttachments(attachments)
+			.withOepInstance(oepInstance);
+		when(mockEventDispatcher.handleWebMessageRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL + "?async=true")
+			.header(ORIGIN_HEADER, ORIGIN)
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/message/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(WEB_MESSAGE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher).handleWebMessageRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
 }

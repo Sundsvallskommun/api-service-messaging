@@ -30,7 +30,9 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
 class LetterIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/letter";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/letter";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -46,7 +48,7 @@ class LetterIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -67,7 +69,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				// Make sure that there doesn't exist a message entity
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
-				final var history = historyRepository.findByMessageId(messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				// We should have a single history entry
 				assertThat(history).hasSize(1);
 
@@ -90,7 +92,7 @@ class LetterIT extends AbstractMessagingAppTest {
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader(LOCATION, List.of("^/status/batch/(.*)$"))
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -111,7 +113,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				// Make sure that there doesn't exist a message entity
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
-				final var history = historyRepository.findByMessageId(messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				// We should have three history entries
 				assertThat(history).hasSize(2);
 				// The batch id should be the same for everything in the history

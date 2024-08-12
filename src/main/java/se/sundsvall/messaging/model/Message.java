@@ -14,5 +14,7 @@ public record Message(
 	MessageType originalType,
 	MessageStatus status,
 	String content,
-	String origin) {
+	String origin,
+	String municipalityId) {
+
 }

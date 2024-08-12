@@ -26,12 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.model.ApiMapper;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
@@ -45,12 +40,20 @@ import se.sundsvall.messaging.model.Statistics;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.service.StatisticsService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @Tag(name = "Status and History Resources")
 @RestController
 @Validated
 class StatusAndHistoryResource {
 
 	private final HistoryService historyService;
+
 	private final StatisticsService statisticsService;
 
 	StatusAndHistoryResource(final HistoryService historyService,
@@ -61,59 +64,63 @@ class StatusAndHistoryResource {
 
 	@Operation(summary = "Get the entire conversation history for a given party", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = CONVERSATION_HISTORY_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = CONVERSATION_HISTORY_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<List<HistoryResponse>> getConversationHistory(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String partyId,
 		@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
-		return ResponseEntity.ok(historyService.getConversationHistory(partyId, from, to).stream()
+		return ResponseEntity.ok(historyService.getConversationHistory(municipalityId, partyId, from, to).stream()
 			.map(ApiMapper::toHistoryResponse)
 			.toList());
 	}
 
 	@Operation(summary = "Get the status for a message batch, its messages and their deliveries", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = BATCH_STATUS_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = BATCH_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<MessageBatchResult> getBatchStatus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String batchId) {
 
-		final var history = historyService.getHistoryByBatchId(batchId);
+		final var history = historyService.getHistoryByMunicipalityIdAndBatchId(municipalityId, batchId);
 		return history.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(toMessageBatchResult(history));
 	}
 
 	@Operation(summary = "Get the status for a single message and its deliveries", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = MESSAGE_STATUS_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = MESSAGE_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<MessageResult> getMessageStatus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
 
-		final var history = historyService.getHistoryByMessageId(messageId);
+		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId);
 		return history.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(toMessageResult(history));
 	}
 
 	@Operation(summary = "Get the status for a single delivery", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
 		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class))),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = DELIVERY_STATUS_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = DELIVERY_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<DeliveryResult> getDeliveryStatus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
 
-		return historyService.getHistoryByDeliveryId(deliveryId)
+		return historyService.getHistoryByMunicipalityIdAndDeliveryId(municipalityId, deliveryId)
 			.map(ApiMapper::toDeliveryResult)
 			.map(ResponseEntity::ok)
 			.orElseGet(() -> ResponseEntity.notFound().build());
@@ -121,15 +128,16 @@ class StatusAndHistoryResource {
 
 	@Operation(summary = "Get a message and all its deliveries", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<List<HistoryResponse>> getMessage(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
 
-		final var history = historyService.getHistoryByMessageId(messageId).stream()
+		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId).stream()
 			.map(ApiMapper::toHistoryResponse)
 			.toList();
 
@@ -138,30 +146,33 @@ class StatusAndHistoryResource {
 
 	@Operation(summary = "Get delivery statistics", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = STATISTICS_PATH, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = STATISTICS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<Statistics> getStatistics(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestParam(name = "messageType", required = false) @Parameter(description = "Message type") final MessageType messageType,
 		@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
-		return ResponseEntity.ok(statisticsService.getStatistics(messageType, from, to));
+		return ResponseEntity.ok(statisticsService.getStatistics(messageType, from, to, municipalityId));
 	}
 
 	@Operation(summary = "Get letter delivery statistics by department", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = { Problem.class, ConstraintViolationProblem.class }))),
+		@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(value = { STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH }, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	@GetMapping(value = {STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH}, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<List<DepartmentStatistics>> getDepartmentStatistics(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable(name = "department", required = false) @Parameter(description = "Department name") @ValidNullOrNotEmpty final String department,
 		@RequestParam(name = "origin", required = false) @Parameter(description = "Origin name") final String origin,
 		@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
-		return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to));
+		return ResponseEntity.ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to, municipalityId));
 	}
+
 }

@@ -14,18 +14,19 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class HistoryTest {
 
-    @Test
-    void testDefaultConstructor() {
-        var history = new History("someBatchId", "someMessageId", "someDeliveryId",
-            SNAIL_MAIL, DIGITAL_MAIL, FAILED, "someContent", LocalDateTime.now());
+	@Test
+	void testDefaultConstructor() {
+		final var history = new History("someBatchId", "someMessageId", "someDeliveryId",
+			SNAIL_MAIL, DIGITAL_MAIL, FAILED, "someContent", LocalDateTime.now(), "2281");
 
-        assertThat(history.batchId()).isEqualTo("someBatchId");
-        assertThat(history.messageId()).isEqualTo("someMessageId");
-        assertThat(history.deliveryId()).isEqualTo("someDeliveryId");
-        assertThat(history.messageType()).isEqualTo(SNAIL_MAIL);
-        assertThat(history.originalMessageType()).isEqualTo(DIGITAL_MAIL);
-        assertThat(history.status()).isEqualTo(FAILED);
-        assertThat(history.content()).isEqualTo("someContent");
-        assertThat(history.createdAt()).isNotNull();
-    }
+		assertThat(history.batchId()).isEqualTo("someBatchId");
+		assertThat(history.messageId()).isEqualTo("someMessageId");
+		assertThat(history.deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(history.messageType()).isEqualTo(SNAIL_MAIL);
+		assertThat(history.originalMessageType()).isEqualTo(DIGITAL_MAIL);
+		assertThat(history.status()).isEqualTo(FAILED);
+		assertThat(history.content()).isEqualTo("someContent");
+		assertThat(history.createdAt()).isNotNull();
+	}
+
 }

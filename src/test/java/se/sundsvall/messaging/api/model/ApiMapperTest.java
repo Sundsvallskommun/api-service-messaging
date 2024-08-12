@@ -34,6 +34,7 @@ class ApiMapperTest {
 	private final InternalDeliveryResult deliveryResult = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
 		.withDeliveryId("someDeliveryId")
+		.withMunicipalityId("someMunicipalityId")
 		.withStatus(SENT)
 		.build();
 
@@ -248,4 +249,5 @@ class ApiMapperTest {
 		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get batch status");
 	}
+
 }

@@ -31,7 +31,10 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
 class MessageResourceDigitalMailFailureTest {
-	private static final String URL = "/digital-mail";
+
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-mail";
 
 	@MockBean
 	private MessageService mockMessageService;
@@ -76,7 +79,7 @@ class MessageResourceDigitalMailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " ", "not-a-uuid" })
+	@ValueSource(strings = {"", " ", "not-a-uuid"})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyIds(List.of(partyId)));
@@ -245,7 +248,7 @@ class MessageResourceDigitalMailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "not-valid-content-type" })
+	@ValueSource(strings = {" ", "not-valid-content-type"})
 	@NullAndEmptySource
 	void shouldFailWithInvalidContentType(final String contentType) {
 		// Arrange
@@ -304,7 +307,7 @@ class MessageResourceDigitalMailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { " ", "not-valid-content-type" })
+	@ValueSource(strings = {" ", "not-valid-content-type"})
 	@NullAndEmptySource
 	void shouldFailWithFileWithInvalidContentType(final String contentType) {
 		// Arrange
@@ -386,4 +389,5 @@ class MessageResourceDigitalMailFailureTest {
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
+
 }

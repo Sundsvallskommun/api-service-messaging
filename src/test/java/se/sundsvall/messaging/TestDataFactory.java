@@ -40,10 +40,13 @@ public final class TestDataFactory {
 	public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
 
 	public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
+
 	public static final String BLACKLISTED_EMAIL_ADDRESS = "blacklisted@somehost.com";
 
 	public static final String DEFAULT_SENDER_NAME = "someSender";
+
 	public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
+
 	public static final String DEFAULT_SENDER_REPLY_TO = "replyTo@someone.com";
 
 	public static final String HEADER_VALUE = "<test@test>";
@@ -250,6 +253,7 @@ public final class TestDataFactory {
 
 	public static DigitalInvoiceRequest createValidDigitalInvoiceRequest() {
 		return DigitalInvoiceRequest.builder()
+			.withOrigin("origin")
 			.withParty(DigitalInvoiceRequest.Party.builder()
 				.withPartyId(UUID.randomUUID().toString())
 				.withExternalReferences(List.of(createExternalReference()))
@@ -407,4 +411,5 @@ public final class TestDataFactory {
 			.withOrigin("someOrigin")
 			.build();
 	}
+
 }

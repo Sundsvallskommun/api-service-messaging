@@ -32,7 +32,9 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSmsFailureTest {
 
-	private static final String URL = "/sms";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/sms";
 
 	@MockBean
 	private MessageService messageServiceMock;
@@ -51,7 +53,7 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " ", "not-a-uuid" })
+	@ValueSource(strings = {"", " ", "not-a-uuid"})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
@@ -140,7 +142,7 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "not-a-mobile-number", " " })
+	@ValueSource(strings = {"not-a-mobile-number", " "})
 	@NullAndEmptySource
 	void shouldFailWithNullOrInvalidMobileNumber(String value) {
 		// Arrange
@@ -196,7 +198,7 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "ab", "abcdefghijkl" })
+	@ValueSource(strings = {"ab", "abcdefghijkl"})
 	@EmptySource
 	void shouldFailWithBlankOrInvalidSenderLength(String value) {
 		// Arrange
@@ -222,4 +224,5 @@ class MessageResourceSmsFailureTest {
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
 	}
+
 }

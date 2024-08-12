@@ -27,7 +27,9 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class MessageResourceSlackFailureTest {
 
-	private static final String URL = "/slack";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String URL = "/" + MUNICIPALITY_ID + "/slack";
 
 	@MockBean
 	private MessageService messageServiceMock;
@@ -121,4 +123,5 @@ class MessageResourceSlackFailureTest {
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
 	}
+
 }
