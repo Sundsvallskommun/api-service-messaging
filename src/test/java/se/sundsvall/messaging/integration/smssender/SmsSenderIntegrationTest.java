@@ -26,51 +26,54 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
 @ExtendWith(MockitoExtension.class)
 class SmsSenderIntegrationTest {
 
-    @Mock
-    private SmsSenderIntegrationMapper mockMapper;
-    @Mock
-    private SmsSenderClient mockClient;
+	@Mock
+	private SmsSenderIntegrationMapper mockMapper;
 
-    private SmsSenderIntegration integration;
+	@Mock
+	private SmsSenderClient mockClient;
 
-    @BeforeEach
-    void setUp() {
-        integration = new SmsSenderIntegration(mockClient, mockMapper);
-    }
+	private SmsSenderIntegration integration;
 
-    @Test
-    void test_sendSms() {
-        when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-        when(mockClient.sendSms(any(SendSmsRequest.class)))
-            .thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
+	@BeforeEach
+	void setUp() {
+		integration = new SmsSenderIntegration(mockClient, mockMapper);
+	}
 
-        integration.sendSms(SmsDto.builder().build());
+	@Test
+	void test_sendSms() {
+		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
+		when(mockClient.sendSms(any(String.class), any(SendSmsRequest.class)))
+			.thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
 
-        verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
-        verify(mockClient, times(1)).sendSms(any(SendSmsRequest.class));
-    }
+		integration.sendSms("2281", SmsDto.builder().build());
 
-    @Test
-    void test_sendSms_whenExceptionIsThrownByClient() {
-        when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-        when(mockClient.sendSms(any(SendSmsRequest.class)))
-            .thenThrow(Problem.builder()
-                .withStatus(Status.BAD_GATEWAY)
-                .withCause(Problem.builder()
-                    .withStatus(Status.BAD_REQUEST)
-                    .build())
-                .build());
+		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
+		verify(mockClient, times(1)).sendSms(any(String.class), any(SendSmsRequest.class));
+	}
 
-        assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> integration.sendSms(SmsDto.builder().build()))
-            .satisfies(problem -> {
-                assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-                assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-                        assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-                );
-            });
+	@Test
+	void test_sendSms_whenExceptionIsThrownByClient() {
+		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
+		when(mockClient.sendSms(any(String.class), any(SendSmsRequest.class)))
+			.thenThrow(Problem.builder()
+				.withStatus(Status.BAD_GATEWAY)
+				.withCause(Problem.builder()
+					.withStatus(Status.BAD_REQUEST)
+					.build())
+				.build());
 
-        verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
-        verify(mockClient, times(1)).sendSms(any(SendSmsRequest.class));
-    }
+		var dto = SmsDto.builder().build();
+		assertThatExceptionOfType(ThrowableProblem.class)
+			.isThrownBy(() -> integration.sendSms("2281", dto))
+			.satisfies(problem -> {
+				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
+					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
+				);
+			});
+
+		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
+		verify(mockClient, times(1)).sendSms(any(String.class), any(SendSmsRequest.class));
+	}
+
 }

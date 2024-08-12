@@ -411,7 +411,8 @@ public class MessageService {
 
 		// Get the try call to start out with
 		final var sendTry = switch (delivery.type()) {
-			case SMS -> ofCallable(() -> smsSender.sendSms(dtoMapper.toSmsDto((SmsRequest) request)));
+			case SMS ->
+				ofCallable(() -> smsSender.sendSms(municipalityId, dtoMapper.toSmsDto((SmsRequest) request)));
 			case EMAIL ->
 				ofCallable(() -> emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
 			case DIGITAL_MAIL ->

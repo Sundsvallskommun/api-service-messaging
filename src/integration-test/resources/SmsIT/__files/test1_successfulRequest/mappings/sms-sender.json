@@ -1,28 +1,30 @@
 {
-	"request": {
-		"headers": {
-			"Authorization": {
-				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-			}
-		},
-		"method": "POST",
-		"url": "/sms-sender/send/sms",
-		"bodyPatterns": [{
-			"equalToJson": {
-				"sender": {
-					"name": "SomeSender"
-				},
-				"mobileNumber": "+46708971080",
-				"priority": "NORMAL",
-				"message": "This is the message"
-			}
-		}]
-	},
-	"response": {
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
-		"status": 200
-	}
+  "request": {
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+      }
+    },
+    "method": "POST",
+    "url": "/sms-sender/2281/send/sms",
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+          "sender": {
+            "name": "SomeSender"
+          },
+          "mobileNumber": "+46708971080",
+          "priority": "NORMAL",
+          "message": "This is the message"
+        }
+      }
+    ]
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
+    "status": 200
+  }
 }
