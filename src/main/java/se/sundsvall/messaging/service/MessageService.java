@@ -197,7 +197,7 @@ public class MessageService {
 		final var batchId = message.batchId();
 
 		final var deliveryResults = routeAndSendLetter(message, municipalityId);
-		sendSnailMailBatch(deliveryResults, batchId);
+		sendSnailMailBatch(deliveryResults, batchId, municipalityId);
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
@@ -217,16 +217,16 @@ public class MessageService {
 			.flatMap(Collection::stream)
 			.toList();
 
-		sendSnailMailBatch(deliveryResults, batchId);
+		sendSnailMailBatch(deliveryResults, batchId, municipalityId);
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults, municipalityId);
 	}
 
-	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId) {
+	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId, final String municipalityId) {
 		if (isSnailMailSent(deliveryResults)) {
 			// At least one delivery was sent as snail-mail - send the batch
 			deliveryResults.forEach(deliveryResult -> LOG.debug("Delivery {} was sent as snail-mail", gson.toJson(deliveryResult)));
-			snailmailSender.sendBatch(batchId);
+			snailmailSender.sendBatch(municipalityId, batchId);
 		} else {
 			deliveryResults.forEach(deliveryResult -> LOG.debug("Failed delivery {} was not sent as snail-mail", gson.toJson(deliveryResult)));
 		}
@@ -421,7 +421,7 @@ public class MessageService {
 			case WEB_MESSAGE ->
 				ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
 			case SNAIL_MAIL ->
-				ofCallable(() -> snailmailSender.sendSnailMail(dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
+				ofCallable(() -> snailmailSender.sendSnailMail(municipalityId, dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
 			case SLACK ->
 				ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
