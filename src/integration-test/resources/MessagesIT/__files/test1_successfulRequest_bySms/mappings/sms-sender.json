@@ -1,18 +1,18 @@
 {
-	"request": {
-		"headers": {
-			"Authorization": {
-				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-			}
-		},
-		"method": "POST",
-		"url": "/sms-sender/send/sms"
-	},
-	"response": {
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"bodyFileName": "test1_successfulRequest_bySms/responses/sms-sender.json",
-		"status": 200
-	}
+  "request": {
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+      }
+    },
+    "method": "POST",
+    "url": "/sms-sender/2281/send/sms"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test1_successfulRequest_bySms/responses/sms-sender.json",
+    "status": 200
+  }
 }

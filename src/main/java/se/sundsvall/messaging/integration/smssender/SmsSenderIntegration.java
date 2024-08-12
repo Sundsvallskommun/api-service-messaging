@@ -15,24 +15,26 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
 @EnableConfigurationProperties(SmsSenderIntegrationProperties.class)
 public class SmsSenderIntegration {
 
-    static final String INTEGRATION_NAME = "SmsSender";
+	static final String INTEGRATION_NAME = "SmsSender";
 
-    private final SmsSenderClient client;
-    private final SmsSenderIntegrationMapper mapper;
+	private final SmsSenderClient client;
 
-    public SmsSenderIntegration(final SmsSenderClient client, final SmsSenderIntegrationMapper mapper) {
-        this.client = client;
-        this.mapper = mapper;
-    }
+	private final SmsSenderIntegrationMapper mapper;
 
-    public MessageStatus sendSms(final SmsDto dto) {
-        var response = client.sendSms(mapper.toSendSmsRequest(dto));
+	public SmsSenderIntegration(final SmsSenderClient client, final SmsSenderIntegrationMapper mapper) {
+		this.client = client;
+		this.mapper = mapper;
+	}
 
-        var success = response.getStatusCode().is2xxSuccessful() &&
-            ofNullable(response.getBody())
-                .map(SendSmsResponse::getSent)
-                .orElse(false);
+	public MessageStatus sendSms(final String municipalityId, final SmsDto dto) {
+		var response = client.sendSms(municipalityId, mapper.toSendSmsRequest(dto));
 
-        return success ? SENT : NOT_SENT;
-    }
+		var success = response.getStatusCode().is2xxSuccessful() &&
+			ofNullable(response.getBody())
+				.map(SendSmsResponse::getSent)
+				.orElse(false);
+
+		return success ? SENT : NOT_SENT;
+	}
+
 }
