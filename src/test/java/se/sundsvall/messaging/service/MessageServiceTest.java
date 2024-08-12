@@ -189,7 +189,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(SENT);
+		when(mockEmailSenderIntegration.sendEmail(any(String.class), any(EmailDto.class))).thenReturn(SENT);
 
 		final var result = messageService.sendEmail(request, "2281");
 
@@ -199,7 +199,7 @@ class MessageServiceTest {
 		assertThat(result.status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockEmailSenderIntegration).sendEmail(any(EmailDto.class));
+		verify(mockEmailSenderIntegration).sendEmail(any(String.class), any(EmailDto.class));
 		verifyNoMoreInteractions(mockEmailSenderIntegration);
 		verifyNoExternalIntegrationInteractionsExcept(mockEmailSenderIntegration);
 		// Verify db integration interactions
@@ -528,7 +528,7 @@ class MessageServiceTest {
 			.thenReturn(List.of());
 
 		when(mockSmsSenderIntegration.sendSms(any(String.class), any(SmsDto.class))).thenReturn(SENT);
-		when(mockEmailSenderIntegration.sendEmail(any(EmailDto.class))).thenReturn(FAILED);
+		when(mockEmailSenderIntegration.sendEmail(any(String.class), any(EmailDto.class))).thenReturn(FAILED);
 
 		final var result = messageService.sendMessages(request, "2281");
 
@@ -548,7 +548,7 @@ class MessageServiceTest {
 		verifyNoMoreInteractions(mockContactSettingsIntegration);
 		verify(mockSmsSenderIntegration).sendSms(any(String.class), any(SmsDto.class));
 		verifyNoMoreInteractions(mockSmsSenderIntegration);
-		verify(mockEmailSenderIntegration).sendEmail(any(EmailDto.class));
+		verify(mockEmailSenderIntegration).sendEmail(any(String.class), any(EmailDto.class));
 		verifyNoMoreInteractions(mockEmailSenderIntegration);
 		verify(mockDbIntegration, times(5)).saveHistory(any(Message.class), nullable(String.class));
 		verify(mockDbIntegration, times(7)).deleteMessageByDeliveryId(any(String.class));

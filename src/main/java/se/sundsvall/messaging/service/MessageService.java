@@ -414,7 +414,7 @@ public class MessageService {
 			case SMS ->
 				ofCallable(() -> smsSender.sendSms(municipalityId, dtoMapper.toSmsDto((SmsRequest) request)));
 			case EMAIL ->
-				ofCallable(() -> emailSender.sendEmail(dtoMapper.toEmailDto((EmailRequest) request)));
+				ofCallable(() -> emailSender.sendEmail(municipalityId, dtoMapper.toEmailDto((EmailRequest) request)));
 			case DIGITAL_MAIL ->
 				ofCallable(() -> digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
 			case DIGITAL_INVOICE ->

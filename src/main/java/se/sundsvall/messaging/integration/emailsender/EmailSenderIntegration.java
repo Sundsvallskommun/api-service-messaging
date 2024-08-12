@@ -15,6 +15,7 @@ public class EmailSenderIntegration {
 	static final String INTEGRATION_NAME = "EmailSender";
 
 	private final EmailSenderIntegrationMapper mapper;
+
 	private final EmailSenderClient client;
 
 	EmailSenderIntegration(final EmailSenderClient client, final EmailSenderIntegrationMapper mapper) {
@@ -22,8 +23,9 @@ public class EmailSenderIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendEmail(final EmailDto dto) {
-		var response = client.sendEmail(mapper.toSendEmailRequest(dto));
+	public MessageStatus sendEmail(final String municipalityId, final EmailDto dto) {
+		var response = client.sendEmail(municipalityId, mapper.toSendEmailRequest(dto));
 		return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
 	}
+
 }

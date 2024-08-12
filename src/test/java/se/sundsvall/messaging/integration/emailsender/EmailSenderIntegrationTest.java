@@ -40,18 +40,18 @@ class EmailSenderIntegrationTest {
 	void test_sendEmail() {
 		var emailDto = createEmailDto();
 
-		when(mockClient.sendEmail(any(SendEmailRequest.class)))
+		when(mockClient.sendEmail(any(String.class), any(SendEmailRequest.class)))
 			.thenReturn(ResponseEntity.ok().build());
 
-		integration.sendEmail(emailDto);
+		integration.sendEmail("2281", emailDto);
 
-		verify(mockClient, times(1)).sendEmail(any(SendEmailRequest.class));
+		verify(mockClient, times(1)).sendEmail(any(String.class), any(SendEmailRequest.class));
 	}
 
 	@Test
 	void test_sendEmail_whenExceptionIsThrownByClient() {
 		var emailDto = createEmailDto();
-		when(mockClient.sendEmail(any(SendEmailRequest.class)))
+		when(mockClient.sendEmail(any(String.class), any(SendEmailRequest.class)))
 			.thenThrow(Problem.builder()
 				.withStatus(Status.BAD_GATEWAY)
 				.withCause(Problem.builder()
@@ -60,7 +60,7 @@ class EmailSenderIntegrationTest {
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> integration.sendEmail(emailDto))
+			.isThrownBy(() -> integration.sendEmail("2281", emailDto))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
 				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
@@ -68,6 +68,7 @@ class EmailSenderIntegrationTest {
 				);
 			});
 
-		verify(mockClient, times(1)).sendEmail(any(SendEmailRequest.class));
+		verify(mockClient, times(1)).sendEmail(any(String.class), any(SendEmailRequest.class));
 	}
+
 }
