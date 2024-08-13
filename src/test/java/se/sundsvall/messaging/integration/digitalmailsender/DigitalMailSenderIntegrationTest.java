@@ -31,113 +31,117 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTest {
 
-    @Mock
-    private DigitalMailSenderClient mockClient;
-    @Mock
-    private DigitalMailSenderIntegrationMapper mockMapper;
-    @Mock
-    private ResponseEntity<DigitalMailResponse> mockDigitalMailResponseEntity;
-    @Mock
-    private ResponseEntity<DigitalInvoiceResponse> mockDigitalInvoiceResponseEntity;
+	@Mock
+	private DigitalMailSenderClient mockClient;
 
-    private DigitalMailSenderIntegration integration;
+	@Mock
+	private DigitalMailSenderIntegrationMapper mockMapper;
 
-    @BeforeEach
-    void setUp() {
-        integration = new DigitalMailSenderIntegration(mockClient, mockMapper);
-    }
+	@Mock
+	private ResponseEntity<DigitalMailResponse> mockDigitalMailResponseEntity;
 
-    @Test
-    void test_sendDigitalMail() {
-        when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
-            .thenReturn(new DigitalMailRequest());
-        when(mockDigitalMailResponseEntity.getStatusCode()).thenReturn(OK);
-        when(mockDigitalMailResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
-            .deliveryStatus(new DeliveryStatus().delivered(true)));
-        when(mockClient.sendDigitalMail(any(DigitalMailRequest.class)))
-            .thenReturn(mockDigitalMailResponseEntity);
+	@Mock
+	private ResponseEntity<DigitalInvoiceResponse> mockDigitalInvoiceResponseEntity;
 
-        var response = integration.sendDigitalMail(createDigitalMailDto());
-        assertThat(response).isEqualTo(SENT);
+	private DigitalMailSenderIntegration integration;
 
-        verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-        verify(mockClient, times(1)).sendDigitalMail(any(DigitalMailRequest.class));
-    }
+	@BeforeEach
+	void setUp() {
+		integration = new DigitalMailSenderIntegration(mockClient, mockMapper);
+	}
 
-    @Test
-    void test_sendDigitalMail_whenExceptionIsThrownByClient() {
-        when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class))).thenReturn(new DigitalMailRequest());
-        when(mockClient.sendDigitalMail(any(DigitalMailRequest.class)))
-            .thenThrow(Problem.builder()
-                .withStatus(Status.BAD_GATEWAY)
-                .withCause(Problem.builder()
-                    .withStatus(Status.BAD_REQUEST)
-                    .build())
-                .build());
+	@Test
+	void test_sendDigitalMail() {
+		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
+			.thenReturn(new DigitalMailRequest());
+		when(mockDigitalMailResponseEntity.getStatusCode()).thenReturn(OK);
+		when(mockDigitalMailResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
+			.deliveryStatus(new DeliveryStatus().delivered(true)));
+		when(mockClient.sendDigitalMail(any(String.class), any(DigitalMailRequest.class)))
+			.thenReturn(mockDigitalMailResponseEntity);
 
-        assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> integration.sendDigitalMail(createDigitalMailDto()))
-            .satisfies(problem -> {
-                assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-                assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-                        assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-                );
-            });
+		final var response = integration.sendDigitalMail("2281", createDigitalMailDto());
+		assertThat(response).isEqualTo(SENT);
 
-        verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-        verify(mockClient, times(1)).sendDigitalMail(any(DigitalMailRequest.class));
-    }
+		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
+		verify(mockClient, times(1)).sendDigitalMail(any(String.class), any(DigitalMailRequest.class));
+	}
 
-    @Test
-    void test_sendDigitalInvoice() {
-        when(mockMapper.toDigitalInvoiceRequest(any(DigitalInvoiceDto.class)))
-            .thenReturn(new DigitalInvoiceRequest());
-        when(mockDigitalInvoiceResponseEntity.getStatusCode()).thenReturn(OK);
-        when(mockDigitalInvoiceResponseEntity.getBody()).thenReturn(new DigitalInvoiceResponse()
-            .sent(true));
-        when(mockClient.sendDigitalInvoice(any(DigitalInvoiceRequest.class)))
-            .thenReturn(mockDigitalInvoiceResponseEntity);
+	@Test
+	void test_sendDigitalMail_whenExceptionIsThrownByClient() {
+		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class))).thenReturn(new DigitalMailRequest());
+		when(mockClient.sendDigitalMail(any(String.class), any(DigitalMailRequest.class)))
+			.thenThrow(Problem.builder()
+				.withStatus(Status.BAD_GATEWAY)
+				.withCause(Problem.builder()
+					.withStatus(Status.BAD_REQUEST)
+					.build())
+				.build());
 
-        var response = integration.sendDigitalInvoice(createDigitalInvoiceDto());
-        assertThat(response).isEqualTo(SENT);
+		assertThatExceptionOfType(ThrowableProblem.class)
+			.isThrownBy(() -> integration.sendDigitalMail("2281", createDigitalMailDto()))
+			.satisfies(problem -> {
+				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
+					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
+				);
+			});
 
-        verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
-        verify(mockClient, times(1)).sendDigitalInvoice(any(DigitalInvoiceRequest.class));
-    }
+		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
+		verify(mockClient, times(1)).sendDigitalMail(any(String.class), any(DigitalMailRequest.class));
+	}
 
-    @Test
-    void test_sendDigitalInvoice_whenExceptionIsThrownByClient() {
-        when(mockMapper.toDigitalInvoiceRequest(any(DigitalInvoiceDto.class))).thenReturn(new DigitalInvoiceRequest());
-        when(mockClient.sendDigitalInvoice(any(DigitalInvoiceRequest.class)))
-            .thenThrow(Problem.builder()
-                .withStatus(Status.BAD_GATEWAY)
-                .withCause(Problem.builder()
-                    .withStatus(Status.BAD_REQUEST)
-                    .build())
-                .build());
+	@Test
+	void test_sendDigitalInvoice() {
+		when(mockMapper.toDigitalInvoiceRequest(any(DigitalInvoiceDto.class)))
+			.thenReturn(new DigitalInvoiceRequest());
+		when(mockDigitalInvoiceResponseEntity.getStatusCode()).thenReturn(OK);
+		when(mockDigitalInvoiceResponseEntity.getBody()).thenReturn(new DigitalInvoiceResponse()
+			.sent(true));
+		when(mockClient.sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class)))
+			.thenReturn(mockDigitalInvoiceResponseEntity);
 
-        assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> integration.sendDigitalInvoice(createDigitalInvoiceDto()))
-            .satisfies(problem -> {
-                assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-                assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-                    assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-                );
-            });
+		final var response = integration.sendDigitalInvoice("2281", createDigitalInvoiceDto());
+		assertThat(response).isEqualTo(SENT);
 
-        verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
-        verify(mockClient, times(1)).sendDigitalInvoice(any(DigitalInvoiceRequest.class));
-    }
+		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
+		verify(mockClient, times(1)).sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class));
+	}
 
-    private DigitalMailDto createDigitalMailDto() {
-        return DigitalMailDto.builder()
-            .withPartyId("somePartyId")
-            .build();
-    }
+	@Test
+	void test_sendDigitalInvoice_whenExceptionIsThrownByClient() {
+		when(mockMapper.toDigitalInvoiceRequest(any(DigitalInvoiceDto.class))).thenReturn(new DigitalInvoiceRequest());
+		when(mockClient.sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class)))
+			.thenThrow(Problem.builder()
+				.withStatus(Status.BAD_GATEWAY)
+				.withCause(Problem.builder()
+					.withStatus(Status.BAD_REQUEST)
+					.build())
+				.build());
 
-    private DigitalInvoiceDto createDigitalInvoiceDto() {
-        return DigitalInvoiceDto.builder()
-            .withPartyId("somePartyId")
-            .build();
-    }
+		assertThatExceptionOfType(ThrowableProblem.class)
+			.isThrownBy(() -> integration.sendDigitalInvoice("2281", createDigitalInvoiceDto()))
+			.satisfies(problem -> {
+				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
+					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
+				);
+			});
+
+		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
+		verify(mockClient, times(1)).sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class));
+	}
+
+	private DigitalMailDto createDigitalMailDto() {
+		return DigitalMailDto.builder()
+			.withPartyId("somePartyId")
+			.build();
+	}
+
+	private DigitalInvoiceDto createDigitalInvoiceDto() {
+		return DigitalInvoiceDto.builder()
+			.withPartyId("somePartyId")
+			.build();
+	}
+
 }
