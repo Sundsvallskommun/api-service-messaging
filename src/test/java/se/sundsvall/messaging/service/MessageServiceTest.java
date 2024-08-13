@@ -503,7 +503,7 @@ class MessageServiceTest {
 		final var request = createMessageRequest(List.of("partyId1", "partyId2", "partyId3", "partyId4"));
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockContactSettingsIntegration.getContactSettings(eq("partyId1"), any()))
+		when(mockContactSettingsIntegration.getContactSettings(eq("2281"), eq("partyId1"), any()))
 			.thenReturn(List.of(
 				ContactDto.builder()
 					.withContactMethod(ContactDto.ContactMethod.SMS)
@@ -515,16 +515,16 @@ class MessageServiceTest {
 					.withDestination("partyId1@something.com")
 					.withDisabled(true)
 					.build()));
-		when(mockContactSettingsIntegration.getContactSettings(eq("partyId2"), any()))
+		when(mockContactSettingsIntegration.getContactSettings(eq("2281"), eq("partyId2"), any()))
 			.thenReturn(List.of(ContactDto.builder().build()));
-		when(mockContactSettingsIntegration.getContactSettings(eq("partyId3"), any()))
+		when(mockContactSettingsIntegration.getContactSettings(eq("2281"), eq("partyId3"), any()))
 			.thenReturn(List.of(
 				ContactDto.builder()
 					.withContactMethod(ContactDto.ContactMethod.EMAIL)
 					.withDestination("partyId3@something.com")
 					.withDisabled(false)
 					.build()));
-		when(mockContactSettingsIntegration.getContactSettings(eq("partyId4"), any()))
+		when(mockContactSettingsIntegration.getContactSettings(eq("2281"), eq("partyId4"), any()))
 			.thenReturn(List.of());
 
 		when(mockSmsSenderIntegration.sendSms(any(String.class), any(SmsDto.class))).thenReturn(SENT);
@@ -544,7 +544,7 @@ class MessageServiceTest {
 		});
 
 		// Verify external integration interactions
-		verify(mockContactSettingsIntegration, times(4)).getContactSettings(any(String.class), any());
+		verify(mockContactSettingsIntegration, times(4)).getContactSettings(any(String.class), any(String.class), any());
 		verifyNoMoreInteractions(mockContactSettingsIntegration);
 		verify(mockSmsSenderIntegration).sendSms(any(String.class), any(SmsDto.class));
 		verifyNoMoreInteractions(mockSmsSenderIntegration);

@@ -252,7 +252,7 @@ public class MessageService {
 			.orElseGet(LinkedMultiValueMap::new);
 
 		// Get contact settings and maybe act upon them
-		final var contactSettings = contactSettingsIntegration.getContactSettings(partyId, filters);
+		final var contactSettings = contactSettingsIntegration.getContactSettings(municipalityId, partyId, filters);
 		if (contactSettings.isEmpty()) {
 			LOG.info("No contact settings found for {} with filters {}", partyId, filters);
 

@@ -141,7 +141,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								${project.basedir}/src/main/resources/integrations/contact-settings-1.0.yml
+								${project.basedir}/src/main/resources/integrations/contact-settings-2.0.yml
 							</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.contactsettings</modelPackage>

@@ -26,58 +26,59 @@ import generated.se.sundsvall.contactsettings.ContactSetting;
 @ExtendWith(MockitoExtension.class)
 class ContactSettingsIntegrationTest {
 
-    @Mock
-    private ContactSettingsClient mockClient;
+	@Mock
+	private ContactSettingsClient mockClient;
 
-    @InjectMocks
-    private ContactSettingsIntegration integration;
+	@InjectMocks
+	private ContactSettingsIntegration integration;
 
-    @Test
-    void test_getSettings() {
-        var contactSetting = new ContactSetting()
-            .contactChannels(List.of(new ContactChannel()
-                .contactMethod(ContactMethod.EMAIL)
-                .destination("someone@something.com")
-                .disabled(false)
-            ));
+	@Test
+	void test_getSettings() {
+		final var contactSetting = new ContactSetting()
+			.contactChannels(List.of(new ContactChannel()
+				.contactMethod(ContactMethod.EMAIL)
+				.destination("someone@something.com")
+				.disabled(false)
+			));
 
-        when(mockClient.getSettings(any(String.class), any()))
-            .thenReturn(ResponseEntity.ok(List.of(contactSetting)));
+		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+			.thenReturn(ResponseEntity.ok(List.of(contactSetting)));
 
-        var contactDtos = integration.getContactSettings("somePartyId", new LinkedMultiValueMap<>());
+		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
-        assertThat(contactDtos).hasSize(1);
-        assertThat(contactDtos.getFirst().contactMethod()).isEqualTo(ContactDto.ContactMethod.EMAIL);
-        assertThat(contactDtos.getFirst().destination()).isEqualTo("someone@something.com");
-        assertThat(contactDtos.getFirst().disabled()).isFalse();
+		assertThat(contactDtos).hasSize(1);
+		assertThat(contactDtos.getFirst().contactMethod()).isEqualTo(ContactDto.ContactMethod.EMAIL);
+		assertThat(contactDtos.getFirst().destination()).isEqualTo("someone@something.com");
+		assertThat(contactDtos.getFirst().disabled()).isFalse();
 
-        verify(mockClient, times(1)).getSettings(any(String.class), any());
-    }
+		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+	}
 
-    @Test
-    void test_getSettings_whenSettingsAreNotFound() {
-        when(mockClient.getSettings(any(String.class), any()))
-            .thenReturn(ResponseEntity.notFound().build());
+	@Test
+	void test_getSettings_whenSettingsAreNotFound() {
+		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+			.thenReturn(ResponseEntity.notFound().build());
 
-        var contactDtos = integration.getContactSettings("somePartyId", new LinkedMultiValueMap<>());
+		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
-        assertThat(contactDtos).isEmpty();
+		assertThat(contactDtos).isEmpty();
 
-        verify(mockClient, times(1)).getSettings(any(String.class), any());
-    }
+		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+	}
 
-    @Test
-    void test_getSettings_whenSettingsContainNoChannels() {
-        var contactSetting = new ContactSetting()
-            .contactChannels(List.of());
+	@Test
+	void test_getSettings_whenSettingsContainNoChannels() {
+		final var contactSetting = new ContactSetting()
+			.contactChannels(List.of());
 
-        when(mockClient.getSettings(any(String.class), any()))
-            .thenReturn(ResponseEntity.ok(List.of(contactSetting)));
+		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+			.thenReturn(ResponseEntity.ok(List.of(contactSetting)));
 
-        var contactDtos = integration.getContactSettings("somePartyId", new LinkedMultiValueMap<>());
+		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
-        assertThat(contactDtos).isEmpty();
+		assertThat(contactDtos).isEmpty();
 
-        verify(mockClient, times(1)).getSettings(any(String.class), any());
-    }
+		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+	}
+
 }
