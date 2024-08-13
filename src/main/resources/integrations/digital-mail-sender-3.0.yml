@@ -5,19 +5,30 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.2"
+  version: "3.0"
+servers:
+  - url: http://localhost:51136
+    description: Generated server url
 paths:
-  /send-digital-mail:
+  /{municipalityId}/send-digital-mail:
     post:
       tags:
         - Digital Mail
       summary: Send a digital mail
       operationId: sendDigitalMail
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DigitalMailRequest'
+              $ref: "#/components/schemas/DigitalMailRequest"
         required: true
       responses:
         "200":
@@ -25,52 +36,60 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DigitalMailResponse'
+                $ref: "#/components/schemas/DigitalMailResponse"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/DigitalMailResponse'
+                $ref: "#/components/schemas/DigitalMailResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /send-digital-invoice:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/send-digital-invoice:
     post:
       tags:
         - Digital Mail
       summary: Send a digital invoice
       operationId: sendDigitalInvoice
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DigitalInvoiceRequest'
+              $ref: "#/components/schemas/DigitalInvoiceRequest"
         required: true
       responses:
         "200":
@@ -78,42 +97,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DigitalInvoiceResponse'
+                $ref: "#/components/schemas/DigitalInvoiceResponse"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/DigitalInvoiceResponse'
+                $ref: "#/components/schemas/DigitalInvoiceResponse"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /has-available-mailbox/{partyId}:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/has-available-mailbox/{partyId}:
     post:
       tags:
         - Digital Mail
@@ -121,6 +140,13 @@ paths:
         to receive digital mail
       operationId: hasAvailableMailbox
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: partyId
           in: path
           required: true
@@ -134,19 +160,19 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "404":
           description: Not Found (no available mailbox(es) found)
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
   /api-docs:
     get:
       tags:
@@ -168,35 +194,35 @@ components:
     Problem:
       type: object
       properties:
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: '#/components/schemas/StatusType'
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     ConstraintViolationProblem:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -223,22 +249,22 @@ components:
           type: string
           format: uri
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         violations:
           type: array
           items:
-            $ref: '#/components/schemas/Violation'
+            $ref: "#/components/schemas/Violation"
         title:
           type: string
         message:
           type: string
+        instance:
+          type: string
+          format: uri
         parameters:
           type: object
           additionalProperties:
             type: object
-        instance:
-          type: string
-          format: uri
         detail:
           type: string
         suppressed:
@@ -278,7 +304,7 @@ components:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -303,22 +329,22 @@ components:
                 type: boolean
         message:
           type: string
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: '#/components/schemas/StatusType'
         suppressed:
           type: array
           items:
@@ -414,13 +440,13 @@ components:
           description: The subject of the digital mail.
           example: Viktig information från Sundsvalls kommun
         supportInfo:
-          $ref: '#/components/schemas/SupportInfo'
+          $ref: "#/components/schemas/SupportInfo"
         attachments:
           type: array
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
         bodyInformation:
-          $ref: '#/components/schemas/BodyInformation'
+          $ref: "#/components/schemas/BodyInformation"
       description: The body of the digital mail request
     SupportInfo:
       required:
@@ -461,7 +487,7 @@ components:
       type: object
       properties:
         deliveryStatus:
-          $ref: '#/components/schemas/DeliveryStatus'
+          $ref: "#/components/schemas/DeliveryStatus"
     Details:
       required:
         - accountNumber
@@ -541,11 +567,11 @@ components:
           description: Whether the invoice is payable
           default: true
         details:
-          $ref: '#/components/schemas/Details'
+          $ref: "#/components/schemas/Details"
         files:
           type: array
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
     DigitalInvoiceResponse:
       type: object
       properties:

@@ -282,7 +282,7 @@ class MessageServiceTest {
 		final var messages = mockMessageMapper.toMessages(request, "someBatchId");
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(String.class), any(DigitalMailDto.class))).thenReturn(SENT);
 
 		final var result = messageService.sendDigitalMail(request, "2281");
 
@@ -294,7 +294,7 @@ class MessageServiceTest {
 		assertThat(result.deliveries().getFirst().status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
+		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(String.class), any(DigitalMailDto.class));
 		verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
 		verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
 		// Verify db integration interactions
@@ -315,7 +315,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockDigitalMailSenderIntegration.sendDigitalInvoice(any(DigitalInvoiceDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalInvoice(any(String.class), any(DigitalInvoiceDto.class))).thenReturn(SENT);
 
 		final var result = messageService.sendDigitalInvoice(request, "2281");
 
@@ -325,7 +325,7 @@ class MessageServiceTest {
 		assertThat(result.status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockDigitalMailSenderIntegration).sendDigitalInvoice(any(DigitalInvoiceDto.class));
+		verify(mockDigitalMailSenderIntegration).sendDigitalInvoice(any(String.class), any(DigitalInvoiceDto.class));
 		verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
 		verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
 		// Verify db integration interactions
@@ -347,7 +347,7 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(String.class), any(DigitalMailDto.class))).thenReturn(SENT);
 
 		final var result = messageService.sendLetter(request, "2281");
 
@@ -359,7 +359,7 @@ class MessageServiceTest {
 		assertThat(result.deliveries().getFirst().status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
+		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(String.class), any(DigitalMailDto.class));
 		verifyNoMoreInteractions(mockDigitalMailSenderIntegration);
 		verifyNoExternalIntegrationInteractionsExcept(mockDigitalMailSenderIntegration);
 		// Verify db integration interactions
@@ -384,7 +384,7 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenReturn(NOT_SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(String.class), any(DigitalMailDto.class))).thenReturn(NOT_SENT);
 		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
 
 		final var result = messageService.sendLetter(request, "2281");
@@ -401,7 +401,7 @@ class MessageServiceTest {
 		assertThat(result.deliveries().getLast().status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
+		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(String.class), any(DigitalMailDto.class));
 		verify(mockSnailMailSenderIntegration).sendSnailMail(anyString(), any(SnailMailDto.class));
 		verify(mockSnailMailSenderIntegration).sendBatch(anyString(), anyString());
 		// Verify db integration interactions
@@ -425,7 +425,7 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(DigitalMailDto.class))).thenThrow(new RuntimeException());
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(any(String.class), any(DigitalMailDto.class))).thenThrow(new RuntimeException());
 		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
 		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenReturn(SENT);
 
@@ -443,7 +443,7 @@ class MessageServiceTest {
 		assertThat(result.deliveries().getLast().status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(DigitalMailDto.class));
+		verify(mockDigitalMailSenderIntegration).sendDigitalMail(any(String.class), any(DigitalMailDto.class));
 		verify(mockSnailMailSenderIntegration).sendSnailMail(anyString(), any(SnailMailDto.class));
 		verify(mockSnailMailSenderIntegration).sendBatch(anyString(), anyString());
 		// Verify db integration interactions

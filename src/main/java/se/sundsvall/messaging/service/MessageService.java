@@ -416,9 +416,9 @@ public class MessageService {
 			case EMAIL ->
 				ofCallable(() -> emailSender.sendEmail(municipalityId, dtoMapper.toEmailDto((EmailRequest) request)));
 			case DIGITAL_MAIL ->
-				ofCallable(() -> digitalMailSender.sendDigitalMail(dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
+				ofCallable(() -> digitalMailSender.sendDigitalMail(municipalityId, dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
 			case DIGITAL_INVOICE ->
-				ofCallable(() -> digitalMailSender.sendDigitalInvoice(dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
+				ofCallable(() -> digitalMailSender.sendDigitalInvoice(municipalityId, dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
 			case WEB_MESSAGE ->
 				ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
 			case SNAIL_MAIL ->

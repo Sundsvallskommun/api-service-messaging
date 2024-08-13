@@ -17,37 +17,39 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 @EnableConfigurationProperties(DigitalMailSenderIntegrationProperties.class)
 public class DigitalMailSenderIntegration {
 
-    static final String INTEGRATION_NAME = "DigitalMailSender";
+	static final String INTEGRATION_NAME = "DigitalMailSender";
 
-    private final DigitalMailSenderClient client;
-    private final DigitalMailSenderIntegrationMapper mapper;
+	private final DigitalMailSenderClient client;
 
-    public DigitalMailSenderIntegration(final DigitalMailSenderClient client,
-            final DigitalMailSenderIntegrationMapper mapper) {
-        this.client = client;
-        this.mapper = mapper;
-    }
+	private final DigitalMailSenderIntegrationMapper mapper;
 
-    public MessageStatus sendDigitalMail(final DigitalMailDto dto) {
-        var response = client.sendDigitalMail(mapper.toDigitalMailRequest(dto));
+	public DigitalMailSenderIntegration(final DigitalMailSenderClient client,
+		final DigitalMailSenderIntegrationMapper mapper) {
+		this.client = client;
+		this.mapper = mapper;
+	}
 
-        var success = response.getStatusCode().is2xxSuccessful() &&
-            ofNullable(response.getBody())
-                .map(DigitalMailResponse::getDeliveryStatus)
-                .map(DeliveryStatus::getDelivered)
-                .orElse(false);
+	public MessageStatus sendDigitalMail(final String municipalityId, final DigitalMailDto dto) {
+		final var response = client.sendDigitalMail(municipalityId, mapper.toDigitalMailRequest(dto));
 
-        return success ? SENT : NOT_SENT;
-    }
+		final var success = response.getStatusCode().is2xxSuccessful() &&
+			ofNullable(response.getBody())
+				.map(DigitalMailResponse::getDeliveryStatus)
+				.map(DeliveryStatus::getDelivered)
+				.orElse(false);
 
-    public MessageStatus sendDigitalInvoice(final DigitalInvoiceDto dto) {
-        var response = client.sendDigitalInvoice(mapper.toDigitalInvoiceRequest(dto));
+		return success ? SENT : NOT_SENT;
+	}
 
-        var success = response.getStatusCode().is2xxSuccessful() &&
-            ofNullable(response.getBody())
-                .map(DigitalInvoiceResponse::getSent)
-                .orElse(false);
+	public MessageStatus sendDigitalInvoice(final String municipalityId, final DigitalInvoiceDto dto) {
+		final var response = client.sendDigitalInvoice(municipalityId, mapper.toDigitalInvoiceRequest(dto));
 
-        return success ? SENT : NOT_SENT;
-    }
+		final var success = response.getStatusCode().is2xxSuccessful() &&
+			ofNullable(response.getBody())
+				.map(DigitalInvoiceResponse::getSent)
+				.orElse(false);
+
+		return success ? SENT : NOT_SENT;
+	}
+
 }
