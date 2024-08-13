@@ -220,7 +220,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockWebMessageSenderIntegration.sendWebMessage(any(WebMessageDto.class))).thenReturn(SENT);
+		when(mockWebMessageSenderIntegration.sendWebMessage(any(String.class), any(WebMessageDto.class))).thenReturn(SENT);
 
 		final var result = messageService.sendWebMessage(request, "2281");
 
@@ -230,7 +230,7 @@ class MessageServiceTest {
 		assertThat(result.status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockWebMessageSenderIntegration).sendWebMessage(any(WebMessageDto.class));
+		verify(mockWebMessageSenderIntegration).sendWebMessage(any(String.class), any(WebMessageDto.class));
 		verifyNoMoreInteractions(mockWebMessageSenderIntegration);
 		verifyNoExternalIntegrationInteractionsExcept(mockWebMessageSenderIntegration);
 		// Verify db integration interactions

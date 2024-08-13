@@ -420,7 +420,7 @@ public class MessageService {
 			case DIGITAL_INVOICE ->
 				ofCallable(() -> digitalMailSender.sendDigitalInvoice(municipalityId, dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
 			case WEB_MESSAGE ->
-				ofCallable(() -> webMessageSender.sendWebMessage(dtoMapper.toWebMessageDto((WebMessageRequest) request)));
+				ofCallable(() -> webMessageSender.sendWebMessage(municipalityId, dtoMapper.toWebMessageDto((WebMessageRequest) request)));
 			case SNAIL_MAIL ->
 				ofCallable(() -> snailmailSender.sendSnailMail(municipalityId, dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
 			case SLACK ->

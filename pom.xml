@@ -197,7 +197,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								${project.basedir}/src/main/resources/integrations/web-message-sender-2.0.yml
+								${project.basedir}/src/main/resources/integrations/web-message-sender-3.0.yml
 							</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>

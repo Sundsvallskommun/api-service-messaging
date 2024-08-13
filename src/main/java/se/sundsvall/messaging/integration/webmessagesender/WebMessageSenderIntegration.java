@@ -12,20 +12,22 @@ import se.sundsvall.messaging.model.MessageStatus;
 @EnableConfigurationProperties(WebMessageSenderIntegrationProperties.class)
 public class WebMessageSenderIntegration {
 
-    static final String INTEGRATION_NAME = "WebMessageSender";
+	static final String INTEGRATION_NAME = "WebMessageSender";
 
-    private final WebMessageSenderClient client;
-    private final WebMessageSenderIntegrationMapper mapper;
+	private final WebMessageSenderClient client;
 
-    WebMessageSenderIntegration(final WebMessageSenderClient client,
-            final WebMessageSenderIntegrationMapper mapper) {
-        this.client = client;
-        this.mapper = mapper;
-    }
+	private final WebMessageSenderIntegrationMapper mapper;
 
-    public MessageStatus sendWebMessage(final WebMessageDto dto) {
-        var response = client.sendWebMessage(mapper.toCreateWebMessageRequest(dto));
+	WebMessageSenderIntegration(final WebMessageSenderClient client,
+		final WebMessageSenderIntegrationMapper mapper) {
+		this.client = client;
+		this.mapper = mapper;
+	}
 
-        return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
-    }
+	public MessageStatus sendWebMessage(final String municipalityId, final WebMessageDto dto) {
+		final var response = client.sendWebMessage(municipalityId, mapper.toCreateWebMessageRequest(dto));
+
+		return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
+	}
+
 }
