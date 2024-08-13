@@ -1,39 +1,49 @@
 openapi: 3.0.1
 info:
   title: api-contactsettings
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.0"
+  version: "2.0"
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
 tags:
-- name: ContactSettings
-  description: Contact setting operations
-- name: Delegates
-  description: Delegate operations
+  - name: ContactSettings
+    description: Contact setting operations
+  - name: Delegates
+    description: Delegate operations
 paths:
-  /settings:
+  /{municipalityId}/settings:
     get:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Find contact setting chain (including all delegates). Filter chain
         by the query-parameter.
       operationId: findByPartyIdAndQueryFilter
       parameters:
-      - name: partyId
-        in: query
-        description: Party-ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
-      - name: query
-        in: query
-        description: Filter query parameters. Only delegates that matches (i.e. has
-          matching delegate filters) the specified query will be included in the result.
-        required: true
-        schema:
-          $ref: '#/components/schemas/MultiValueMapStringString'
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: partyId
+          in: query
+          description: Party-ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: query
+          in: query
+          description: Filter query parameters. Only delegates that matches (i.e. has
+            matching delegate filters) the specified query will be included in the result.
+          required: true
+          schema:
+            $ref: "#/components/schemas/MultiValueMapStringString"
       responses:
         "200":
           description: Successful operation
@@ -42,44 +52,66 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
+                  $ref: "#/components/schemas/ContactSetting"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/ContactSetting"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
     post:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Create contact setting
       operationId: create
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContactSettingCreateRequest'
+              $ref: "#/components/schemas/ContactSettingCreateRequest"
         required: true
       responses:
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "201":
           description: Successful operation
           headers:
@@ -87,32 +119,25 @@ paths:
               style: simple
               schema:
                 type: string
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delegates:
+  /{municipalityId}/delegates:
     get:
       tags:
-      - Delegates
+        - Delegates
       summary: Find delegates by parameters
       operationId: findByParameters
       parameters:
-      - name: queryParameters
-        in: query
-        required: true
-        schema:
-          $ref: '#/components/schemas/FindDelegatesParameters'
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: queryParameters
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/FindDelegatesParameters"
       responses:
         "200":
           description: Successful operation
@@ -121,44 +146,72 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Delegate'
+                  $ref: "#/components/schemas/Delegate"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Delegate'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/Delegate"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
     post:
       tags:
-      - Delegates
+        - Delegates
       summary: Create delegate
       operationId: create_1
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DelegateCreateRequest'
+              $ref: "#/components/schemas/DelegateCreateRequest"
         required: true
       responses:
+        "409":
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "201":
           description: Successful operation
           headers:
@@ -166,47 +219,54 @@ paths:
               style: simple
               schema:
                 type: string
-        "409":
-          description: Conflict
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delegates/{id}/filters:
+  /{municipalityId}/delegates/{id}/filters:
     post:
       tags:
-      - Delegates
+        - Delegates
       summary: Create delegate filter
       operationId: create_2
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Filter'
+              $ref: "#/components/schemas/Filter"
         required: true
       responses:
+        "409":
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "201":
           description: Successful operation
           headers:
@@ -214,124 +274,125 @@ paths:
               style: simple
               schema:
                 type: string
-        "409":
-          description: Conflict
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /settings/{id}:
+  /{municipalityId}/settings/{id}:
     get:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Read contact setting
       operationId: read
       parameters:
-      - name: id
-        in: path
-        description: Contact setting ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Contact setting ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactSetting'
+                $ref: "#/components/schemas/ContactSetting"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ContactSetting'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/ContactSetting"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
     delete:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Delete contact setting
       operationId: delete
       parameters:
-      - name: id
-        in: path
-        description: Contact setting ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Contact setting ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "404":
-          description: Not found
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "204":
+          description: Successful operation
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "204":
-          description: Successful operation
+                $ref: "#/components/schemas/Problem"
     patch:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Update contact setting
       operationId: update
       parameters:
-      - name: id
-        in: path
-        description: Contact setting ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Contact setting ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContactSettingUpdateRequest'
+              $ref: "#/components/schemas/ContactSettingUpdateRequest"
         required: true
       responses:
         "200":
@@ -339,149 +400,170 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactSetting'
+                $ref: "#/components/schemas/ContactSetting"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ContactSetting'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/ContactSetting"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /delegates/{id}/filters/{filterId}:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/delegates/{id}/filters/{filterId}:
     get:
       tags:
-      - Delegates
+        - Delegates
       summary: Read delegate filter
       operationId: read_2
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
-      - name: filterId
-        in: path
-        description: Delegate filter ID
-        required: true
-        schema:
-          type: string
-        example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: filterId
+          in: path
+          description: Delegate filter ID
+          required: true
+          schema:
+            type: string
+          example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Filter'
+                $ref: "#/components/schemas/Filter"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Filter'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Filter"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
     delete:
       tags:
-      - Delegates
+        - Delegates
       summary: Delete delegate filter
       operationId: delete_2
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
-      - name: filterId
-        in: path
-        description: Delegate filter ID
-        required: true
-        schema:
-          type: string
-        example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: filterId
+          in: path
+          description: Delegate filter ID
+          required: true
+          schema:
+            type: string
+          example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
       responses:
-        "404":
-          description: Not found
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "204":
+          description: Successful operation
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "204":
-          description: Successful operation
+                $ref: "#/components/schemas/Problem"
     patch:
       tags:
-      - Delegates
+        - Delegates
       summary: Update delegate filter
       operationId: update_1
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
-      - name: filterId
-        in: path
-        description: Delegate filter ID
-        required: true
-        schema:
-          type: string
-        example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: filterId
+          in: path
+          description: Delegate filter ID
+          required: true
+          schema:
+            type: string
+          example: b95eb1ed-0561-49f2-a7dc-5b8bc0411778
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Filter'
+              $ref: "#/components/schemas/Filter"
         required: true
       responses:
         "200":
@@ -489,45 +571,52 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Filter'
+                $ref: "#/components/schemas/Filter"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Filter'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Filter"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /settings/{id}/children:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/settings/{id}/children:
     get:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Read virtual contact settings created by the instance idenitifed with
         the provided ID.
       operationId: readChildren
       parameters:
-      - name: id
-        in: path
-        description: Contact setting ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Contact setting ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
         "200":
           description: Successful operation
@@ -536,46 +625,53 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
+                  $ref: "#/components/schemas/ContactSetting"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/ContactSetting"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /settings/contact-channels:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/settings/contact-channels:
     get:
       tags:
-      - ContactSettings
+        - ContactSettings
       summary: Find contact setting filtered by contactChannel.destination
       operationId: findByDestination
       parameters:
-      - name: destination
-        in: query
-        description: destination of contact channel
-        required: true
-        schema:
-          type: string
-        example: "0701234567"
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: destination
+          in: query
+          description: destination of contact channel
+          required: true
+          schema:
+            type: string
+          example: "0701234567"
       responses:
         "200":
           description: Successful operation
@@ -584,116 +680,130 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
+                  $ref: "#/components/schemas/ContactSetting"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContactSetting'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/ContactSetting"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /delegates/{id}:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/delegates/{id}:
     get:
       tags:
-      - Delegates
+        - Delegates
       summary: Read delegate
       operationId: read_1
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Delegate'
+                $ref: "#/components/schemas/Delegate"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Delegate'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Delegate"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
     delete:
       tags:
-      - Delegates
+        - Delegates
       summary: Delete delegate
       operationId: delete_1
       parameters:
-      - name: id
-        in: path
-        description: Delegate ID
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: id
+          in: path
+          description: Delegate ID
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "404":
-          description: Not found
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "204":
+          description: Successful operation
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "500":
-          description: Internal Server error
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "204":
-          description: Successful operation
+                $ref: "#/components/schemas/Problem"
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -710,13 +820,13 @@ components:
   schemas:
     ContactChannel:
       required:
-      - alias
-      - contactMethod
-      - destination
+        - alias
+        - contactMethod
+        - destination
       type: object
       properties:
         contactMethod:
-          $ref: '#/components/schemas/ContactMethod'
+          $ref: "#/components/schemas/ContactMethod"
         alias:
           type: string
           description: Alias for the destination
@@ -730,18 +840,17 @@ components:
           description: Signal if channel should be used or not when sending message
           example: true
           default: false
-      description: Contact channel model
+      description: ContactChannel model
     ContactMethod:
       type: string
       description: ContactMethod model
-      example: SMS
       enum:
-      - SMS
-      - EMAIL
+        - SMS
+        - EMAIL
     ContactSettingCreateRequest:
       required:
-      - createdById
-      - partyId
+        - createdById
+        - partyId
       type: object
       properties:
         partyId:
@@ -760,11 +869,10 @@ components:
           example: My contact-settings
         contactChannels:
           type: array
-          description: List of contact channels which are connected to the contact
-            setting
+          description: List of contact channels connected to this contact setting
           items:
-            $ref: '#/components/schemas/ContactChannel'
-      description: Contact setting create request model
+            $ref: "#/components/schemas/ContactChannel"
+      description: ContactSettingCreateRequest model
     Problem:
       type: object
       properties:
@@ -779,7 +887,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -796,7 +904,7 @@ components:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -823,11 +931,11 @@ components:
           type: string
           format: uri
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         violations:
           type: array
           items:
-            $ref: '#/components/schemas/Violation'
+            $ref: "#/components/schemas/Violation"
         title:
           type: string
         message:
@@ -846,35 +954,6 @@ components:
           items:
             type: object
             properties:
-              cause:
-                type: object
-                properties:
-                  stackTrace:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        classLoaderName:
-                          type: string
-                        moduleName:
-                          type: string
-                        moduleVersion:
-                          type: string
-                        methodName:
-                          type: string
-                        fileName:
-                          type: string
-                        lineNumber:
-                          type: integer
-                          format: int32
-                        className:
-                          type: string
-                        nativeMethod:
-                          type: boolean
-                  message:
-                    type: string
-                  localizedMessage:
-                    type: string
               stackTrace:
                 type: array
                 items:
@@ -907,7 +986,7 @@ components:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -943,7 +1022,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -953,35 +1032,6 @@ components:
           items:
             type: object
             properties:
-              cause:
-                type: object
-                properties:
-                  stackTrace:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        classLoaderName:
-                          type: string
-                        moduleName:
-                          type: string
-                        moduleVersion:
-                          type: string
-                        methodName:
-                          type: string
-                        fileName:
-                          type: string
-                        lineNumber:
-                          type: integer
-                          format: int32
-                        className:
-                          type: string
-                        nativeMethod:
-                          type: boolean
-                  message:
-                    type: string
-                  localizedMessage:
-                    type: string
               stackTrace:
                 type: array
                 items:
@@ -1019,8 +1069,9 @@ components:
           type: string
     DelegateCreateRequest:
       required:
-      - agentId
-      - principalId
+        - agentId
+        - filters
+        - principalId
       type: object
       properties:
         principalId:
@@ -1035,11 +1086,11 @@ components:
           type: array
           description: Filters used by this delegate
           items:
-            $ref: '#/components/schemas/Filter'
-      description: Delegate create request model
+            $ref: "#/components/schemas/Filter"
+      description: DelegateCreateRequest model
     Filter:
       required:
-      - rules
+        - rules
       type: object
       properties:
         id:
@@ -1050,7 +1101,11 @@ components:
         alias:
           type: string
           description: The filter alias
-          example: My filter for delegating messages to my friend
+          example: My filter for delegating messages to a friend
+        channel:
+          type: string
+          description: The channel that created this filter.
+          example: Sundsvalls Energi
         created:
           type: string
           description: Timestamp when filter was created
@@ -1070,20 +1125,20 @@ components:
             If more than one rule exists, there will be an implicit AND-condition between the rules.
             I.e. all rules must evaluate to true in order to pass the filter.
           items:
-            $ref: '#/components/schemas/Rule'
+            $ref: "#/components/schemas/Rule"
       description: Filter model
     Operator:
       type: string
       description: Operator model
       example: EQUALS
       enum:
-      - EQUALS
-      - NOT_EQUALS
+        - EQUALS
+        - NOT_EQUALS
     Rule:
       required:
-      - attributeName
-      - attributeValue
-      - operator
+        - attributeName
+        - attributeValue
+        - operator
       type: object
       properties:
         attributeName:
@@ -1091,26 +1146,49 @@ components:
           description: The attribute name to apply the filter rule on
           example: facilityId
         operator:
-          $ref: '#/components/schemas/Operator'
+          $ref: "#/components/schemas/Operator"
         attributeValue:
           type: string
           description: The attribute value to apply the filter rule on
           example: "12345678"
-      description: Filter rule model
+      description: |
+        Rule model.
+
+        Here are some rule examples.
+
+        A rule that mathches everything. The MATCH_ALL_RULE:
+        {
+           "attributeName": "*",
+           "operator": "EQUALS",
+           "attributeValue": "*"
+        }
+
+        A rule that matches a single attribute:
+        {
+           "attributeName": "someAttributeName",
+           "operator": "EQUALS",
+           "attributeValue": "theValue"
+        }
+
+        A rule that matches everything but a single attribute (i.e. a negation of the rule above):
+        {
+           "attributeName": "someAttributeName",
+           "operator": "NOT_EQUALS",
+           "attributeValue": "theValue"
+        }
     ContactSettingUpdateRequest:
       type: object
       properties:
         alias:
           type: string
           description: Alias for this contact setting
-          example: My contact-settings
+          example: My contact-setting
         contactChannels:
           type: array
-          description: List of contact channels which are connected to the contact
-            setting
+          description: List of contact channels connected to this contact setting
           items:
-            $ref: '#/components/schemas/ContactChannel'
-      description: Contact setting update request model
+            $ref: "#/components/schemas/ContactChannel"
+      description: ContactSettingUpdateRequest model
     ContactSetting:
       type: object
       properties:
@@ -1121,10 +1199,15 @@ components:
           example: 0d64c132-3aea-11ec-8d3d-0242ac130003
         partyId:
           type: string
-          description: ID of the person or organization to whom the contact setting
+          description: ID of the person or organization to which the contact setting
             applies
           readOnly: true
           example: 15aee472-46ab-4f03-9605-68bd64ebc73f
+        municipalityId:
+          type: string
+          description: Municipality ID
+          readOnly: true
+          example: "2281"
         createdById:
           type: string
           description: ID of the contact setting that created this instance. Applicable
@@ -1133,7 +1216,7 @@ components:
           example: 9ca9425e-42cf-4145-a9e7-d77e1ea9e5b0
         alias:
           type: string
-          description: Alias for the person or organization to whom the contact setting
+          description: Alias for the person or organization to which the contact setting
             applies
           readOnly: true
           example: My contact-settings
@@ -1146,23 +1229,23 @@ components:
           example: false
         contactChannels:
           type: array
-          description: List of contact channels connected to the contact setting
+          description: List of contact channels connected to this contact setting
           readOnly: true
           items:
-            $ref: '#/components/schemas/ContactChannel'
+            $ref: "#/components/schemas/ContactChannel"
         created:
           type: string
-          description: Timestamp when delegate was created
+          description: Timestamp when contact setting was created
           format: date-time
           readOnly: true
           example: 2020-08-31T01:30:00+02:00
         modified:
           type: string
-          description: Timestamp when delegate was last modified
+          description: Timestamp when contact setting was last modified
           format: date-time
           readOnly: true
           example: 2020-08-31T01:30:00+02:00
-      description: Contact setting model
+      description: ContactSetting model
       readOnly: true
     MultiValueMapStringString:
       type: object
@@ -1189,7 +1272,7 @@ components:
           type: string
           description: Principal contact setting ID
           example: 15aee472-46ab-4f03-9605-68bd64ebc73f
-      description: GetDelegatesParameters model
+      description: FindDelegatesParameters model
     Delegate:
       type: object
       properties:
@@ -1205,7 +1288,7 @@ components:
           example: 0d64c132-3aea-11ec-8d3d-0242ac130003
         agentId:
           type: string
-          description: Contact setting ID of the delegate agent
+          description: Contact setting ID of the delegate agent (performer)
           readOnly: true
           example: 0d64c132-3aea-11ec-8d3d-0242ac130003
         created:
@@ -1226,9 +1309,9 @@ components:
             The delegate filters.
             If more than one filter exists, there will be an implicit OR-condition between the filters.
             I.e. at least one filter must evaluate to true in order to delegate anything.
-            If the filter list is empty, everything will be delegated.
+            At least one filter must exist on a delegate. If everything should be delegated, a MATCH_ALL_RULE can be used (see: Rule-model)
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
       description: Delegate model
       readOnly: true
-  securitySchemes: {}
+  securitySchemes: { }

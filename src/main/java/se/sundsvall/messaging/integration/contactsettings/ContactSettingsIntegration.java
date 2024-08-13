@@ -21,16 +21,15 @@ public class ContactSettingsIntegration {
 		this.client = client;
 	}
 
-	public List<ContactDto> getContactSettings(final String partyId, final MultiValueMap<String, String> filters) {
-		final var response = client.getSettings(partyId, filters);
+	public List<ContactDto> getContactSettings(final String municipalityId, final String partyId, final MultiValueMap<String, String> filters) {
+		final var response = client.getSettings(municipalityId, partyId, filters);
 
 		if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
 			return response.getBody().stream()
 				.map(ContactSetting::getContactChannels)
 				.flatMap(Collection::stream)
 				.map(contactChannel -> ContactDto.builder()
-					.withContactMethod(switch (contactChannel.getContactMethod())
-					{
+					.withContactMethod(switch (contactChannel.getContactMethod()) {
 						case SMS -> ContactDto.ContactMethod.SMS;
 						case EMAIL -> ContactDto.ContactMethod.EMAIL;
 					})
@@ -42,4 +41,5 @@ public class ContactSettingsIntegration {
 
 		return List.of();
 	}
+
 }
