@@ -1,21 +1,34 @@
 openapi: 3.0.1
 info:
   title: EmailSender
-  contact: {}
+  contact: { }
   license:
     name: MIT License
-    url: https://opensource.org/licenses/MIT
-  version: "1.1"
+    url: 'https://opensource.org/licenses/MIT'
+  version: '2.0'
+servers:
+  - url: 'https://email-sender-af-emailsender.apps.ocp201.sundsvall.se'
+    description: Generated server url
 tags:
-- name: Email resources
-  description: Resources for sending emails
+  - name: Email resources
+    description: Resources for sending emails
 paths:
-  /send/email:
+  '/{municipalityId}/send/email':
     post:
       tags:
-      - Email resources
+        - Email resources
       summary: Send an e-mail
       operationId: sendMail
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
@@ -23,44 +36,57 @@ paths:
               $ref: '#/components/schemas/SendEmailRequest'
         required: true
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
+        '200':
+          description: Successful Operation
+        '400':
           description: Bad Request
           content:
             '*/*':
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/Problem'
-                - $ref: '#/components/schemas/ConstraintViolationProblem'
-        "200":
-          description: Successful Operation
+                  - $ref: '#/components/schemas/Problem'
+                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+        '500':
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - default: [ ]
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/yaml:
               schema:
                 type: string
+      security:
+        - default: [ ]
       x-auth-type: None
       x-throttling-tier: Unlimited
       x-wso2-mutual-ssl: Optional
+      x-wso2-application-security:
+        security-types:
+          - oauth2
+        optional: false
 components:
   schemas:
     Attachment:
       required:
-      - contentType
-      - name
+        - contentType
+        - name
       type: object
       properties:
         content:
@@ -78,9 +104,9 @@ components:
       description: E-mail attachment
     SendEmailRequest:
       required:
-      - emailAddress
-      - sender
-      - subject
+        - emailAddress
+        - sender
+        - subject
       type: object
       properties:
         emailAddress:
@@ -114,8 +140,8 @@ components:
       description: The request class for sending an e-mail
     Sender:
       required:
-      - address
-      - name
+        - address
+        - name
       type: object
       properties:
         name:
@@ -324,4 +350,40 @@ components:
           type: string
         message:
           type: string
-  securitySchemes: {}
+  securitySchemes:
+    default:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'https://test.com'
+          scopes: { }
+x-wso2-auth-header: Authorization
+x-wso2-cors:
+  corsConfigurationEnabled: false
+  accessControlAllowOrigins:
+    - '*'
+  accessControlAllowCredentials: false
+  accessControlAllowHeaders:
+    - authorization
+    - Access-Control-Allow-Origin
+    - Content-Type
+    - SOAPAction
+    - apikey
+    - testKey
+  accessControlAllowMethods:
+    - GET
+    - PUT
+    - POST
+    - DELETE
+    - PATCH
+    - OPTIONS
+x-wso2-production-endpoints:
+  urls:
+    - 'https://email-sender-af-emailsender.apps.ocp201.sundsvall.se'
+  type: http
+x-wso2-basePath: /email-sender/2.0
+x-wso2-transports:
+  - https
+x-wso2-response-cache:
+  enabled: false
+  cacheTimeoutInSeconds: 300
