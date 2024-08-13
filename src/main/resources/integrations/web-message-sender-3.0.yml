@@ -5,53 +5,47 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.0"
+  version: "3.0"
 servers:
-  - url: http://localhost:61920
+  - url: http://localhost:8080
     description: Generated server url
 tags:
   - name: WebMessages
     description: Web messages
 paths:
-  /webmessages:
+  /{municipalityId}/webmessages:
     post:
       tags:
         - WebMessages
       summary: Create web message
       operationId: createWebMessage
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateWebMessageRequest'
+              $ref: "#/components/schemas/CreateWebMessageRequest"
         required: true
       responses:
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad request
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                $ref: "#/components/schemas/Problem"
         "201":
           description: Successful operation
           headers:
@@ -59,13 +53,34 @@ paths:
               style: simple
               schema:
                 type: string
-  /webmessages/{id}:
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/webmessages/{id}:
     get:
       tags:
         - WebMessages
       summary: Get web message by ID
       operationId: getWebMessageById
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           description: Web message ID
@@ -74,47 +89,54 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebMessage'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/WebMessage'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebMessage"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/WebMessage"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
     delete:
       tags:
         - WebMessages
       summary: Delete web message by ID
       operationId: deleteWebMessageById
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           description: Web message ID
@@ -123,41 +145,48 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "204":
-          description: Successful operation
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
-  /webmessages/recipients/{partyId}:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "204":
+          description: Successful operation
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/webmessages/recipients/{partyId}:
     get:
       tags:
         - WebMessages
       summary: Get web messages by partyId
       operationId: getWebMessagesByPartyId
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: partyId
           in: path
           description: PartyID
@@ -166,12 +195,18 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "502":
           description: Bad gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful operation
           content:
@@ -179,39 +214,40 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WebMessage'
+                  $ref: "#/components/schemas/WebMessage"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WebMessage'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/WebMessage"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
-  /webmessages/external-references/{key}/{value}:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/webmessages/external-references/{key}/{value}:
     get:
       tags:
         - WebMessages
       summary: Get web messages by externalReference
       operationId: getWebMessagesByExternalReference
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: key
           in: path
           description: The external-reference key
@@ -231,12 +267,18 @@ paths:
             type: string
           example: 356t4r34f
       responses:
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "502":
           description: Bad gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful operation
           content:
@@ -244,32 +286,26 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WebMessage'
+                  $ref: "#/components/schemas/WebMessage"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WebMessage'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/WebMessage"
         "400":
           description: Bad request
           content:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/Problem'
-                  - $ref: '#/components/schemas/ConstraintViolationProblem'
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /api-docs:
     get:
       tags:
@@ -327,12 +363,12 @@ components:
         externalReferences:
           type: array
           items:
-            $ref: '#/components/schemas/ExternalReference'
+            $ref: "#/components/schemas/ExternalReference"
         attachments:
           maxItems: 10
           type: array
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
       description: CreateWebMessageRequest model
     ExternalReference:
       type: object
@@ -360,7 +396,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -377,7 +413,7 @@ components:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -404,11 +440,11 @@ components:
           type: string
           format: uri
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         violations:
           type: array
           items:
-            $ref: '#/components/schemas/Violation'
+            $ref: "#/components/schemas/Violation"
         title:
           type: string
         message:
@@ -459,7 +495,7 @@ components:
       type: object
       properties:
         cause:
-          $ref: '#/components/schemas/ThrowableProblem'
+          $ref: "#/components/schemas/ThrowableProblem"
         stackTrace:
           type: array
           items:
@@ -495,7 +531,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -547,6 +583,11 @@ components:
           type: string
           description: Web Message ID
           example: f0882f1d-06bc-47fd-b017-1d8307f5ce95
+        municipalityId:
+          type: string
+          description: Municipality ID
+          readOnly: true
+          example: "2281"
         partyId:
           type: string
           description: Party ID (e.g. a personId or an organizationId)
@@ -562,7 +603,7 @@ components:
         externalReferences:
           type: array
           items:
-            $ref: '#/components/schemas/ExternalReference'
+            $ref: "#/components/schemas/ExternalReference"
         created:
           type: string
           description: Created timestamp
@@ -571,6 +612,6 @@ components:
         attachments:
           type: array
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
       description: WebMessage model
   securitySchemes: { }
