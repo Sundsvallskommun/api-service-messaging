@@ -15,6 +15,6 @@ import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 interface WebMessageSenderClient {
 
 	@PostMapping("/{municipalityId}/webmessages")
-	ResponseEntity<Void> sendWebMessage(final @PathVariable String municipalityId, final CreateWebMessageRequest request);
+	ResponseEntity<Void> sendWebMessage(@PathVariable final String municipalityId, final CreateWebMessageRequest request);
 
 }
