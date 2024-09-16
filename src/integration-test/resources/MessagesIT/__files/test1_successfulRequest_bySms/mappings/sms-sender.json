@@ -6,7 +6,7 @@
       }
     },
     "method": "POST",
-    "url": "/sms-sender/2281/send/sms"
+    "urlPath": "/sms-sender/2281/send/sms"
   },
   "response": {
     "headers": {

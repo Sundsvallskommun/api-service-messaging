@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "POST",
-		"url": "/slack/chat.postMessage"
+		"urlPath": "/slack/chat.postMessage"
 	},
 	"response": {
 		"headers": {

@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "POST",
-		"url": "/slack/auth.test"
+		"urlPath": "/slack/auth.test"
 	},
 	"response": {
 		"headers": {

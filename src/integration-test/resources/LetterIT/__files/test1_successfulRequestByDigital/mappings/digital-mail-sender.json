@@ -6,7 +6,7 @@
       }
     },
     "method": "POST",
-    "url": "/digital-mail-sender/2281/send-digital-mail"
+    "urlPath": "/digital-mail-sender/2281/send-digital-mail"
   },
   "response": {
     "headers": {

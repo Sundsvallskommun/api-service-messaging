@@ -6,7 +6,7 @@
       }
     },
     "method": "POST",
-    "url": "/web-message-sender/2281/webmessages"
+    "urlPath": "/web-message-sender/2281/webmessages"
   },
   "response": {
     "headers": {

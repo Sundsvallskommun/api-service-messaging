@@ -6,7 +6,7 @@
       }
     },
     "method": "POST",
-    "url": "/email-sender/2281/send/email"
+    "urlPath": "/email-sender/2281/send/email"
   },
   "response": {
     "headers": {
