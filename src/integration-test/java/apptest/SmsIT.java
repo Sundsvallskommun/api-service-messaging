@@ -1,6 +1,7 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
@@ -22,6 +23,7 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
 @IntegrationTest
@@ -119,10 +121,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-					});
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus)
+					.containsExactlyInAnyOrder(
+						tuple(SMS, SENT),
+						tuple(SMS, SENT));
 
 				return true;
 			});
@@ -159,13 +161,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.satisfiesExactlyInAnyOrder(historyEntry -> {
-						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-					}, historyEntry -> {
-						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
-						assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
-					});
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus)
+					.containsExactlyInAnyOrder(
+						tuple(SMS, SENT),
+						tuple(SMS, FAILED));
 
 				return true;
 			});
