@@ -1,41 +1,48 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "5.0"
+  version: "5.1"
 servers:
-  - url: http://localhost:57261
-    description: Generated server url
+- url: http://localhost:52316
+  description: Generated server url
 paths:
   /{municipalityId}/webmessage:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single web message
       operationId: sendWebMessage
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -57,15 +64,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -84,32 +82,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/sms:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single SMS
       operationId: sendSms
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -131,15 +145,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -158,25 +163,41 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/sms/batch:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of sms asynchronously
       operationId: sendSmsBatch
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -198,15 +219,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -225,32 +237,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/slack:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single Slack message
       operationId: sendToSlack
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -272,15 +300,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -299,32 +318,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/messages:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of messages as e-mail or SMS to a list of parties
       operationId: sendMessages
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -346,15 +381,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -373,32 +399,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/letter:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single letter as digital mail or snail mail
       operationId: sendLetter
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -420,15 +462,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -447,32 +480,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/email:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single e-mail
       operationId: sendEmail
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -494,15 +543,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -521,25 +561,41 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/email/batch:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a batch of e-mails asynchronously
       operationId: sendEmailBatch
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -561,15 +617,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -588,32 +635,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/digital-mail:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a single digital mail to one or more parties
       operationId: sendDigitalMail
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -635,15 +698,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -662,32 +716,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/digital-invoice:
     post:
       tags:
-        - Sending Resources
+      - Sending Resources
       summary: Send a digital invoice
       operationId: sendDigitalInvoice
       parameters:
-        - name: x-origin
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: async
-          in: query
-          description: Whether to send the message asynchronously
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: x-origin
+        in: header
+        description: Origin of the request
+        required: false
+        schema:
+          type: string
+      - name: x-issuer
+        in: header
+        description: Issuer of the request
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: async
+        in: query
+        description: If the message should be sent asynchronously or not
+        required: false
+        schema:
+          type: boolean
+          default: false
       requestBody:
         content:
           application/json:
@@ -709,15 +779,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -736,26 +797,35 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/status/message/{messageId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the status for a single message and its deliveries
       operationId: getMessageStatus
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: messageId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -772,13 +842,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -800,23 +870,23 @@ paths:
   /{municipalityId}/status/delivery/{deliveryId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the status for a single delivery
       operationId: getDeliveryStatus
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: deliveryId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: deliveryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -842,13 +912,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -861,23 +931,23 @@ paths:
   /{municipalityId}/status/batch/{batchId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: "Get the status for a message batch, its messages and their deliveries"
       operationId: getBatchStatus
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: batchId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -894,13 +964,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -922,47 +992,47 @@ paths:
   /{municipalityId}/statistics:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get delivery statistics
       operationId: getStatistics
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: messageType
-          in: query
-          description: Message type
-          required: false
-          schema:
-            type: string
-            enum:
-              - MESSAGE
-              - EMAIL
-              - SMS
-              - WEB_MESSAGE
-              - DIGITAL_MAIL
-              - DIGITAL_INVOICE
-              - SNAIL_MAIL
-              - LETTER
-              - SLACK
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: messageType
+        in: query
+        description: Message type
+        required: false
+        schema:
+          type: string
+          enum:
+          - MESSAGE
+          - EMAIL
+          - SMS
+          - WEB_MESSAGE
+          - DIGITAL_MAIL
+          - DIGITAL_INVOICE
+          - SNAIL_MAIL
+          - LETTER
+          - SLACK
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -979,13 +1049,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -998,43 +1068,43 @@ paths:
   /{municipalityId}/statistics/departments/{department}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get letter delivery statistics by department
       operationId: getDepartmentStatistics
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: department
-          in: path
-          description: Department name
-          required: true
-          schema:
-            type: string
-        - name: origin
-          in: query
-          description: Origin name
-          required: false
-          schema:
-            type: string
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: department
+        in: path
+        description: Department name
+        required: true
+        schema:
+          type: string
+      - name: origin
+        in: query
+        description: Origin name
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -1055,13 +1125,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -1074,37 +1144,37 @@ paths:
   /{municipalityId}/statistics/departments:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get letter delivery statistics by department
       operationId: getDepartmentStatistics_1
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: origin
-          in: query
-          description: Origin name
-          required: false
-          schema:
-            type: string
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: origin
+        in: query
+        description: Origin name
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -1125,13 +1195,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -1144,23 +1214,23 @@ paths:
   /{municipalityId}/message/{messageId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get a message and all its deliveries
       operationId: getMessage
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: messageId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Successful Operation
@@ -1181,13 +1251,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "404":
           description: Not Found
           content:
@@ -1209,37 +1279,37 @@ paths:
   /{municipalityId}/conversation-history/{partyId}:
     get:
       tags:
-        - Status and History Resources
+      - Status and History Resources
       summary: Get the entire conversation history for a given party
       operationId: getConversationHistory
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: partyId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: from
-          in: query
-          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
-        - name: to
-          in: query
-          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
-          required: false
-          schema:
-            type: string
-            format: date
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: partyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+        required: false
+        schema:
+          type: string
+          format: date
       responses:
         "200":
           description: Successful Operation
@@ -1260,13 +1330,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -1279,7 +1349,7 @@ paths:
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -1296,8 +1366,8 @@ components:
   schemas:
     ExternalReference:
       required:
-        - key
-        - value
+      - key
+      - value
       type: object
       properties:
         key:
@@ -1324,7 +1394,7 @@ components:
       description: Attachment
     WebMessageParty:
       required:
-        - partyId
+      - partyId
       type: object
       properties:
         partyId:
@@ -1339,8 +1409,8 @@ components:
       description: Party
     WebMessageRequest:
       required:
-        - message
-        - party
+      - message
+      - party
       type: object
       properties:
         party:
@@ -1354,8 +1424,8 @@ components:
             external OeP instance
           example: internal
           enum:
-            - internal
-            - external
+          - internal
+          - external
         attachments:
           maxItems: 10
           minItems: 0
@@ -1377,18 +1447,18 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
       properties:
@@ -1418,30 +1488,30 @@ components:
       type: string
       description: Status
       enum:
-        - PENDING
-        - AWAITING_FEEDBACK
-        - SENT
-        - NOT_SENT
-        - FAILED
-        - NO_CONTACT_SETTINGS_FOUND
-        - NO_CONTACT_WANTED
+      - PENDING
+      - AWAITING_FEEDBACK
+      - SENT
+      - NOT_SENT
+      - FAILED
+      - NO_CONTACT_SETTINGS_FOUND
+      - NO_CONTACT_WANTED
     MessageType:
       type: string
       description: Message type
       enum:
-        - MESSAGE
-        - EMAIL
-        - SMS
-        - WEB_MESSAGE
-        - DIGITAL_MAIL
-        - DIGITAL_INVOICE
-        - SNAIL_MAIL
-        - LETTER
-        - SLACK
+      - MESSAGE
+      - EMAIL
+      - SMS
+      - WEB_MESSAGE
+      - DIGITAL_MAIL
+      - DIGITAL_INVOICE
+      - SNAIL_MAIL
+      - LETTER
+      - SLACK
     SmsRequest:
       required:
-        - message
-        - mobileNumber
+      - message
+      - mobileNumber
       type: object
       properties:
         party:
@@ -1463,8 +1533,8 @@ components:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
-            - HIGH
-            - NORMAL
+          - HIGH
+          - NORMAL
     SmsRequestParty:
       type: object
       properties:
@@ -1480,8 +1550,8 @@ components:
       description: Party
     SmsBatchRequest:
       required:
-        - message
-        - parties
+      - message
+      - parties
       type: object
       properties:
         sender:
@@ -1498,8 +1568,8 @@ components:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
-            - HIGH
-            - NORMAL
+          - HIGH
+          - NORMAL
         parties:
           type: array
           description: Parties to send the sms message to
@@ -1507,7 +1577,7 @@ components:
             $ref: "#/components/schemas/SmsBatchRequestParty"
     SmsBatchRequestParty:
       required:
-        - mobileNumber
+      - mobileNumber
       type: object
       properties:
         partyId:
@@ -1533,9 +1603,9 @@ components:
       description: Message batch result
     SlackRequest:
       required:
-        - channel
-        - message
-        - token
+      - channel
+      - message
+      - token
       type: object
       properties:
         token:
@@ -1549,8 +1619,8 @@ components:
           description: Message (supports Slack markdown formatting)
     Email:
       required:
-        - address
-        - name
+      - address
+      - name
       type: object
       properties:
         name:
@@ -1566,8 +1636,8 @@ components:
           example: sender@sender.se
     Message:
       required:
-        - message
-        - party
+      - message
+      - party
       type: object
       properties:
         party:
@@ -1579,7 +1649,7 @@ components:
             description: Filters
             example:
               someAttributeName:
-                - someAttributeValue
+              - someAttributeValue
             items:
               type: string
               description: Filters
@@ -1587,7 +1657,7 @@ components:
           description: Filters
           example:
             someAttributeName:
-              - someAttributeValue
+            - someAttributeValue
         sender:
           $ref: "#/components/schemas/MessageSender"
         subject:
@@ -1602,7 +1672,7 @@ components:
       description: The messages to be sent
     MessageParty:
       required:
-        - partyId
+      - partyId
       type: object
       properties:
         partyId:
@@ -1617,7 +1687,7 @@ components:
       description: Party
     MessageRequest:
       required:
-        - messages
+      - messages
       type: object
       properties:
         messages:
@@ -1635,7 +1705,7 @@ components:
       description: Sender
     Sms:
       required:
-        - name
+      - name
       type: object
       properties:
         name:
@@ -1646,9 +1716,9 @@ components:
           example: sender
     LetterAttachment:
       required:
-        - content
-        - deliveryMode
-        - filename
+      - content
+      - deliveryMode
+      - filename
       type: object
       properties:
         deliveryMode:
@@ -1657,9 +1727,9 @@ components:
             Delivery mode, to indicate whether an attachment is intended/allowed to be used for
             digital mail, snail-mail or any of them
           enum:
-            - ANY
-            - DIGITAL_MAIL
-            - SNAIL_MAIL
+          - ANY
+          - DIGITAL_MAIL
+          - SNAIL_MAIL
         filename:
           type: string
           description: Filename
@@ -1667,14 +1737,14 @@ components:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
       description: Attachment
     LetterParty:
       required:
-        - partyIds
+      - partyIds
       type: object
       properties:
         partyIds:
@@ -1692,10 +1762,10 @@ components:
       description: Party
     LetterRequest:
       required:
-        - attachments
-        - department
-        - party
-        - subject
+      - attachments
+      - department
+      - party
+      - subject
       type: object
       properties:
         party:
@@ -1709,8 +1779,8 @@ components:
           type: string
           description: Content type
           enum:
-            - text/plain
-            - text/html
+          - text/plain
+          - text/html
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
@@ -1730,7 +1800,7 @@ components:
             $ref: "#/components/schemas/LetterAttachment"
     LetterSender:
       required:
-        - supportInfo
+      - supportInfo
       type: object
       properties:
         supportInfo:
@@ -1738,7 +1808,7 @@ components:
       description: Sender
     LetterSenderSupportInfo:
       required:
-        - text
+      - text
       type: object
       properties:
         text:
@@ -1756,8 +1826,8 @@ components:
       description: Support info
     EmailAttachment:
       required:
-        - content
-        - name
+      - content
+      - name
       type: object
       properties:
         name:
@@ -1775,8 +1845,8 @@ components:
       description: Attachment
     EmailRequest:
       required:
-        - emailAddress
-        - subject
+      - emailAddress
+      - subject
       type: object
       properties:
         party:
@@ -1823,8 +1893,8 @@ components:
       description: Party
     EmailSender:
       required:
-        - address
-        - name
+      - address
+      - name
       type: object
       properties:
         name:
@@ -1841,8 +1911,8 @@ components:
       description: Sender
     EmailBatchRequest:
       required:
-        - parties
-        - subject
+      - parties
+      - subject
       type: object
       properties:
         parties:
@@ -1875,7 +1945,7 @@ components:
           description: Headers
     Party:
       required:
-        - emailAddress
+      - emailAddress
       type: object
       properties:
         partyId:
@@ -1889,15 +1959,15 @@ components:
           example: someone@somewhere.com
     DigitalMailAttachment:
       required:
-        - content
-        - filename
+      - content
+      - filename
       type: object
       properties:
         contentType:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
@@ -1907,7 +1977,7 @@ components:
       description: Attachment
     DigitalMailParty:
       required:
-        - partyIds
+      - partyIds
       type: object
       properties:
         partyIds:
@@ -1925,9 +1995,9 @@ components:
       description: Party
     DigitalMailRequest:
       required:
-        - body
-        - contentType
-        - party
+      - body
+      - contentType
+      - party
       type: object
       properties:
         party:
@@ -1947,8 +2017,8 @@ components:
           type: string
           description: Content type
           enum:
-            - text/plain
-            - text/html
+          - text/plain
+          - text/html
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
@@ -1960,7 +2030,7 @@ components:
             $ref: "#/components/schemas/DigitalMailAttachment"
     DigitalMailSender:
       required:
-        - supportInfo
+      - supportInfo
       type: object
       properties:
         supportInfo:
@@ -1968,7 +2038,7 @@ components:
       description: Sender
     DigitalMailSenderSupportInfo:
       required:
-        - text
+      - text
       type: object
       properties:
         text:
@@ -1986,12 +2056,12 @@ components:
       description: Support info
     Details:
       required:
-        - accountNumber
-        - accountType
-        - amount
-        - dueDate
-        - paymentReference
-        - paymentReferenceType
+      - accountNumber
+      - accountType
+      - amount
+      - dueDate
+      - paymentReference
+      - paymentReferenceType
       type: object
       properties:
         amount:
@@ -2007,8 +2077,8 @@ components:
         paymentReferenceType:
           type: string
           enum:
-            - SE_OCR
-            - TENANT_REF
+          - SE_OCR
+          - TENANT_REF
         paymentReference:
           maxLength: 25
           type: string
@@ -2017,8 +2087,8 @@ components:
         accountType:
           type: string
           enum:
-            - BANKGIRO
-            - PLUSGIRO
+          - BANKGIRO
+          - PLUSGIRO
         accountNumber:
           type: string
           description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
@@ -2026,16 +2096,16 @@ components:
       description: Invoice details
     DigitalInvoiceFile:
       required:
-        - content
-        - contentType
-        - filename
+      - content
+      - contentType
+      - filename
       type: object
       properties:
         contentType:
           type: string
           description: Content type
           enum:
-            - application/pdf
+          - application/pdf
         content:
           type: string
           description: Content (BASE64-encoded)
@@ -2058,9 +2128,9 @@ components:
       description: Party
     DigitalInvoiceRequest:
       required:
-        - details
-        - party
-        - type
+      - details
+      - party
+      - type
       type: object
       properties:
         party:
@@ -2069,8 +2139,8 @@ components:
           type: string
           description: Invoice type
           enum:
-            - INVOICE
-            - REMINDER
+          - INVOICE
+          - REMINDER
         subject:
           type: string
           description: Subject
@@ -2213,9 +2283,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         suppressed:
           type: array
@@ -2324,28 +2394,28 @@ components:
         messageType:
           type: string
           enum:
-            - MESSAGE
-            - EMAIL
-            - SMS
-            - WEB_MESSAGE
-            - DIGITAL_MAIL
-            - DIGITAL_INVOICE
-            - SNAIL_MAIL
-            - LETTER
-            - SLACK
+          - MESSAGE
+          - EMAIL
+          - SMS
+          - WEB_MESSAGE
+          - DIGITAL_MAIL
+          - DIGITAL_INVOICE
+          - SNAIL_MAIL
+          - LETTER
+          - SLACK
         status:
           type: string
           enum:
-            - PENDING
-            - AWAITING_FEEDBACK
-            - SENT
-            - NOT_SENT
-            - FAILED
-            - NO_CONTACT_SETTINGS_FOUND
-            - NO_CONTACT_WANTED
+          - PENDING
+          - AWAITING_FEEDBACK
+          - SENT
+          - NOT_SENT
+          - FAILED
+          - NO_CONTACT_SETTINGS_FOUND
+          - NO_CONTACT_WANTED
         content:
           type: object
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

@@ -14,12 +14,16 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -35,12 +39,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceDigitalMailTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-mail";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -66,8 +69,8 @@ class MessageResourceDigitalMailTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = {true, false})
-	void sendSynchronous(final boolean hasSender) {
+	@MethodSource("argumentsProvider")
+	void sendSynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
 		when(mockMessageService.sendDigitalMail(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
@@ -75,7 +78,7 @@ class MessageResourceDigitalMailTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -97,14 +100,14 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendDigitalMail(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendDigitalMail(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = {true, false})
-	void sendAsynchronous(final boolean hasSender) {
+	@MethodSource("argumentsProvider")
+	void sendAsynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
 		when(mockEventDispatcher.handleDigitalMailRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
@@ -112,7 +115,7 @@ class MessageResourceDigitalMailTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -134,9 +137,25 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleDigitalMailRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleDigitalMailRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Stream<Arguments> argumentsProvider() {
+		return Stream.of(
+			Arguments.of(true, true),
+			Arguments.of(true, false),
+			Arguments.of(false, true),
+			Arguments.of(false, false));
+	}
+
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }

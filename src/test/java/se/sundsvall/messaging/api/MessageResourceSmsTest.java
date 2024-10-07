@@ -13,6 +13,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -36,12 +38,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceSmsTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/sms";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -63,15 +64,20 @@ class MessageResourceSmsTest {
 	private static Stream<Arguments> requestProvider() {
 		final var validRequest = createValidSmsRequest();
 
-		return Stream.of(Arguments.of("abc", validRequest.party()),
-			Arguments.of("abc12", validRequest.party()),
-			Arguments.of("Min Bankman", null),
-			Arguments.of(null, null));
+		return Stream.of(
+			Arguments.of("abc", validRequest.party(), true),
+			Arguments.of("abc", validRequest.party(), false),
+			Arguments.of("abc12", validRequest.party(), true),
+			Arguments.of("abc12", validRequest.party(), false),
+			Arguments.of("Min Bankman", null, true),
+			Arguments.of("Min Bankman", null, false),
+			Arguments.of(null, null, true),
+			Arguments.of(null, null, false));
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendSynchronous(final String senderName, final Party party) {
+	void sendSynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
 		// Arrange
 		when(mockMessageService.sendSms(any(), any())).thenReturn(DELIVERY_RESULT);
 		final var request = createValidSmsRequest()
@@ -81,7 +87,7 @@ class MessageResourceSmsTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -100,22 +106,24 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendSms(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendSms(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendAsynchronous() {
+	void sendAsynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
 		// Arrange
-		final var request = createValidSmsRequest();
 		when(mockEventDispatcher.handleSmsRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var request = createValidSmsRequest()
+			.withParty(party)
+			.withSender(senderName);
 
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -134,9 +142,17 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }

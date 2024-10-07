@@ -13,6 +13,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -36,12 +38,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceEmailTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/email";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -63,14 +64,18 @@ class MessageResourceEmailTest {
 	private static Stream<Arguments> requestProvider() {
 		final var validRequest = createValidEmailRequest();
 
-		return Stream.of(Arguments.of("sender@sender.se", validRequest.party()),
-			Arguments.of("sender@sender.se", null),
-			Arguments.of(null, null));
+		return Stream.of(
+			Arguments.of("sender@sender.se", validRequest.party(), true),
+			Arguments.of("sender@sender.se", validRequest.party(), false),
+			Arguments.of("sender@sender.se", null, true),
+			Arguments.of("sender@sender.se", null, false),
+			Arguments.of(null, null, true),
+			Arguments.of(null, null, false));
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendSynchronous(final String replyTo, final Party party) {
+	void sendSynchronous(String replyTo, Party party, boolean includeOptionalHeaders) {
 		// Arrange
 		var request = createValidEmailRequest();
 		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
@@ -79,7 +84,7 @@ class MessageResourceEmailTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -98,14 +103,14 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendEmail(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendEmail(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestProvider")
-	void sendAsynchronous(final String replyTo, final Party party) {
+	void sendAsynchronous(String replyTo, Party party, boolean includeOptionalHeaders) {
 		// Arrange
 		var request = createValidEmailRequest();
 		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
@@ -115,7 +120,7 @@ class MessageResourceEmailTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -134,9 +139,17 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleEmailRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }

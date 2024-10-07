@@ -14,11 +14,14 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -34,12 +37,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceEmailBatchTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/email/batch";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -51,6 +53,7 @@ class MessageResourceEmailBatchTest {
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
 		.withBatchId("someBatchId")
 		.withDeliveries(List.of(DELIVERY_RESULT))
+		.withMunicipalityId(MUNICIPALITY_ID)
 		.build();
 
 	@MockBean
@@ -62,8 +65,9 @@ class MessageResourceEmailBatchTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@Test
-	public void sendBatch() {
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void sendBatch(boolean includeOptionalHeaders) {
 		// Arrange
 
 		final var request = createValidEmailBatchRequest();
@@ -73,12 +77,12 @@ class MessageResourceEmailBatchTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
 			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/status/batch/(.*)$")
+			.expectHeader().valuesMatch(LOCATION, "^/2281/status/batch/(.*)$")
 			.expectStatus().isCreated()
 			.expectBody(MessageBatchResult.class)
 			.returnResult()
@@ -94,9 +98,17 @@ class MessageResourceEmailBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailBatchRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleEmailBatchRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }

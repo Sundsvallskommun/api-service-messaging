@@ -13,10 +13,14 @@ import static se.sundsvall.messaging.TestDataFactory.createValidDigitalInvoiceRe
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Consumer;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -31,12 +35,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceDigitalInvoiceTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-invoice";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -55,8 +58,9 @@ class MessageResourceDigitalInvoiceTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@Test
-	void sendSynchronous() {
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
 		when(mockMessageService.sendDigitalInvoice(any(), any())).thenReturn(DELIVERY_RESULT);
@@ -64,7 +68,7 @@ class MessageResourceDigitalInvoiceTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -83,13 +87,14 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendDigitalInvoice(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
-	@Test
-	void sendAsynchronous() {
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
 		when(mockEventDispatcher.handleDigitalInvoiceRequest(any(), any())).thenReturn(DELIVERY_RESULT);
@@ -97,7 +102,7 @@ class MessageResourceDigitalInvoiceTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -116,9 +121,17 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleDigitalInvoiceRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }

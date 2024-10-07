@@ -14,11 +14,14 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -35,12 +38,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceMessageTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/messages";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -65,8 +67,9 @@ class MessageResourceMessageTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@Test
-	void sendSynchronous() {
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
 		when(mockMessageService.sendMessages(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
@@ -74,7 +77,7 @@ class MessageResourceMessageTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -96,13 +99,14 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendMessages(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendMessages(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
-	@Test
-	void sendAsynchronous() {
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
 		when(mockEventDispatcher.handleMessageRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
@@ -110,7 +114,7 @@ class MessageResourceMessageTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -132,9 +136,17 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleMessageRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+			}
+		};
+	}
 }
