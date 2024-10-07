@@ -40,7 +40,7 @@ class MessageResourceEmailBatchTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/email/batch";
 	private static final String ORIGIN_HEADER = "x-origin";
 	private static final String ORIGIN = "origin";
-	private static final String ORIGIN_ISSUER = "x-issuer";
+	private static final String ISSUER_HEADER = "x-issuer";
 	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
@@ -107,7 +107,7 @@ class MessageResourceEmailBatchTest {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
-				httpHeaders.add(ORIGIN_ISSUER, ISSUER);
+				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
 	}
