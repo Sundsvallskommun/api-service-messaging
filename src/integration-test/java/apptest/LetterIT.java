@@ -31,8 +31,8 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class LetterIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/letter";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -44,7 +44,7 @@ class LetterIT extends AbstractMessagingAppTest {
 	void test1_successfulRequestByDigital() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -80,7 +80,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 				assertThat(historyEntry.getMessageType()).isEqualTo(DIGITAL_MAIL);
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
-
+				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 				return true;
 			});
 	}
@@ -126,6 +126,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(history).extracting(HistoryEntity::getMessageType)
 					.containsExactlyInAnyOrder(DIGITAL_MAIL, SNAIL_MAIL);
 				assertThat(history).extracting(HistoryEntity::getOriginalMessageType).containsOnly(LETTER);
+				assertThat(history).extracting(HistoryEntity::getOrigin).containsOnlyNulls();
 
 				return true;
 			});

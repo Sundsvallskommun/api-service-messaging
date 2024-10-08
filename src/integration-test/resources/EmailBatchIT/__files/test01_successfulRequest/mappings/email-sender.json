@@ -1,17 +1,38 @@
 {
-  "request": {
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-      }
-    },
-    "method": "POST",
-    "urlPath": "/email-sender/2281/send/email"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "status": 200
-  }
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "POST",
+		"urlPath": "/email-sender/2281/send/email",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"emailAddress": "${json-unit.ignore}",
+					"subject": "Some subject",
+					"message": "This is some e-mail content",
+					"sender": {
+						"name": "Some Sender",
+						"address": "sender@someotherhost.com"
+					},
+					"attachments": [
+						{
+							"content": "aGVsbG8gd29ybGQK",
+							"name": "test.txt",
+							"contentType": "text/plain"
+						}
+					],
+					"headers": {}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"status": 200
+	}
 }

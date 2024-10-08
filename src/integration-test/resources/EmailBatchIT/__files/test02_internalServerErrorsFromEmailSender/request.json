@@ -9,7 +9,7 @@
 			"emailAddress": "another@somewhere.com"
 		}
 	],
-	"subject": "Some subject",
+	"subject": "Some subject for test with internal error",
 	"message": "This is some e-mail content",
 	"sender": {
 		"name": "Some Sender",

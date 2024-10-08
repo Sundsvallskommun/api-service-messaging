@@ -26,10 +26,9 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class WebMessageIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/webmessage";
-
 	private static final String REQUEST_FILE = "request.json";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -41,7 +40,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -67,6 +66,7 @@ class WebMessageIT extends AbstractMessagingAppTest {
 					.allSatisfy(historyEntry -> {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;
