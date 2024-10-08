@@ -27,8 +27,8 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class MessagesIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/messages";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -40,7 +40,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest_bySms() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -73,6 +73,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
 						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;
@@ -115,6 +116,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
 						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isNull();
 					});
 
 				return true;

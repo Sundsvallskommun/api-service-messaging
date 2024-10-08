@@ -5,6 +5,7 @@ import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.CREATED;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
@@ -26,8 +27,8 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class EmailBatchIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/email/batch";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -39,7 +40,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	void test01_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -64,6 +65,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 								assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 								assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 								assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+								assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 							});
 					});
 
@@ -72,16 +74,40 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	void test02_internalServerErrorsFromEmailSender() {
-		setupCall()
+	void test02_internalServerErrorsFromEmailSender() throws Exception {
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withExpectedResponse("response.json")
-			.sendRequestAndVerifyResponse();
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageBatchResult.class);
+
+		final var batchId = response.batchId();
+
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+
+				response.messages().stream()
+					.map(MessageResult::messageId)
+					.forEach(messageId -> {
+						assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+						assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
+							.isNotEmpty()
+							.allSatisfy(historyEntry -> {
+								assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
+								assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+								assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
+								assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+							});
+					});
+
+				return true;
+			});
 	}
 
 }

@@ -26,8 +26,8 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class DigitalMailIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/digital-mail";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -39,7 +39,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest("request.json")
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -68,6 +68,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 					.allSatisfy(historyEntry -> {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;

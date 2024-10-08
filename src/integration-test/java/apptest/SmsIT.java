@@ -31,10 +31,9 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class SmsIT extends AbstractMessagingAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/sms";
-
 	private static final String REQUEST_FILE = "request.json";
+	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -46,7 +45,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -73,6 +72,7 @@ class SmsIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;
@@ -93,7 +93,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test3_successfulBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -121,10 +121,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus)
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin)
 					.containsExactlyInAnyOrder(
-						tuple(SMS, SENT),
-						tuple(SMS, SENT));
+						tuple(SMS, SENT, ORIGIN),
+						tuple(SMS, SENT, ORIGIN));
 
 				return true;
 			});
@@ -134,7 +134,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test4_internalServerErrorFromSmsSenderOnBatch() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -161,10 +161,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus)
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin)
 					.containsExactlyInAnyOrder(
-						tuple(SMS, SENT),
-						tuple(SMS, FAILED));
+						tuple(SMS, SENT, ORIGIN),
+						tuple(SMS, FAILED, ORIGIN));
 
 				return true;
 			});
@@ -174,7 +174,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test5_successfulHighPriorityRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -200,6 +200,7 @@ class SmsIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;
@@ -210,7 +211,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", "Test-origin")
+			.withHeader("x-origin", ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -240,6 +241,7 @@ class SmsIT extends AbstractMessagingAppTest {
 					.allSatisfy(historyEntry -> {
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
 					});
 
 				return true;
