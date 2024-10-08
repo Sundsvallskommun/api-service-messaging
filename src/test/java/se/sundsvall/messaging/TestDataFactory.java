@@ -84,7 +84,6 @@ public final class TestDataFactory {
 			.withSubject("someSubject")
 			.withMessage("someMessage")
 			.withHtmlMessage("someHtmlMessage")
-			.withOrigin("someOrigin")
 			.withHeaders(Map.of(MESSAGE_ID, List.of("<someMessageId@test.com>"),
 				REFERENCES, List.of("<someReferences@test.com>", "<someMoreReferences@test.com>"),
 				IN_REPLY_TO, List.of("<someInReplyTo@test.com>")))
@@ -140,7 +139,6 @@ public final class TestDataFactory {
 			.withHeaders(createValidHeaders())
 			.withHtmlMessage("someHtmlMessage")
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.withSubject("someSubject")
 			.withSender(createValidEmailBatchRequestSender())
 			.withAttachments(List.of(createValidEmailBatchRequestAttachment()))
@@ -154,7 +152,6 @@ public final class TestDataFactory {
 			.withHeaders(createValidHeaders())
 			.withHtmlMessage("someHtmlMessage")
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.withSubject("someSubject")
 			.withSender(createValidEmailBatchRequestSender())
 			.withAttachments(List.of(createValidEmailBatchRequestAttachment()))
@@ -169,7 +166,6 @@ public final class TestDataFactory {
 				.build())
 			.withDepartment("someDepartment")
 			.withDeviation("someDeviation")
-			.withOrigin("someOrigin")
 			.withAttachments(List.of(
 				SnailMailRequest.Attachment.builder()
 					.withName("someName")
@@ -188,7 +184,6 @@ public final class TestDataFactory {
 			.withSender(DEFAULT_SENDER_NAME)
 			.withMobileNumber(DEFAULT_MOBILE_NUMBER)
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.withPriority(Priority.HIGH)
 			.build();
 	}
@@ -201,7 +196,6 @@ public final class TestDataFactory {
 				.build()))
 			.withSender(DEFAULT_SENDER_NAME)
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.build();
 	}
 
@@ -212,7 +206,6 @@ public final class TestDataFactory {
 				.withExternalReferences(List.of(createExternalReference()))
 				.build())
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.withOepInstance("internal")
 			.withAttachments(List.of(
 				WebMessageRequest.Attachment.builder()
@@ -241,7 +234,6 @@ public final class TestDataFactory {
 			.withContentType(ContentType.TEXT_PLAIN.getValue())
 			.withBody("someBody")
 			.withDepartment("someDepartment")
-			.withOrigin("someOrigin")
 			.withAttachments(List.of(
 				DigitalMailRequest.Attachment.builder()
 					.withContentType(ContentType.APPLICATION_PDF.getValue())
@@ -253,7 +245,6 @@ public final class TestDataFactory {
 
 	public static DigitalInvoiceRequest createValidDigitalInvoiceRequest() {
 		return DigitalInvoiceRequest.builder()
-			.withOrigin("origin")
 			.withParty(DigitalInvoiceRequest.Party.builder()
 				.withPartyId(UUID.randomUUID().toString())
 				.withExternalReferences(List.of(createExternalReference()))
@@ -355,7 +346,6 @@ public final class TestDataFactory {
 			.withToken("someToken")
 			.withChannel("someChannel")
 			.withMessage("someMessage")
-			.withOrigin("someOrigin")
 			.build();
 	}
 
@@ -408,7 +398,6 @@ public final class TestDataFactory {
 			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
 			.withHtmlMessage("someHtmlMessage")
 			.withSubject("someSubject")
-			.withOrigin("someOrigin")
 			.build();
 	}
 

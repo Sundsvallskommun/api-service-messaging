@@ -15,6 +15,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
@@ -38,12 +40,11 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 class MessageResourceWebMessageTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final String URL = "/" + MUNICIPALITY_ID + "/webmessage";
-
 	private static final String ORIGIN_HEADER = "x-origin";
-
 	private static final String ORIGIN = "origin";
+	private static final String ISSUER_HEADER = "x-issuer";
+	private static final String ISSUER = "issuer";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -64,21 +65,31 @@ class MessageResourceWebMessageTest {
 
 	private static Stream<Arguments> argumentProvider() {
 		return Stream.of(
-			Arguments.of(null, null),
-			Arguments.of(null, emptyList()),
-			Arguments.of("external", null),
-			Arguments.of("external", emptyList()),
-			Arguments.of("internal", null),
-			Arguments.of("internal", emptyList()),
-			Arguments.of("eXtErNaL", null),
-			Arguments.of("eXtErNaL", emptyList()),
-			Arguments.of("interNaL", null),
-			Arguments.of("interNaL", emptyList()));
+			Arguments.of(null, null, true),
+			Arguments.of(null, null, false),
+			Arguments.of(null, emptyList(), true),
+			Arguments.of(null, emptyList(), false),
+			Arguments.of("external", null, true),
+			Arguments.of("external", null, false),
+			Arguments.of("external", emptyList(), true),
+			Arguments.of("external", emptyList(), false),
+			Arguments.of("internal", null, true),
+			Arguments.of("internal", null, false),
+			Arguments.of("internal", emptyList(), true),
+			Arguments.of("internal", emptyList(), false),
+			Arguments.of("eXtErNaL", null, true),
+			Arguments.of("eXtErNaL", null, false),
+			Arguments.of("eXtErNaL", emptyList(), true),
+			Arguments.of("eXtErNaL", emptyList(), false),
+			Arguments.of("interNaL", null, true),
+			Arguments.of("interNaL", null, false),
+			Arguments.of("interNaL", emptyList(), true),
+			Arguments.of("interNaL", emptyList(), false));
 	}
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendSynchronous(final String oepInstance, final List<Attachment> attachments) {
+	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
@@ -88,7 +99,7 @@ class MessageResourceWebMessageTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL)
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -107,14 +118,14 @@ class MessageResourceWebMessageTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendWebMessage(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockMessageService).sendWebMessage(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments) {
+	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
@@ -124,7 +135,7 @@ class MessageResourceWebMessageTest {
 		// Act
 		final var response = webTestClient.post()
 			.uri(URL + "?async=true")
-			.header(ORIGIN_HEADER, ORIGIN)
+			.headers(handleHeaders(includeOptionalHeaders))
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
 			.exchange()
@@ -143,9 +154,17 @@ class MessageResourceWebMessageTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleWebMessageRequest(request.withOrigin(ORIGIN), MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleWebMessageRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
 
+	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+				httpHeaders.add(ISSUER_HEADER, ISSUER);
+			}
+		};
+	}
 }

@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
 	<artifactId>api-service-messaging</artifactId>
-	<version>5.0</version>
+	<version>5.1</version>
 	<name>api-service-messaging</name>
 	<properties>
 		<exposed.app.port>8080</exposed.app.port>

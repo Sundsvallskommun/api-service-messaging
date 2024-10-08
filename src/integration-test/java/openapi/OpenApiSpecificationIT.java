@@ -45,10 +45,10 @@ class OpenApiSpecificationIT {
 		final var existingOpenApiSpecification = asString(openApiResource);
 		final var currentOpenApiSpecification = getCurrentOpenApiSpecification();
 
-		assertThatJson(toJson(existingOpenApiSpecification))
+		assertThatJson(toJson(currentOpenApiSpecification))
 			.withOptions(IGNORING_ARRAY_ORDER)
 			.whenIgnoringPaths("servers")
-			.isEqualTo(toJson(currentOpenApiSpecification));
+			.isEqualTo(toJson(existingOpenApiSpecification));
 	}
 
 	/**

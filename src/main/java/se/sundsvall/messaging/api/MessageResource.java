@@ -5,8 +5,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static se.sundsvall.messaging.api.model.ApiMapper.toResponse;
 
-import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -34,18 +40,10 @@ import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 @Tag(name = "Sending Resources")
 @RestController
 @Validated
-@RequestMapping(value = "/{municipalityId}", consumes = {APPLICATION_JSON_VALUE}, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+@RequestMapping(value = "/{municipalityId}", consumes = { APPLICATION_JSON_VALUE }, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
 @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "502", description = "Bad Gateway", content = @Content(schema = @Schema(implementation = Problem.class)))
@@ -64,13 +62,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/sms")
-	ResponseEntity<MessageResult> sendSms(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final SmsRequest request,
+	ResponseEntity<MessageResult> sendSms(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final SmsRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleSmsRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendSms(request.withOrigin(origin), municipalityId));
 	}
 
@@ -79,9 +80,11 @@ class MessageResource {
 	})
 	@PostMapping("/sms/batch")
 	ResponseEntity<MessageBatchResult> sendSmsBatch(
-		@RequestHeader(value = "x-origin", required = false) final String origin,
-		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Valid @RequestBody final SmsBatchRequest request) {
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final SmsBatchRequest request,
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
+
 		return toResponse(eventDispatcher.handleSmsBatchRequest(request.withOrigin(origin), municipalityId));
 	}
 
@@ -89,13 +92,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/email")
-	ResponseEntity<MessageResult> sendEmail(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final EmailRequest request,
+	ResponseEntity<MessageResult> sendEmail(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final EmailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleEmailRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendEmail(request.withOrigin(origin), municipalityId));
 	}
 
@@ -104,9 +110,11 @@ class MessageResource {
 	})
 	@PostMapping("/email/batch")
 	ResponseEntity<MessageBatchResult> sendEmailBatch(
-		@RequestHeader(value = "x-origin", required = false) final String origin,
-		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Valid @RequestBody final EmailBatchRequest request) {
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final EmailBatchRequest request,
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
+
 		return toResponse(eventDispatcher.handleEmailBatchRequest(request.withOrigin(origin), municipalityId));
 	}
 
@@ -114,13 +122,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/webmessage")
-	ResponseEntity<MessageResult> sendWebMessage(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final WebMessageRequest request,
+	ResponseEntity<MessageResult> sendWebMessage(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final WebMessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleWebMessageRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendWebMessage(request.withOrigin(origin), municipalityId));
 	}
 
@@ -128,13 +139,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/digital-mail")
-	ResponseEntity<MessageBatchResult> sendDigitalMail(@RequestHeader(value = "x-origin", required = false) String origin, @Valid @RequestBody final DigitalMailRequest request,
+	ResponseEntity<MessageBatchResult> sendDigitalMail(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final DigitalMailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleDigitalMailRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendDigitalMail(request.withOrigin(origin), municipalityId));
 	}
 
@@ -142,13 +156,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/digital-invoice")
-	ResponseEntity<MessageResult> sendDigitalInvoice(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final DigitalInvoiceRequest request,
+	ResponseEntity<MessageResult> sendDigitalInvoice(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final DigitalInvoiceRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendDigitalInvoice(request.withOrigin(origin), municipalityId));
 	}
 
@@ -156,13 +173,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/messages")
-	ResponseEntity<MessageBatchResult> sendMessages(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final MessageRequest request,
+	ResponseEntity<MessageBatchResult> sendMessages(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final MessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleMessageRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendMessages(request.withOrigin(origin), municipalityId));
 	}
 
@@ -170,14 +190,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/letter")
-	ResponseEntity<MessageBatchResult> sendLetter(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final LetterRequest request,
+	ResponseEntity<MessageBatchResult> sendLetter(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final LetterRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		if (async) {
 			return toResponse(eventDispatcher.handleLetterRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendLetter(request.withOrigin(origin), municipalityId));
 	}
 
@@ -185,13 +207,16 @@ class MessageResource {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
 	@PostMapping("/slack")
-	ResponseEntity<MessageResult> sendToSlack(@RequestHeader(value = "x-origin", required = false) final String origin, @Valid @RequestBody final SlackRequest request,
+	ResponseEntity<MessageResult> sendToSlack(
+		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
+		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@RequestBody @Valid final SlackRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(description = "Whether to send the message asynchronously") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
 		if (async) {
 			return toResponse(eventDispatcher.handleSlackRequest(request.withOrigin(origin), municipalityId));
 		}
-
 		return toResponse(messageService.sendToSlack(request.withOrigin(origin), municipalityId));
 	}
 
