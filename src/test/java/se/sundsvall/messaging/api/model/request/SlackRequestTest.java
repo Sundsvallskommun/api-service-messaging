@@ -9,17 +9,43 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class SlackRequestTest {
 
-	@Test
-	void testConstructorAndGetters() {
-		final var request = new SlackRequest("someToken", "someChannel", "someOrigin", "someMessage");
+	private static final String TOKEN = "token";
+	private static final String CHANNEL = "channel";
+	private static final String ORIGIN = "origin";
+	private static final String ISSUER = "issuer";
+	private static final String MESSAGE = "message";
 
-		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
-		assertThat(request.token()).isEqualTo("someToken");
-		assertThat(request.channel()).isEqualTo("someChannel");
-		assertThat(request.message()).isEqualTo("someMessage");
-		assertThat(request.origin()).isEqualTo("someOrigin");
+	// SlackRequest
+	@Test
+	void testSlackRequestConstructor() {
+		final var bean = new SlackRequest(TOKEN, CHANNEL, ORIGIN, ISSUER, MESSAGE);
+
+		assertSlackRequest(bean);
 	}
 
+	@Test
+	void testSlackRequestBuilder() {
+		final var bean = SlackRequest.builder()
+			.withChannel(CHANNEL)
+			.withIssuer(ISSUER)
+			.withMessage(MESSAGE)
+			.withOrigin(ORIGIN)
+			.withToken(TOKEN)
+			.build();
+
+		assertSlackRequest(bean);
+	}
+
+	private void assertSlackRequest(final SlackRequest bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.channel()).isEqualTo(CHANNEL);
+		assertThat(bean.issuer()).isEqualTo(ISSUER);
+		assertThat(bean.message()).isEqualTo(MESSAGE);
+		assertThat(bean.origin()).isEqualTo(ORIGIN);
+		assertThat(bean.token()).isEqualTo(TOKEN);
+	}
+
+	// No dirt
 	@Test
 	void testNoDirtOnCreatedBean() {
 		assertThat(SlackRequest.builder().build()).hasAllNullFieldsOrProperties();

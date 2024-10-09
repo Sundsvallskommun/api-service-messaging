@@ -7,7 +7,9 @@ import lombok.With;
 
 @With
 @Builder(setterPrefix = "with")
-public record InternalDeliveryBatchResult(String batchId, List<InternalDeliveryResult> deliveries,
-                                          String municipalityId) {
+public record InternalDeliveryBatchResult(
+	String batchId,
+	List<InternalDeliveryResult> deliveries,
+	String municipalityId) {
 
 }

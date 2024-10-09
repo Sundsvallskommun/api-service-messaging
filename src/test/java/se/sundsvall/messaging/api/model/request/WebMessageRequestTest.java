@@ -6,40 +6,113 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class WebMessageRequestTest {
 
-	@Test
-	void testConstructorAndGetters() {
-		final var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
-		final var party = new WebMessageRequest.Party("somePartyId", externalReferences);
-		final var attachments = List.of(new WebMessageRequest.Attachment("someName", "someMimeType", "someBase64Data"));
-		final var oepInstance = "internal";
-		final var request = new WebMessageRequest(party, "someMessage", "someOrigin", oepInstance, attachments);
+	private static final Party PARTY = Party.builder().build();
+	private static final String MESSAGE = "message";
+	private static final String ORIGIN = "origin";
+	private static final String ISSUER = "issuer";
+	private static final String OEP_INSTANCE = "oepInstance";
+	private static final List<Attachment> ATTACHMENTS = List.of(Attachment.builder().build());
+	private static final String FILE_NAME = "fileName";
+	private static final String MIME_TYPE = "mimeType";
+	private static final String BASE64_DATA = "base64Data";
+	private static final String PARTY_ID = "partyId";
+	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 
-		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
-		assertThat(request.party()).satisfies(requestParty -> {
-			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
-			assertThat(requestParty.externalReferences()).hasSize(1).element(0).satisfies(extRef -> {
-				assertThat(extRef.key()).isEqualTo("someKey");
-				assertThat(extRef.value()).isEqualTo("someValue");
-			});
-		});
-		assertThat(request.oepInstance()).isEqualTo(oepInstance);
-		assertThat(request.message()).isEqualTo("someMessage");
-		assertThat(request.origin()).isEqualTo("someOrigin");
-		assertThat(request.attachments()).hasSize(1).element(0).satisfies(attachment -> {
-			assertThat(attachment.fileName()).isEqualTo("someName");
-			assertThat(attachment.mimeType()).isEqualTo("someMimeType");
-			assertThat(attachment.base64Data()).isEqualTo("someBase64Data");
-		});
+	// WebMessageRequest
+	@Test
+	void testWebMessageRequestConstructor() {
+		final var bean = new WebMessageRequest(PARTY, MESSAGE, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS);
+
+		assertWebMessageRequest(bean);
 	}
 
 	@Test
-	void testNoDirtOnCreatedBean() {
+	void testWebMessageRequestBuilder() {
+		final var bean = WebMessageRequest.builder()
+			.withAttachments(ATTACHMENTS)
+			.withIssuer(ISSUER)
+			.withMessage(MESSAGE)
+			.withOepInstance(OEP_INSTANCE)
+			.withOrigin(ORIGIN)
+			.withParty(PARTY)
+			.build();
+
+		assertWebMessageRequest(bean);
+	}
+
+	private void assertWebMessageRequest(final WebMessageRequest bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.party()).isEqualTo(PARTY);
+		assertThat(bean.oepInstance()).isEqualTo(OEP_INSTANCE);
+		assertThat(bean.message()).isEqualTo(MESSAGE);
+		assertThat(bean.origin()).isEqualTo(ORIGIN);
+		assertThat(bean.issuer()).isEqualTo(ISSUER);
+		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+	}
+
+	// WebMessageRequest.Attachment
+	@Test
+	void testWebMessageRequestAttachmentConstructor() {
+		final var bean = new WebMessageRequest.Attachment(FILE_NAME, MIME_TYPE, BASE64_DATA);
+
+		assertWebMessageRequestAttachment(bean);
+	}
+
+	@Test
+	void testWebMessageRequestAttachmentBuilder() {
+		final var bean = WebMessageRequest.Attachment.builder()
+			.withBase64Data(BASE64_DATA)
+			.withFileName(FILE_NAME)
+			.withMimeType(MIME_TYPE)
+			.build();
+
+		assertWebMessageRequestAttachment(bean);
+	}
+
+	private void assertWebMessageRequestAttachment(final Attachment bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.base64Data()).isEqualTo(BASE64_DATA);
+		assertThat(bean.fileName()).isEqualTo(FILE_NAME);
+		assertThat(bean.mimeType()).isEqualTo(MIME_TYPE);
+	}
+
+	// WebMessageRequest.Party
+	@Test
+	void testWebMessageRequestPartyConstructor() {
+		final var bean = new WebMessageRequest.Party(PARTY_ID, EXTERNAL_REFERENCES);
+
+		assertWebMessageRequestParty(bean);
+	}
+
+	@Test
+	void testWebMessageRequestPartyBuilder() {
+		final var bean = WebMessageRequest.Party.builder()
+			.withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID)
+			.build();
+
+		assertWebMessageRequestParty(bean);
+	}
+
+	private void assertWebMessageRequestParty(final Party bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.externalReferences()).isEqualTo(EXTERNAL_REFERENCES);
+		assertThat(bean.partyId()).isEqualTo(PARTY_ID);
+	}
+
+	// No dirt
+	@Test
+	void testNoDirtOnCreatedBeans() {
 		assertThat(WebMessageRequest.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(WebMessageRequest.Attachment.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(WebMessageRequest.Party.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

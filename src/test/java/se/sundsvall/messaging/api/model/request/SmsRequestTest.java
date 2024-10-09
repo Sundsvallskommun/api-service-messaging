@@ -6,35 +6,85 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.api.model.request.SmsRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class SmsRequestTest {
 
-	@Test
-	void testConstructorAndGetters() {
-		final var externalReferences = List.of(new ExternalReference("someKey", "someValue"));
-		final var party = new SmsRequest.Party("somePartyId", externalReferences);
-		final var request = new SmsRequest(party, "someSender", "someMobileNumber", "someOrigin", "someMessage", Priority.HIGH);
+	private static final Party PARTY = Party.builder().build();
+	private static final String SENDER = "sender";
+	private static final String MOBILE_NUMBER = "mobileNumber";
+	private static final String ORIGIN = "origin";
+	private static final String ISSUER = "issuer";
+	private static final String MESSAGE = "message";
+	private static final Priority PRIORITY = Priority.HIGH;
+	private static final String PARTY_ID = "partyId";
+	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 
-		assertThat(request).isNotNull().hasNoNullFieldsOrProperties();
-		assertThat(request.party()).satisfies(requestParty -> {
-			assertThat(requestParty.partyId()).isEqualTo("somePartyId");
-			assertThat(requestParty.externalReferences()).hasSize(1).element(0).satisfies(extRef -> {
-				assertThat(extRef.key()).isEqualTo("someKey");
-				assertThat(extRef.value()).isEqualTo("someValue");
-			});
-		});
-		assertThat(request.sender()).isEqualTo("someSender");
-		assertThat(request.mobileNumber()).isEqualTo("someMobileNumber");
-		assertThat(request.message()).isEqualTo("someMessage");
-		assertThat(request.origin()).isEqualTo("someOrigin");
-		assertThat(request.priority()).isEqualTo(Priority.HIGH);
+	// SmsRequest
+	@Test
+	void testSmsRequestConstructor() {
+		final var bean = new SmsRequest(PARTY, SENDER, MOBILE_NUMBER, ORIGIN, ISSUER, MESSAGE, PRIORITY);
+
+		assertSmsRequest(bean);
 	}
 
 	@Test
-	void testNoDirtOnCreatedBean() {
+	void testSmsRequestBuilder() {
+		final var bean = SmsRequest.builder()
+			.withIssuer(ISSUER)
+			.withMessage(MESSAGE)
+			.withMobileNumber(MOBILE_NUMBER)
+			.withOrigin(ORIGIN)
+			.withParty(PARTY)
+			.withPriority(PRIORITY)
+			.withSender(SENDER)
+			.build();
+
+		assertSmsRequest(bean);
+	}
+
+	private void assertSmsRequest(final SmsRequest bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.party()).isEqualTo(PARTY);
+		assertThat(bean.sender()).isEqualTo(SENDER);
+		assertThat(bean.mobileNumber()).isEqualTo(MOBILE_NUMBER);
+		assertThat(bean.message()).isEqualTo(MESSAGE);
+		assertThat(bean.origin()).isEqualTo(ORIGIN);
+		assertThat(bean.issuer()).isEqualTo(ISSUER);
+		assertThat(bean.priority()).isEqualTo(PRIORITY);
+	}
+
+	// SmsRequest
+	@Test
+	void testSmsRequestPartyConstructor() {
+		final var bean = new SmsRequest.Party(PARTY_ID, EXTERNAL_REFERENCES);
+
+		assertSmsRequestParty(bean);
+	}
+
+	@Test
+	void testSmsRequestPartyBuilder() {
+		final var bean = SmsRequest.Party.builder()
+			.withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID)
+			.build();
+
+		assertSmsRequestParty(bean);
+	}
+
+	private void assertSmsRequestParty(final Party bean) {
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.externalReferences()).isEqualTo(EXTERNAL_REFERENCES);
+		assertThat(bean.partyId()).isEqualTo(PARTY_ID);
+	}
+
+	// No dirt
+	@Test
+	void testNoDirtOnCreatedBeans() {
 		assertThat(SmsRequest.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(SmsRequest.Party.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }
