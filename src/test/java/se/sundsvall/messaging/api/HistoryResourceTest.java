@@ -13,9 +13,14 @@ import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.TestDataFactory.createAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
@@ -36,10 +41,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.Attachment;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;

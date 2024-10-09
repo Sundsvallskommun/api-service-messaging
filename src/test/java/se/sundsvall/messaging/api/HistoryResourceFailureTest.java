@@ -13,6 +13,8 @@ import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.zalando.problem.violations.ConstraintViolationProblem;

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.time.LocalDate;
 import java.util.List;
