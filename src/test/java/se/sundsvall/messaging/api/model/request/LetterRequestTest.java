@@ -20,22 +20,22 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 class LetterRequestTest {
 
-	private final static Party PARTY = Party.builder().build();
-	private final static String SUBJECT = "subject";
-	private final static Sender SENDER = Sender.builder().build();
-	private final static String CONTENT_TYPE = "contentType";
-	private final static String BODY = "body";
-	private final static String DEPARTMENT = "department";
-	private final static String DEVIATION = "deviation";
-	private final static String ORIGIN = "origin";
-	private final static String ISSUER = "issuer";
-	private final static List<Attachment> ATTACHMENTS = List.of(Attachment.builder().build());
-	private final static DeliveryMode DELIVERY_MODE = DIGITAL_MAIL;
-	private final static String FILENAME = "filename";
-	private final static String CONTENT = "content";
-	private final static List<String> PARTY_IDS = List.of("partyId");
-	private final static List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
-	private final static SupportInfo SUPPORT_INFO = SupportInfo.builder().build();
+	private static final Party PARTY = Party.builder().build();
+	private static final String SUBJECT = "subject";
+	private static final Sender SENDER = Sender.builder().build();
+	private static final String CONTENT_TYPE = "contentType";
+	private static final String BODY = "body";
+	private static final String DEPARTMENT = "department";
+	private static final String DEVIATION = "deviation";
+	private static final String ORIGIN = "origin";
+	private static final String ISSUER = "issuer";
+	private static final List<Attachment> ATTACHMENTS = List.of(Attachment.builder().build());
+	private static final DeliveryMode DELIVERY_MODE = DIGITAL_MAIL;
+	private static final String FILENAME = "filename";
+	private static final String CONTENT = "content";
+	private static final List<String> PARTY_IDS = List.of("partyId");
+	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
+	private static final SupportInfo SUPPORT_INFO = SupportInfo.builder().build();
 	private static final String TEXT = "text";
 	private static final String EMAIL_ADDRESS = "emailAddress";
 	private static final String PHONE_NUMBER = "phonenumber";
