@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
@@ -87,7 +88,7 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendToSlack(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendToSlack(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -121,7 +122,7 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSlackRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSlackRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -133,5 +134,10 @@ class MessageResourceSlackTest {
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
+	}
+
+	private static SlackRequest addHeaderValues(SlackRequest request) {
+		return request.withOrigin(ORIGIN)
+			.withIssuer(ISSUER);
 	}
 }

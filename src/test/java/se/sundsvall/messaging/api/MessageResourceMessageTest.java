@@ -99,7 +99,7 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendMessages(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendMessages(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -136,7 +136,7 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -148,5 +148,10 @@ class MessageResourceMessageTest {
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
+	}
+
+	private static MessageRequest addHeaderValues(MessageRequest request) {
+		return request.withOrigin(ORIGIN)
+			.withIssuer(ISSUER);
 	}
 }

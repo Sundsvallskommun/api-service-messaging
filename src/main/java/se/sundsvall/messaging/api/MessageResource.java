@@ -69,10 +69,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleSmsRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleSmsRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendSms(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendSms(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a batch of sms asynchronously", responses = {
@@ -85,7 +89,9 @@ class MessageResource {
 		@RequestBody @Valid final SmsBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
-		return toResponse(eventDispatcher.handleSmsBatchRequest(request.withOrigin(origin), municipalityId));
+		return toResponse(eventDispatcher.handleSmsBatchRequest(request
+			.withIssuer(issuer)
+			.withOrigin(origin), municipalityId));
 	}
 
 	@Operation(summary = "Send a single e-mail", responses = {
@@ -99,10 +105,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleEmailRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleEmailRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendEmail(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendEmail(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a batch of e-mails asynchronously", responses = {
@@ -115,7 +125,9 @@ class MessageResource {
 		@RequestBody @Valid final EmailBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
-		return toResponse(eventDispatcher.handleEmailBatchRequest(request.withOrigin(origin), municipalityId));
+		return toResponse(eventDispatcher.handleEmailBatchRequest(request
+			.withIssuer(issuer)
+			.withOrigin(origin), municipalityId));
 	}
 
 	@Operation(summary = "Send a single web message", responses = {
@@ -129,10 +141,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleWebMessageRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleWebMessageRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendWebMessage(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendWebMessage(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a single digital mail to one or more parties", responses = {
@@ -146,10 +162,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalMailRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendDigitalMail(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendDigitalMail(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a digital invoice", responses = {
@@ -163,10 +183,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleDigitalInvoiceRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendDigitalInvoice(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendDigitalInvoice(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a batch of messages as e-mail or SMS to a list of parties", responses = {
@@ -180,10 +204,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleMessageRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleMessageRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendMessages(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendMessages(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a single letter as digital mail or snail mail", responses = {
@@ -197,10 +225,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleLetterRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleLetterRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendLetter(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendLetter(decoratedRequest, municipalityId));
 	}
 
 	@Operation(summary = "Send a single Slack message", responses = {
@@ -214,10 +246,14 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
+		final var decoratedRequest = request
+			.withIssuer(issuer)
+			.withOrigin(origin);
+
 		if (async) {
-			return toResponse(eventDispatcher.handleSlackRequest(request.withOrigin(origin), municipalityId));
+			return toResponse(eventDispatcher.handleSlackRequest(decoratedRequest, municipalityId));
 		}
-		return toResponse(messageService.sendToSlack(request.withOrigin(origin), municipalityId));
+		return toResponse(messageService.sendToSlack(decoratedRequest, municipalityId));
 	}
 
 }

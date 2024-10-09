@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
@@ -98,7 +99,7 @@ class MessageResourceEmailBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailBatchRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleEmailBatchRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -110,5 +111,10 @@ class MessageResourceEmailBatchTest {
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
+	}
+
+	private static EmailBatchRequest addHeaderValues(EmailBatchRequest request) {
+		return request.withOrigin(ORIGIN)
+			.withIssuer(ISSUER);
 	}
 }

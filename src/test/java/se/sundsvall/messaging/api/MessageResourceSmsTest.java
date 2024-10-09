@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest.Party;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
@@ -106,7 +107,7 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendSms(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendSms(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -142,7 +143,7 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -154,5 +155,10 @@ class MessageResourceSmsTest {
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
+	}
+
+	private static SmsRequest addHeaderValues(SmsRequest request) {
+		return request.withOrigin(ORIGIN)
+			.withIssuer(ISSUER);
 	}
 }

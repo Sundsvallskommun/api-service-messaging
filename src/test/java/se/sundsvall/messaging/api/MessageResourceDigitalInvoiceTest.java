@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
@@ -87,7 +88,7 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -121,7 +122,7 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? request.withOrigin(ORIGIN) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -133,5 +134,10 @@ class MessageResourceDigitalInvoiceTest {
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
 			}
 		};
+	}
+
+	private static DigitalInvoiceRequest addHeaderValues(DigitalInvoiceRequest request) {
+		return request.withOrigin(ORIGIN)
+			.withIssuer(ISSUER);
 	}
 }
