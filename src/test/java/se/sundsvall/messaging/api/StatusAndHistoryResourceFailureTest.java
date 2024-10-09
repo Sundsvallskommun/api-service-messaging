@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -9,11 +10,15 @@ import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import org.zalando.problem.violations.Violation;
@@ -215,4 +222,104 @@ class StatusAndHistoryResourceFailureTest {
 		verifyNoInteractions(mockHistoryService, mockStatisticsService);
 	}
 
+	@Test
+	void getUserMessages_invalid_municipalityId() {
+		var municipalityId = "not-a-valid-municipalityId";
+		var userMessagesRequest = createUserMessagesRequest();
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(userMessagesRequest.getPage(), userMessagesRequest.getLimit(), userMessagesRequest.getUserId()))
+				.build(Map.of("municipalityId", municipalityId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getUserMessages.municipalityId", "not a valid municipality ID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessages_blank_userId() {
+		var municipalityId = "2281";
+		var userMessagesRequest = createUserMessagesRequest();
+		userMessagesRequest.setUserId("");
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(userMessagesRequest.getPage(), userMessagesRequest.getLimit(), userMessagesRequest.getUserId()))
+				.build(Map.of("municipalityId", municipalityId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("userId", "must not be blank"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getAttachment_invalid_municipalityId() {
+		var municipalityId = "not-a-valid-municipalityId";
+		var messageId = UUID.randomUUID().toString();
+		var fileName = "file.txt";
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
+				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getAttachment.municipalityId", "not a valid municipality ID"));
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getAttachment_invalid_messageId() {
+		var municipalityId = "2281";
+		var messageId = "not-a-valid-messageId";
+		var fileName = "file.txt";
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
+				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getAttachment.messageId", "not a valid UUID"));
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit, final String userId) {
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+
+		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
+		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
+		ofNullable(userId).ifPresent(p -> parameters.add("userId", p));
+
+		return parameters;
+	}
 }

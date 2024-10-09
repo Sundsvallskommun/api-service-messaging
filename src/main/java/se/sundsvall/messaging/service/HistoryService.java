@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import se.sundsvall.messaging.api.model.request.UserMessagesRequest;
+import se.sundsvall.messaging.api.model.response.Attachment;
+import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.History;
 
@@ -35,4 +38,13 @@ public class HistoryService {
 		return dbIntegration.getHistory(municipalityId, partyId, from, to);
 	}
 
+	public UserMessages getUserMessages(final UserMessagesRequest request, final String municipalityId) {
+		//TODO: Implement
+		return null;
+	}
+
+	public Attachment getAttachment(final String municipalityId, final String messageId, final String fileName) {
+		//TODO: Implement
+		return null;
+	}
 }

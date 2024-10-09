@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -102,6 +103,27 @@ class HistoryServiceTest {
 
 		verify(mockDbIntegration, times(1))
 			.getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
+	}
+
+	@Test
+	void getUserMessages() {
+		var municipalityId = "2281";
+		var request = createUserMessagesRequest();
+
+		var result = historyService.getUserMessages(request, municipalityId);
+
+		assertThat(result).isNull();
+	}
+
+	@Test
+	void getAttachment() {
+		var municipalityId = "2281";
+		var messageId = "messageId";
+		var fileName = "fileName";
+
+		var result = historyService.getAttachment(municipalityId, messageId, fileName);
+
+		assertThat(result).isNull();
 	}
 
 }

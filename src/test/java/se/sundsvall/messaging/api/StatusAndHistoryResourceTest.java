@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.api;
 
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -8,14 +9,20 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_DEPARTMENTS_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.TestDataFactory.createAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
@@ -32,12 +39,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.Attachment;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
@@ -520,4 +531,58 @@ class StatusAndHistoryResourceTest {
 		verifyNoInteractions(mockHistoryService);
 	}
 
+	@Test
+	void getUserMessages() {
+		var municipalityId = "2281";
+		var userMessagesRequest = createUserMessagesRequest();
+		var userMessages = createUserMessages();
+
+		when(mockHistoryService.getUserMessages(userMessagesRequest, municipalityId)).thenReturn(userMessages);
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(userMessagesRequest.getPage(), userMessagesRequest.getLimit(), userMessagesRequest.getUserId()))
+				.build(Map.of("municipalityId", municipalityId)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(APPLICATION_JSON)
+			.expectBody(UserMessages.class)
+			.isEqualTo(userMessages);
+
+		verify(mockHistoryService).getUserMessages(userMessagesRequest, municipalityId);
+		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getAttachment() {
+		var municipalityId = "2281";
+		var messageId = UUID.randomUUID().toString();
+		var fileName = "fileName";
+		var attachment = createAttachment();
+
+		when(mockHistoryService.getAttachment(municipalityId, messageId, fileName)).thenReturn(attachment);
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
+				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(APPLICATION_JSON)
+			.expectBody(Attachment.class)
+			.isEqualTo(attachment);
+
+		verify(mockHistoryService).getAttachment(municipalityId, messageId, fileName);
+		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+
+	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit, final String userId) {
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+
+		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
+		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
+		ofNullable(userId).ifPresent(p -> parameters.add("userId", p));
+
+		return parameters;
+	}
 }

@@ -18,6 +18,10 @@ public final class Constants {
 
 	public static final String DELIVERY_STATUS_PATH = "/{municipalityId}/status/delivery/{deliveryId}";
 
+	public static final String USER_MESSAGES_PATH = "/{municipalityId}/users/messages";
+
+	public static final String MESSAGE_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachment/{fileName}";
+
 	private Constants() {}
 
 }

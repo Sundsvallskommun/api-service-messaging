@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -41,35 +42,35 @@ public class MessageMapper {
 			.withBatchId(batchId);
 	}
 
-    public Message toMessage(final EmailRequest request) {
-        return Message.builder()
-            .withMessageId(UUID.randomUUID().toString())
-            .withDeliveryId(UUID.randomUUID().toString())
-            .withPartyId(Optional.ofNullable(request.party())
-                .map(EmailRequest.Party::partyId)
-                .orElse(null))
-            .withType(EMAIL)
-            .withOriginalType(EMAIL)
-            .withStatus(PENDING)
-            .withContent(toJson(request))
-            .withOrigin(request.origin())
-            .build();
-    }
+	public Message toMessage(final EmailRequest request) {
+		return Message.builder()
+			.withMessageId(UUID.randomUUID().toString())
+			.withDeliveryId(UUID.randomUUID().toString())
+			.withPartyId(Optional.ofNullable(request.party())
+				.map(EmailRequest.Party::partyId)
+				.orElse(null))
+			.withType(EMAIL)
+			.withOriginalType(EMAIL)
+			.withStatus(PENDING)
+			.withContent(toJson(request))
+			.withOrigin(request.origin())
+			.build();
+	}
 
-    public Message toMessage(final SmsRequest request) {
-        return Message.builder()
-            .withMessageId(UUID.randomUUID().toString())
-            .withDeliveryId(UUID.randomUUID().toString())
-            .withPartyId(Optional.ofNullable(request.party())
-                .map(SmsRequest.Party::partyId)
-                .orElse(null))
-            .withType(SMS)
-            .withOriginalType(SMS)
-            .withStatus(PENDING)
-            .withContent(toJson(request))
-            .withOrigin(request.origin())
-            .build();
-    }
+	public Message toMessage(final SmsRequest request) {
+		return Message.builder()
+			.withMessageId(UUID.randomUUID().toString())
+			.withDeliveryId(UUID.randomUUID().toString())
+			.withPartyId(Optional.ofNullable(request.party())
+				.map(SmsRequest.Party::partyId)
+				.orElse(null))
+			.withType(SMS)
+			.withOriginalType(SMS)
+			.withStatus(PENDING)
+			.withContent(toJson(request))
+			.withOrigin(request.origin())
+			.build();
+	}
 
 	public Message toMessage(final SnailMailRequest request) {
 		return Message.builder()
@@ -133,7 +134,6 @@ public class MessageMapper {
 			.withOrigin(request.origin())
 			.build();
 	}
-
 
 	public List<Message> toMessages(final LetterRequest request, final String batchId) {
 		return request.party().partyIds().stream()
