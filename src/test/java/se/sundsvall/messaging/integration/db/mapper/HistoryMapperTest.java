@@ -58,6 +58,7 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntity() {
+		final var statusDetail = "someStatusDetail";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -72,7 +73,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id");
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
@@ -82,17 +83,18 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getMessageType()).isEqualTo(message.type());
 		assertThat(historyEntity.getOriginalMessageType()).isEqualTo(message.originalType());
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
-		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
+		assertThat(historyEntity.getStatusDetail()).isEqualTo(statusDetail);
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
-		assertThat(historyEntity.getIssuer()).isEqualTo("someIssuer");
+		assertThat(historyEntity.getOrigin()).isEqualTo(message.origin());
+		assertThat(historyEntity.getIssuer()).isEqualTo(message.issuer());
 		assertThat(historyEntity.getDepartment()).isEqualTo("department");
 		assertThat(historyEntity.getCreatedAt()).isNotNull().isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
-		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 	}
 
 	@Test
 	void mapToHistoryEntityNoDepartment() {
+		final var statusDetail = "someStatusDetail";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -105,7 +107,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -113,16 +115,17 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getPartyId()).isEqualTo(message.partyId());
 		assertThat(historyEntity.getMessageType()).isEqualTo(message.type());
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
-		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
+		assertThat(historyEntity.getStatusDetail()).isEqualTo(statusDetail);
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
+		assertThat(historyEntity.getOrigin()).isEqualTo(message.origin());
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
-		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 	}
 
 	@Test
 	void mapToHistoryEntityWhenContentIsNull() {
+		final var statusDetail = "someStatusDetail";
 		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
@@ -134,7 +137,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, "someStatusDetail");
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -142,12 +145,12 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getPartyId()).isEqualTo(message.partyId());
 		assertThat(historyEntity.getMessageType()).isEqualTo(message.type());
 		assertThat(historyEntity.getStatus()).isEqualTo(message.status());
-		assertThat(historyEntity.getStatusDetail()).isEqualTo("someStatusDetail");
+		assertThat(historyEntity.getStatusDetail()).isEqualTo(statusDetail);
 		assertThat(historyEntity.getContent()).isEqualTo(message.content());
-		assertThat(historyEntity.getOrigin()).isEqualTo("someOrigin");
+		assertThat(historyEntity.getOrigin()).isEqualTo(message.origin());
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
-		assertThat(historyEntity.getMunicipalityId()).isEqualTo("someMunicipalityId");
+		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 	}
 
 }
