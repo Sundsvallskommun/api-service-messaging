@@ -5,7 +5,6 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -14,15 +13,9 @@ import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.STATISTICS_FOR_DEPARTMENTS_PATH;
-import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
-import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.TestDataFactory.createAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
-import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
@@ -43,35 +36,24 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.Attachment;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.api.model.response.UserMessages;
-import se.sundsvall.messaging.model.Count;
-import se.sundsvall.messaging.model.DepartmentLetter;
-import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.model.Statistics;
-import se.sundsvall.messaging.model.Statistics.Letter;
-import se.sundsvall.messaging.model.Statistics.Message;
 import se.sundsvall.messaging.service.HistoryService;
-import se.sundsvall.messaging.service.StatisticsService;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
-class StatusAndHistoryResourceTest {
+class HistoryResourceTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
 
 	@MockBean
 	private HistoryService mockHistoryService;
-
-	@MockBean
-	private StatisticsService mockStatisticsService;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -101,7 +83,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, null, null);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@ParameterizedTest
@@ -134,7 +115,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, fromDate, toDate);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -157,7 +137,6 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		verify(mockHistoryService).getConversationHistory(MUNICIPALITY_ID, partyId, null, null);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -189,7 +168,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndDeliveryId(MUNICIPALITY_ID, deliveryId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -209,7 +187,6 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndDeliveryId(MUNICIPALITY_ID, deliveryId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -241,7 +218,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -260,7 +236,6 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -292,7 +267,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -311,7 +285,6 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
 	}
 
 	@Test
@@ -346,8 +319,6 @@ class StatusAndHistoryResourceTest {
 
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
-
 	}
 
 	@Test
@@ -366,222 +337,43 @@ class StatusAndHistoryResourceTest {
 		// Assert and verify
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
-		verifyNoInteractions(mockStatisticsService);
-
-	}
-
-	@Test
-	void getStatisticsWithMinimalParameterSettings() {
-		// Arrange
-		final var statistics = Statistics.builder()
-			.withDigitalMail(Count.builder().withSent(1).withFailed(2).build())
-			.withEmail(Count.builder().withSent(3).withFailed(4).build())
-			.withLetter(Letter.builder().withDigitalMail(Count.builder().withSent(5).withFailed(6).build())
-				.withSnailMail(Count.builder().withSent(7).withFailed(8).build())
-				.build())
-			.withMessage(Message.builder().withEmail(Count.builder().withSent(9).withFailed(8).build())
-				.withSms(Count.builder().withSent(8).withFailed(7).build())
-				.withUndeliverable(6)
-				.build()).withSms(Count.builder().withSent(5).withFailed(4).build())
-			.withSnailMail(Count.builder().withSent(4).withFailed(3).build())
-			.withWebMessage(Count.builder().withSent(3).withFailed(2).build())
-			.build();
-		when(mockStatisticsService.getStatistics(any(), any(), any(), any())).thenReturn(statistics);
-
-		// Act
-		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(STATISTICS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(Statistics.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert and verify
-		assertThat(response).isEqualTo(statistics);
-
-		verify(mockStatisticsService).getStatistics(null, null, null, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(mockStatisticsService);
-		verifyNoInteractions(mockHistoryService);
-	}
-
-	@Test
-	void getStatisticsWithFullParameterSettings() {
-		// Arrange
-		final var messageType = MessageType.DIGITAL_MAIL;
-		final var from = LocalDate.now().minusDays(2);
-		final var to = LocalDate.now();
-		final var statistics = Statistics.builder()
-			.withDigitalMail(Count.builder().withSent(1).withFailed(2).build())
-			.build();
-		when(mockStatisticsService.getStatistics(any(), any(), any(), any())).thenReturn(statistics);
-
-		// Act
-		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder
-				.path(STATISTICS_PATH)
-				.queryParam("messageType", messageType)
-				.queryParam("from", from)
-				.queryParam("to", to)
-				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(Statistics.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert and verify
-		assertThat(response).isEqualTo(statistics);
-
-		verify(mockStatisticsService).getStatistics(messageType, from, to, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(mockStatisticsService);
-		verifyNoInteractions(mockHistoryService);
-	}
-
-	@Test
-	void getStatisticsForAllDepartments() {
-		// Arrange
-		final var statistics = DepartmentStatistics.builder()
-			.withOrigin("origin")
-			.withDepartmentLetters(
-				List.of(DepartmentLetter.builder()
-					.withDepartment("department")
-					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
-
-		// Act
-		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_DEPARTMENTS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectBodyList(DepartmentStatistics.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert and verify
-		assertThat(response).containsExactly(statistics);
-
-		verify(mockStatisticsService).getDepartmentLetterStatistics(null, null, null, null, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(mockStatisticsService);
-		verifyNoInteractions(mockHistoryService);
-	}
-
-	@Test
-	void getStatisticsForSpecificDepartmentWithMinimalParameterSettings() {
-		// Arrange
-		final var department = "department";
-		final var statistics = DepartmentStatistics.builder()
-			.withOrigin("origin")
-			.withDepartmentLetters(
-				List.of(DepartmentLetter.builder()
-					.withDepartment(department)
-					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
-
-		// Act
-		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH).build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectBodyList(DepartmentStatistics.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert and verify
-		assertThat(response).containsExactly(statistics);
-
-		verify(mockStatisticsService).getDepartmentLetterStatistics(null, department, null, null, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(mockStatisticsService);
-		verifyNoInteractions(mockHistoryService);
-	}
-
-	@Test
-	void getStatisticsForSpecificDepartmentWithFullParameterSettings() {
-		// Arrange
-		final var department = "department";
-		final var origin = "origin";
-		final var from = LocalDate.now().minusDays(2);
-		final var to = LocalDate.now();
-		final var statistics = DepartmentStatistics.builder()
-			.withOrigin(origin)
-			.withDepartmentLetters(
-				List.of(DepartmentLetter.builder()
-					.withDepartment(department)
-					.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())).build();
-		when(mockStatisticsService.getDepartmentLetterStatistics(any(), any(), any(), any(), any())).thenReturn(List.of(statistics));
-
-		// Act
-		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH)
-				.queryParam("origin", origin)
-				.queryParam("from", from)
-				.queryParam("to", to)
-				.build(Map.of("department", department, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectBodyList(DepartmentStatistics.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert and verify
-		assertThat(response).containsExactly(statistics);
-
-		verify(mockStatisticsService).getDepartmentLetterStatistics(origin, department, from, to, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(mockStatisticsService);
-		verifyNoInteractions(mockHistoryService);
 	}
 
 	@Test
 	void getUserMessages() {
 		var municipalityId = "2281";
-		var userMessagesRequest = createUserMessagesRequest();
+		var userId = "userId";
+		var page = 1;
+		var limit = 15;
+
 		var userMessages = createUserMessages();
 
-		when(mockHistoryService.getUserMessages(userMessagesRequest, municipalityId)).thenReturn(userMessages);
+		when(mockHistoryService.getUserMessages(municipalityId, userId, page, limit)).thenReturn(userMessages);
 
 		webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(userMessagesRequest.getPage(), userMessagesRequest.getLimit(), userMessagesRequest.getUserId()))
-				.build(Map.of("municipalityId", municipalityId)))
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectHeader().contentType(APPLICATION_JSON)
 			.expectBody(UserMessages.class)
 			.isEqualTo(userMessages);
 
-		verify(mockHistoryService).getUserMessages(userMessagesRequest, municipalityId);
+		verify(mockHistoryService).getUserMessages(municipalityId, userId, page, limit);
 		verifyNoMoreInteractions(mockHistoryService);
 	}
 
 	@Test
-	void getAttachment() {
-		var municipalityId = "2281";
-		var messageId = UUID.randomUUID().toString();
-		var fileName = "fileName";
-		var attachment = createAttachment();
+	void readAttachment() {
 
-		when(mockHistoryService.getAttachment(municipalityId, messageId, fileName)).thenReturn(attachment);
-
-		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
-				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
-			.exchange()
-			.expectStatus().isOk()
-			.expectHeader().contentType(APPLICATION_JSON)
-			.expectBody(Attachment.class)
-			.isEqualTo(attachment);
-
-		verify(mockHistoryService).getAttachment(municipalityId, messageId, fileName);
-		verifyNoMoreInteractions(mockHistoryService);
 	}
 
-
-	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit, final String userId) {
+	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 
 		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
 		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
-		ofNullable(userId).ifPresent(p -> parameters.add("userId", p));
 
 		return parameters;
 	}

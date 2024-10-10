@@ -34,6 +34,7 @@ class UserMessageTest {
 		assertThat(bean.sent()).isEqualTo(SENT);
 		assertThat(bean.recipients()).isEqualTo(RECIPIENTS);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "recipients", "attachments");
 	}
 
 	@Test
@@ -54,6 +55,7 @@ class UserMessageTest {
 		assertThat(bean.sent()).isEqualTo(SENT);
 		assertThat(bean.recipients()).isEqualTo(RECIPIENTS);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "recipients", "attachments");
 	}
 
 	@Test
@@ -63,6 +65,7 @@ class UserMessageTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
+		assertThat(bean).hasOnlyFields("personId", "messageType");
 	}
 
 	@Test
@@ -75,6 +78,7 @@ class UserMessageTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
+		assertThat(bean).hasOnlyFields("personId", "messageType");
 	}
 
 	@Test
@@ -84,6 +88,7 @@ class UserMessageTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
 		assertThat(bean.fileName()).isEqualTo(FILE_NAME);
+		assertThat(bean).hasOnlyFields("contentType", "fileName");
 	}
 
 	@Test
@@ -96,6 +101,7 @@ class UserMessageTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
 		assertThat(bean.fileName()).isEqualTo(FILE_NAME);
+		assertThat(bean).hasOnlyFields("contentType", "fileName");
 	}
 
 	@Test

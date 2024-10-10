@@ -19,27 +19,29 @@ class UserMessagesTest {
 
 	@Test
 	void userMessagesConstructor() {
-		var attachment = new UserMessages(PAGING_META_DATA, USER_MESSAGES);
+		var userMessages = new UserMessages(PAGING_META_DATA, USER_MESSAGES);
 
-		assertThat(attachment).isNotNull().hasNoNullFieldsOrProperties();
-		assertThat(attachment.metaData()).isEqualTo(PAGING_META_DATA);
-		assertThat(attachment.messages()).isEqualTo(USER_MESSAGES);
+		assertThat(userMessages).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(userMessages.metaData()).isEqualTo(PAGING_META_DATA);
+		assertThat(userMessages.messages()).isEqualTo(USER_MESSAGES);
+		assertThat(userMessages).hasOnlyFields("metaData", "messages");
 	}
 
 	@Test
 	void userMessagesBuilder() {
-		var attachment = UserMessages.builder()
+		var userMessages = UserMessages.builder()
 			.withMetaData(PAGING_META_DATA)
 			.withMessages(USER_MESSAGES)
 			.build();
 
-		assertThat(attachment).isNotNull().hasNoNullFieldsOrProperties();
-		assertThat(attachment.metaData()).isEqualTo(PAGING_META_DATA);
-		assertThat(attachment.messages()).isEqualTo(USER_MESSAGES);
+		assertThat(userMessages).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(userMessages.metaData()).isEqualTo(PAGING_META_DATA);
+		assertThat(userMessages.messages()).isEqualTo(USER_MESSAGES);
+		assertThat(userMessages).hasOnlyFields("metaData", "messages");
 	}
 
 	@Test
 	void testNoDirtOnEmptyBean() {
-		assertThat(Attachment.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(UserMessages.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

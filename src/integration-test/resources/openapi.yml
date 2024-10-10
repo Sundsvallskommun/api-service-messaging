@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "5.2"
 servers:
-  - url: http://localhost:60733
+  - url: http://localhost:62556
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -64,15 +64,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -84,6 +75,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -145,15 +145,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -165,6 +156,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -219,15 +219,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -239,6 +230,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -300,15 +300,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -320,6 +311,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -381,15 +381,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -401,6 +392,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -462,15 +462,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -482,6 +473,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -543,15 +543,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -563,6 +554,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -617,15 +617,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -637,6 +628,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -698,15 +698,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageBatchResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -718,6 +709,15 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -779,15 +779,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/MessageResult"
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -806,18 +797,22 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/users/messages:
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/users/{userId}/messages:
     get:
       tags:
         - Status and History Resources
-      summary: Get messages sent by a user
+      summary: Get historical messages sent by a user
       operationId: getUserMessages
       parameters:
-        - name: request
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/UserMessagesRequest"
         - name: municipalityId
           in: path
           description: Municipality id
@@ -825,7 +820,32 @@ paths:
           schema:
             type: string
           example: 2281
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: page
+          in: query
+          description: Which page to fetch
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+          example: 1
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserMessages"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/UserMessages"
         "500":
           description: Internal Server Error
           content:
@@ -848,15 +868,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserMessages"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/UserMessages"
   /{municipalityId}/status/message/{messageId}:
     get:
       tags:
@@ -887,6 +898,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
         "500":
           description: Internal Server Error
           content:
@@ -909,15 +929,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MessageResult"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/MessageResult"
   /{municipalityId}/status/delivery/{deliveryId}:
     get:
       tags:
@@ -948,6 +959,15 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliveryResult"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/DeliveryResult"
         "500":
           description: Internal Server Error
           content:
@@ -970,15 +990,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DeliveryResult"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/DeliveryResult"
   /{municipalityId}/status/batch/{batchId}:
     get:
       tags:
@@ -1000,6 +1011,24 @@ paths:
             type: string
             format: uuid
       responses:
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageBatchResult"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/MessageBatchResult"
         "500":
           description: Internal Server Error
           content:
@@ -1022,15 +1051,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MessageBatchResult"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/MessageBatchResult"
   /{municipalityId}/statistics:
     get:
       tags:
@@ -1076,6 +1096,15 @@ paths:
             type: string
             format: date
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistics"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Statistics"
         "500":
           description: Internal Server Error
           content:
@@ -1098,15 +1127,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Statistics"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Statistics"
   /{municipalityId}/statistics/departments/{department}:
     get:
       tags:
@@ -1148,6 +1168,19 @@ paths:
             type: string
             format: date
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DepartmentStatistics"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DepartmentStatistics"
         "500":
           description: Internal Server Error
           content:
@@ -1170,19 +1203,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DepartmentStatistics"
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DepartmentStatistics"
   /{municipalityId}/statistics/departments:
     get:
       tags:
@@ -1218,6 +1238,19 @@ paths:
             type: string
             format: date
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DepartmentStatistics"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DepartmentStatistics"
         "500":
           description: Internal Server Error
           content:
@@ -1240,25 +1273,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DepartmentStatistics"
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DepartmentStatistics"
   /{municipalityId}/messages/{messageId}/attachment/{fileName}:
     get:
       tags:
         - Status and History Resources
-      summary: Get attachment by messageId and fileName
-      operationId: getAttachment
+      summary: Strean attachment by messageId and fileName
+      operationId: readAttachment
       parameters:
         - name: municipalityId
           in: path
@@ -1279,6 +1299,8 @@ paths:
           schema:
             type: string
       responses:
+        "200":
+          description: Successful Operation
         "500":
           description: Internal Server Error
           content:
@@ -1301,15 +1323,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Attachment"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Attachment"
   /{municipalityId}/message/{messageId}:
     get:
       tags:
@@ -1340,6 +1353,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
         "500":
           description: Internal Server Error
           content:
@@ -1362,19 +1388,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistoryResponse"
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistoryResponse"
   /{municipalityId}/conversation-history/{partyId}:
     get:
       tags:
@@ -1410,6 +1423,19 @@ paths:
             type: string
             format: date
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
         "500":
           description: Internal Server Error
           content:
@@ -1432,19 +1458,6 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistoryResponse"
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistoryResponse"
   /api-docs:
     get:
       tags:
@@ -1553,11 +1566,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     DeliveryResult:
       type: object
       properties:
@@ -2259,30 +2272,6 @@ components:
           description: Files
           items:
             $ref: "#/components/schemas/DigitalInvoiceFile"
-    UserMessagesRequest:
-      required:
-        - userId
-      type: object
-      properties:
-        page:
-          minimum: 1
-          type: integer
-          description: Page number
-          format: int32
-          example: 1
-          default: 1
-        limit:
-          minimum: 1
-          type: integer
-          description: Result size per page. Maximum allowed value is dynamically
-            configured
-          format: int32
-          example: 15
-        userId:
-          type: string
-          description: The user identifier
-          example: and06sod
-      description: User messages request
     ConstraintViolationProblem:
       type: object
       properties:
@@ -2614,21 +2603,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DepartmentLetterStatistics"
-    Attachment:
-      type: object
-      properties:
-        contentType:
-          type: string
-          description: The attachment content type
-          example: application/pdf
-        fileName:
-          type: string
-          description: The attachment file name
-          example: attachment.pdf
-        content:
-          type: string
-          description: The attachment content
-      description: Attachment model
     HistoryResponse:
       type: object
       properties:

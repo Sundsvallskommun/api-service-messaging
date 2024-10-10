@@ -6,11 +6,12 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class HistoryServiceTest {
 
 	@Mock
 	private DbIntegration mockDbIntegration;
+
+	@Mock
+	private HttpServletResponse mockHttpServletResponse;
 
 	@InjectMocks
 	private HistoryService historyService;
@@ -108,22 +112,22 @@ class HistoryServiceTest {
 	@Test
 	void getUserMessages() {
 		var municipalityId = "2281";
-		var request = createUserMessagesRequest();
+		var userId = "userId";
+		var page = 1;
+		var limit = 15;
 
-		var result = historyService.getUserMessages(request, municipalityId);
+		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
 
 		assertThat(result).isNull();
 	}
 
 	@Test
-	void getAttachment() {
-		var municipalityId = "2281";
+	void streamAttachment() {
+		var municipalityId = "municipalityId";
 		var messageId = "messageId";
 		var fileName = "fileName";
 
-		var result = historyService.getAttachment(municipalityId, messageId, fileName);
-
-		assertThat(result).isNull();
+		historyService.streamAttachment(municipalityId, messageId, fileName, mockHttpServletResponse);
 	}
 
 }

@@ -20,43 +20,44 @@ import se.sundsvall.dept44.ServiceApplication;
 import se.sundsvall.messaging.Application;
 
 @AnalyzeClasses(
-    packagesOf = Application.class,
-    importOptions = ImportOption.DoNotIncludeTests.class
+	packagesOf = Application.class,
+	importOptions = ImportOption.DoNotIncludeTests.class
 )
 class GeneralArchTest {
 
-    @ArchTest
-    static final ArchRule verifyThatApplicationClassIsAnnotatedWithServiceApplication =
-        theClass(Application.class)
-            .should()
-                .beAnnotatedWith(ServiceApplication.class);
+	@ArchTest
+	static final ArchRule verifyThatApplicationClassIsAnnotatedWithServiceApplication =
+		theClass(Application.class)
+			.should()
+			.beAnnotatedWith(ServiceApplication.class);
 
-    @ArchTest
-    static final ArchRule verifyThatNoFieldAutowiringIsUsed =
-        classes()
-            .that()
-                .containAnyFieldsThat(describe(
-                    "are annotated with @Autowired",
-                    field -> field.tryGetAnnotationOfType(Autowired.class).isPresent()))
-            .should()
-                .containNumberOfElements(equalTo(0))
-                .allowEmptyShould(true);
+	@ArchTest
+	static final ArchRule verifyThatNoFieldAutowiringIsUsed =
+		classes()
+			.that()
+			.containAnyFieldsThat(describe(
+				"are annotated with @Autowired",
+				field -> field.tryGetAnnotationOfType(Autowired.class).isPresent()))
+			.should()
+			.containNumberOfElements(equalTo(0))
+			.allowEmptyShould(true);
 
-    @ArchTest
-    static final ArchRule verifyApiEndpointMethodsAlwaysReturnResponseEntity =
-        methods()
-            .that()
-                .areDeclaredInClassesThat().areAnnotatedWith(RestController.class).and()
-                .areAnnotatedWith(GetMapping.class).or()
-                .areAnnotatedWith(PostMapping.class)
-            .should()
-                .haveRawReturnType(ResponseEntity.class);
+	@ArchTest
+	static final ArchRule verifyApiEndpointMethodsAlwaysReturnResponseEntity =
+		methods()
+			.that()
+			.areDeclaredInClassesThat().areAnnotatedWith(RestController.class).and()
+			.areAnnotatedWith(GetMapping.class).or()
+			.areAnnotatedWith(PostMapping.class)
+			.should()
+			.haveRawReturnType(ResponseEntity.class)
+			.orShould().haveRawReturnType(void.class);
 
-    @ArchTest
-    static final ArchRule verifyAllDtosAreRecords =
-        classes()
-            .that()
-                .haveSimpleNameEndingWith("Dto")
-            .should()
-                .beRecords();
+	@ArchTest
+	static final ArchRule verifyAllDtosAreRecords =
+		classes()
+			.that()
+			.haveSimpleNameEndingWith("Dto")
+			.should()
+			.beRecords();
 }
