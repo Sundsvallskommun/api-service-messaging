@@ -29,7 +29,7 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @UnitTest
 @Sql(scripts = {
 	"/db/scripts/truncate.sql",
-	"/db/scripts/testdata.sql"
+	"/db/scripts/testdata-ut.sql"
 })
 class StatisticsRepositoryTest {
 

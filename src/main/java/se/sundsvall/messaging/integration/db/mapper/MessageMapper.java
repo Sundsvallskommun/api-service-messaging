@@ -21,6 +21,7 @@ public class MessageMapper {
 			.withStatus(messageEntity.getStatus())
 			.withContent(messageEntity.getContent())
 			.withOrigin(messageEntity.getOrigin())
+			.withIssuer(messageEntity.getIssuer())
 			.build()).orElse(null);
 	}
 
@@ -36,6 +37,7 @@ public class MessageMapper {
 			.withStatus(message.status())
 			.withContent(message.content())
 			.withOrigin(message.origin())
+			.withIssuer(message.issuer())
 			.build()).orElse(null);
 	}
 

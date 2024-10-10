@@ -5,11 +5,12 @@ import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
 
 import java.util.List;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
+import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class WebMessageSenderIntegrationMapperTest {
@@ -23,18 +24,25 @@ class WebMessageSenderIntegrationMapperTest {
 
 	@Test
 	void test_toCreateWebMessageRequest() {
-		var dto = WebMessageDto.builder()
+		final var dto = WebMessageDto.builder()
 			.withPartyId("somePartyId")
 			.withExternalReferences(List.of(createExternalReference()))
 			.withMessage("someMessage")
 			.withOepInstance("internal")
+			.withAttachments(List.of(WebMessageDto.Attachment.builder()
+				.withBase64Data("someData")
+				.withFileName("someFilename")
+				.withMimeType("someMimeType")
+				.build()))
 			.build();
 
-		var mappedRequest = mapper.toCreateWebMessageRequest(dto);
+		final var mappedRequest = mapper.toCreateWebMessageRequest(dto);
 
 		assertThat(mappedRequest.getPartyId()).isEqualTo(dto.partyId());
 		assertThat(mappedRequest.getOepInstance()).isEqualTo(CreateWebMessageRequest.OepInstanceEnum.fromValue(dto.oepInstance()));
 		assertThat(mappedRequest.getExternalReferences()).hasSameSizeAs(dto.externalReferences());
 		assertThat(mappedRequest.getMessage()).isEqualTo(dto.message());
+		assertThat(mappedRequest.getAttachments()).hasSize(1).extracting(Attachment::getBase64Data, Attachment::getFileName, Attachment::getMimeType)
+			.containsExactly(Tuple.tuple("someData", "someFilename", "someMimeType"));
 	}
 }

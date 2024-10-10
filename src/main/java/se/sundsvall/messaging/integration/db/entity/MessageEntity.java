@@ -11,10 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +19,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 @Entity
 @Table(name = "messages")
@@ -74,13 +72,17 @@ public class MessageEntity {
 	@Column(name = "origin")
 	private String origin;
 
+	@With
+	@Column(name = "issuer")
+	private String issuer;
+
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
 	@Column(name = "municipality_id")
 	private String municipalityId;
 
-	@Generated  // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
+	@Generated // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
 	@PrePersist
 	void prePersist() {
 		createdAt = LocalDateTime.now();

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import com.google.gson.JsonParser;
 
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 
@@ -29,21 +28,10 @@ public final class HistoryMapper {
 			.withStatus(historyEntity.getStatus())
 			.withContent(historyEntity.getContent())
 			.withCreatedAt(historyEntity.getCreatedAt())
+			.withOrigin(historyEntity.getOrigin())
+			.withIssuer(historyEntity.getIssuer())
 			.withMunicipalityId(historyEntity.getMunicipalityId())
 			.build()).orElse(null);
-	}
-
-	public static History mapToHistory(final StatsEntry statsEntry) {
-		if (null == statsEntry) {
-			return null;
-		}
-
-		return History.builder()
-			.withMessageType(statsEntry.messageType())
-			.withOriginalMessageType(statsEntry.originalMessageType())
-			.withStatus(statsEntry.status())
-			.withMunicipalityId(statsEntry.municipalityId())
-			.build();
 	}
 
 	public static HistoryEntity mapToHistoryEntity(final Message message, final String statusDetail) {
@@ -58,6 +46,7 @@ public final class HistoryMapper {
 			.withStatusDetail(statusDetail)
 			.withContent(message.content())
 			.withOrigin(message.origin())
+			.withIssuer(message.issuer())
 			.withDepartment(toDepartment(message.content()))
 			.withCreatedAt(LocalDateTime.now())
 			.withMunicipalityId(message.municipalityId())
