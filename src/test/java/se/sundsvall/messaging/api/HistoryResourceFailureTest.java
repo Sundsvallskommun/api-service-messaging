@@ -14,7 +14,6 @@ import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.TestDataFactory.createUserMessagesRequest;
 
 import java.util.Map;
 import java.util.UUID;
