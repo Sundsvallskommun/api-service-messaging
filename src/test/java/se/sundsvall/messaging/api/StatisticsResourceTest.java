@@ -31,7 +31,7 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest
-public class StatisticsResourceTest {
+class StatisticsResourceTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
 
