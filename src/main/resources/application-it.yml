@@ -9,7 +9,7 @@ spring:
 
   sql:
     init:
-      data-locations: classpath:db/scripts/truncate.sql, classpath:db/scripts/testdata.sql
+      data-locations: classpath:db/scripts/truncate.sql, classpath:db/scripts/testdata-it.sql
       encoding: utf-8
       mode: always
 

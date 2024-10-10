@@ -15,6 +15,8 @@ public record History(
 	MessageType originalMessageType,
 	MessageStatus status,
 	String content,
+	String origin,
+	String issuer,
 	LocalDateTime createdAt,
 	String municipalityId) {
 

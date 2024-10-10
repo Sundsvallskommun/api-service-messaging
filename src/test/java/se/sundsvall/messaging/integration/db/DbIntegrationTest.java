@@ -53,17 +53,17 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getMessageByDeliveryId("someDeliveryId")).isPresent();
 
-		verify(mockMessageRepository).findByDeliveryId(any(String.class));
+		verify(mockMessageRepository).findByDeliveryId("someDeliveryId");
 	}
 
 	@Test
 	void getLatestMessagesWithStatus() {
-		when(mockMessageRepository.findLatestWithStatus(any(MessageStatus.class)))
+		when(mockMessageRepository.findByStatusOrderByCreatedAtAsc(any(MessageStatus.class)))
 			.thenReturn(List.of(MessageEntity.builder().build(), MessageEntity.builder().build()));
 
 		assertThat(dbIntegration.getLatestMessagesWithStatus(PENDING)).hasSize(2);
 
-		verify(mockMessageRepository).findLatestWithStatus(any(MessageStatus.class));
+		verify(mockMessageRepository).findByStatusOrderByCreatedAtAsc(PENDING);
 	}
 
 	@Test
@@ -90,7 +90,7 @@ class DbIntegrationTest {
 
 		dbIntegration.deleteMessageByDeliveryId("someDeliveryId");
 
-		verify(mockMessageRepository).deleteByDeliveryId(any(String.class));
+		verify(mockMessageRepository).deleteByDeliveryId("someDeliveryId");
 	}
 
 	@Test
@@ -100,7 +100,7 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getHistoryByMunicipalityIdAndMessageId("someMunicipalityId", "someMessageId")).hasSize(2);
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndMessageId(any(String.class), any(String.class));
+		verify(mockHistoryRepository).findByMunicipalityIdAndMessageId("someMunicipalityId", "someMessageId");
 	}
 
 	@Test
@@ -110,7 +110,7 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getHistoryByMunicipalityIdAndBatchId("someMunicipalityId", "someBatchId")).hasSize(2);
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndBatchId(any(String.class), any(String.class));
+		verify(mockHistoryRepository).findByMunicipalityIdAndBatchId("someMunicipalityId", "someBatchId");
 	}
 
 	@Test
@@ -120,7 +120,7 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getHistoryByMunicipalityIdAndDeliveryId("someMunicipalityId", "somDeliveryId")).contains(History.builder().build());
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndDeliveryId(any(String.class), any(String.class));
+		verify(mockHistoryRepository).findByMunicipalityIdAndDeliveryId("someMunicipalityId", "somDeliveryId");
 	}
 
 	@Test
@@ -130,8 +130,7 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getHistory(null, null, null, null)).hasSize(2);
 
-		verify(mockHistoryRepository)
-			.findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
+		verify(mockHistoryRepository).findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
 	}
 
 	@Test
