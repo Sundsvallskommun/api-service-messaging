@@ -9,10 +9,12 @@ import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
@@ -26,6 +28,8 @@ import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.UserMessage;
+import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
@@ -398,6 +402,33 @@ public final class TestDataFactory {
 			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
 			.withHtmlMessage("someHtmlMessage")
 			.withSubject("someSubject")
+			.build();
+	}
+
+	public static UserMessage createUserMessage() {
+		return UserMessage.builder()
+			.withSent(LocalDateTime.now())
+			.withRecipients(List.of())
+			.withAttachments(List.of())
+			.withOrigin("someOrigin")
+			.withIssuer("someIssuer")
+			.withMessageId("someMessageId")
+			.build();
+	}
+
+	public static PagingMetaData createPagingMetaData() {
+		return new PagingMetaData()
+			.withPage(1)
+			.withLimit(10)
+			.withCount(10)
+			.withTotalRecords(100)
+			.withTotalPages(10);
+	}
+
+	public static UserMessages createUserMessages() {
+		return UserMessages.builder()
+			.withMetaData(createPagingMetaData())
+			.withMessages(List.of(createUserMessage(), createUserMessage()))
 			.build();
 	}
 

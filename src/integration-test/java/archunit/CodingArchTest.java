@@ -23,51 +23,53 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.messaging.Application;
 
 @AnalyzeClasses(
-    packagesOf = Application.class,
-    importOptions = ImportOption.DoNotIncludeTests.class
+	packagesOf = Application.class,
+	importOptions = ImportOption.DoNotIncludeTests.class
 )
 class CodingArchTest {
 
-    @ArchTest
-    static ArchRule noClassesShouldUseStandardStreams = NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
+	@ArchTest
+	static ArchRule noClassesShouldUseStandardStreams = NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;
 
-    @ArchTest
-    static ArchRule noClassesShouldThrowGenericExceptions = NO_CLASSES_SHOULD_THROW_GENERIC_EXCEPTIONS;
+	@ArchTest
+	static ArchRule noClassesShouldThrowGenericExceptions = NO_CLASSES_SHOULD_THROW_GENERIC_EXCEPTIONS;
 
-    @ArchTest
-    static ArchRule noClassesShouldUseJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+	@ArchTest
+	static ArchRule noClassesShouldUseJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 
-    @ArchTest
-    private final ArchRule allLoggersShouldBePrivateStaticFinal =
-        fields()
-            .that()
-                .haveRawType(Logger.class)
-            .should()
-                .bePrivate()
-            .andShould()
-                .beStatic()
-            .andShould()
-                .beFinal();
+	@ArchTest
+	private final ArchRule allLoggersShouldBePrivateStaticFinal =
+		fields()
+			.that()
+			.haveRawType(Logger.class)
+			.should()
+			.bePrivate()
+			.andShould()
+			.beStatic()
+			.andShould()
+			.beFinal();
 
-    @ArchTest
-    private final ArchRule noClassesShouldUseFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
+	@ArchTest
+	private final ArchRule noClassesShouldUseFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
-    @ArchTest
-    static ArchRule allExposedApiMethodsShouldReturnResponseEntities =
-        methods()
-            .that()
-                .areDeclaredInClassesThat()
-                    .areAnnotatedWith(RestController.class)
-                .and()
-                    .areAnnotatedWith(GetMapping.class)
-                .or()
-                    .areAnnotatedWith(PostMapping.class)
-                .or()
-                    .areAnnotatedWith(PutMapping.class)
-                .or()
-                    .areAnnotatedWith(PatchMapping.class)
-                .or()
-                    .areAnnotatedWith(DeleteMapping.class)
-            .should()
-                .haveRawReturnType(ResponseEntity.class);
+	@ArchTest
+	static ArchRule allExposedApiMethodsShouldReturnResponseEntities =
+		methods()
+			.that()
+			.areDeclaredInClassesThat()
+			.areAnnotatedWith(RestController.class)
+			.and()
+			.areAnnotatedWith(GetMapping.class)
+			.or()
+			.areAnnotatedWith(PostMapping.class)
+			.or()
+			.areAnnotatedWith(PutMapping.class)
+			.or()
+			.areAnnotatedWith(PatchMapping.class)
+			.or()
+			.areAnnotatedWith(DeleteMapping.class)
+			.should()
+			.haveRawReturnType(ResponseEntity.class)
+			.orShould()
+			.haveRawReturnType(void.class);
 }

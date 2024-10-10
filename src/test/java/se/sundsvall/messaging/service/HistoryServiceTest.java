@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +29,9 @@ class HistoryServiceTest {
 
 	@Mock
 	private DbIntegration mockDbIntegration;
+
+	@Mock
+	private HttpServletResponse mockHttpServletResponse;
 
 	@InjectMocks
 	private HistoryService historyService;
@@ -102,6 +107,27 @@ class HistoryServiceTest {
 
 		verify(mockDbIntegration, times(1))
 			.getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
+	}
+
+	@Test
+	void getUserMessages() {
+		var municipalityId = "2281";
+		var userId = "userId";
+		var page = 1;
+		var limit = 15;
+
+		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
+
+		assertThat(result).isNull();
+	}
+
+	@Test
+	void streamAttachment() {
+		var municipalityId = "municipalityId";
+		var messageId = "messageId";
+		var fileName = "fileName";
+
+		historyService.streamAttachment(municipalityId, messageId, fileName, mockHttpServletResponse);
 	}
 
 }
