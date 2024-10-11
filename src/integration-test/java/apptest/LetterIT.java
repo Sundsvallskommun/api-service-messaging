@@ -30,9 +30,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
 class LetterIT extends AbstractMessagingAppTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/letter";
-	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -44,8 +42,9 @@ class LetterIT extends AbstractMessagingAppTest {
 	void test1_successfulRequestByDigital() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", ORIGIN)
-			.withRequest("request.json")
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -81,6 +80,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getMessageType()).isEqualTo(DIGITAL_MAIL);
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+				assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 				return true;
 			});
 	}
@@ -89,7 +89,7 @@ class LetterIT extends AbstractMessagingAppTest {
 	void test2_ErrorFromDigital_SuccessfulSnailMail() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -127,6 +127,7 @@ class LetterIT extends AbstractMessagingAppTest {
 					.containsExactlyInAnyOrder(DIGITAL_MAIL, SNAIL_MAIL);
 				assertThat(history).extracting(HistoryEntity::getOriginalMessageType).containsOnly(LETTER);
 				assertThat(history).extracting(HistoryEntity::getOrigin).containsOnlyNulls();
+				assertThat(history).extracting(HistoryEntity::getIssuer).containsOnlyNulls();
 
 				return true;
 			});
@@ -136,7 +137,7 @@ class LetterIT extends AbstractMessagingAppTest {
 	void test3_ErrorFromDigital_ErrorFromSnailMail() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY);
 	}

@@ -44,14 +44,12 @@ class MessageRepositoryTest {
 			assertThat(entity.getStatus()).isEqualTo(SENT);
 			assertThat(entity.getMunicipalityId()).isEqualTo("2281");
 		});
-
 	}
 
 	@Test
 	void findByDeliveryIdWhenNoMatch() {
 		// Act and assert
 		assertThat(messageRepository.findByDeliveryId(NON_EXISTING_ID)).isEmpty();
-
 	}
 
 	@Test

@@ -26,9 +26,9 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/MessagesIT/", classes = Application.class)
 class MessagesIT extends AbstractMessagingAppTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/messages";
-	private static final String ORIGIN = "Test-origin";
+	private static final String BATCH_ID = "batchId";
+	private static final String MESSAGE_ID = "messageId";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -40,8 +40,9 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest_bySms() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", ORIGIN)
-			.withRequest("request.json")
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -70,10 +71,11 @@ class MessagesIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
+						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
@@ -84,7 +86,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test2_successfulRequest_byEmail() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -113,10 +115,11 @@ class MessagesIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
+						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isNull();
+						assertThat(historyEntry.getIssuer()).isNull();
 					});
 
 				return true;
@@ -127,7 +130,8 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test3_noContactSettingsFound() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withHeader(HEADER_ISSUER, ISSUER)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -156,9 +160,11 @@ class MessagesIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
+						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_SETTINGS_FOUND);
+						assertThat(historyEntry.getOrigin()).isNull();
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
@@ -169,7 +175,8 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test4_noContactWanted() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -197,9 +204,11 @@ class MessagesIT extends AbstractMessagingAppTest {
 				// Make sure that there exists a history entry with the correct id and status
 				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull().allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
+						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_WANTED);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isNull();
 					});
 
 				return true;
@@ -210,7 +219,9 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test5_successfulRequest_byBothSmsAndEmail() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -242,13 +253,14 @@ class MessagesIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
 					.isNotNull()
 					.allSatisfy(historyEntry -> {
-						assertThat(historyEntry.getBatchId()).as("batchId").isEqualTo(batchId);
-						assertThat(historyEntry.getMessageId()).as("messageId").isEqualTo(messageId);
+						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
+						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
 			});
 	}
-
 }

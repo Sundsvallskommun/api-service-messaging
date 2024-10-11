@@ -1273,7 +1273,7 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-  /{municipalityId}/messages/{messageId}/attachment/{fileName}:
+  /{municipalityId}/messages/{messageId}/attachments/{fileName}:
     get:
       tags:
         - Status and History Resources

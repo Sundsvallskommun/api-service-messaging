@@ -66,7 +66,7 @@ public class MessageEventDispatcher {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(request.origin(), batchId, message).withMunicipalityId(municipalityId))
+			.map(message -> messageMapper.toMessage(request.origin(), request.issuer(), batchId, message).withMunicipalityId(municipalityId))
 			.map(dbIntegration::saveMessage)
 			.toList();
 
@@ -149,8 +149,7 @@ public class MessageEventDispatcher {
 
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message ->
-			message.withMunicipalityId(municipalityId)).toList());
+		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message -> message.withMunicipalityId(municipalityId)).toList());
 
 		final var deliveries = messages.stream()
 			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
@@ -174,8 +173,7 @@ public class MessageEventDispatcher {
 
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message ->
-			message.withMunicipalityId(municipalityId)).toList());
+		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message -> message.withMunicipalityId(municipalityId)).toList());
 
 		final var deliveries = messages.stream()
 			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))

@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +35,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -179,7 +180,7 @@ public class MessageService {
 
 		final var batchId = UUID.randomUUID().toString();
 		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(request.origin(), batchId, message))
+			.map(message -> messageMapper.toMessage(request.origin(), request.issuer(), batchId, message))
 			.map(dbIntegration::saveMessage)
 			.toList();
 
@@ -411,20 +412,13 @@ public class MessageService {
 
 		// Get the try call to start out with
 		final var sendTry = switch (delivery.type()) {
-			case SMS ->
-				ofCallable(() -> smsSender.sendSms(municipalityId, dtoMapper.toSmsDto((SmsRequest) request)));
-			case EMAIL ->
-				ofCallable(() -> emailSender.sendEmail(municipalityId, dtoMapper.toEmailDto((EmailRequest) request)));
-			case DIGITAL_MAIL ->
-				ofCallable(() -> digitalMailSender.sendDigitalMail(municipalityId, dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
-			case DIGITAL_INVOICE ->
-				ofCallable(() -> digitalMailSender.sendDigitalInvoice(municipalityId, dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
-			case WEB_MESSAGE ->
-				ofCallable(() -> webMessageSender.sendWebMessage(municipalityId, dtoMapper.toWebMessageDto((WebMessageRequest) request)));
-			case SNAIL_MAIL ->
-				ofCallable(() -> snailmailSender.sendSnailMail(municipalityId, dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
-			case SLACK ->
-				ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
+			case SMS -> ofCallable(() -> smsSender.sendSms(municipalityId, dtoMapper.toSmsDto((SmsRequest) request)));
+			case EMAIL -> ofCallable(() -> emailSender.sendEmail(municipalityId, dtoMapper.toEmailDto((EmailRequest) request)));
+			case DIGITAL_MAIL -> ofCallable(() -> digitalMailSender.sendDigitalMail(municipalityId, dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
+			case DIGITAL_INVOICE -> ofCallable(() -> digitalMailSender.sendDigitalInvoice(municipalityId, dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
+			case WEB_MESSAGE -> ofCallable(() -> webMessageSender.sendWebMessage(municipalityId, dtoMapper.toWebMessageDto((WebMessageRequest) request)));
+			case SNAIL_MAIL -> ofCallable(() -> snailmailSender.sendSnailMail(municipalityId, dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
+			case SLACK -> ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
 
