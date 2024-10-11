@@ -12,16 +12,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 @Entity
 @Table(name = "history", indexes = {
@@ -29,8 +27,9 @@ import lombok.NoArgsConstructor;
 	@Index(name = "idx_history_message_id", columnList = "message_id"),
 	@Index(name = "idx_history_delivery_id", columnList = "delivery_id"),
 	@Index(name = "idx_history_origin", columnList = "origin"),
+	@Index(name = "idx_history_issuer", columnList = "issuer"),
 	@Index(name = "idx_history_department", columnList = "department"),
-	@Index(name = "idx_history_municipality_id", columnList = "municipality_id")})
+	@Index(name = "idx_history_municipality_id", columnList = "municipality_id") })
 @Getter
 @Builder(setterPrefix = "with")
 @NoArgsConstructor
@@ -75,6 +74,9 @@ public class HistoryEntity {
 	@Column(name = "origin")
 	private String origin;
 
+	@Column(name = "issuer")
+	private String issuer;
+
 	@Column(name = "department")
 	private String department;
 
@@ -84,7 +86,7 @@ public class HistoryEntity {
 	@Column(name = "municipality_id")
 	private String municipalityId;
 
-	@Generated  // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
+	@Generated // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
 	@PrePersist
 	void prePersist() {
 		createdAt = LocalDateTime.now();

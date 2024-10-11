@@ -52,7 +52,7 @@ public class DbIntegration {
 
 	@Transactional(readOnly = true)
 	public List<MessageEntity> getLatestMessagesWithStatus(final MessageStatus status) {
-		return messageRepository.findLatestWithStatus(status);
+		return messageRepository.findByStatusOrderByCreatedAtAsc(status);
 	}
 
 	public Message saveMessage(final Message message) {

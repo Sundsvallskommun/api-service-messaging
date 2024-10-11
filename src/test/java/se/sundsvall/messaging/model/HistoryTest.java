@@ -20,10 +20,12 @@ class HistoryTest {
 	private static final String CONTENT = "content";
 	private static final LocalDateTime CREATED_AT = LocalDateTime.now();
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String ORIGIN = "origin";
+	private static final String ISSUER = "issuer";
 
 	@Test
 	void testConstructor() {
-		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS, CONTENT, CREATED_AT, MUNICIPALITY_ID);
+		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS, CONTENT, ORIGIN, ISSUER, CREATED_AT, MUNICIPALITY_ID);
 
 		assertBean(bean);
 	}
@@ -35,9 +37,11 @@ class HistoryTest {
 			.withContent(CONTENT)
 			.withCreatedAt(CREATED_AT)
 			.withDeliveryId(DELIVERY_ID)
+			.withIssuer(ISSUER)
 			.withMessageId(MESSAGE_ID)
 			.withMessageType(MESSAGE_TYPE)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withOrigin(ORIGIN)
 			.withOriginalMessageType(ORIGINAL_MESSAGE_TYPE)
 			.withStatus(STATUS)
 			.build();
@@ -55,6 +59,8 @@ class HistoryTest {
 		assertThat(bean.status()).isEqualTo(STATUS);
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.createdAt()).isEqualTo(CREATED_AT);
+		assertThat(bean.origin()).isEqualTo(ORIGIN);
+		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 

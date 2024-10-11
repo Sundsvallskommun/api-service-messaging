@@ -1,5 +1,4 @@
-
-    create table history (
+ create table history (
         created_at datetime(6),
         id bigint not null auto_increment,
         batch_id varchar(36),
@@ -8,6 +7,7 @@
         party_id varchar(36),
         content LONGTEXT,
         department varchar(255),
+        issuer varchar(255),
         municipality_id varchar(255),
         origin varchar(255),
         status_detail LONGTEXT,
@@ -23,6 +23,7 @@
         batch_id varchar(255),
         content LONGTEXT NOT NULL,
         delivery_id varchar(255),
+        issuer varchar(255),
         message_id varchar(255),
         municipality_id varchar(255),
         origin varchar(255),
@@ -33,20 +34,23 @@
         primary key (id)
     ) engine=InnoDB;
 
-    create index idx_history_batch_id 
+    create index idx_history_batch_id
        on history (batch_id);
 
-    create index idx_history_message_id 
+    create index idx_history_message_id
        on history (message_id);
 
-    create index idx_history_delivery_id 
+    create index idx_history_delivery_id
        on history (delivery_id);
 
-    create index idx_history_origin 
+    create index idx_history_origin
        on history (origin);
 
-    create index idx_history_department 
+    create index idx_history_issuer
+       on history (issuer);
+
+    create index idx_history_department
        on history (department);
 
-    create index idx_history_municipality_id 
+    create index idx_history_municipality_id
        on history (municipality_id);
