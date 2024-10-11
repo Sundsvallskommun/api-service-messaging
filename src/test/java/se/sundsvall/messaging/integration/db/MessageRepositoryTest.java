@@ -36,13 +36,13 @@ class MessageRepositoryTest {
 		final var deliveryId = "0cc1cd5b-1196-49e9-9dad-11cc0da77e3d";
 
 		// Act and assert
-		assertThat(messageRepository.findByDeliveryId(deliveryId)).isPresent().map(entity -> {
+
+		assertThat(messageRepository.findByDeliveryId(deliveryId)).isPresent().hasValueSatisfying(entity -> {
 			assertThat(entity.getDeliveryId()).isEqualTo(deliveryId);
 			assertThat(entity.getMessageId()).isEqualTo("b3c4bd07-8e88-4fc4-b429-d6d42b5a1a6f");
 			assertThat(entity.getBatchId()).isEqualTo("d003421e-45ea-49b4-9230-244142daa634");
 			assertThat(entity.getStatus()).isEqualTo(SENT);
 			assertThat(entity.getMunicipalityId()).isEqualTo("2281");
-			return true;
 		});
 
 	}

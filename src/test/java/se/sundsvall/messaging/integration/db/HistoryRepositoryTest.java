@@ -37,7 +37,7 @@ class HistoryRepositoryTest {
 		final var match = historyRepository.findByMunicipalityIdAndDeliveryId(municipalityId, deliveryId);
 
 		// Assert
-		assertThat(match).isPresent().map(entity -> {
+		assertThat(match).isPresent().hasValueSatisfying(entity -> {
 			assertThat(entity.getMunicipalityId()).isEqualTo(municipalityId);
 			assertThat(entity.getDeliveryId()).isEqualTo(deliveryId);
 			assertThat(entity.getBatchId()).isEqualTo("cb1af665-835f-45b8-8755-9aa2ed284292");
@@ -45,7 +45,6 @@ class HistoryRepositoryTest {
 			assertThat(entity.getMessageType()).isEqualTo(SNAIL_MAIL);
 			assertThat(entity.getOrigin()).isEqualTo("origin1");
 			assertThat(entity.getIssuer()).isEqualTo("issuer1");
-			return true;
 		});
 	}
 
