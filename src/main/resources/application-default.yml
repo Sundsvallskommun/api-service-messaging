@@ -71,3 +71,10 @@ integration:
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
+
+  # Party integration
+  party:
+    base-url: ${INTEGRATION_PARTY_BASE_URL}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}

@@ -7,12 +7,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -110,7 +112,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void getUserMessages() {
+	void getUserMessages() throws JsonProcessingException {
 		var municipalityId = "2281";
 		var userId = "userId";
 		var page = 1;
@@ -122,7 +124,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void streamAttachment() {
+	void streamAttachment() throws IOException {
 		var municipalityId = "municipalityId";
 		var messageId = "messageId";
 		var fileName = "fileName";

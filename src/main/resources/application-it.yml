@@ -76,3 +76,10 @@ integration:
     token-url: http://localhost:${wiremock.server.port}/token
     client-id: someClientId
     client-secret: someClientSecret
+
+  # Party integration
+  party:
+    base-url: http://localhost:${wiremock.server.port}/party
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret

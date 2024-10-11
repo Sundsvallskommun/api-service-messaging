@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -343,7 +344,7 @@ class HistoryResourceTest {
 	}
 
 	@Test
-	void getUserMessages() {
+	void getUserMessages() throws JsonProcessingException {
 		var municipalityId = "2281";
 		var userId = "userId";
 		var page = 1;
