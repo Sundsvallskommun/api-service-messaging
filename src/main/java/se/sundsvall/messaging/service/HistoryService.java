@@ -74,6 +74,20 @@ public class HistoryService {
 		setupResponse(response, attachment);
 	}
 
+	public UserMessages getUserMessages(final String municipalityId, final String userId, final Integer page, final Integer limit) throws JsonProcessingException {
+		var messageIdPage = dbIntegration.getUniqueMessageIds(municipalityId, userId, PageRequest.of(page - 1, limit));
+
+		return UserMessages.builder()
+			.withMessages(createUserMessages(municipalityId, messageIdPage.getContent()))
+			.withMetaData(PagingMetaData.create()
+				.withPage(messageIdPage.getNumber() + 1)
+				.withLimit(messageIdPage.getSize())
+				.withCount(messageIdPage.getNumberOfElements())
+				.withTotalRecords(messageIdPage.getTotalElements())
+				.withTotalPages(messageIdPage.getTotalPages()))
+			.build();
+	}
+
 	private String getNameField(final MessageType messageType) {
 		return messageType.equals(MessageType.SNAIL_MAIL) ? "name" : "filename";
 	}
@@ -104,31 +118,13 @@ public class HistoryService {
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
-	public UserMessages getUserMessages(final String municipalityId, final String userId, final Integer page, final Integer limit) throws JsonProcessingException {
-		var messageIdPage = dbIntegration.getUniqueMessageIds(municipalityId, userId, PageRequest.of(page - 1, limit));
-
-		return UserMessages.builder()
-			.withMessages(createUserMessages(municipalityId, messageIdPage.getContent()))
-			.withMetaData(PagingMetaData.create()
-				.withPage(messageIdPage.getNumber() + 1)
-				.withLimit(messageIdPage.getSize())
-				.withCount(messageIdPage.getNumberOfElements())
-				.withTotalRecords(messageIdPage.getTotalElements())
-				.withTotalPages(messageIdPage.getTotalPages()))
-			.build();
+	private List<UserMessage> createUserMessages(final String municipalityId, final List<String> messageIds) {
+		return messageIds.stream()
+			.map(messageId -> createUserMessage(municipalityId, messageId))
+			.toList();
 	}
 
-	private List<UserMessage> createUserMessages(final String municipalityId, final List<String> messageIds) throws JsonProcessingException {
-		List<UserMessage> userMessages = new ArrayList<>();
-
-		for (var messageId : messageIds) {
-			var userMessage = createUserMessage(municipalityId, messageId);
-			userMessages.add(userMessage);
-		}
-		return userMessages;
-	}
-
-	private UserMessage createUserMessage(final String municipalityId, final String messageId) throws JsonProcessingException {
+	private UserMessage createUserMessage(final String municipalityId, final String messageId) {
 		var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT);
 		var history = histories.getFirst();
 		var recipients = createRecipients(municipalityId, histories);
@@ -144,11 +140,16 @@ public class HistoryService {
 			.build();
 	}
 
-	private List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) throws JsonProcessingException {
+	private List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
 		List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
 		var fieldName = getNameField(history.getMessageType());
-		var jsonNode = objectMapper.readTree(history.getContent());
-		var attachmentsNode = jsonNode.get("attachments");
+		JsonNode attachmentsNode = null;
+		try {
+			var jsonNode = objectMapper.readTree(history.getContent());
+			attachmentsNode = jsonNode.get("attachments");
+		} catch (JsonProcessingException ignored) {
+
+		}
 
 		if (attachmentsNode != null && attachmentsNode.isArray()) {
 			for (var attachment : attachmentsNode) {
