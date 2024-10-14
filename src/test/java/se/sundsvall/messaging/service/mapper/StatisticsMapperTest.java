@@ -57,8 +57,7 @@ class StatisticsMapperTest {
 			// DIGITAL_MAIL
 			new StatsEntry(DIGITAL_MAIL, DIGITAL_MAIL, SENT, municipalityId),
 			// SNAIL_MAIL
-			new StatsEntry(SNAIL_MAIL, SNAIL_MAIL, FAILED, municipalityId)
-		);
+			new StatsEntry(SNAIL_MAIL, SNAIL_MAIL, FAILED, municipalityId));
 
 		final var result = toStatistics(input);
 
@@ -97,7 +96,7 @@ class StatisticsMapperTest {
 			new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin_2, department_2, municipality_id),
 			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin_2, department_2, municipality_id),
 			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin_2, department_1, municipality_id),
-			// Other
+			// Uncategorized
 			new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin_1, null, municipality_id),
 			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin_2, null, municipality_id),
 			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, municipality_id)); // No department and no origin
@@ -106,7 +105,8 @@ class StatisticsMapperTest {
 
 		assertThat(result).isNotNull().hasSize(3)
 			.extracting(DepartmentStatistics::origin, DepartmentStatistics::departmentLetters).containsExactly(
-				tuple(origin_1, List.of(DepartmentLetter.builder()
+				tuple(origin_1, List.of(
+					DepartmentLetter.builder()
 						.withDepartment(department_1)
 						.withDigitalMail(Count.builder().withSent(1).withFailed(1).build())
 						.build(),
@@ -115,10 +115,11 @@ class StatisticsMapperTest {
 						.withDigitalMail(Count.builder().withSent(0).withFailed(1).build())
 						.build(),
 					DepartmentLetter.builder()
-						.withDepartment("Other")
+						.withDepartment("Ej kategoriserad")
 						.withSnailMail(Count.builder().withSent(1).withFailed(0).build())
 						.build())),
-				tuple(origin_2, List.of(DepartmentLetter.builder()
+				tuple(origin_2, List.of(
+					DepartmentLetter.builder()
 						.withDepartment(department_1)
 						.withSnailMail(Count.builder().withSent(0).withFailed(1).build())
 						.build(),
@@ -127,13 +128,14 @@ class StatisticsMapperTest {
 						.withSnailMail(Count.builder().withSent(1).withFailed(1).build())
 						.build(),
 					DepartmentLetter.builder()
-						.withDepartment("Other")
+						.withDepartment("Ej kategoriserad")
 						.withSnailMail(Count.builder().withSent(0).withFailed(1).build())
 						.build())),
-				tuple("Other", List.of(DepartmentLetter.builder()
-					.withDepartment("Other")
-					.withDigitalMail(Count.builder().withSent(0).withFailed(1).build())
-					.build())));
+				tuple("Other", List.of(
+					DepartmentLetter.builder()
+						.withDepartment("Ej kategoriserad")
+						.withDigitalMail(Count.builder().withSent(0).withFailed(1).build())
+						.build())));
 	}
 
 	private void assertCount(final Count count, final int expectedSent, final int expectedFailed) {
