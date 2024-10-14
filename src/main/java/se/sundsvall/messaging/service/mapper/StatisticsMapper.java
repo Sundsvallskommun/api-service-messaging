@@ -30,10 +30,10 @@ import se.sundsvall.messaging.model.Statistics;
 
 public class StatisticsMapper {
 
-	static final String OTHER = "Other";
+	private static final String UNCATEGORIZED_DEPARTMENT = "Ej kategoriserad";
+	private static final String UNCATEGORIZED_ORGIN = "Other";
 
-	private StatisticsMapper() {
-	}
+	private StatisticsMapper() {}
 
 	public static Statistics toStatistics(final List<StatsEntry> stats) {
 		// "Extract" MESSAGE entries, since they require special handling
@@ -66,8 +66,7 @@ public class StatisticsMapper {
 				ofNullable(message.get(MESSAGE))
 					.map(undeliverables -> undeliverables.values().stream()
 						.mapToInt(i -> i)
-						.sum()
-					)
+						.sum())
 					.orElse(null)))
 			.withLetter(letter.isEmpty() ? null : new Statistics.Letter(
 				// Sum up SNAIL_MAIL stats
@@ -84,13 +83,13 @@ public class StatisticsMapper {
 
 	public static List<DepartmentStatistics> toDepartmentStatisticsList(final List<StatsEntry> stats, final String municipalityId) {
 
-		final var statsWithOther = stats.stream()
+		final var statsWithUncategorized = stats.stream()
 			.filter(entry -> entry.originalMessageType() == LETTER)
-			.map(entry -> isEmpty(entry.origin()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), OTHER, entry.department(), municipalityId) : entry)
-			.map(entry -> isEmpty(entry.department()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), OTHER, municipalityId) : entry)
+			.map(entry -> isEmpty(entry.origin()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), UNCATEGORIZED_ORGIN, entry.department(), municipalityId) : entry)
+			.map(entry -> isEmpty(entry.department()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), UNCATEGORIZED_DEPARTMENT, municipalityId) : entry)
 			.toList();
 
-		final var letterStats = statsWithOther.stream()
+		final var letterStats = statsWithUncategorized.stream()
 			.filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()) && isNotEmpty(entry.origin()))
 			.collect(groupingBy(StatsEntry::origin,
 				groupingBy(StatsEntry::department,
@@ -134,10 +133,10 @@ public class StatisticsMapper {
 	private static List<DepartmentStatistics> sortDepartmentStatistics(final List<DepartmentStatistics> departmentStatistics) {
 		final List<DepartmentStatistics> sortedOnOriginList = new ArrayList<>();
 		departmentStatistics.stream()
-			.filter(departmentStatistics1 -> !OTHER.equals(departmentStatistics1.origin()))
+			.filter(departmentStatistics1 -> !UNCATEGORIZED_DEPARTMENT.equals(departmentStatistics1.origin()))
 			.forEach(sortedOnOriginList::add);
 		departmentStatistics.stream()
-			.filter(departmentStatistics1 -> OTHER.equals(departmentStatistics1.origin()))
+			.filter(departmentStatistics1 -> UNCATEGORIZED_DEPARTMENT.equals(departmentStatistics1.origin()))
 			.forEach(sortedOnOriginList::add);
 
 		final List<DepartmentStatistics> sortedList = new ArrayList<>();
@@ -153,10 +152,10 @@ public class StatisticsMapper {
 	private static List<DepartmentLetter> sortDepartmentLetters(final List<DepartmentLetter> departmentLetters) {
 		final List<DepartmentLetter> sortedOnDepartmentList = new ArrayList<>();
 		departmentLetters.stream()
-			.filter(departmentLetter -> !OTHER.equals(departmentLetter.department()))
+			.filter(departmentLetter -> !UNCATEGORIZED_DEPARTMENT.equals(departmentLetter.department()))
 			.forEach(sortedOnDepartmentList::add);
 		departmentLetters.stream()
-			.filter(departmentLetter -> OTHER.equals(departmentLetter.department()))
+			.filter(departmentLetter -> UNCATEGORIZED_DEPARTMENT.equals(departmentLetter.department()))
 			.forEach(sortedOnDepartmentList::add);
 
 		return sortedOnDepartmentList;

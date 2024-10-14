@@ -50,7 +50,7 @@
 				}
 			},
 			{
-				"DEPARTMENT": "Other",
+				"DEPARTMENT": "Ej kategoriserad",
 				"SNAIL_MAIL": {
 					"sent": 1,
 					"failed": 2
