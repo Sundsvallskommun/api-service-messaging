@@ -181,8 +181,7 @@ class HistoryServiceTest {
 		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
 
 		var result = spy.getUserMessages(municipalityId, userId, page, limit);
-
-		assertThat(result).isNotNull();
+		
 		assertThat(result).isNotNull().satisfies(userMessages -> {
 			assertThat(userMessages.messages()).isEqualTo(userMessageList);
 			assertThat(userMessages.metaData().getPage()).isEqualTo(1);
@@ -193,7 +192,7 @@ class HistoryServiceTest {
 		});
 		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), pageRequestCaptor.capture());
 		var pageRequest = pageRequestCaptor.getValue();
-		assertThat(pageRequest.getPageNumber()).isEqualTo(0);
+		assertThat(pageRequest.getPageNumber()).isZero();
 		assertThat(pageRequest.getPageSize()).isEqualTo(limit);
 	}
 

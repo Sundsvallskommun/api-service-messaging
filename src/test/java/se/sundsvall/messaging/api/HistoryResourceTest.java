@@ -16,8 +16,6 @@ import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
-import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
@@ -27,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -43,7 +40,6 @@ import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
@@ -344,7 +340,7 @@ class HistoryResourceTest {
 	}
 
 	@Test
-	void getUserMessages() throws JsonProcessingException {
+	void getUserMessages() {
 		var municipalityId = "2281";
 		var userId = "userId";
 		var page = 1;
@@ -366,11 +362,6 @@ class HistoryResourceTest {
 
 		verify(mockHistoryService).getUserMessages(municipalityId, userId, page, limit);
 		verifyNoMoreInteractions(mockHistoryService);
-	}
-
-	@Test
-	void readAttachment() {
-
 	}
 
 	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
