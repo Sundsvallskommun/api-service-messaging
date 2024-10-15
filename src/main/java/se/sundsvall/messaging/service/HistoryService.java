@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.service;
 
+import static java.util.Collections.emptyList;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.zalando.problem.Status.NOT_FOUND;
@@ -74,7 +75,7 @@ public class HistoryService {
 		setupResponse(response, attachment);
 	}
 
-	public UserMessages getUserMessages(final String municipalityId, final String userId, final Integer page, final Integer limit) throws JsonProcessingException {
+	public UserMessages getUserMessages(final String municipalityId, final String userId, final Integer page, final Integer limit) {
 		var messageIdPage = dbIntegration.getUniqueMessageIds(municipalityId, userId, PageRequest.of(page - 1, limit));
 
 		return UserMessages.builder()
@@ -92,7 +93,7 @@ public class HistoryService {
 		return messageType.equals(MessageType.SNAIL_MAIL) ? "name" : "filename";
 	}
 
-	private Attachment findAttachmentByName(final JsonNode content, final String nameField, final String fileName) {
+	Attachment findAttachmentByName(final JsonNode content, final String nameField, final String fileName) {
 		var attachments = content.get("attachments");
 		if (attachments == null || !attachments.isArray()) {
 			throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " not found");
@@ -118,21 +119,21 @@ public class HistoryService {
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
-	private List<UserMessage> createUserMessages(final String municipalityId, final List<String> messageIds) {
+	List<UserMessage> createUserMessages(final String municipalityId, final List<String> messageIds) {
 		return messageIds.stream()
 			.map(messageId -> createUserMessage(municipalityId, messageId))
 			.toList();
 	}
 
-	private UserMessage createUserMessage(final String municipalityId, final String messageId) {
+	UserMessage createUserMessage(final String municipalityId, final String messageId) {
 		var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT);
-		var history = histories.getFirst();
 		var recipients = createRecipients(municipalityId, histories);
+		var history = histories.getFirst();
 		var attachments = extractAttachment(history);
 
 		return UserMessage.builder()
 			.withMessageId(messageId)
-			.withIssuer("issuer")
+			.withIssuer(history.getIssuer())
 			.withOrigin(history.getOrigin())
 			.withSent(history.getCreatedAt())
 			.withRecipients(recipients)
@@ -140,15 +141,15 @@ public class HistoryService {
 			.build();
 	}
 
-	private List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
+	List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
 		List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
 		var fieldName = getNameField(history.getMessageType());
-		JsonNode attachmentsNode = null;
+		JsonNode attachmentsNode;
 		try {
 			var jsonNode = objectMapper.readTree(history.getContent());
 			attachmentsNode = jsonNode.get("attachments");
 		} catch (JsonProcessingException ignored) {
-
+			return emptyList();
 		}
 
 		if (attachmentsNode != null && attachmentsNode.isArray()) {
@@ -162,7 +163,7 @@ public class HistoryService {
 		return attachments;
 	}
 
-	private List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
+	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
 		return histories.stream().map(history -> {
 			var legalId = partyIntegration.getLegalIdByPartyId(municipalityId, history.getPartyId());
 			var messageType = history.getMessageType().toString();

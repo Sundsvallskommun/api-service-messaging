@@ -1,15 +1,11 @@
 package se.sundsvall.messaging.integration.party;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @EnableConfigurationProperties(PartyIntegrationProperties.class)
 public class PartyIntegration {
-
-	private static final Logger LOG = LoggerFactory.getLogger(PartyIntegration.class);
 
 	static final String INTEGRATION_NAME = "Party";
 

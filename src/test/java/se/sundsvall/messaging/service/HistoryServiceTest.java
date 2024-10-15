@@ -1,28 +1,55 @@
 package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static se.sundsvall.messaging.TestDataFactory.createAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createHistoryEntity;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessage;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.util.StreamUtils;
+import org.zalando.problem.Problem;
 
+import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -33,7 +60,16 @@ class HistoryServiceTest {
 	private DbIntegration mockDbIntegration;
 
 	@Mock
-	private HttpServletResponse mockHttpServletResponse;
+	private PartyIntegration partyIntegrationMock;
+
+	@Mock
+	private HttpServletResponse httpServletResponseMock;
+
+	@Mock
+	private ObjectMapper objectMapper;
+
+	@Captor
+	private ArgumentCaptor<PageRequest> pageRequestCaptor;
 
 	@InjectMocks
 	private HistoryService historyService;
@@ -111,25 +147,187 @@ class HistoryServiceTest {
 			.getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
 	}
 
+
 	@Test
-	void getUserMessages() throws JsonProcessingException {
+	void streamAttachmentTest() throws IOException {
 		var municipalityId = "2281";
-		var userId = "userId";
-		var page = 1;
-		var limit = 15;
+		var messageId = "someMessageId";
+		var historyEntity = createHistoryEntity();
+		var attachment = createAttachment();
+		var spy = Mockito.spy(historyService);
+		when(httpServletResponseMock.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+		when(mockDbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(historyEntity);
+		doReturn(attachment).when(spy).findAttachmentByName(any(), any(), any());
 
-		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
+		try (final MockedStatic<StreamUtils> streamMock = Mockito.mockStatic(StreamUtils.class)) {
+			spy.streamAttachment(municipalityId, messageId, "someFileName", httpServletResponseMock);
 
-		assertThat(result).isNull();
+			verify(httpServletResponseMock).addHeader(CONTENT_TYPE, attachment.getContentType());
+			verify(httpServletResponseMock).addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getName() + "\"");
+			streamMock.verify(() -> StreamUtils.copy(any(InputStream.class), any(OutputStream.class)));
+		}
 	}
 
 	@Test
-	void streamAttachment() throws IOException {
-		var municipalityId = "municipalityId";
-		var messageId = "messageId";
-		var fileName = "fileName";
+	void getUserMessagesTest() {
+		var municipalityId = "2281";
+		var userId = "someUserId";
+		var limit = 10;
+		var page = 1;
+		var userMessageList = List.of(createUserMessage(), createUserMessage());
+		var spy = Mockito.spy(historyService);
+		Page<String> messageIdPage = new PageImpl<>(List.of("1", "2", "3", "4", "5"));
+		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(PageRequest.class)))
+			.thenReturn(messageIdPage);
+		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
 
-		historyService.streamAttachment(municipalityId, messageId, fileName, mockHttpServletResponse);
+		var result = spy.getUserMessages(municipalityId, userId, page, limit);
+
+		assertThat(result).isNotNull();
+		assertThat(result).isNotNull().satisfies(userMessages -> {
+			assertThat(userMessages.messages()).isEqualTo(userMessageList);
+			assertThat(userMessages.metaData().getPage()).isEqualTo(1);
+			assertThat(userMessages.metaData().getLimit()).isEqualTo(5);
+			assertThat(userMessages.metaData().getCount()).isEqualTo(5);
+			assertThat(userMessages.metaData().getTotalRecords()).isEqualTo(5);
+			assertThat(userMessages.metaData().getTotalPages()).isEqualTo(1);
+		});
+		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), pageRequestCaptor.capture());
+		var pageRequest = pageRequestCaptor.getValue();
+		assertThat(pageRequest.getPageNumber()).isEqualTo(0);
+		assertThat(pageRequest.getPageSize()).isEqualTo(limit);
+	}
+
+	@Test
+	void createUserMessagesTest() {
+		var municipalityId = "2281";
+		var messageIds = List.of("1", "2", "3", "4", "5");
+		var spy = Mockito.spy(historyService);
+		doReturn(createUserMessage()).when(spy).createUserMessage(eq(municipalityId), any());
+
+		var result = spy.createUserMessages(municipalityId, messageIds);
+
+		assertThat(result).isNotNull().hasSize(5);
+	}
+
+	@Test
+	void createUserMessageTest() {
+		var municipalityId = "2281";
+		var messageId = "someMessageId";
+		var histories = List.of(createHistoryEntity());
+		var spy = Mockito.spy(historyService);
+		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT))
+			.thenReturn(histories);
+		var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
+		doReturn(recipients).when(spy).createRecipients(municipalityId, histories);
+		var attachments = List.of(UserMessage.MessageAttachment.builder().withContentType("application/pdf").withFileName("someFileName").build());
+		doReturn(attachments).when(spy).extractAttachment(histories.getFirst());
+
+		var result = spy.createUserMessage(municipalityId, messageId);
+
+		assertThat(result).isNotNull().satisfies(userMessage -> {
+			assertThat(userMessage.messageId()).isEqualTo(messageId);
+			assertThat(userMessage.recipients()).isEqualTo(recipients);
+			assertThat(userMessage.attachments()).isEqualTo(attachments);
+			assertThat(userMessage.issuer()).isEqualTo(histories.getFirst().getIssuer());
+			assertThat(userMessage.origin()).isEqualTo(histories.getFirst().getOrigin());
+			assertThat(userMessage.sent()).isEqualTo(histories.getFirst().getCreatedAt());
+		});
+
+		verify(mockDbIntegration).getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT);
+		verify(spy).createRecipients(municipalityId, histories);
+		verify(spy).extractAttachment(histories.getFirst());
+		verify(spy).createUserMessage(municipalityId, messageId);
+		verifyNoMoreInteractions(mockDbIntegration, spy);
+	}
+
+	@Test
+	void findAttachmentByNameTest() {
+		var contentInputNode = mock(JsonNode.class);
+		var attachmentArrayNode = mock(JsonNode.class);
+		var attachmentNode = mock(JsonNode.class);
+
+		var fileNameNode = mock(JsonNode.class);
+		var contentTypeNode = mock(JsonNode.class);
+		var contentNode = mock(JsonNode.class);
+
+		when(contentInputNode.get("attachments")).thenReturn(attachmentArrayNode);
+		when(attachmentArrayNode.isArray()).thenReturn(true);
+		when(attachmentArrayNode.iterator()).thenReturn(List.of(attachmentNode).iterator());
+		when(attachmentNode.get("name")).thenReturn(fileNameNode);
+		when(attachmentNode.get("content")).thenReturn(contentNode);
+		when(attachmentNode.get("contentType")).thenReturn(contentTypeNode);
+		when(fileNameNode.asText()).thenReturn("someFileName");
+		when(contentTypeNode.asText()).thenReturn("application/pdf");
+		when(contentNode.asText()).thenReturn("someContent");
+
+		var result = historyService.findAttachmentByName(contentInputNode, "name", "someFileName");
+
+		assertThat(result).isNotNull().satisfies(attachment -> {
+			assertThat(attachment.getName()).isEqualTo("someFileName");
+			assertThat(attachment.getContentType()).isEqualTo("application/pdf");
+			assertThat(attachment.getContent()).isEqualTo("someContent");
+		});
+	}
+
+	@Test
+	void findAttachmentByNameTest_2() {
+		var contentInputNode = mock(JsonNode.class);
+		var attachmentArrayNode = mock(JsonNode.class);
+
+		when(contentInputNode.get("attachments")).thenReturn(attachmentArrayNode);
+		when(attachmentArrayNode.isArray()).thenReturn(false);
+
+		assertThatThrownBy(() -> historyService.findAttachmentByName(contentInputNode, "name", "someFileName"))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Not Found: Attachment with name someFileName not found");
+	}
+
+	@Test
+	void extractAttachmentTest() throws JsonProcessingException {
+		var history = createHistoryEntity();
+
+		var jsonNodeMock = mock(JsonNode.class);
+		var attachmentArrayNode = mock(JsonNode.class);
+		var attachmentNode = mock(JsonNode.class);
+		var fileNameNode = mock(JsonNode.class);
+		var contentTypeNode = mock(JsonNode.class);
+
+		when(objectMapper.readTree(history.getContent())).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("attachments")).thenReturn(attachmentArrayNode);
+		when(attachmentArrayNode.isArray()).thenReturn(true);
+		when(attachmentArrayNode.iterator()).thenReturn(List.of(attachmentNode).iterator());
+		when(attachmentNode.get("contentType")).thenReturn(contentTypeNode);
+		when(contentTypeNode.asText()).thenReturn("application/pdf");
+		when(attachmentNode.get("name")).thenReturn(fileNameNode);
+		when(fileNameNode.asText()).thenReturn("someFileName");
+
+		var result = historyService.extractAttachment(history);
+
+		assertThat(result).isNotNull().satisfies(attachments -> {
+			assertThat(attachments).hasSize(1);
+			assertThat(attachments.getFirst().contentType()).isEqualTo("application/pdf");
+			assertThat(attachments.getFirst().fileName()).isEqualTo("someFileName");
+		});
+	}
+
+	@Test
+	void createRecipientTest() {
+		var municipalityId = "2281";
+		var histories = List.of(createHistoryEntity());
+		var expectedLegalId = "123456-7890";
+		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId())).thenReturn(expectedLegalId);
+
+		var result = historyService.createRecipients(municipalityId, histories);
+
+		assertThat(result).isNotNull().satisfies(recipients -> {
+			assertThat(recipients).hasSize(1);
+			assertThat(recipients.getFirst().personId()).isEqualTo(expectedLegalId);
+			assertThat(recipients.getFirst().messageType()).isEqualTo(histories.getFirst().getMessageType().name());
+		});
+
+		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId());
+		verifyNoMoreInteractions(partyIntegrationMock);
 	}
 
 }

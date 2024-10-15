@@ -125,8 +125,8 @@ public class DbIntegration {
 		return statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, messageType, from, to);
 	}
 
-	public Page<String> getUniqueMessageIds(final String municipalityId, final String userId, final PageRequest pageRequest) {
-		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndUserId(municipalityId, userId, pageRequest);
+	public Page<String> getUniqueMessageIds(final String municipalityId, final String issuer, final PageRequest pageRequest) {
+		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuer(municipalityId, issuer, pageRequest);
 	}
 
 	public List<HistoryEntity> getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(final String municipalityId, final String messageId, final MessageStatus status) {
@@ -136,7 +136,6 @@ public class DbIntegration {
 	public HistoryEntity getFirstHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
 		return historyRepository.findFirstByMunicipalityIdAndMessageId(municipalityId, messageId)
 			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, "No history found for message id " + messageId));
-
 	}
 
 }

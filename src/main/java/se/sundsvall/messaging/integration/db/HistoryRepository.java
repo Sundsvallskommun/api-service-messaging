@@ -16,7 +16,6 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.MessageStatus;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 @Repository
 @CircuitBreaker(name = "historyRepository")
@@ -30,10 +29,10 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 
 	Page<HistoryEntity> findByMunicipalityIdAndIssuer(String municipalityId, String issuer, Pageable pageable);
 
-	@Query("SELECT DISTINCT h.messageId FROM HistoryEntity h WHERE h.municipalityId = :municipalityId AND h.issuer = :userId")
-	Page<String> findDistinctMessageIdsByMunicipalityIdAndUserId(
+	@Query("SELECT DISTINCT h.messageId FROM HistoryEntity h WHERE h.municipalityId = :municipalityId AND h.issuer = :issuer")
+	Page<String> findDistinctMessageIdsByMunicipalityIdAndIssuer(
 		@Param("municipalityId") final String municipalityId,
-		@Param("userId") final String userId,
+		@Param("issuer") final String issuer,
 		final Pageable pageable);
 
 	List<HistoryEntity> findByMunicipalityIdAndMessageIdAndStatus(String municipalityId, String messageId, MessageStatus status);
