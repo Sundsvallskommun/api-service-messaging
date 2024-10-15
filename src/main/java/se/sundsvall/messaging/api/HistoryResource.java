@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.notFound;
@@ -139,7 +140,7 @@ class HistoryResource {
 	}
 
 	@Operation(summary = "Strean attachment by messageId and fileName")
-	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId,

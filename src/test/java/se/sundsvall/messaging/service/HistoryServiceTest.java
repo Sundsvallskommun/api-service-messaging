@@ -49,7 +49,6 @@ import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -216,7 +215,7 @@ class HistoryServiceTest {
 		var messageId = "someMessageId";
 		var histories = List.of(createHistoryEntity());
 		var spy = Mockito.spy(historyService);
-		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT))
+		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId))
 			.thenReturn(histories);
 		var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
 		doReturn(recipients).when(spy).createRecipients(municipalityId, histories);
@@ -234,7 +233,7 @@ class HistoryServiceTest {
 			assertThat(userMessage.sent()).isEqualTo(histories.getFirst().getCreatedAt());
 		});
 
-		verify(mockDbIntegration).getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT);
+		verify(mockDbIntegration).getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		verify(spy).createRecipients(municipalityId, histories);
 		verify(spy).extractAttachment(histories.getFirst());
 		verify(spy).createUserMessage(municipalityId, messageId);

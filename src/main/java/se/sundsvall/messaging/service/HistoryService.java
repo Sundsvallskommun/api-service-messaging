@@ -30,7 +30,6 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
 
@@ -126,7 +125,7 @@ public class HistoryService {
 	}
 
 	UserMessage createUserMessage(final String municipalityId, final String messageId) {
-		var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, MessageStatus.SENT);
+		var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		var recipients = createRecipients(municipalityId, histories);
 		var history = histories.getFirst();
 		var attachments = extractAttachment(history);
@@ -167,7 +166,8 @@ public class HistoryService {
 		return histories.stream().map(history -> {
 			var legalId = partyIntegration.getLegalIdByPartyId(municipalityId, history.getPartyId());
 			var messageType = history.getMessageType().toString();
-			return new UserMessage.Recipient(legalId, messageType);
+			var status = history.getStatus().name();
+			return new UserMessage.Recipient(legalId, messageType, status);
 		}).toList();
 	}
 

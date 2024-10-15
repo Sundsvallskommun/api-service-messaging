@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -60,12 +61,13 @@ class UserMessageTest {
 
 	@Test
 	void userMessageRecipientConstructor() {
-		var bean = new UserMessage.Recipient(PERSON_ID, MESSAGE_TYPE);
+		var bean = new UserMessage.Recipient(PERSON_ID, MESSAGE_TYPE, MessageStatus.SENT.name());
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
-		assertThat(bean).hasOnlyFields("personId", "messageType");
+		assertThat(bean.status()).isEqualTo(MessageStatus.SENT.name());
+		assertThat(bean).hasOnlyFields("personId", "messageType", "status");
 	}
 
 	@Test
@@ -73,12 +75,14 @@ class UserMessageTest {
 		var bean = UserMessage.Recipient.builder()
 			.withPersonId(PERSON_ID)
 			.withMessageType(MESSAGE_TYPE)
+			.withStatus(MessageStatus.SENT.name())
 			.build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
-		assertThat(bean).hasOnlyFields("personId", "messageType");
+		assertThat(bean.status()).isEqualTo(MessageStatus.SENT.name());
+		assertThat(bean).hasOnlyFields("personId", "messageType", "status");
 	}
 
 	@Test

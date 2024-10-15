@@ -1,6 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
-import static org.zalando.problem.Status.BAD_REQUEST;
+import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
@@ -129,13 +129,13 @@ public class DbIntegration {
 		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuer(municipalityId, issuer, pageRequest);
 	}
 
-	public List<HistoryEntity> getHistoryEntityByMunicipalityIdAndMessageIdAndStatus(final String municipalityId, final String messageId, final MessageStatus status) {
-		return historyRepository.findByMunicipalityIdAndMessageIdAndStatus(municipalityId, messageId, status);
+	public List<HistoryEntity> getHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
+		return historyRepository.findByMunicipalityIdAndMessageId(municipalityId, messageId);
 	}
 
 	public HistoryEntity getFirstHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
 		return historyRepository.findFirstByMunicipalityIdAndMessageId(municipalityId, messageId)
-			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, "No history found for message id " + messageId));
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No history found for message id " + messageId));
 	}
 
 }

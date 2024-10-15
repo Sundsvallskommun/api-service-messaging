@@ -13,7 +13,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.model.MessageStatus;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
@@ -34,8 +33,6 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 		@Param("municipalityId") final String municipalityId,
 		@Param("issuer") final String issuer,
 		final Pageable pageable);
-
-	List<HistoryEntity> findByMunicipalityIdAndMessageIdAndStatus(String municipalityId, String messageId, MessageStatus status);
 
 	Optional<HistoryEntity> findFirstByMunicipalityIdAndMessageId(String municipalityId, String messageId);
 }
