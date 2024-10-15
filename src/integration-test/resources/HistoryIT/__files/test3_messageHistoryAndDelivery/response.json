@@ -1,0 +1,23 @@
+[
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"
+			},
+			"department": "SBK(Gatuavdelningen, Trafiksektionen)"
+		},
+		"timestamp": "2024-02-08T10:36:40.913355"
+	},
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"
+			}
+		},
+		"timestamp": "2024-02-08T10:36:40.913355"
+	}
+]

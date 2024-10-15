@@ -54,6 +54,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -69,6 +70,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -84,6 +86,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -99,11 +102,12 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
 	public List<Message> toMessages(final DigitalMailRequest request, final String batchId) {
-		var messageId = UUID.randomUUID().toString();
+		final var messageId = UUID.randomUUID().toString();
 
 		return request.party().partyIds().stream()
 			.map(partyId -> Message.builder()
@@ -116,6 +120,7 @@ public class MessageMapper {
 				.withStatus(PENDING)
 				.withContent(toJson(request))
 				.withOrigin(request.origin())
+				.withIssuer(request.issuer())
 				.build())
 			.toList();
 	}
@@ -132,6 +137,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -147,12 +153,13 @@ public class MessageMapper {
 				.withStatus(PENDING)
 				.withContent(toJson(request))
 				.withOrigin(request.origin())
+				.withIssuer(request.issuer())
 				.build())
 			.toList();
 	}
 
-	public Message toMessage(final String origin, final String batchId, final MessageRequest.Message request) {
-		var messageId = UUID.randomUUID().toString();
+	public Message toMessage(final String origin, final String issuer, final String batchId, final MessageRequest.Message request) {
+		final var messageId = UUID.randomUUID().toString();
 
 		return Message.builder()
 			.withBatchId(batchId)
@@ -166,6 +173,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(origin)
+			.withIssuer(issuer)
 			.build();
 	}
 
@@ -178,6 +186,7 @@ public class MessageMapper {
 			.withStatus(PENDING)
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 }

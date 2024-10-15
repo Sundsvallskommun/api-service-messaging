@@ -1,0 +1,15 @@
+{
+	"messageId": "5ee0274e-784a-4ffb-90b9-d2974b94878b",
+	"deliveries": [
+		{
+			"deliveryId": "351b4c37-31cc-4614-9d29-70d65f878ce3",
+			"messageType": "SNAIL_MAIL",
+			"status": "SENT"
+		},
+		{
+			"deliveryId": "e307c848-d109-4898-8d62-50691867f58d",
+			"messageType": "SNAIL_MAIL",
+			"status": "FAILED"
+		}
+	]
+}

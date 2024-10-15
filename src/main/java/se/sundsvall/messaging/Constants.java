@@ -20,7 +20,7 @@ public final class Constants {
 
 	public static final String USER_MESSAGES_PATH = "/{municipalityId}/users/{userId}/messages";
 
-	public static final String MESSAGE_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachment/{fileName}";
+	public static final String MESSAGE_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachments/{fileName}";
 
 	private Constants() {}
 

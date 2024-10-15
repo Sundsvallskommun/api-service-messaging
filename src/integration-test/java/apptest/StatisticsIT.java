@@ -13,9 +13,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/StatisticsIT/", classes = Application.class)
 class StatisticsIT extends AbstractMessagingAppTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/statistics";
-	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
 	void test1_successfulStatsWithSms() throws Exception {

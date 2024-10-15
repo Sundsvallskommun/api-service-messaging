@@ -30,10 +30,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/SmsIT/", classes = Application.class)
 class SmsIT extends AbstractMessagingAppTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/sms";
-	private static final String REQUEST_FILE = "request.json";
-	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -45,7 +42,8 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", ORIGIN)
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -73,6 +71,7 @@ class SmsIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
@@ -93,7 +92,8 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test3_successfulBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", ORIGIN)
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -121,10 +121,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin)
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin, HistoryEntity::getIssuer)
 					.containsExactlyInAnyOrder(
-						tuple(SMS, SENT, ORIGIN),
-						tuple(SMS, SENT, ORIGIN));
+						tuple(SMS, SENT, ORIGIN, ISSUER),
+						tuple(SMS, SENT, ORIGIN, ISSUER));
 
 				return true;
 			});
@@ -134,7 +134,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test4_internalServerErrorFromSmsSenderOnBatch() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", ORIGIN)
+			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -161,10 +161,10 @@ class SmsIT extends AbstractMessagingAppTest {
 				assertThat(historyRepository.findByMunicipalityIdAndBatchId(MUNICIPALITY_ID, batchId))
 					.isNotNull()
 					.hasSize(2)
-					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin)
+					.extracting(HistoryEntity::getMessageType, HistoryEntity::getStatus, HistoryEntity::getOrigin, HistoryEntity::getIssuer)
 					.containsExactlyInAnyOrder(
-						tuple(SMS, SENT, ORIGIN),
-						tuple(SMS, FAILED, ORIGIN));
+						tuple(SMS, SENT, ORIGIN, null),
+						tuple(SMS, FAILED, ORIGIN, null));
 
 				return true;
 			});
@@ -174,7 +174,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test5_successfulHighPriorityRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -200,7 +200,8 @@ class SmsIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getOrigin()).isNull();
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
@@ -211,7 +212,8 @@ class SmsIT extends AbstractMessagingAppTest {
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
-			.withHeader("x-origin", ORIGIN)
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -242,6 +244,7 @@ class SmsIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;

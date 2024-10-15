@@ -57,6 +57,7 @@ public class RequestMapper {
 			.withMobileNumber(mobileNumber)
 			.withMessage(originalMessage.message())
 			.withOrigin(message.origin())
+			.withIssuer(message.issuer())
 			.build();
 
 		return toJson(smsRequest);
@@ -89,6 +90,7 @@ public class RequestMapper {
 			.withMessage(originalMessage.message())
 			.withHtmlMessage(originalMessage.htmlMessage())
 			.withOrigin(message.origin())
+			.withIssuer(message.issuer())
 			.build();
 
 		return toJson(emailRequest);
@@ -123,6 +125,7 @@ public class RequestMapper {
 					.build())
 				.toList())
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -142,6 +145,7 @@ public class RequestMapper {
 					.build())
 				.toList())
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.build();
 	}
 
@@ -153,6 +157,7 @@ public class RequestMapper {
 			.withMessage(request.message())
 			.withMobileNumber(party.mobileNumber())
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.withPriority(request.priority())
 			.withSender(request.sender())
 			.build();
@@ -164,6 +169,7 @@ public class RequestMapper {
 			.withParty(toEmailRequestParty(party))
 			.withEmailAddress(party.emailAddress())
 			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
 			.withSubject(request.subject())
 			.withMessage(request.message())
 			.withHeaders(request.headers())

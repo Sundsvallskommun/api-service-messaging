@@ -1,0 +1,52 @@
+[
+	{
+		"messageType": "DIGITAL_MAIL",
+		"status": "FAILED",
+		"content": {
+			"party": {}
+		},
+		"timestamp": "2024-02-25T15:54:39.254123"
+	},
+	{
+		"messageType": "SMS",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
+		},
+		"timestamp": "2024-02-25T15:54:39.254123"
+	},
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			},
+			"department": "SBK(Gatuavdelningen, Trafiksektionen)"
+		},
+		"timestamp": "2024-01-26T13:19:38.336364"
+	},
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			},
+			"department": "SBK(Gatuavdelningen, Trafiksektionen)"
+		},
+		"timestamp": "2024-01-25T15:54:39.254123"
+	},
+	{
+		"messageType": "SMS",
+		"status": "SENT",
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
+		},
+		"timestamp": "2024-01-25T15:54:39.254123"
+	}
+]

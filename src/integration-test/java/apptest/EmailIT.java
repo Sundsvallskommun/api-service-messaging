@@ -25,9 +25,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 @WireMockAppTestSuite(files = "classpath:/EmailIT/", classes = Application.class)
 class EmailIT extends AbstractMessagingAppTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/email";
-	private static final String ORIGIN = "Test-origin";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -39,8 +37,9 @@ class EmailIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader("x-origin", ORIGIN)
-			.withRequest("request.json")
+			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(HEADER_ISSUER, ISSUER)
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/message/(.*)$"))
@@ -65,6 +64,7 @@ class EmailIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
 					});
 
 				return true;
@@ -75,7 +75,7 @@ class EmailIT extends AbstractMessagingAppTest {
 	void test2_internalServerErrorFromEmailSender() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withRequest("request.json")
+			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();

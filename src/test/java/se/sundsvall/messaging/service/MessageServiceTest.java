@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -140,8 +141,7 @@ class MessageServiceTest {
 			mockDigitalMailSenderIntegration,
 			mockWebMessageSenderIntegration,
 			mockSnailMailSenderIntegration,
-			mockSlackIntegration
-		);
+			mockSlackIntegration);
 
 		when(mockTransactionTemplate.execute(any(TransactionCallbackWithoutResult.class)))
 			.then(invocationOnMock -> {
@@ -553,7 +553,7 @@ class MessageServiceTest {
 		verify(mockDbIntegration, times(5)).saveHistory(any(Message.class), nullable(String.class));
 		verify(mockDbIntegration, times(7)).deleteMessageByDeliveryId(any(String.class));
 		// Verify mapper interactions (4 instead of 3 on mockMessageMapper since one is in the actual test)
-		verify(mockMessageMapper, times(4)).toMessage(anyString(), anyString(), any(MessageRequest.Message.class));
+		verify(mockMessageMapper, times(4)).toMessage(anyString(), anyString(), anyString(), any(MessageRequest.Message.class));
 		verifyNoMoreInteractions(mockMessageMapper);
 		verify(mockDtoMapper).toSmsDto(any(SmsRequest.class));
 		verify(mockDtoMapper).toEmailDto(any(EmailRequest.class));
@@ -591,6 +591,7 @@ class MessageServiceTest {
 	private MessageRequest createMessageRequest(final List<String> partyIds) {
 		return MessageRequest.builder()
 			.withOrigin("someOrigin")
+			.withIssuer("someIssuer")
 			.withMessages(partyIds.stream().map(this::createMessage).toList())
 			.build();
 	}

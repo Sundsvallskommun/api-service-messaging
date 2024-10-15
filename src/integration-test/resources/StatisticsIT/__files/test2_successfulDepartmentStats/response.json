@@ -12,6 +12,25 @@
 		]
 	},
 	{
+		"ORIGIN": "Other",
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				}
+			},
+			{
+				"DEPARTMENT": "Ej kategoriserad",
+				"DIGITAL_MAIL": {
+					"sent": 0,
+					"failed": 1
+				}
+			}
+		]
+	},
+	{
 		"ORIGIN": "origin1",
 		"DEPARTMENT_STATISTICS": [
 			{
@@ -52,20 +71,8 @@
 			{
 				"DEPARTMENT": "Ej kategoriserad",
 				"SNAIL_MAIL": {
-					"sent": 2,
-					"failed": 1
-				}
-			}
-		]
-	},
-	{
-		"ORIGIN": "Other",
-		"DEPARTMENT_STATISTICS": [
-			{
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
-				"SNAIL_MAIL": {
 					"sent": 1,
-					"failed": 0
+					"failed": 2
 				}
 			}
 		]
