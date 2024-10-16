@@ -28,6 +28,7 @@ import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
@@ -118,8 +119,9 @@ public class HistoryService {
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
-	List<UserMessage> createUserMessages(final String municipalityId, final List<String> messageIds) {
+	List<UserMessage> createUserMessages(final String municipalityId, final List<MessageIdProjection> messageIds) {
 		return messageIds.stream()
+			.map(MessageIdProjection::getMessageId)
 			.map(messageId -> createUserMessage(municipalityId, messageId))
 			.toList();
 	}

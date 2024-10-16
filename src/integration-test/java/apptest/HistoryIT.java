@@ -99,7 +99,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponseHeader(CONTENT_TYPE, List.of("image/jpeg"))
-			.withExpectedBinaryResponse("smiley.jpg")
+			.withExpectedBinaryResponse(fileName)
 			.sendRequestAndVerifyResponse();
 	}
 

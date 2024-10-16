@@ -25,6 +25,7 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.mapper.HistoryMapper;
 import se.sundsvall.messaging.integration.db.mapper.MessageMapper;
+import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
@@ -125,7 +126,7 @@ public class DbIntegration {
 		return statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, messageType, from, to);
 	}
 
-	public Page<String> getUniqueMessageIds(final String municipalityId, final String issuer, final PageRequest pageRequest) {
+	public Page<MessageIdProjection> getUniqueMessageIds(final String municipalityId, final String issuer, final PageRequest pageRequest) {
 		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuer(municipalityId, issuer, pageRequest);
 	}
 

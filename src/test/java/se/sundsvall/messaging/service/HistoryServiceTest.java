@@ -47,6 +47,7 @@ import org.zalando.problem.Problem;
 
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -175,19 +176,19 @@ class HistoryServiceTest {
 		var page = 1;
 		var userMessageList = List.of(createUserMessage(), createUserMessage());
 		var spy = Mockito.spy(historyService);
-		Page<String> messageIdPage = new PageImpl<>(List.of("1", "2", "3", "4", "5"));
-		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(PageRequest.class)))
-			.thenReturn(messageIdPage);
+		var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
+		Page<MessageIdProjection> messageIdPage = new PageImpl<>(List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
+		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(PageRequest.class))).thenReturn(messageIdPage);
 		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
 
 		var result = spy.getUserMessages(municipalityId, userId, page, limit);
-		
+
 		assertThat(result).isNotNull().satisfies(userMessages -> {
 			assertThat(userMessages.messages()).isEqualTo(userMessageList);
 			assertThat(userMessages.metaData().getPage()).isEqualTo(1);
-			assertThat(userMessages.metaData().getLimit()).isEqualTo(5);
-			assertThat(userMessages.metaData().getCount()).isEqualTo(5);
-			assertThat(userMessages.metaData().getTotalRecords()).isEqualTo(5);
+			assertThat(userMessages.metaData().getLimit()).isEqualTo(3);
+			assertThat(userMessages.metaData().getCount()).isEqualTo(3);
+			assertThat(userMessages.metaData().getTotalRecords()).isEqualTo(3);
 			assertThat(userMessages.metaData().getTotalPages()).isEqualTo(1);
 		});
 		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), pageRequestCaptor.capture());
@@ -199,13 +200,14 @@ class HistoryServiceTest {
 	@Test
 	void createUserMessagesTest() {
 		var municipalityId = "2281";
-		var messageIds = List.of("1", "2", "3", "4", "5");
+		var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
 		var spy = Mockito.spy(historyService);
+		when(messageIdProjectionMock.getMessageId()).thenReturn("1");
 		doReturn(createUserMessage()).when(spy).createUserMessage(eq(municipalityId), any());
 
-		var result = spy.createUserMessages(municipalityId, messageIds);
+		var result = spy.createUserMessages(municipalityId, List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
 
-		assertThat(result).isNotNull().hasSize(5);
+		assertThat(result).isNotNull().hasSize(3);
 	}
 
 	@Test

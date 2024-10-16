@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.integration.party;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
@@ -49,6 +52,6 @@ public class PartyIntegrationConfiguration {
 	}
 
 	private ErrorDecoder errorDecoder() {
-		return new ProblemErrorDecoder(PartyIntegration.INTEGRATION_NAME);
+		return new ProblemErrorDecoder(PartyIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.value()));
 	}
 }

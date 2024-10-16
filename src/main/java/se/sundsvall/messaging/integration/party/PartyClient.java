@@ -1,9 +1,12 @@
 package se.sundsvall.messaging.integration.party;
 
+import java.util.Optional;
+
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import generated.se.sundsvall.party.PartyType;
 
 @FeignClient(
 	name = PartyIntegration.INTEGRATION_NAME,
@@ -14,9 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
-	ResponseEntity<String> getLegalIdByPartyId(
+	Optional<String> getLegalIdByPartyId(
 		@PathVariable String municipalityId,
-		@PathVariable String type,
+		@PathVariable PartyType type,
 		@PathVariable String partyId);
 
 }
