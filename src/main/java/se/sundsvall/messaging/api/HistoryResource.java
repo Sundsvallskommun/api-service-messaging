@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.notFound;
@@ -14,6 +15,7 @@ import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,7 +49,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Status and History Resources")
+@Tag(name = "History Resources")
 @RestController
 @Validated
 @ApiResponses({
@@ -129,21 +131,21 @@ class HistoryResource {
 	@GetMapping(value = USER_MESSAGES_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	ResponseEntity<UserMessages> getUserMessages(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
-		@Parameter(name = "userId", description = "User id", example = "2281") @PathVariable(name = "userId") final String userId,
+		@Parameter(name = "userId", description = "User id", example = "test") @PathVariable final String userId,
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
-		@Parameter(name = "page", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
+		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
 
 		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
 		return ok(result);
 	}
 
 	@Operation(summary = "Strean attachment by messageId and fileName")
-	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId,
 		@PathVariable final String fileName,
-		final HttpServletResponse response) {
+		final HttpServletResponse response) throws IOException {
 
 		historyService.streamAttachment(municipalityId, messageId, fileName, response);
 	}

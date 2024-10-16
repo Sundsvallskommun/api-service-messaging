@@ -1,10 +1,13 @@
 package apptest;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-import org.junit.jupiter.api.Disabled;
+import java.io.IOException;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
@@ -18,6 +21,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 	private static final String CONVERSATION_HISTORY_PATH = "/" + MUNICIPALITY_ID + "/conversation-history/";
 	private static final String MESSAGE_AND_DELIVERY_PATH = "/" + MUNICIPALITY_ID + "/message/";
 	private static final String USER_MESSAGES_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages";
+	private static final String MESSAGE_ATTACHMENT_PATH = "/" + MUNICIPALITY_ID + "/messages/%s/attachments/%s";
 
 	@Test
 	void test1_conversationHistory() {
@@ -64,11 +68,10 @@ class HistoryIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@Disabled // TODO: This will be modified and activated in UF-10434
 	void test5_userHistoricalMessages() {
-		final var userId = "issuer1";
+		var userId = "issuer1";
 		setupCall()
-			.withServicePath(USER_MESSAGES_PATH.formatted(userId))
+			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?page=1&limit=10")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)
@@ -76,13 +79,38 @@ class HistoryIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@Disabled // TODO: This will be modified and activated in UF-10434
 	void test6_userHistoricalMessagesNotFound() {
-		final var userId = "nonExistingUser";
+		var userId = "nonExistingUser";
 		setupCall()
-			.withServicePath(USER_MESSAGES_PATH.formatted(userId))
+			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?page=1&limit=10")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test7_readAttachment() throws IOException {
+		var messageId = "0c803a34-9418-48a8-a058-10e8394116b8";
+		var fileName = "smiley.jpg";
+
+		setupCall()
+			.withServicePath(MESSAGE_ATTACHMENT_PATH.formatted(messageId, fileName))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader(CONTENT_TYPE, List.of("image/jpeg"))
+			.withExpectedBinaryResponse(fileName)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test8_readAttachmentNotFound() {
+		final var messageId = "67db7260-5829-40f4-ab3d-0ff55d117fb0";
+		final var fileName = "doesNotExist.jpg";
+		setupCall()
+			.withServicePath(MESSAGE_ATTACHMENT_PATH.formatted(messageId, fileName))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}

@@ -364,11 +364,6 @@ class HistoryResourceTest {
 		verifyNoMoreInteractions(mockHistoryService);
 	}
 
-	@Test
-	void readAttachment() {
-
-	}
-
 	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 

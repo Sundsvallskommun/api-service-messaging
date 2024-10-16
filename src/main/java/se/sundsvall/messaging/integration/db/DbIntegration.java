@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
+import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
@@ -14,12 +15,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.zalando.problem.Problem;
 
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.mapper.HistoryMapper;
 import se.sundsvall.messaging.integration.db.mapper.MessageMapper;
+import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
@@ -118,6 +124,19 @@ public class DbIntegration {
 	public List<StatsEntry> getStatsByMunicipalityIdAndOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from,
 		final LocalDate to) {
 		return statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, messageType, from, to);
+	}
+
+	public Page<MessageIdProjection> getUniqueMessageIds(final String municipalityId, final String issuer, final PageRequest pageRequest) {
+		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuer(municipalityId, issuer, pageRequest);
+	}
+
+	public List<HistoryEntity> getHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
+		return historyRepository.findByMunicipalityIdAndMessageId(municipalityId, messageId);
+	}
+
+	public HistoryEntity getFirstHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
+		return historyRepository.findFirstByMunicipalityIdAndMessageId(municipalityId, messageId)
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No history found for message id " + messageId));
 	}
 
 }

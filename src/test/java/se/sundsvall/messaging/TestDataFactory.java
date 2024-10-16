@@ -30,14 +30,17 @@ import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.ReferenceType;
+import se.sundsvall.messaging.service.model.Attachment;
 
 public final class TestDataFactory {
 
@@ -431,5 +434,37 @@ public final class TestDataFactory {
 			.withMessages(List.of(createUserMessage(), createUserMessage()))
 			.build();
 	}
+
+	public static HistoryEntity createHistoryEntity() {
+		return HistoryEntity.builder()
+			.withId(123L)
+			.withMunicipalityId("2281")
+			.withMessageId(UUID.randomUUID().toString())
+			.withStatus(MessageStatus.SENT)
+			.withIssuer("someIssuer")
+			.withContent("{\n" +
+				"    \"attachments\": [\n" +
+				"        {\n" +
+				"            \"name\": \"someFileName\",\n" +
+				"            \"content\": \"someContent\",\n" +
+				"            \"contentType\": \"application/pdf\"\n" +
+				"        }\n" +
+				"    ]\n" +
+				"}")
+			.withBatchId("someBatchId")
+			.withDeliveryId("someDeliveryId")
+			.withCreatedAt(LocalDateTime.now())
+			.withMessageType(MessageType.SNAIL_MAIL)
+			.build();
+	}
+
+	public static Attachment createAttachment() {
+		return Attachment.builder()
+			.withName("someName")
+			.withContent("someContent")
+			.withContentType("someContentType")
+			.build();
+	}
+
 
 }

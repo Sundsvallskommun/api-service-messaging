@@ -41,7 +41,10 @@ public record UserMessage(
 		String personId,
 
 		@Schema(description = "The message type", example = "SNAIL_MAIL")
-		String messageType) {
+		String messageType,
+
+		@Schema(description = "The message status", example = "SENT")
+		String status) {
 	}
 
 	@With
