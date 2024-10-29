@@ -51,6 +51,11 @@ public class DbIntegration {
 	}
 
 	@Transactional(readOnly = true)
+	public boolean existsByBatchId(final String batchId) {
+		return messageRepository.existsByBatchId(batchId);
+	}
+
+	@Transactional(readOnly = true)
 	public Optional<Message> getMessageByDeliveryId(final String deliveryId) {
 		return messageRepository.findByDeliveryId(deliveryId)
 			.map(MessageMapper::mapToMessage);
