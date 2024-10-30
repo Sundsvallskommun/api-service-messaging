@@ -38,8 +38,7 @@ class ContactSettingsIntegrationTest {
 			.contactChannels(List.of(new ContactChannel()
 				.contactMethod(ContactMethod.EMAIL)
 				.destination("someone@something.com")
-				.disabled(false)
-			));
+				.disabled(false)));
 
 		when(mockClient.getSettings(any(String.class), any(String.class), any()))
 			.thenReturn(ResponseEntity.ok(List.of(contactSetting)));

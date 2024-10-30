@@ -10,8 +10,7 @@ import generated.se.sundsvall.emailsender.SendEmailRequest;
 @FeignClient(
 	name = EmailSenderIntegration.INTEGRATION_NAME,
 	url = "${integration.email-sender.base-url}",
-	configuration = EmailSenderIntegrationConfiguration.class
-)
+	configuration = EmailSenderIntegrationConfiguration.class)
 interface EmailSenderClient {
 
 	@PostMapping("/{municipalityId}/send/email")

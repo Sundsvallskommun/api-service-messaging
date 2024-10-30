@@ -9,9 +9,7 @@ import java.util.List;
 @Builder(setterPrefix = "with")
 @Schema(name = "DepartmentStatistics")
 public record DepartmentStatistics(
-        
-        @JsonProperty("ORIGIN")
-        String origin,
-        @JsonProperty("DEPARTMENT_STATISTICS")
-        List<DepartmentLetter> departmentLetters) {
+
+	@JsonProperty("ORIGIN") String origin,
+	@JsonProperty("DEPARTMENT_STATISTICS") List<DepartmentLetter> departmentLetters) {
 }

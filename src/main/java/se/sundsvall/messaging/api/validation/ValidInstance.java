@@ -12,7 +12,9 @@ import jakarta.validation.Payload;
 import se.sundsvall.messaging.api.validation.impl.ValidInstanceConstraintValidator;
 
 @Documented
-@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({
+	ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE
+})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ValidInstanceConstraintValidator.class)
 public @interface ValidInstance {

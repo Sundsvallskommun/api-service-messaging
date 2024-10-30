@@ -1,10 +1,6 @@
 {
-	"party": {
-		"partyIds": [
-			"e4e37771-397b-45b5-bb89-f389f8525e53"
-		]
-	},
 	"subject": "Some subject",
+	"body": "This is the message contents",
 	"contentType": "text/plain",
-	"body": "This is the message contents"
+	"party": {"partyIds": ["e4e37771-397b-45b5-bb89-f389f8525e53"]}
 }

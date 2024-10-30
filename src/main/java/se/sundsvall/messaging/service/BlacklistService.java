@@ -31,64 +31,64 @@ import se.sundsvall.messaging.model.MessageType;
 @Service
 public class BlacklistService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BlacklistService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BlacklistService.class);
 
-    private final BlacklistProperties properties;
+	private final BlacklistProperties properties;
 
-    public BlacklistService(final BlacklistProperties properties) {
-        this.properties = properties;
+	public BlacklistService(final BlacklistProperties properties) {
+		this.properties = properties;
 
-        if (properties.enabled()) {
-            LOG.info("Blacklist is ENABLED");
-        } else {
-            LOG.info("Blacklist is NOT ENABLED");
-        }
-    }
+		if (properties.enabled()) {
+			LOG.info("Blacklist is ENABLED");
+		} else {
+			LOG.info("Blacklist is NOT ENABLED");
+		}
+	}
 
-    public void check(final SmsRequest request) {
-        check(SMS, request.mobileNumber());
-    }
+	public void check(final SmsRequest request) {
+		check(SMS, request.mobileNumber());
+	}
 
-    public void check(final EmailRequest request) {
-        check(EMAIL, request.emailAddress());
-    }
+	public void check(final EmailRequest request) {
+		check(EMAIL, request.emailAddress());
+	}
 
 	public void check(final DigitalMailRequest request) {
 		request.party().partyIds().forEach(partyId -> check(DIGITAL_MAIL, partyId));
 	}
 
-    public void check(final DigitalInvoiceRequest request) {
-        check(EMAIL, request.party().partyId());
-    }
+	public void check(final DigitalInvoiceRequest request) {
+		check(EMAIL, request.party().partyId());
+	}
 
-    public void check(final MessageRequest request) {
-        request.messages().stream()
-            .map(MessageRequest.Message::party)
-            .map(MessageRequest.Message.Party::partyId)
-            .forEach(partyId -> check(MESSAGE, partyId));
-    }
+	public void check(final MessageRequest request) {
+		request.messages().stream()
+			.map(MessageRequest.Message::party)
+			.map(MessageRequest.Message.Party::partyId)
+			.forEach(partyId -> check(MESSAGE, partyId));
+	}
 
-    public void check(final WebMessageRequest request) {
-        check(WEB_MESSAGE, request.party().partyId());
-    }
+	public void check(final WebMessageRequest request) {
+		check(WEB_MESSAGE, request.party().partyId());
+	}
 
-    public void check(final LetterRequest request) {
-        request.party().partyIds().forEach(partyId -> check(LETTER, partyId));
-    }
+	public void check(final LetterRequest request) {
+		request.party().partyIds().forEach(partyId -> check(LETTER, partyId));
+	}
 
-    public void check(final SlackRequest request) {
-        check(SLACK, request.channel());
-    }
+	public void check(final SlackRequest request) {
+		check(SLACK, request.channel());
+	}
 
 	public void check(final MessageType messageType, final String value) {
-        if (!properties.enabled() || isEmpty(properties.blockedRecipients())) {
-            LOG.debug("Blacklist is NOT ENABLED, or no blocked recipients have been defined");
+		if (!properties.enabled() || isEmpty(properties.blockedRecipients())) {
+			LOG.debug("Blacklist is NOT ENABLED, or no blocked recipients have been defined");
 
-            return;
-        }
+			return;
+		}
 
-        if (properties.blockedRecipients().getOrDefault(messageType, List.of()).contains(value)) {
-            throw Problem.valueOf(Status.BAD_REQUEST, "%s is blacklisted for %s".formatted(value, messageType));
-        }
-    }
+		if (properties.blockedRecipients().getOrDefault(messageType, List.of()).contains(value)) {
+			throw Problem.valueOf(Status.BAD_REQUEST, "%s is blacklisted for %s".formatted(value, messageType));
+		}
+	}
 }

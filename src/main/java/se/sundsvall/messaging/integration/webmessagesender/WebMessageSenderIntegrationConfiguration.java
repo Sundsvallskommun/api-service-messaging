@@ -18,40 +18,39 @@ import feign.codec.ErrorDecoder;
 @Import(FeignConfiguration.class)
 class WebMessageSenderIntegrationConfiguration {
 
-    private final WebMessageSenderIntegrationProperties properties;
+	private final WebMessageSenderIntegrationProperties properties;
 
-    WebMessageSenderIntegrationConfiguration(final WebMessageSenderIntegrationProperties properties) {
-        this.properties = properties;
-    }
+	WebMessageSenderIntegrationConfiguration(final WebMessageSenderIntegrationProperties properties) {
+		this.properties = properties;
+	}
 
-    @Bean
-    FeignBuilderCustomizer feignCustomizer() {
-        return FeignMultiCustomizer.create()
-            .withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-            .withErrorDecoder(errorDecoder())
-            .withRequestOptions(requestOptions())
-            .composeCustomizersToOne();
-    }
+	@Bean
+	FeignBuilderCustomizer feignCustomizer() {
+		return FeignMultiCustomizer.create()
+			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withErrorDecoder(errorDecoder())
+			.withRequestOptions(requestOptions())
+			.composeCustomizersToOne();
+	}
 
-    private ClientRegistration clientRegistration() {
-        return ClientRegistration
-            .withRegistrationId(WebMessageSenderIntegration.INTEGRATION_NAME)
-            .tokenUri(properties.getTokenUrl())
-            .clientId(properties.getClientId())
-            .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-            .build();
-    }
+	private ClientRegistration clientRegistration() {
+		return ClientRegistration
+			.withRegistrationId(WebMessageSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl())
+			.clientId(properties.getClientId())
+			.clientSecret(properties.getClientSecret())
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+			.build();
+	}
 
-    private Request.Options requestOptions() {
-        return new Request.Options(
-            properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
-            properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
-            true
-        );
-    }
+	private Request.Options requestOptions() {
+		return new Request.Options(
+			properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			true);
+	}
 
-    private ErrorDecoder errorDecoder() {
-        return new ProblemErrorDecoder(WebMessageSenderIntegration.INTEGRATION_NAME);
-    }
+	private ErrorDecoder errorDecoder() {
+		return new ProblemErrorDecoder(WebMessageSenderIntegration.INTEGRATION_NAME);
+	}
 }

@@ -163,7 +163,6 @@ class HistoryResourceFailureTest {
 		verifyNoInteractions(mockHistoryService);
 	}
 
-
 	@Test
 	void getUserMessages_invalid_municipalityId() {
 		var municipalityId = "not-a-valid-municipalityId";

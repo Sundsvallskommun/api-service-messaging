@@ -10,12 +10,8 @@ import lombok.Builder;
 @Schema(description = "Delivery result")
 public record DeliveryResult(
 
-    @Schema(description = "The delivery id", format = "uuid")
-    String deliveryId,
+	@Schema(description = "The delivery id", format = "uuid") String deliveryId,
 
-    @Schema(description = "Message type", enumAsRef = true)
-    MessageType messageType,
+	@Schema(description = "Message type", enumAsRef = true) MessageType messageType,
 
-    @Schema(description = "Status", enumAsRef = true)
-    MessageStatus status) {  }
-
+	@Schema(description = "Status", enumAsRef = true) MessageStatus status) {}

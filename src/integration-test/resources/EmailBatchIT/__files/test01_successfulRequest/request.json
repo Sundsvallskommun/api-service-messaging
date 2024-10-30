@@ -1,25 +1,23 @@
 {
+	"attachments": [{
+		"name": "test.txt",
+		"contentType": "text/plain",
+		"content": "aGVsbG8gd29ybGQK"
+	}],
+	"sender": {
+		"address": "sender@someotherhost.com",
+		"name": "Some Sender"
+	},
+	"subject": "Some subject",
 	"parties": [
 		{
-			"partyId": "269f1000-24f4-47ca-9c69-c5ed820f1baa",
-			"emailAddress": "someone@somewhere.com"
+			"emailAddress": "someone@somewhere.com",
+			"partyId": "269f1000-24f4-47ca-9c69-c5ed820f1baa"
 		},
 		{
-			"partyId": "269f1000-24f4-47ca-9c69-c5ed820f1bab",
-			"emailAddress": "another@somewhere.com"
+			"emailAddress": "another@somewhere.com",
+			"partyId": "269f1000-24f4-47ca-9c69-c5ed820f1bab"
 		}
 	],
-	"subject": "Some subject",
-	"message": "This is some e-mail content",
-	"sender": {
-		"name": "Some Sender",
-		"address": "sender@someotherhost.com"
-	},
-	"attachments": [
-		{
-			"content": "aGVsbG8gd29ybGQK",
-			"name": "test.txt",
-			"contentType": "text/plain"
-		}
-	]
+	"message": "This is some e-mail content"
 }

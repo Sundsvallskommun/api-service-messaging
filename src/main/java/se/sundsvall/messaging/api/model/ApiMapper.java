@@ -89,7 +89,8 @@ public class ApiMapper {
 		return HistoryResponse.builder()
 			.withMessageType(history.messageType())
 			.withStatus(history.status())
-			.withContent(fromJson(history.content(), switch (history.messageType()) {
+			.withContent(fromJson(history.content(), switch (history.messageType())
+			{
 				case EMAIL -> EmailRequest.class;
 				case SMS -> SmsRequest.class;
 				case WEB_MESSAGE -> WebMessageRequest.class;

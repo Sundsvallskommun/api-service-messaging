@@ -1,17 +1,11 @@
 {
-  "request": {
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-      }
-    },
-    "method": "POST",
-    "urlPath": "/snailmail-sender/2281/send/snailmail"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "status": 200
-  }
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "POST",
+		"urlPath": "/snailmail-sender/2281/send/snailmail"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"status": 200
+	}
 }

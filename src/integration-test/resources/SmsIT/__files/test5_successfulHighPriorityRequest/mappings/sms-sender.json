@@ -1,30 +1,18 @@
 {
-  "request": {
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-      }
-    },
-    "method": "POST",
-    "urlPath": "/sms-sender/2281/send/sms",
-    "bodyPatterns": [
-      {
-        "equalToJson": {
-          "sender": {
-            "name": "SomeSender"
-          },
-          "mobileNumber": "+46708971082",
-          "priority": "HIGH",
-          "message": "This is a high priority message"
-        }
-      }
-    ]
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
-    "status": 200
-  }
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "POST",
+		"bodyPatterns": [{"equalToJson": {
+			"sender": {"name": "SomeSender"},
+			"mobileNumber": "+46708971082",
+			"priority": "HIGH",
+			"message": "This is a high priority message"
+		}}],
+		"urlPath": "/sms-sender/2281/send/sms"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"bodyFileName": "test1_successfulRequest/responses/sms-sender.json",
+		"status": 200
+	}
 }

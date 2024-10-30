@@ -13,10 +13,10 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding;
 @ConfigurationProperties(prefix = "integration.slack")
 record SlackIntegrationProperties(String baseUrl, Duration connectTimeout, Duration readTimeout) {
 
-    @ConstructorBinding
-    SlackIntegrationProperties(String baseUrl, Duration connectTimeout, Duration readTimeout) {
-        this.baseUrl = ofNullable(baseUrl).orElse(ENDPOINT_URL_PREFIX);
-        this.connectTimeout = ofNullable(connectTimeout).orElse(DEFAULT_CONNECT_TIMEOUT);
-        this.readTimeout = ofNullable(readTimeout).orElse(DEFAULT_READ_TIMEOUT);
-    }
+	@ConstructorBinding
+	SlackIntegrationProperties(String baseUrl, Duration connectTimeout, Duration readTimeout) {
+		this.baseUrl = ofNullable(baseUrl).orElse(ENDPOINT_URL_PREFIX);
+		this.connectTimeout = ofNullable(connectTimeout).orElse(DEFAULT_CONNECT_TIMEOUT);
+		this.readTimeout = ofNullable(readTimeout).orElse(DEFAULT_READ_TIMEOUT);
+	}
 }

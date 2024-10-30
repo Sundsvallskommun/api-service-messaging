@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createEmailDto;
 

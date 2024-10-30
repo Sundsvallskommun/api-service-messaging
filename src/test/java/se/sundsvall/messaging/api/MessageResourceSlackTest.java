@@ -60,7 +60,9 @@ class MessageResourceSlackTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();
@@ -94,7 +96,9 @@ class MessageResourceSlackTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();

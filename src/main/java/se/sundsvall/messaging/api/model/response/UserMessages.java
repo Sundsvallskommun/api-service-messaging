@@ -16,12 +16,9 @@ import lombok.Builder;
 @Schema(description = "User messages model")
 public record UserMessages(
 
-	@JsonProperty("_meta")
-	@Schema(implementation = PagingMetaData.class, accessMode = READ_ONLY)
-	PagingMetaData metaData,
+	@JsonProperty("_meta") @Schema(implementation = PagingMetaData.class, accessMode = READ_ONLY) PagingMetaData metaData,
 
-	@ArraySchema(schema = @Schema(implementation = UserMessage.class, accessMode = READ_ONLY))
-	List<UserMessage> messages
+	@ArraySchema(schema = @Schema(implementation = UserMessage.class, accessMode = READ_ONLY)) List<UserMessage> messages
 
 ) {
 }

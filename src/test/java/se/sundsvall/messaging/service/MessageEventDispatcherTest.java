@@ -112,7 +112,9 @@ class MessageEventDispatcherTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void handleSmsBatchRequest(final boolean whitelisted) {
 		final var message = Message.builder().withMunicipalityId(MUNICIPALITY_ID).build();
 		final var smsRequest = SmsRequest.builder().build();

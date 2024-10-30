@@ -8,44 +8,42 @@
 			"Authorization": "Bearer xoxb-8077485541522-1058560177533-6c6NBHvCc8JBkmQ4L5Z0ZpwT",
 			"Content-Type": "application/x-www-form-urlencoded"
 		},
-		"status": 200,
 		"jsonBody": {
-			"ok": true,
 			"channel": "CTGM9CNAVXW",
-			"ts": "1683553793.545779",
+			"ok": true,
 			"message": {
-				"bot_id": "B997T7LUPO2",
-				"type": "message",
-				"text": "Test message",
-				"user": "U198BYC0I4P",
-				"ts": "1683553793.545779",
-				"app_id": "A050ASLLASU",
-				"blocks": [
-					{
-						"type": "section",
-						"block_id": "zI5Z",
-						"text": {
-							"type": "mrkdwn",
-							"text": "Test message",
-							"verbatim": false
-						}
-					}
-				],
-				"team": "T52PWM22NNO",
 				"bot_profile": {
-					"id": "B052F1GHAD6",
-					"app_id": "A050ASLLASU",
+					"deleted": false,
 					"name": "messaging",
+					"id": "B052F1GHAD6",
+					"team_id": "T52PWM22NNO",
 					"icons": {
 						"image_36": "https://a.slack-edge.com/12345/img/plugins/app/bot_36.png",
 						"image_48": "https://a.slack-edge.com/12345/img/plugins/app/bot_48.png",
 						"image_72": "https://a.slack-edge.com/12345/img/plugins/app/service_72.png"
 					},
-					"deleted": false,
-					"updated": 1680619531,
-					"team_id": "T52PWM22NNO"
-				}
-			}
-		}
+					"app_id": "A050ASLLASU",
+					"updated": 1680619531
+				},
+				"blocks": [{
+					"text": {
+						"text": "Test message",
+						"type": "mrkdwn",
+						"verbatim": false
+					},
+					"type": "section",
+					"block_id": "zI5Z"
+				}],
+				"text": "Test message",
+				"team": "T52PWM22NNO",
+				"type": "message",
+				"user": "U198BYC0I4P",
+				"app_id": "A050ASLLASU",
+				"bot_id": "B997T7LUPO2",
+				"ts": "1683553793.545779"
+			},
+			"ts": "1683553793.545779"
+		},
+		"status": 200
 	}
 }

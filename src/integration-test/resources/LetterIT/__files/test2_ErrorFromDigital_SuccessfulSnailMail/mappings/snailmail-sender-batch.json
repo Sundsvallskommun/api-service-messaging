@@ -1,17 +1,11 @@
 {
-  "request": {
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
-      }
-    },
-    "urlPathPattern": "/snailmail-sender/2281/send/batch/.*",
-    "method": "POST"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "status": 200
-  }
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "POST",
+		"urlPathPattern": "/snailmail-sender/2281/send/batch/.*"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"status": 200
+	}
 }

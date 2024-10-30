@@ -28,11 +28,11 @@ public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>
 	}
 
 	@Query("""
-		    SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.municipalityId) FROM HistoryEntity h WHERE
-		    (:message_type IS NULL OR h.originalMessageType = :message_type) AND
-		    (:from_date IS NULL OR h.createdAt >= :from_date) AND
-		    (:to_date IS NULL OR h.createdAt <= :to_date) AND
-		    (:municipality_id IS NULL OR h.municipalityId = :municipality_id)
+			SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.municipalityId) FROM HistoryEntity h WHERE
+			(:message_type IS NULL OR h.originalMessageType = :message_type) AND
+			(:from_date IS NULL OR h.createdAt >= :from_date) AND
+			(:to_date IS NULL OR h.createdAt <= :to_date) AND
+			(:municipality_id IS NULL OR h.municipalityId = :municipality_id)
 		""")
 	List<StatsEntry> getStatsQuery(
 		@Param("message_type") final MessageType messageType,
@@ -51,13 +51,13 @@ public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>
 	}
 
 	@Query(value = """
-		    SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.origin, h.department, h.municipalityId) FROM HistoryEntity h WHERE
-		    (:message_type IS NULL OR h.originalMessageType = :message_type) AND
-		    (:from_date IS NULL OR h.createdAt >= :from_date) AND
-		    (:to_date IS NULL OR h.createdAt <= :to_date) AND
-		    (:department IS NULL OR h.department = :department) AND
-		    (:origin IS NULL OR h.origin = :origin) AND
-		    (:municipality_id IS NULL OR h.municipalityId = :municipality_id)
+			SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.origin, h.department, h.municipalityId) FROM HistoryEntity h WHERE
+			(:message_type IS NULL OR h.originalMessageType = :message_type) AND
+			(:from_date IS NULL OR h.createdAt >= :from_date) AND
+			(:to_date IS NULL OR h.createdAt <= :to_date) AND
+			(:department IS NULL OR h.department = :department) AND
+			(:origin IS NULL OR h.origin = :origin) AND
+			(:municipality_id IS NULL OR h.municipalityId = :municipality_id)
 		""")
 	List<StatsEntry> getStatsByOriginAndDepartmentQuery(
 		@Param("origin") final String origin,

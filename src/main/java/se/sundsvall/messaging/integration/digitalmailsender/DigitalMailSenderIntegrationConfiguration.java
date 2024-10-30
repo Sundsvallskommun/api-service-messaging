@@ -17,36 +17,35 @@ import feign.Request;
 @Import(FeignConfiguration.class)
 class DigitalMailSenderIntegrationConfiguration {
 
-    private final DigitalMailSenderIntegrationProperties properties;
+	private final DigitalMailSenderIntegrationProperties properties;
 
-    DigitalMailSenderIntegrationConfiguration(final DigitalMailSenderIntegrationProperties properties) {
-        this.properties = properties;
-    }
+	DigitalMailSenderIntegrationConfiguration(final DigitalMailSenderIntegrationProperties properties) {
+		this.properties = properties;
+	}
 
-    @Bean
-    FeignBuilderCustomizer feignCustomizer() {
-        return FeignMultiCustomizer.create()
-            .withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-            .withRequestOptions(requestOptions())
-            .withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME))
-            .composeCustomizersToOne();
-    }
+	@Bean
+	FeignBuilderCustomizer feignCustomizer() {
+		return FeignMultiCustomizer.create()
+			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withRequestOptions(requestOptions())
+			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME))
+			.composeCustomizersToOne();
+	}
 
-    private ClientRegistration clientRegistration() {
-        return ClientRegistration
-            .withRegistrationId(DigitalMailSenderIntegration.INTEGRATION_NAME)
-            .tokenUri(properties.getTokenUrl())
-            .clientId(properties.getClientId())
-            .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-            .build();
-    }
+	private ClientRegistration clientRegistration() {
+		return ClientRegistration
+			.withRegistrationId(DigitalMailSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl())
+			.clientId(properties.getClientId())
+			.clientSecret(properties.getClientSecret())
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+			.build();
+	}
 
-    private Request.Options requestOptions() {
-        return new Request.Options(
-            properties.getConnectTimeout().toMillis(), MILLISECONDS,
-            properties.getReadTimeout().toMillis(), MILLISECONDS,
-            true
-        );
-    }
+	private Request.Options requestOptions() {
+		return new Request.Options(
+			properties.getConnectTimeout().toMillis(), MILLISECONDS,
+			properties.getReadTimeout().toMillis(), MILLISECONDS,
+			true);
+	}
 }

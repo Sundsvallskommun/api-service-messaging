@@ -1,5 +1,5 @@
 {
+	"detail": "Couldn't send e-mail",
 	"title": "Internal server error",
-	"status": 500,
-	"detail": "Couldn't send e-mail"
+	"status": 500
 }

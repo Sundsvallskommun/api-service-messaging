@@ -12,8 +12,7 @@ import lombok.Builder;
 @Builder(setterPrefix = "with", builderClassName = "Builder")
 @JsonDeserialize(builder = HistoryResponse.Builder.class) // FOR TESTS
 public record HistoryResponse(
-    MessageType messageType,
-    MessageStatus status,
-    Object content,
-    LocalDateTime timestamp) { }
-
+	MessageType messageType,
+	MessageStatus status,
+	Object content,
+	LocalDateTime timestamp) {}

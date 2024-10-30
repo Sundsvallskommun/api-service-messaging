@@ -9,9 +9,6 @@ import lombok.Builder;
 @Schema(description = "Message batch result")
 public record MessageBatchResult(
 
-    @Schema(description = "The batch id", format = "uuid")
-    String batchId,
+	@Schema(description = "The batch id", format = "uuid") String batchId,
 
-    @Schema(description = "The individual message results")
-    List<MessageResult> messages) {  }
-
+	@Schema(description = "The individual message results") List<MessageResult> messages) {}

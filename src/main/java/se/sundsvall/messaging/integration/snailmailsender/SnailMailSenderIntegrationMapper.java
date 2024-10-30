@@ -26,8 +26,7 @@ class SnailMailSenderIntegrationMapper {
 						.name(attachment.name())
 						.contentType(Attachment.ContentTypeEnum.fromValue(attachment.contentType()))
 						.content(attachment.content()))
-					.toList()
-				)
+					.toList())
 				.orElse(null));
 	}
 

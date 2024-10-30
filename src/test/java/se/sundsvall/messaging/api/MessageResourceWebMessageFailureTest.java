@@ -81,7 +81,9 @@ class MessageResourceWebMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-a-uuid"})
+	@ValueSource(strings = {
+		" ", "not-a-uuid"
+	})
 	@NullAndEmptySource
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
@@ -169,7 +171,9 @@ class MessageResourceWebMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "invalid"})
+	@ValueSource(strings = {
+		"", " ", "invalid"
+	})
 	void shouldFailWithInvalidOepInstance(String oepInstance) {
 		// Arrange
 		final var request = validRequest.withOepInstance(oepInstance);

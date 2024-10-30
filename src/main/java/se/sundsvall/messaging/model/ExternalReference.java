@@ -10,10 +10,6 @@ import lombok.With;
 @Builder(setterPrefix = "with")
 public record ExternalReference(
 
-    @NotBlank
-    @Schema(description = "The external reference key", example = "flowInstanceId")
-    String key,
+	@NotBlank @Schema(description = "The external reference key", example = "flowInstanceId") String key,
 
-    @NotBlank
-    @Schema(description = "The external reference value", example = "356t4r34f")
-    String value) { }
+	@NotBlank @Schema(description = "The external reference value", example = "356t4r34f") String value) {}

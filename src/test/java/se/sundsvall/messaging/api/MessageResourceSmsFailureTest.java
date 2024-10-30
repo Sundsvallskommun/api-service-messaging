@@ -53,7 +53,9 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "not-a-uuid"})
+	@ValueSource(strings = {
+		"", " ", "not-a-uuid"
+	})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
@@ -142,7 +144,9 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"not-a-mobile-number", " "})
+	@ValueSource(strings = {
+		"not-a-mobile-number", " "
+	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrInvalidMobileNumber(String value) {
 		// Arrange
@@ -198,7 +202,9 @@ class MessageResourceSmsFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"ab", "abcdefghijkl"})
+	@ValueSource(strings = {
+		"ab", "abcdefghijkl"
+	})
 	@EmptySource
 	void shouldFailWithBlankOrInvalidSenderLength(String value) {
 		// Arrange

@@ -12,13 +12,13 @@ import lombok.Setter;
 @Setter
 public abstract class AbstractRestIntegrationProperties {
 
-    private String baseUrl;
+	private String baseUrl;
 
-    private Duration readTimeout = DEFAULT_READ_TIMEOUT;
-    private Duration connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+	private Duration readTimeout = DEFAULT_READ_TIMEOUT;
+	private Duration connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
-    private String tokenUrl;
-    private String clientId;
-    private String clientSecret;
-    private String grantType = "client_credentials";
+	private String tokenUrl;
+	private String clientId;
+	private String clientSecret;
+	private String grantType = "client_credentials";
 }

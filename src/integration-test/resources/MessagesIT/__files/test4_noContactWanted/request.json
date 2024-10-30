@@ -1,20 +1,12 @@
-{
-	"messages": [
-		{
-			"party": {
-				"partyId": "f427952b-247c-4d3b-b081-675a467b3619"
-			},
-			"sender": {
-				"sms": {
-					"name": "SomeSender"
-				},
-				"email": {
-					"name": "SomeSender",
-					"address": "somesender@somehost.com"
-				}
-			},
-			"subject": "My subject",
-			"message": "My message"
+{"messages": [{
+	"sender": {
+		"sms": {"name": "SomeSender"},
+		"email": {
+			"address": "somesender@somehost.com",
+			"name": "SomeSender"
 		}
-	]
-}
+	},
+	"subject": "My subject",
+	"message": "My message",
+	"party": {"partyId": "f427952b-247c-4d3b-b081-675a467b3619"}
+}]}

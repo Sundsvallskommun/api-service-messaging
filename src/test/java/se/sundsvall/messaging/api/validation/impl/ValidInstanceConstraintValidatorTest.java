@@ -25,7 +25,9 @@ class ValidInstanceConstraintValidatorTest {
 	private ValidInstanceConstraintValidator validator;
 
 	@ParameterizedTest
-	@ValueSource(strings = {"internal", "external"})
+	@ValueSource(strings = {
+		"internal", "external"
+	})
 	void validInstance(final String oepInstance) {
 		validator.initialize(mockAnnotation);
 
@@ -37,7 +39,9 @@ class ValidInstanceConstraintValidatorTest {
 
 	@ParameterizedTest
 	@NullSource
-	@ValueSource(strings = {"not-valid", "", " "})
+	@ValueSource(strings = {
+		"not-valid", "", " "
+	})
 	void invalidOepInstance(final String oepInstance) {
 		validator.initialize(mockAnnotation);
 

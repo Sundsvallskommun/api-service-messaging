@@ -80,7 +80,9 @@ class MessageResourceLetterFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "not-a-uuid"})
+	@ValueSource(strings = {
+		"", " ", "not-a-uuid"
+	})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyIds(List.of(partyId)));
@@ -249,7 +251,9 @@ class MessageResourceLetterFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-valid-content-type"})
+	@ValueSource(strings = {
+		" ", "not-valid-content-type"
+	})
 	@NullAndEmptySource
 	void shouldFailWithInvalidContentType(final String contentType) {
 		// Arrange
@@ -333,7 +337,9 @@ class MessageResourceLetterFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-valid-content-type"})
+	@ValueSource(strings = {
+		" ", "not-valid-content-type"
+	})
 	@NullAndEmptySource
 	void shouldFailWithFileWithInvalidContentType(final String contentType) {
 		// Arrange

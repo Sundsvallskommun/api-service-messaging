@@ -12,8 +12,7 @@ import generated.se.sundsvall.party.PartyType;
 	name = PartyIntegration.INTEGRATION_NAME,
 	url = "${integration.party.base-url}",
 	configuration = PartyIntegrationConfiguration.class,
-	dismiss404 = true
-)
+	dismiss404 = true)
 public interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")

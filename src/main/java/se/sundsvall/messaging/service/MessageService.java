@@ -431,8 +431,8 @@ public class MessageService {
 
 		return sendTry
 			.peek(status ->
-				// Archive the message
-				archiveMessage(delivery.withStatus(status)))
+			// Archive the message
+			archiveMessage(delivery.withStatus(status)))
 			// Map to result
 			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, municipalityId))
 			// Make sure all exceptions that may occur are throwable problems

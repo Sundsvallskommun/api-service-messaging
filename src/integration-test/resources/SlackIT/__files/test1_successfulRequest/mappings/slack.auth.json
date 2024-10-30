@@ -8,16 +8,16 @@
 			"Authorization": "Bearer xoxb-8077485541522-1058560177533-6c6NBHvCc8JBkmQ4L5Z0ZpwT",
 			"Content-Type": "application/x-www-form-urlencoded"
 		},
-		"status": 200,
 		"jsonBody": {
-			"ok": true,
-			"url": "http://localhost:${wiremock.server.port}/slack",
-			"team": "Some Team",
-			"user": "messaging",
-			"team_id": "T52PWM22NNO",
 			"user_id": "U198BYC0I4P",
-			"bot_id": "B997T7LUPO2",
-			"is_enterprise_install": false
-		}
+			"is_enterprise_install": false,
+			"team": "Some Team",
+			"team_id": "T52PWM22NNO",
+			"ok": true,
+			"user": "messaging",
+			"url": "http://localhost:${wiremock.server.port}/slack",
+			"bot_id": "B997T7LUPO2"
+		},
+		"status": 200
 	}
 }

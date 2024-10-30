@@ -10,8 +10,7 @@ import generated.se.sundsvall.snailmail.SendSnailMailRequest;
 @FeignClient(
 	name = SnailMailSenderIntegration.INTEGRATION_NAME,
 	url = "${integration.snailmail-sender.base-url}",
-	configuration = SnailMailSenderIntegrationConfiguration.class
-)
+	configuration = SnailMailSenderIntegrationConfiguration.class)
 interface SnailMailSenderClient {
 
 	@PostMapping("{municipalityId}/send/snailmail")

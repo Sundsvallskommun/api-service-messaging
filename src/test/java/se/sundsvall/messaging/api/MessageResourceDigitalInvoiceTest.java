@@ -60,7 +60,9 @@ class MessageResourceDigitalInvoiceTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
@@ -94,7 +96,9 @@ class MessageResourceDigitalInvoiceTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();

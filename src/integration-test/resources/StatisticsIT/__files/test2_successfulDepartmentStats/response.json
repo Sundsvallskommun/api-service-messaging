@@ -1,47 +1,43 @@
 [
 	{
-		"DEPARTMENT_STATISTICS": [
-			{
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
-				"DIGITAL_MAIL": {
-					"failed": 1,
-					"sent": 0
-				},
-				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 4
-				}
-			}
-		],
+		"DEPARTMENT_STATISTICS": [{
+			"DIGITAL_MAIL": {
+				"failed": 1,
+				"sent": 0
+			},
+			"SNAIL_MAIL": {
+				"failed": 0,
+				"sent": 4
+			},
+			"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+		}],
 		"ORIGIN": "origin"
 	},
 	{
-		"DEPARTMENT_STATISTICS": [
-			{
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
-				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				}
-			}
-		],
+		"DEPARTMENT_STATISTICS": [{
+			"SNAIL_MAIL": {
+				"failed": 0,
+				"sent": 1
+			},
+			"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+		}],
 		"ORIGIN": "origin2"
 	},
 	{
 		"DEPARTMENT_STATISTICS": [
 			{
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
 					"failed": 0,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
 			},
 			{
-				"DEPARTMENT": "Ej kategoriserad",
 				"DIGITAL_MAIL": {
 					"failed": 1,
 					"sent": 0
-				}
+				},
+				"DEPARTMENT": "Ej kategoriserad"
 			}
 		],
 		"ORIGIN": "Other"
@@ -49,35 +45,34 @@
 	{
 		"DEPARTMENT_STATISTICS": [
 			{
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
 					"failed": 1,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
 			},
 			{
-				"DEPARTMENT": "Kommunstyrelsekontoret",
 				"SNAIL_MAIL": {
 					"failed": 0,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "Kommunstyrelsekontoret"
 			},
 			{
-				"DEPARTMENT": "Kultur och fritid",
 				"SNAIL_MAIL": {
 					"failed": 1,
 					"sent": 0
-				}
+				},
+				"DEPARTMENT": "Kultur och fritid"
 			},
 			{
-				"DEPARTMENT": "Stadsbyggnadskontoret",
 				"SNAIL_MAIL": {
 					"failed": 0,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "Stadsbyggnadskontoret"
 			},
 			{
-				"DEPARTMENT": "BOU Förskola",
 				"DIGITAL_MAIL": {
 					"failed": 1,
 					"sent": 0
@@ -85,14 +80,15 @@
 				"SNAIL_MAIL": {
 					"failed": 0,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "BOU Förskola"
 			},
 			{
-				"DEPARTMENT": "Ej kategoriserad",
 				"SNAIL_MAIL": {
 					"failed": 2,
 					"sent": 1
-				}
+				},
+				"DEPARTMENT": "Ej kategoriserad"
 			}
 		],
 		"ORIGIN": "origin1"

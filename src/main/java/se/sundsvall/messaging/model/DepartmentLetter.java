@@ -8,11 +8,7 @@ import lombok.Builder;
 @Schema(name = "DepartmentLetterStatistics")
 public record DepartmentLetter(
 
-	@JsonProperty("DEPARTMENT")
-	String department,
-	@JsonProperty("SNAIL_MAIL")
-	Count snailMail,
-	@JsonProperty("DIGITAL_MAIL")
-	Count digitalMail) {
+	@JsonProperty("DEPARTMENT") String department,
+	@JsonProperty("SNAIL_MAIL") Count snailMail,
+	@JsonProperty("DIGITAL_MAIL") Count digitalMail) {
 }
-

@@ -54,7 +54,9 @@ class MessageResourceSmsBatchFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"ab", "abcdefghijkl"})
+	@ValueSource(strings = {
+		"ab", "abcdefghijkl"
+	})
 	void shoudFailWithInvalidSender(String sender) {
 		// Arrange
 		final var request = validRequest.withSender(sender);
