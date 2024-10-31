@@ -10,9 +10,9 @@ import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 
 public class ClassImportIntegratorIntegratorProvider implements IntegratorProvider {
- 
-    @Override
-    public List<Integrator> getIntegrators() {
-        return List.of(new ClassImportIntegrator(List.of(StatsEntry.class)));
-    }
+
+	@Override
+	public List<Integrator> getIntegrators() {
+		return List.of(new ClassImportIntegrator(List.of(StatsEntry.class)));
+	}
 }

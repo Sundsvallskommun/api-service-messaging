@@ -79,7 +79,9 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "not-a-uuid"})
+	@ValueSource(strings = {
+		"", " ", "not-a-uuid"
+	})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest
@@ -206,7 +208,9 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-a-valid-email-address"})
+	@ValueSource(strings = {
+		" ", "not-a-valid-email-address"
+	})
 	@NullAndEmptySource
 	void shouldFailWithInvalidSender_WhenSenderEmailIsInvalid(String address) {
 		final var message = validRequest.messages().getFirst();
@@ -238,7 +242,9 @@ class MessageResourceMessageFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-a-valid-email-address"})
+	@ValueSource(strings = {
+		" ", "not-a-valid-email-address"
+	})
 	void shouldFailWithInvalidEmailReplyTo(String replyTo) {
 		final var message = validRequest.messages().getFirst();
 		final var email = message.sender().email().withReplyTo(replyTo);

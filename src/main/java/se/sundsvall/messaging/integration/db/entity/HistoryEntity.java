@@ -29,7 +29,8 @@ import se.sundsvall.messaging.model.MessageType;
 	@Index(name = "idx_history_origin", columnList = "origin"),
 	@Index(name = "idx_history_issuer", columnList = "issuer"),
 	@Index(name = "idx_history_department", columnList = "department"),
-	@Index(name = "idx_history_municipality_id", columnList = "municipality_id") })
+	@Index(name = "idx_history_municipality_id", columnList = "municipality_id")
+})
 @Getter
 @Builder(setterPrefix = "with")
 @NoArgsConstructor

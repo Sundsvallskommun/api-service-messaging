@@ -5,14 +5,15 @@
 Sundsvalls kommun
 
 ## Beskrivning
+
 Messaging är en tjänst som hanterar utgående kommunikation via e-post, SMS, digitala brevlådor och som meddelanden i Open-E-plattformen.
 
 Utöver denna funktionalitet sparas, för identifierade mottagare, historik över utgående kommunikation.
 
-
 ## Tekniska detaljer
 
 ### Integrationer
+
 Tjänsten integrerar mot:
 
 * [ContactSettings](https://github.com/OpenSundsvall/api-service-contactsettings)
@@ -25,7 +26,7 @@ Tjänsten integrerar mot:
 
 Konfiguration sker i filen `src/main/resources/application.properties` genom att sätta nedanstående properties till önskade värden:
 
-| Property                                        | Beskrivning                                                   |
+|                    Property                     |                          Beskrivning                          |
 |-------------------------------------------------|---------------------------------------------------------------|
 | **Generella inställningar**                     |                                                               |
 | `messaging.default-sender.sms.name`             | Standard-avsändare för utgående SMS (max 11 tecken)           |
@@ -58,10 +59,9 @@ Konfiguration sker i filen `src/main/resources/application.properties` genom att
 | `integration.digital-mail-sender.client-secret` | OAuth2-klient-nyckel DigitalMailSender-tjänsten               |
 | **Inställningar för ContactSettings**           |
 | `integration.contact-settings.base-urlL`        | API-URL till ContactSettings-tjänsten                         |
-| `integration.contact-settings.token-url`       | URL för att hämta OAuth2-token för ContactSettings-tjänsten   |
-| `integration.contact-settings.client-id`       | OAuth2-klient-id för ContactSettings-tjänsten                 |
-| `integration.contact-settings.client-secret`   | OAuth2-klient-nyckel ContactSettings-tjänsten                 |
-
+| `integration.contact-settings.token-url`        | URL för att hämta OAuth2-token för ContactSettings-tjänsten   |
+| `integration.contact-settings.client-id`        | OAuth2-klient-id för ContactSettings-tjänsten                 |
+| `integration.contact-settings.client-secret`    | OAuth2-klient-nyckel ContactSettings-tjänsten                 |
 
 ### Paketera och starta tjänsten
 
@@ -102,6 +102,6 @@ Copyright &copy; 2022 Sundsvalls kommun
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-messaging&metric=bugs)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-messaging)
 
-
 ## 
+
 Copyright (c) 2021 Sundsvalls kommun

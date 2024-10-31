@@ -29,7 +29,10 @@ public record LetterRequest(
 	@Valid @Schema(description = "Sender") Sender sender,
 
 	@OneOf( {
-		"text/plain", "text/html" }) @Schema(description = "Content type", allowableValues = { "text/plain", "text/html" }) String contentType,
+		"text/plain", "text/html"
+	}) @Schema(description = "Content type", allowableValues = {
+		"text/plain", "text/html"
+	}) String contentType,
 
 	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'text/html')") String body,
 
@@ -85,7 +88,8 @@ public record LetterRequest(
 		@NotBlank @Schema(description = "Filename") String filename,
 
 		@OneOf("application/pdf") @Schema(description = "Content type", allowableValues = {
-			"application/pdf" }) String contentType,
+			"application/pdf"
+		}) String contentType,
 
 		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content){
 

@@ -65,9 +65,7 @@ class WebMessageSenderIntegrationTest {
 			.isThrownBy(() -> integration.sendWebMessage("2281", WebMessageDto.builder().build()))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-				);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toCreateWebMessageRequest(any(WebMessageDto.class));

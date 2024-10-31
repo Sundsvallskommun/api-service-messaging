@@ -1,78 +1,70 @@
 {
 	"messages": [
 		{
-			"messageId": "d4545198-3356-40a8-83a9-5950e74585a6",
-			"issuer": "issuer1",
-			"origin": "origin",
-			"sent": "2024-02-25T15:54:39.254123",
+			"attachments": [{
+				"fileName": "beslut.pdf",
+				"contentType": "application/pdf"
+			}],
 			"recipients": [
 				{
-					"personId": "190101010159",
 					"messageType": "SNAIL_MAIL",
+					"personId": "190101010159",
 					"status": "SENT"
 				},
 				{
-					"personId": "190101010159",
 					"messageType": "SNAIL_MAIL",
+					"personId": "190101010159",
 					"status": "SENT"
 				}
 			],
-			"attachments": [
-				{
-					"contentType": "application/pdf",
-					"fileName": "beslut.pdf"
-				}
-			]
+			"origin": "origin",
+			"messageId": "d4545198-3356-40a8-83a9-5950e74585a6",
+			"sent": "2024-02-25T15:54:39.254123",
+			"issuer": "issuer1"
 		},
 		{
+			"attachments": [{
+				"fileName": "smiley.jpg",
+				"contentType": "image/jpeg"
+			}],
+			"recipients": [{
+				"messageType": "SNAIL_MAIL",
+				"personId": "190101010159",
+				"status": "SENT"
+			}],
+			"origin": "origin",
 			"messageId": "0c803a34-9418-48a8-a058-10e8394116b8",
-			"issuer": "issuer1",
-			"origin": "origin",
 			"sent": "2024-02-25T15:54:39.254123",
-			"recipients": [
-				{
-					"personId": "190101010159",
-					"messageType": "SNAIL_MAIL",
-					"status": "SENT"
-				}
-			],
-			"attachments": [
-				{
-					"contentType": "image/jpeg",
-					"fileName": "smiley.jpg"
-				}
-			]
+			"issuer": "issuer1"
 		},
 		{
-			"messageId": "220af9b4-e9e5-4567-ab1e-48b0393362eb",
-			"issuer": "issuer1",
-			"origin": "origin",
-			"sent": "2024-02-25T15:54:39.254123",
+			"attachments": [{
+				"fileName": "beslut.pdf",
+				"contentType": "application/pdf"
+			}],
 			"recipients": [
 				{
-					"personId": "190101010159",
 					"messageType": "DIGITAL_MAIL",
+					"personId": "190101010159",
 					"status": "FAILED"
 				},
 				{
-					"personId": "190101010159",
 					"messageType": "SNAIL_MAIL",
+					"personId": "190101010159",
 					"status": "SENT"
 				}
 			],
-			"attachments": [
-				{
-					"contentType": "application/pdf",
-					"fileName": "beslut.pdf"
-				}
-			]
+			"origin": "origin",
+			"messageId": "220af9b4-e9e5-4567-ab1e-48b0393362eb",
+			"sent": "2024-02-25T15:54:39.254123",
+			"issuer": "issuer1"
 		}
 	],
 	"_meta": {
-		"page": 1,
+		"totalRecords": 3,
 		"limit": 10,
 		"count": 3,
-		"totalRecords": 3,
-		"totalPages": 1
+		"totalPages": 1,
+		"page": 1
 	}
 }

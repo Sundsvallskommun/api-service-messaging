@@ -11,8 +11,7 @@ import generated.se.sundsvall.smssender.SendSmsResponse;
 @FeignClient(
 	name = SmsSenderIntegration.INTEGRATION_NAME,
 	url = "${integration.sms-sender.base-url}",
-	configuration = SmsSenderIntegrationConfiguration.class
-)
+	configuration = SmsSenderIntegrationConfiguration.class)
 interface SmsSenderClient {
 
 	@PostMapping("/{municipalityId}/send/sms")

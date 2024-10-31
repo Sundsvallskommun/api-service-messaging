@@ -18,40 +18,39 @@ import feign.codec.ErrorDecoder;
 @Import(FeignConfiguration.class)
 class SnailMailSenderIntegrationConfiguration {
 
-    private final SnailMailSenderIntegrationProperties properties;
+	private final SnailMailSenderIntegrationProperties properties;
 
-    SnailMailSenderIntegrationConfiguration(final SnailMailSenderIntegrationProperties properties) {
-        this.properties = properties;
-    }
+	SnailMailSenderIntegrationConfiguration(final SnailMailSenderIntegrationProperties properties) {
+		this.properties = properties;
+	}
 
-    @Bean
-    FeignBuilderCustomizer feignCustomizer() {
-        return FeignMultiCustomizer.create()
-            .withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-            .withErrorDecoder(errorDecoder())
-            .withRequestOptions(requestOptions())
-            .composeCustomizersToOne();
-    }
+	@Bean
+	FeignBuilderCustomizer feignCustomizer() {
+		return FeignMultiCustomizer.create()
+			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withErrorDecoder(errorDecoder())
+			.withRequestOptions(requestOptions())
+			.composeCustomizersToOne();
+	}
 
-    private ClientRegistration clientRegistration() {
-        return ClientRegistration
-            .withRegistrationId(SnailMailSenderIntegration.INTEGRATION_NAME)
-            .tokenUri(properties.getTokenUrl())
-            .clientId(properties.getClientId())
-            .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-            .build();
-    }
+	private ClientRegistration clientRegistration() {
+		return ClientRegistration
+			.withRegistrationId(SnailMailSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl())
+			.clientId(properties.getClientId())
+			.clientSecret(properties.getClientSecret())
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+			.build();
+	}
 
-    private Request.Options requestOptions() {
-        return new Request.Options(
-            properties.getConnectTimeout().toMillis(), MILLISECONDS,
-            properties.getReadTimeout().toMillis(), MILLISECONDS,
-            true
-        );
-    }
+	private Request.Options requestOptions() {
+		return new Request.Options(
+			properties.getConnectTimeout().toMillis(), MILLISECONDS,
+			properties.getReadTimeout().toMillis(), MILLISECONDS,
+			true);
+	}
 
-    private ErrorDecoder errorDecoder() {
-        return new ProblemErrorDecoder(SnailMailSenderIntegration.INTEGRATION_NAME);
-    }
+	private ErrorDecoder errorDecoder() {
+		return new ProblemErrorDecoder(SnailMailSenderIntegration.INTEGRATION_NAME);
+	}
 }

@@ -16,17 +16,17 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @ExtendWith(MockitoExtension.class)
 class MessagingStatsHealthIndicatorTest {
 
-    @Mock
-    private Health.Builder mockHealthBuilder;
+	@Mock
+	private Health.Builder mockHealthBuilder;
 
-    @InjectMocks
-    private MessagingStatsHealthIndicator healthIndicator;
+	@InjectMocks
+	private MessagingStatsHealthIndicator healthIndicator;
 
-    @Test
-    void test_doHealthCheck() {
-        // TODO: implement properly when statistics querying is done
-        healthIndicator.doHealthCheck(mockHealthBuilder);
+	@Test
+	void test_doHealthCheck() {
+		// TODO: implement properly when statistics querying is done
+		healthIndicator.doHealthCheck(mockHealthBuilder);
 
-        verify(mockHealthBuilder, times(1)).up();
-    }
+		verify(mockHealthBuilder, times(1)).up();
+	}
 }

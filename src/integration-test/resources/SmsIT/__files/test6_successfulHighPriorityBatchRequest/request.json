@@ -1,13 +1,9 @@
 {
 	"sender": "Joker",
-	"message": "Your day of reckoning is here",
-	"priority": "HIGH",
 	"parties": [
-		{
-			"mobileNumber": "+46701116677"
-		},
-		{
-			"mobileNumber": "+46702227788"
-		}
-	]
+		{"mobileNumber": "+46701116677"},
+		{"mobileNumber": "+46702227788"}
+	],
+	"message": "Your day of reckoning is here",
+	"priority": "HIGH"
 }

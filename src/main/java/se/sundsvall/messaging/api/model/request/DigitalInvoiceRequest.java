@@ -79,7 +79,8 @@ public record DigitalInvoiceRequest(
 	public record File(
 
 		@OneOf(APPLICATION_PDF_VALUE) @Schema(description = "Content type", allowableValues = {
-			APPLICATION_PDF_VALUE }, requiredMode = REQUIRED) String contentType,
+			APPLICATION_PDF_VALUE
+		}, requiredMode = REQUIRED) String contentType,
 
 		@ValidBase64 @Schema(description = "Content (BASE64-encoded)", requiredMode = REQUIRED) String content,
 

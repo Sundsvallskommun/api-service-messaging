@@ -31,7 +31,10 @@ public record DigitalMailRequest(
 	@Schema(description = "Department and unit that should be billed for the message", nullable = true, example = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
 	@NotBlank @OneOf( {
-		"text/plain", "text/html" }) @Schema(description = "Content type", allowableValues = { "text/plain", "text/html" }) String contentType,
+		"text/plain", "text/html"
+	}) @Schema(description = "Content type", allowableValues = {
+		"text/plain", "text/html"
+	}) String contentType,
 
 	@NotBlank @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')") String body,
 
@@ -79,7 +82,8 @@ public record DigitalMailRequest(
 	public record Attachment(
 
 		@OneOf("application/pdf") @Schema(description = "Content type", allowableValues = {
-			"application/pdf" }) String contentType,
+			"application/pdf"
+		}) String contentType,
 
 		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content,
 

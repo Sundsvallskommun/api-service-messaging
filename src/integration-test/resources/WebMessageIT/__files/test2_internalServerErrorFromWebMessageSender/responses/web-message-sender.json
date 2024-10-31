@@ -1,5 +1,5 @@
 {
+	"detail": "Couldn't send web message",
 	"title": "Internal server error",
-	"status": 500,
-	"detail": "Couldn't send web message"
+	"status": 500
 }

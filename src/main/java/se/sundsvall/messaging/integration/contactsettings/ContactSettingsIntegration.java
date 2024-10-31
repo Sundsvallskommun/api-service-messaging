@@ -29,7 +29,8 @@ public class ContactSettingsIntegration {
 				.map(ContactSetting::getContactChannels)
 				.flatMap(Collection::stream)
 				.map(contactChannel -> ContactDto.builder()
-					.withContactMethod(switch (contactChannel.getContactMethod()) {
+					.withContactMethod(switch (contactChannel.getContactMethod())
+					{
 						case SMS -> ContactDto.ContactMethod.SMS;
 						case EMAIL -> ContactDto.ContactMethod.EMAIL;
 					})

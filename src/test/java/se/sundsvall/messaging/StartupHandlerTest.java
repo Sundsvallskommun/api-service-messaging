@@ -32,65 +32,65 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @ExtendWith(MockitoExtension.class)
 class StartupHandlerTest {
 
-    @Mock
-    private ApplicationEventPublisher mockEventPublisher;
-    @Mock
-    private DbIntegration mockDbIntegration;
+	@Mock
+	private ApplicationEventPublisher mockEventPublisher;
+	@Mock
+	private DbIntegration mockDbIntegration;
 
-    private StartupHandler startupProcessor;
+	private StartupHandler startupProcessor;
 
-    @BeforeEach
-    void setUp() {
-        startupProcessor = new StartupHandler(mockEventPublisher, mockDbIntegration);
-    }
+	@BeforeEach
+	void setUp() {
+		startupProcessor = new StartupHandler(mockEventPublisher, mockDbIntegration);
+	}
 
-    @Test
-    void testRun_whenNoPendingMessagesExist() {
-        when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(List.of());
+	@Test
+	void testRun_whenNoPendingMessagesExist() {
+		when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(List.of());
 
-        startupProcessor.run();
+		startupProcessor.run();
 
-        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
-        verify(mockEventPublisher, never()).publishEvent(any());
-    }
+		verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
+		verify(mockEventPublisher, never()).publishEvent(any());
+	}
 
-    @Test
-    void testRun() {
-        var messages = List.of(
-            MessageEntity.builder()
-                .withMessageId("messageId1")
-                .withType(MESSAGE)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId2")
-                .withType(EMAIL)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId3")
-                .withType(SMS)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId4")
-                .withType(WEB_MESSAGE)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId4")
-                .withType(SNAIL_MAIL)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId4")
-                .withType(LETTER)
-                .build(),
-            MessageEntity.builder()
-                .withMessageId("messageId4")
-                .withType(DIGITAL_MAIL)
-                .build());
+	@Test
+	void testRun() {
+		var messages = List.of(
+			MessageEntity.builder()
+				.withMessageId("messageId1")
+				.withType(MESSAGE)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId2")
+				.withType(EMAIL)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId3")
+				.withType(SMS)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId4")
+				.withType(WEB_MESSAGE)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId4")
+				.withType(SNAIL_MAIL)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId4")
+				.withType(LETTER)
+				.build(),
+			MessageEntity.builder()
+				.withMessageId("messageId4")
+				.withType(DIGITAL_MAIL)
+				.build());
 
-        when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(messages);
+		when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(messages);
 
-        startupProcessor.run();
+		startupProcessor.run();
 
-        verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
-        verify(mockEventPublisher, times(7)).publishEvent(any(IncomingMessageEvent.class));
-    }
+		verify(mockDbIntegration, times(1)).getLatestMessagesWithStatus(PENDING);
+		verify(mockEventPublisher, times(7)).publishEvent(any(IncomingMessageEvent.class));
+	}
 }

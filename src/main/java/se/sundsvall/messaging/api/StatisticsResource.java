@@ -40,7 +40,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @ApiResponses({
 	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
+	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
+		Problem.class, ConstraintViolationProblem.class
+	}))),
 	@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 })
 class StatisticsResource {
@@ -52,7 +54,9 @@ class StatisticsResource {
 	}
 
 	@Operation(summary = "Get delivery statistics")
-	@GetMapping(value = STATISTICS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = STATISTICS_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<Statistics> getStatistics(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestParam(name = "messageType", required = false) @Parameter(description = "Message type") final MessageType messageType,
@@ -63,7 +67,11 @@ class StatisticsResource {
 	}
 
 	@Operation(summary = "Get letter delivery statistics by department")
-	@GetMapping(value = {STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH}, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = {
+		STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH
+	}, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<List<DepartmentStatistics>> getDepartmentStatistics(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable(name = "department", required = false) @Parameter(description = "Department name") @ValidNullOrNotEmpty final String department,

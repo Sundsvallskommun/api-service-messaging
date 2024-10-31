@@ -55,24 +55,26 @@ public class StatisticsMapper {
 				groupingBy(StatsEntry::status, summingInt(n -> 1))));
 
 		return Statistics.builder()
-			.withMessage(message.isEmpty() ? null : new Statistics.Message(
-				// Sum up EMAIL stats
-				toCount(message.get(EMAIL)),
-				// Sum up SMS stats
-				toCount(message.get(SMS)),
-				// In the case of a message not being delivered due to contact-settings indicating
-				// that either no settings have been found or that the recipient has opted-out of
-				// receiving messages - treat both cases as "undeliverable" and sum them up
-				ofNullable(message.get(MESSAGE))
-					.map(undeliverables -> undeliverables.values().stream()
-						.mapToInt(i -> i)
-						.sum())
-					.orElse(null)))
-			.withLetter(letter.isEmpty() ? null : new Statistics.Letter(
-				// Sum up SNAIL_MAIL stats
-				toCount(letter.get(SNAIL_MAIL)),
-				// Sum up DIGITAL_MAIL stats
-				toCount(letter.get(DIGITAL_MAIL))))
+			.withMessage(message.isEmpty() ? null
+				: new Statistics.Message(
+					// Sum up EMAIL stats
+					toCount(message.get(EMAIL)),
+					// Sum up SMS stats
+					toCount(message.get(SMS)),
+					// In the case of a message not being delivered due to contact-settings indicating
+					// that either no settings have been found or that the recipient has opted-out of
+					// receiving messages - treat both cases as "undeliverable" and sum them up
+					ofNullable(message.get(MESSAGE))
+						.map(undeliverables -> undeliverables.values().stream()
+							.mapToInt(i -> i)
+							.sum())
+						.orElse(null)))
+			.withLetter(letter.isEmpty() ? null
+				: new Statistics.Letter(
+					// Sum up SNAIL_MAIL stats
+					toCount(letter.get(SNAIL_MAIL)),
+					// Sum up DIGITAL_MAIL stats
+					toCount(letter.get(DIGITAL_MAIL))))
 			.withEmail(toCount(other.get(EMAIL)))
 			.withSms(toCount(other.get(SMS)))
 			.withWebMessage(toCount(other.get(WEB_MESSAGE)))

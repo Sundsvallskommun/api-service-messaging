@@ -24,54 +24,54 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 @ExtendWith(MockitoExtension.class)
 class SlackIntegrationTest {
 
-    private final SlackDto slackDto = new SlackDto("someToken", "someChannel", "someMessage");
+	private final SlackDto slackDto = new SlackDto("someToken", "someChannel", "someMessage");
 
-    @Mock
-    private MethodsClient mockMethodsClient;
+	@Mock
+	private MethodsClient mockMethodsClient;
 
-    @InjectMocks
-    private SlackIntegration slackIntegration;
+	@InjectMocks
+	private SlackIntegration slackIntegration;
 
-    @Test
-    void testSendMessage() throws Exception {
-        var response = new ChatPostMessageResponse();
-        response.setOk(true);
+	@Test
+	void testSendMessage() throws Exception {
+		var response = new ChatPostMessageResponse();
+		response.setOk(true);
 
-        when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenReturn(response);
+		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenReturn(response);
 
-        var status = slackIntegration.sendMessage(slackDto);
+		var status = slackIntegration.sendMessage(slackDto);
 
-        assertThat(status).isEqualTo(SENT);
+		assertThat(status).isEqualTo(SENT);
 
-        verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
-    }
+		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
+	}
 
-    @Test
-    void testSendMessage_failure() throws Exception {
-        var response = new ChatPostMessageResponse();
-        response.setOk(false);
-        response.setError("Channel not found");
+	@Test
+	void testSendMessage_failure() throws Exception {
+		var response = new ChatPostMessageResponse();
+		response.setOk(false);
+		response.setError("Channel not found");
 
-        when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenReturn(response);
+		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenReturn(response);
 
-        assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> slackIntegration.sendMessage(slackDto));
+		assertThatExceptionOfType(ThrowableProblem.class)
+			.isThrownBy(() -> slackIntegration.sendMessage(slackDto));
 
-        verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
-    }
+		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
+	}
 
-    @Test
-    void testSendMessage_whenExceptionIsThrown() throws Exception {
-        var response = new ChatPostMessageResponse();
-        response.setOk(false);
-        response.setError("Channel not found");
+	@Test
+	void testSendMessage_whenExceptionIsThrown() throws Exception {
+		var response = new ChatPostMessageResponse();
+		response.setOk(false);
+		response.setError("Channel not found");
 
-        when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class)))
-            .thenThrow(new RuntimeException());
+		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class)))
+			.thenThrow(new RuntimeException());
 
-        assertThatExceptionOfType(ThrowableProblem.class)
-            .isThrownBy(() -> slackIntegration.sendMessage(slackDto));
+		assertThatExceptionOfType(ThrowableProblem.class)
+			.isThrownBy(() -> slackIntegration.sendMessage(slackDto));
 
-        verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
-    }
+		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
+	}
 }

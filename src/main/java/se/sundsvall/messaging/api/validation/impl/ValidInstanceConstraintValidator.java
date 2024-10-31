@@ -16,7 +16,6 @@ public class ValidInstanceConstraintValidator implements ConstraintValidator<Val
 		this.nullable = constraintAnnotation.nullable();
 	}
 
-
 	public boolean isValid(final String value) {
 		return isValid(value, null);
 	}

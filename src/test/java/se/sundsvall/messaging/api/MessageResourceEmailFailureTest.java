@@ -55,7 +55,9 @@ class MessageResourceEmailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "not-a-uuid"})
+	@ValueSource(strings = {
+		"", " ", "not-a-uuid"
+	})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
@@ -144,7 +146,9 @@ class MessageResourceEmailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"not-an-email-address", " "})
+	@ValueSource(strings = {
+		"not-an-email-address", " "
+	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrInvalidEmailAddress(String value) {
 		// Arrange
@@ -174,7 +178,9 @@ class MessageResourceEmailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" "})
+	@ValueSource(strings = {
+		" "
+	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrBlankSubject(String value) {
 		// Arrange
@@ -230,7 +236,9 @@ class MessageResourceEmailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "not-a-valid-email-address"})
+	@ValueSource(strings = {
+		" ", "not-a-valid-email-address"
+	})
 	@NullAndEmptySource
 	void shouldFailWithBlankOrInvalidSenderAddress(String value) {
 		// Arrange
@@ -366,7 +374,9 @@ class MessageResourceEmailFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "abc", "<abc>", "b@c", "<a@b", "a@>"})
+	@ValueSource(strings = {
+		"", " ", "abc", "<abc>", "b@c", "<a@b", "a@>"
+	})
 	void shouldFailWithInvalidHeaderValue(String value) {
 		// Arrange
 		final var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID, List.of(value)));

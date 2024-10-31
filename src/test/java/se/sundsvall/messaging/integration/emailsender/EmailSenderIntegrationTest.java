@@ -63,9 +63,7 @@ class EmailSenderIntegrationTest {
 			.isThrownBy(() -> integration.sendEmail("2281", emailDto))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-				);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
 		verify(mockClient, times(1)).sendEmail(any(String.class), any(SendEmailRequest.class));

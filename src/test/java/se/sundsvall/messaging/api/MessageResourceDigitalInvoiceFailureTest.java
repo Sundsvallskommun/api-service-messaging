@@ -79,7 +79,9 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", "not-a-uuid"})
+	@ValueSource(strings = {
+		"", " ", "not-a-uuid"
+	})
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
@@ -244,7 +246,9 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(floats = {0.0f, -12.34f})
+	@ValueSource(floats = {
+		0.0f, -12.34f
+	})
 	void shouldFailWithDetailsWithNonPositiveAmount(final float amount) {
 		// Arrange
 		final var request = validRequest.withDetails(validRequest.details().withAmount(amount));
@@ -405,7 +409,9 @@ class MessageResourceDigitalInvoiceFailureTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {" ", "text/plain"})
+	@ValueSource(strings = {
+		" ", "text/plain"
+	})
 	@NullAndEmptySource
 	void shouldFailWithFileWithInvalidContentType(final String contentType) {
 		// Arrange

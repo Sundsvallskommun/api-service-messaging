@@ -43,7 +43,11 @@ import se.sundsvall.messaging.service.MessageService;
 @Tag(name = "Sending Resources")
 @RestController
 @Validated
-@RequestMapping(value = "/{municipalityId}", consumes = { APPLICATION_JSON_VALUE }, produces = { APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+@RequestMapping(value = "/{municipalityId}", consumes = {
+	APPLICATION_JSON_VALUE
+}, produces = {
+	APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+})
 @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "502", description = "Bad Gateway", content = @Content(schema = @Schema(implementation = Problem.class)))

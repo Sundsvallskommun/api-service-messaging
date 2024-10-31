@@ -22,13 +22,17 @@ class ValidNullOrNotEmptyConstraintValidatorTest {
 	private final ValidNullOrNotEmptyValidator validator = new ValidNullOrNotEmptyValidator();
 
 	@ParameterizedTest
-	@ValueSource(strings = {"test", "Test (1)", "Test Test"})
+	@ValueSource(strings = {
+		"test", "Test (1)", "Test Test"
+	})
 	void validString(final String value) {
 		assertThat(validator.isValid(value, mockContext)).isTrue();
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " ", " test", "test ", " test ", "  test  "})
+	@ValueSource(strings = {
+		"", " ", " test", "test ", " test ", "  test  "
+	})
 	void invalidString(final String value) {
 		assertThat(validator.isValid(value, mockContext)).isFalse();
 	}

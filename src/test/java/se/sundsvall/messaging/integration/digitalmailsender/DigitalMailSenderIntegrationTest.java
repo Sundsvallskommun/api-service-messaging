@@ -82,9 +82,7 @@ class DigitalMailSenderIntegrationTest {
 			.isThrownBy(() -> integration.sendDigitalMail("2281", createDigitalMailDto()))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-				);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
@@ -123,9 +121,7 @@ class DigitalMailSenderIntegrationTest {
 			.isThrownBy(() -> integration.sendDigitalInvoice("2281", createDigitalInvoiceDto()))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-				);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));

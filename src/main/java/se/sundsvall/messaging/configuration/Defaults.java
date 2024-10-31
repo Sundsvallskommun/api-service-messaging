@@ -13,58 +13,41 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "messaging.defaults")
 public record Defaults(
 
-        @Valid @NotNull
-        Sms sms,
+	@Valid @NotNull Sms sms,
 
-        @Valid @NotNull
-        Email email,
+	@Valid @NotNull Email email,
 
-        @Valid @NotNull
-        DigitalMail digitalMail) {
+	@Valid @NotNull DigitalMail digitalMail) {
 
-    public record Sms(
+	public record Sms(
 
-        @NotBlank
-        @Size(max = 11)
-        String name) { }
+		@NotBlank @Size(max = 11) String name) {}
 
-    public record Email(
+	public record Email(
 
-        @NotBlank
-        String name,
+		@NotBlank String name,
 
-        @NotBlank
-        @jakarta.validation.constraints.Email
-        String address,
+		@NotBlank @jakarta.validation.constraints.Email String address,
 
-        @jakarta.validation.constraints.Email
-        String replyTo) { }
+		@jakarta.validation.constraints.Email String replyTo) {}
 
-    public record DigitalMail(
+	public record DigitalMail(
 
-            @NotBlank
-            @JsonIgnore // Since this shouldn't be possible to set in requests
-            String municipalityId,
+		@NotBlank @JsonIgnore // Since this shouldn't be possible to set in requests
+		String municipalityId,
 
-            @Valid
-            @NotNull
-            SupportInfo supportInfo,
+		@Valid @NotNull SupportInfo supportInfo,
 
-            String subject) {
+		String subject) {
 
-        public record SupportInfo(
+		public record SupportInfo(
 
-            @NotBlank
-            String text,
+			@NotBlank String text,
 
-            @jakarta.validation.constraints.Email
-            @NotBlank
-            String emailAddress,
+			@jakarta.validation.constraints.Email @NotBlank String emailAddress,
 
-            @NotBlank
-            String phoneNumber,
+			@NotBlank String phoneNumber,
 
-            @NotBlank
-            String url) { }
-    }
+			@NotBlank String url) {}
+	}
 }

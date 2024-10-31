@@ -1,12 +1,8 @@
 {
 	"sender": "Batman",
-	"message": "Your days are counted",
 	"parties": [
-		{
-			"mobileNumber": "+46703334455"
-		},
-		{
-			"mobileNumber": "+46704445566"
-		}
-	]
+		{"mobileNumber": "+46703334455"},
+		{"mobileNumber": "+46704445566"}
+	],
+	"message": "Your days are counted"
 }

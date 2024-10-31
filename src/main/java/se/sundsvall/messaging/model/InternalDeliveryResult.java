@@ -6,7 +6,7 @@ import lombok.With;
 @With
 @Builder(setterPrefix = "with")
 public record InternalDeliveryResult(String messageId, String deliveryId, MessageType messageType,
-                                     MessageStatus status, String municipalityId) {
+	MessageStatus status, String municipalityId) {
 
 	public InternalDeliveryResult(final Message message) {
 		this(message.messageId(), message.deliveryId(), message.type(), message.status(), message.municipalityId());

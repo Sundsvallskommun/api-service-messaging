@@ -13,8 +13,7 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 @FeignClient(
 	name = DigitalMailSenderIntegration.INTEGRATION_NAME,
 	url = "${integration.digital-mail-sender.base-url}",
-	configuration = DigitalMailSenderIntegrationConfiguration.class
-)
+	configuration = DigitalMailSenderIntegrationConfiguration.class)
 interface DigitalMailSenderClient {
 
 	@PostMapping("/{municipalityId}/send-digital-mail")

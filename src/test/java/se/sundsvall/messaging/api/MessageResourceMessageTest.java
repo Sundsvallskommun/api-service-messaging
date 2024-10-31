@@ -68,7 +68,9 @@ class MessageResourceMessageTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
@@ -105,7 +107,9 @@ class MessageResourceMessageTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();

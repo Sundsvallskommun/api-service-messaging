@@ -67,7 +67,9 @@ class MessageResourceEmailBatchTest {
 	private WebTestClient webTestClient;
 
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
+	@ValueSource(booleans = {
+		true, false
+	})
 	void sendBatch(boolean includeOptionalHeaders) {
 		// Arrange
 

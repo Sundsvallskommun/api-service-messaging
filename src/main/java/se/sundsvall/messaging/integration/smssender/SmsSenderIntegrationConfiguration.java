@@ -18,40 +18,39 @@ import feign.codec.ErrorDecoder;
 @Import(FeignConfiguration.class)
 class SmsSenderIntegrationConfiguration {
 
-    private final SmsSenderIntegrationProperties properties;
+	private final SmsSenderIntegrationProperties properties;
 
-    SmsSenderIntegrationConfiguration(final SmsSenderIntegrationProperties properties) {
-        this.properties = properties;
-    }
+	SmsSenderIntegrationConfiguration(final SmsSenderIntegrationProperties properties) {
+		this.properties = properties;
+	}
 
-    @Bean
-    FeignBuilderCustomizer feignCustomizer() {
-        return FeignMultiCustomizer.create()
-            .withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-            .withErrorDecoder(errorDecoder())
-            .withRequestOptions(requestOptions())
-            .composeCustomizersToOne();
-    }
+	@Bean
+	FeignBuilderCustomizer feignCustomizer() {
+		return FeignMultiCustomizer.create()
+			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withErrorDecoder(errorDecoder())
+			.withRequestOptions(requestOptions())
+			.composeCustomizersToOne();
+	}
 
-    private ClientRegistration clientRegistration() {
-        return ClientRegistration
-            .withRegistrationId(SmsSenderIntegration.INTEGRATION_NAME)
-            .tokenUri(properties.getTokenUrl())
-            .clientId(properties.getClientId())
-            .clientSecret(properties.getClientSecret())
-            .authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-            .build();
-    }
+	private ClientRegistration clientRegistration() {
+		return ClientRegistration
+			.withRegistrationId(SmsSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl())
+			.clientId(properties.getClientId())
+			.clientSecret(properties.getClientSecret())
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
+			.build();
+	}
 
-    private Request.Options requestOptions() {
-        return new Request.Options(
-            properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
-            properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
-            true
-        );
-    }
+	private Request.Options requestOptions() {
+		return new Request.Options(
+			properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			true);
+	}
 
-    private ErrorDecoder errorDecoder() {
-        return new ProblemErrorDecoder(SmsSenderIntegration.INTEGRATION_NAME);
-    }
+	private ErrorDecoder errorDecoder() {
+		return new ProblemErrorDecoder(SmsSenderIntegration.INTEGRATION_NAME);
+	}
 }

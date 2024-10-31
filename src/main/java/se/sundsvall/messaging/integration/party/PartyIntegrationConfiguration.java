@@ -47,8 +47,7 @@ public class PartyIntegrationConfiguration {
 		return new Request.Options(
 			properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
 			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
-			true
-		);
+			true);
 	}
 
 	private ErrorDecoder errorDecoder() {

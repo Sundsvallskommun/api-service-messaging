@@ -14,8 +14,8 @@ import generated.se.sundsvall.contactsettings.ContactSetting;
 @FeignClient(
 	name = ContactSettingsIntegration.INTEGRATION_NAME,
 	url = "${integration.contact-settings.base-url}",
-	configuration = ContactSettingsIntegrationConfiguration.class, dismiss404 = true
-)
+	configuration = ContactSettingsIntegrationConfiguration.class,
+	dismiss404 = true)
 interface ContactSettingsClient {
 
 	@GetMapping("/{municipalityId}/settings")

@@ -147,7 +147,6 @@ class HistoryServiceTest {
 			.getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
 	}
 
-
 	@Test
 	void streamAttachmentTest() throws IOException {
 		var municipalityId = "2281";

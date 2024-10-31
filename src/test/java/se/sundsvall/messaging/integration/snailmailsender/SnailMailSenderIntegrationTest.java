@@ -62,9 +62,7 @@ class SnailMailSenderIntegrationTest {
 			.isThrownBy(() -> integration.sendSnailMail("2281", dto))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause ->
-					assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST)
-				);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toSendSnailmailRequest(any(SnailMailDto.class));

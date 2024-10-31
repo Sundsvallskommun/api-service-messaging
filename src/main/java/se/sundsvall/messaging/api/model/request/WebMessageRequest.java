@@ -31,7 +31,8 @@ public record WebMessageRequest(
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Determines if the message should be added to the internal or external OeP instance", allowableValues = {
-		"internal", "external" }, example = "internal") @ValidInstance(nullable = true) String oepInstance,
+		"internal", "external"
+	}, example = "internal") @ValidInstance(nullable = true) String oepInstance,
 
 	@Size(max = 10) @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10) List<Attachment> attachments){
 

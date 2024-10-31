@@ -1,19 +1,13 @@
 {
-	"party": {
-		"partyIds": [
-			"e4e37771-397b-45b5-bb89-f389f8525e53"
-		]
-	},
+	"attachments": [{
+		"filename": "someFile.txt",
+		"deliveryMode": "DIGITAL_MAIL",
+		"contentType": "application/pdf",
+		"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+	}],
 	"subject": "Some subject",
-	"contentType": "text/plain",
 	"body": "This is the message contents",
 	"department": "Some department",
-	"attachments": [
-		{
-			"deliveryMode": "DIGITAL_MAIL",
-			"filename": "someFile.txt",
-			"contentType": "application/pdf",
-			"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
-		}
-	]
+	"contentType": "text/plain",
+	"party": {"partyIds": ["e4e37771-397b-45b5-bb89-f389f8525e53"]}
 }

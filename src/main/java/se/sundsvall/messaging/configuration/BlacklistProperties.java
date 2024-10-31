@@ -9,5 +9,5 @@ import se.sundsvall.messaging.model.MessageType;
 
 @ConfigurationProperties(prefix = "messaging.blacklist")
 public record BlacklistProperties(
-    boolean enabled,
-    Map<MessageType, List<String>> blockedRecipients) { }
+	boolean enabled,
+	Map<MessageType, List<String>> blockedRecipients) {}

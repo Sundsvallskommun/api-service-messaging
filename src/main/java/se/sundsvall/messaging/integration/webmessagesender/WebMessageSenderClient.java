@@ -10,8 +10,7 @@ import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 @FeignClient(
 	name = WebMessageSenderIntegration.INTEGRATION_NAME,
 	url = "${integration.web-message-sender.base-url}",
-	configuration = WebMessageSenderIntegrationConfiguration.class
-)
+	configuration = WebMessageSenderIntegrationConfiguration.class)
 interface WebMessageSenderClient {
 
 	@PostMapping("/{municipalityId}/webmessages")

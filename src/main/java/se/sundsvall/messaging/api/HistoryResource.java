@@ -54,7 +54,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Validated
 @ApiResponses({
 	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {Problem.class, ConstraintViolationProblem.class}))),
+	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
+		Problem.class, ConstraintViolationProblem.class
+	}))),
 	@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 })
 class HistoryResource {
@@ -66,7 +68,9 @@ class HistoryResource {
 	}
 
 	@Operation(summary = "Get the entire conversation history for a given party")
-	@GetMapping(value = CONVERSATION_HISTORY_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = CONVERSATION_HISTORY_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<List<HistoryResponse>> getConversationHistory(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String partyId,
@@ -80,7 +84,9 @@ class HistoryResource {
 
 	@Operation(summary = "Get the status for a message batch, its messages and their deliveries")
 	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
-	@GetMapping(value = BATCH_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = BATCH_STATUS_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<MessageBatchResult> getBatchStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String batchId) {
@@ -91,7 +97,9 @@ class HistoryResource {
 
 	@Operation(summary = "Get the status for a single message and its deliveries")
 	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
-	@GetMapping(value = MESSAGE_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = MESSAGE_STATUS_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<MessageResult> getMessageStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
@@ -102,7 +110,9 @@ class HistoryResource {
 
 	@Operation(summary = "Get the status for a single delivery")
 	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
-	@GetMapping(value = DELIVERY_STATUS_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = DELIVERY_STATUS_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<DeliveryResult> getDeliveryStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String deliveryId) {
@@ -115,7 +125,9 @@ class HistoryResource {
 
 	@Operation(summary = "Get a message and all its deliveries")
 	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
-	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<List<HistoryResponse>> getMessage(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
@@ -128,7 +140,9 @@ class HistoryResource {
 	}
 
 	@Operation(summary = "Get historical messages sent by a user")
-	@GetMapping(value = USER_MESSAGES_PATH, produces = {APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = USER_MESSAGES_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	ResponseEntity<UserMessages> getUserMessages(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
 		@Parameter(name = "userId", description = "User id", example = "test") @PathVariable final String userId,
@@ -140,7 +154,9 @@ class HistoryResource {
 	}
 
 	@Operation(summary = "Strean attachment by messageId and fileName")
-	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {
+		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId,
