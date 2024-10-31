@@ -45,7 +45,7 @@ public record LetterRequest(
 
 	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
 
 	@With
 	@Builder(setterPrefix = "with")

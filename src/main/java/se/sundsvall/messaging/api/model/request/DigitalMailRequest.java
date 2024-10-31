@@ -43,7 +43,7 @@ public record DigitalMailRequest(
 
 	@Schema(description = "Attachments") List<@Valid Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
 
 	@With
 	@Builder(setterPrefix = "with")

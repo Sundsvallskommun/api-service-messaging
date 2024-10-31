@@ -44,7 +44,7 @@ public record DigitalInvoiceRequest(
 
 	@Schema(description = "Files") List<@Valid File> files,
 
-	@Schema(description = "Municipality Id", hidden = true) String municipalityId) {
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")

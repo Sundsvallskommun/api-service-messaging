@@ -1,14 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -19,6 +11,13 @@ import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.model.Message;
+
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Component
 public class RequestMapper {
