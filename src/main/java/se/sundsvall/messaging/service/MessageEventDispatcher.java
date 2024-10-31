@@ -59,142 +59,142 @@ public class MessageEventDispatcher {
 		this.requestMapper = requestMapper;
 	}
 
-	public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request, final String municipalityId) {
+	public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(request.origin(), request.issuer(), batchId, message).withMunicipalityId(municipalityId))
+			.map(message -> messageMapper.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
 			.map(dbIntegration::saveMessage)
 			.toList();
 
 		final var deliveries = messages.stream()
-			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
+			.map(this::publishMessageEvent)
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
+		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
 	}
 
-	public InternalDeliveryResult handleEmailRequest(final EmailRequest request, final String municipalityId) {
+	public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId));
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-		return publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId);
+		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleEmailBatchRequest(final EmailBatchRequest request, final String municipalityId) {
+	public InternalDeliveryBatchResult handleEmailBatchRequest(final EmailBatchRequest request) {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var deliveryResults = ofNullable(request.parties()).orElse(Collections.emptyList()).stream()
 			.filter(party -> isWhitelisted(MessageType.EMAIL, party.emailAddress()))
 			.map(party -> requestMapper.toEmailRequest(request, party))
-			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId).withMunicipalityId(municipalityId))
+			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId))
 			.map(dbIntegration::saveMessage)
-			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
+			.map(this::publishMessageEvent)
 			.toList();
 
 		return InternalDeliveryBatchResult.builder()
 			.withDeliveries(deliveryResults)
 			.withBatchId(batchId)
-			.withMunicipalityId(municipalityId)
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
-	public InternalDeliveryBatchResult handleSmsBatchRequest(final SmsBatchRequest request, final String municipalityId) {
+	public InternalDeliveryBatchResult handleSmsBatchRequest(final SmsBatchRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 		final var batchId = UUID.randomUUID().toString();
 
 		final var deliveryResults = ofNullable(cleanedRequest.parties()).orElse(emptyList()).stream()
 			.filter(party -> isWhitelisted(SMS, party.mobileNumber()))
 			.map(party -> requestMapper.toSmsRequest(cleanedRequest, party))
-			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId).withMunicipalityId(municipalityId))
+			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId))
 			.map(dbIntegration::saveMessage)
-			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
+			.map(this::publishMessageEvent)
 			.toList();
 
 		return InternalDeliveryBatchResult.builder()
 			.withDeliveries(deliveryResults)
 			.withBatchId(batchId)
-			.withMunicipalityId(municipalityId)
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
-	public InternalDeliveryResult handleSmsRequest(final SmsRequest request, final String municipalityId) {
+	public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 
 		// Check blacklist
 		blacklistService.check(cleanedRequest);
 
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest).withMunicipalityId(municipalityId));
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest));
 
-		return publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId);
+		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request, final String municipalityId) {
-		// Check blacklist
-		blacklistService.check(request);
-
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId));
-
-		return publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId);
-	}
-
-	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request, final String municipalityId) {
-		// Check blacklist
-		blacklistService.check(request);
-
-		final var batchId = UUID.randomUUID().toString();
-
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message -> message.withMunicipalityId(municipalityId)).toList());
-
-		final var deliveries = messages.stream()
-			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
-			.toList();
-
-		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
-	}
-
-	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request, final String municipalityId) {
+	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-		return publishMessageEvent(message, municipalityId);
+		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request, final String municipalityId) {
+	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId).stream().map(message -> message.withMunicipalityId(municipalityId)).toList());
+		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 
 		final var deliveries = messages.stream()
-			.map((Message message) -> publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId))
+			.map(this::publishMessageEvent)
 			.toList();
 
-		return new InternalDeliveryBatchResult(batchId, deliveries, municipalityId);
+		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
 	}
 
-	public InternalDeliveryResult handleSlackRequest(final SlackRequest request, final String municipalityId) {
+	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
 		// Check blacklist
 		blacklistService.check(request);
 
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request).withMunicipalityId(municipalityId));
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
-		return publishMessageEvent(message.withMunicipalityId(municipalityId), municipalityId);
+		return publishMessageEvent(message);
 	}
 
-	private InternalDeliveryResult publishMessageEvent(final Message message, final String municipalityId) {
-		eventPublisher.publishEvent(new IncomingMessageEvent(this, municipalityId, message.type(), message.deliveryId(), message.origin()));
+	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
+		// Check blacklist
+		blacklistService.check(request);
 
-		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(), municipalityId);
+		final var batchId = UUID.randomUUID().toString();
+
+		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+
+		final var deliveries = messages.stream()
+			.map(this::publishMessageEvent)
+			.toList();
+
+		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
+	}
+
+	public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
+		// Check blacklist
+		blacklistService.check(request);
+
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+
+		return publishMessageEvent(message);
+	}
+
+	private InternalDeliveryResult publishMessageEvent(final Message message) {
+		eventPublisher.publishEvent(new IncomingMessageEvent(this, message.municipalityId(), message.type(), message.deliveryId(), message.origin()));
+
+		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(), message.municipalityId());
 	}
 
 	private boolean isWhitelisted(final MessageType type, final String destination) {

@@ -35,11 +35,11 @@ class MessageEventHandler {
 
 		// Handle it
 		if (message.type() == MESSAGE) {
-			messageService.sendMessage(message, event.getMunicipalityId());
+			messageService.sendMessage(message);
 		} else if (message.type() == LETTER) {
-			messageService.sendLetter(message, event.getMunicipalityId());
+			messageService.sendLetter(message);
 		} else {
-			messageService.deliver(message, event.getMunicipalityId());
+			messageService.deliver(message);
 		}
 	}
 

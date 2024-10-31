@@ -1,11 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -17,6 +12,10 @@ import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")
@@ -44,7 +43,9 @@ public record LetterRequest(
 
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
 
-	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments){
+	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments,
+
+	@Schema(description = "Municipality Id", hidden = true) String municipalityId){
 
 	@With
 	@Builder(setterPrefix = "with")
@@ -93,16 +94,6 @@ public record LetterRequest(
 
 		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content){
 
-		@Schema(description = """
-			Delivery mode, to indicate whether an attachment is intended/allowed to be used for
-			digital mail, snail-mail or any of them
-			""")
-		public enum DeliveryMode {
-			ANY,
-			DIGITAL_MAIL,
-			SNAIL_MAIL
-		}
-
 		@JsonIgnore
 		public boolean isIntendedForDigitalMail() {
 			return deliveryMode == DeliveryMode.ANY || deliveryMode == DeliveryMode.DIGITAL_MAIL;
@@ -111,6 +102,16 @@ public record LetterRequest(
 		@JsonIgnore
 		public boolean isIntendedForSnailMail() {
 			return deliveryMode == DeliveryMode.ANY || deliveryMode == DeliveryMode.SNAIL_MAIL;
+		}
+
+		@Schema(description = """
+			Delivery mode, to indicate whether an attachment is intended/allowed to be used for
+			digital mail, snail-mail or any of them
+			""")
+		public enum DeliveryMode {
+			ANY,
+			DIGITAL_MAIL,
+			SNAIL_MAIL
 		}
 	}
 }

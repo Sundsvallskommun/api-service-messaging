@@ -160,6 +160,7 @@ public class RequestMapper {
 			.withIssuer(request.issuer())
 			.withPriority(request.priority())
 			.withSender(request.sender())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
@@ -175,6 +176,7 @@ public class RequestMapper {
 			.withHeaders(request.headers())
 			.withHtmlMessage(request.htmlMessage())
 			.withAttachments(toEmailRequestAttachments(request.attachments()))
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 

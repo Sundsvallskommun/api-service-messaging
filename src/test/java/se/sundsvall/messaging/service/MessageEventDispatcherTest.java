@@ -72,17 +72,18 @@ class MessageEventDispatcherTest {
 	void handleMessageRequest() {
 		final var origin = "origin";
 		final var issuer = "issuer";
-		when(mockMessageMapper.toMessage(anyString(), anyString(), anyString(), any(MessageRequest.Message.class)))
+		when(mockMessageMapper.toMessage(anyString(), anyString(), anyString(), anyString(), any(MessageRequest.Message.class)))
 			.thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleMessageRequest(MessageRequest.builder()
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.withOrigin(origin)
 			.withIssuer(issuer)
 			.withMessages(List.of(MessageRequest.Message.builder().build()))
-			.build(), MUNICIPALITY_ID);
+			.build());
 
-		verify(mockMessageMapper).toMessage(anyString(), anyString(), anyString(), any(MessageRequest.Message.class));
+		verify(mockMessageMapper).toMessage(anyString(), anyString(), anyString(), anyString(), any(MessageRequest.Message.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
@@ -92,7 +93,7 @@ class MessageEventDispatcherTest {
 		when(mockMessageMapper.toMessage(any(EmailRequest.class))).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-		messageEventDispatcher.handleEmailRequest(EmailRequest.builder().build(), MUNICIPALITY_ID);
+		messageEventDispatcher.handleEmailRequest(EmailRequest.builder().build());
 
 		verify(mockMessageMapper).toMessage(any(EmailRequest.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
@@ -104,7 +105,7 @@ class MessageEventDispatcherTest {
 		when(mockMessageMapper.toMessage(any(SmsRequest.class))).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-		messageEventDispatcher.handleSmsRequest(SmsRequest.builder().build(), MUNICIPALITY_ID);
+		messageEventDispatcher.handleSmsRequest(SmsRequest.builder().build());
 
 		verify(mockMessageMapper).toMessage(any(SmsRequest.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
@@ -129,7 +130,7 @@ class MessageEventDispatcherTest {
 			doThrow(Problem.valueOf(Status.BAD_REQUEST)).when(mockBlacklistService).check(any(), any());
 		}
 
-		assertThat(messageEventDispatcher.handleSmsBatchRequest(smsBatchRequest, MUNICIPALITY_ID).batchId()).isNotEmpty();
+		assertThat(messageEventDispatcher.handleSmsBatchRequest(smsBatchRequest).batchId()).isNotEmpty();
 
 		if (whitelisted) {
 			verify(mockRequestMapper).toSmsRequest(smsBatchRequest, party);
@@ -145,7 +146,7 @@ class MessageEventDispatcherTest {
 		when(mockMessageMapper.toMessage(any(WebMessageRequest.class))).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-		messageEventDispatcher.handleWebMessageRequest(WebMessageRequest.builder().build(), MUNICIPALITY_ID);
+		messageEventDispatcher.handleWebMessageRequest(WebMessageRequest.builder().build());
 
 		verify(mockMessageMapper).toMessage(any(WebMessageRequest.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
@@ -160,8 +161,7 @@ class MessageEventDispatcherTest {
 			.withParty(DigitalMailRequest.Party.builder()
 				.withPartyIds(List.of("somePartyId"))
 				.build())
-			.build(),
-			MUNICIPALITY_ID);
+			.build());
 
 		verify(mockMessageMapper).toMessages(any(DigitalMailRequest.class), any(String.class));
 		verify(mockDbIntegration).saveMessages(anyList());
@@ -173,7 +173,7 @@ class MessageEventDispatcherTest {
 		when(mockMessageMapper.toMessage(any(DigitalInvoiceRequest.class))).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-		messageEventDispatcher.handleDigitalInvoiceRequest(DigitalInvoiceRequest.builder().build(), MUNICIPALITY_ID);
+		messageEventDispatcher.handleDigitalInvoiceRequest(DigitalInvoiceRequest.builder().build());
 
 		verify(mockMessageMapper).toMessage(any(DigitalInvoiceRequest.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
@@ -190,8 +190,7 @@ class MessageEventDispatcherTest {
 			.withParty(LetterRequest.Party.builder()
 				.withPartyIds(List.of("somePartyId"))
 				.build())
-			.build(),
-			MUNICIPALITY_ID);
+			.build());
 
 		verify(mockMessageMapper).toMessages(any(LetterRequest.class), any(String.class));
 		verify(mockDbIntegration).saveMessages(anyList());
@@ -204,7 +203,7 @@ class MessageEventDispatcherTest {
 		when(mockMessageMapper.toMessage(any(SlackRequest.class))).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
-		messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build(), MUNICIPALITY_ID);
+		messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build());
 
 		verify(mockMessageMapper).toMessage(any(SlackRequest.class));
 		verify(mockDbIntegration).saveMessage(any(Message.class));
@@ -225,7 +224,7 @@ class MessageEventDispatcherTest {
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
 		doNothing().when(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 
-		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest, MUNICIPALITY_ID);
+		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
 
 		verify(mockBlacklistService, times(2)).check(MessageType.EMAIL, "someone@somehost.com");
 		verify(mockRequestMapper, times(2)).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
@@ -250,7 +249,7 @@ class MessageEventDispatcherTest {
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
 		doNothing().when(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 
-		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest, MUNICIPALITY_ID);
+		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
 
 		verify(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
 		verify(mockRequestMapper).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));

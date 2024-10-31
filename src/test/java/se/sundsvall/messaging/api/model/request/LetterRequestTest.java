@@ -40,11 +40,12 @@ class LetterRequestTest {
 	private static final String EMAIL_ADDRESS = "emailAddress";
 	private static final String PHONE_NUMBER = "phonenumber";
 	private static final String URL = "url";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// LetterRequest
 	@Test
 	void testLetterRequestConstructor() {
-		final var bean = new LetterRequest(PARTY, SUBJECT, SENDER, CONTENT_TYPE, BODY, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS);
+		final var bean = new LetterRequest(PARTY, SUBJECT, SENDER, CONTENT_TYPE, BODY, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertLetterRequest(bean);
 	}
@@ -62,6 +63,7 @@ class LetterRequestTest {
 			.withParty(PARTY)
 			.withSender(SENDER)
 			.withSubject(SUBJECT)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertLetterRequest(bean);
@@ -79,6 +81,7 @@ class LetterRequestTest {
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// LetterRequest.Attachment

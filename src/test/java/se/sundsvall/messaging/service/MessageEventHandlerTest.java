@@ -53,11 +53,11 @@ class MessageEventHandlerTest {
 		verify(mockDbIntegration).getMessageByDeliveryId(any(String.class));
 
 		if (messageType == MESSAGE) {
-			verify(mockMessageService).sendMessage(any(Message.class), any(String.class));
+			verify(mockMessageService).sendMessage(any(Message.class));
 		} else if (messageType == LETTER) {
-			verify(mockMessageService).sendLetter(any(Message.class), any(String.class));
+			verify(mockMessageService).sendLetter(any(Message.class));
 		} else {
-			verify(mockMessageService).deliver(any(Message.class), any(String.class));
+			verify(mockMessageService).deliver(any(Message.class));
 		}
 		verifyNoMoreInteractions(mockMessageService);
 	}

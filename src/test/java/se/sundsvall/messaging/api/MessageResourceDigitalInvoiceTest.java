@@ -66,7 +66,8 @@ class MessageResourceDigitalInvoiceTest {
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
-		when(mockMessageService.sendDigitalInvoice(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -90,7 +91,7 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -102,7 +103,8 @@ class MessageResourceDigitalInvoiceTest {
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidDigitalInvoiceRequest();
-		when(mockEventDispatcher.handleDigitalInvoiceRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleDigitalInvoiceRequest(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -126,7 +128,7 @@ class MessageResourceDigitalInvoiceTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

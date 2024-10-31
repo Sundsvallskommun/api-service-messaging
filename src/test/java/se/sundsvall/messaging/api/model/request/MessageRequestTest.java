@@ -35,11 +35,12 @@ class MessageRequestTest {
 	private static final String ADDRESS = "address";
 	private static final String REPLY_TO = "replyTo";
 	private static final String SMS_NAME = "smsName";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// MessageRequest
 	@Test
 	void testMessageRequestConstructor() {
-		final var bean = new MessageRequest(ORIGIN, ISSUER, MESSAGES);
+		final var bean = new MessageRequest(ORIGIN, ISSUER, MESSAGES, MUNICIPALITY_ID);
 
 		assertMessageRequest(bean);
 	}
@@ -50,6 +51,7 @@ class MessageRequestTest {
 			.withIssuer(ISSUER)
 			.withMessages(MESSAGES)
 			.withOrigin(ORIGIN)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertMessageRequest(bean);
@@ -60,6 +62,7 @@ class MessageRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.messages()).isEqualTo(MESSAGES);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// MessageRequest.Message
@@ -79,6 +82,7 @@ class MessageRequestTest {
 			.withParty(PARTY)
 			.withSender(SENDER)
 			.withSubject(SUBJECT)
+			// .withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertMessageRequestMessage(bean);
@@ -92,6 +96,7 @@ class MessageRequestTest {
 		assertThat(bean.party()).isEqualTo(PARTY);
 		assertThat(bean.sender()).isEqualTo(SENDER);
 		assertThat(bean.subject()).isEqualTo(SUBJECT);
+		// assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// MessageRequest.Message.Party

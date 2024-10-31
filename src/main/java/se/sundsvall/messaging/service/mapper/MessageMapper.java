@@ -55,6 +55,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
@@ -71,6 +72,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
@@ -103,6 +105,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
@@ -121,6 +124,7 @@ public class MessageMapper {
 				.withContent(toJson(request))
 				.withOrigin(request.origin())
 				.withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId())
 				.build())
 			.toList();
 	}
@@ -138,6 +142,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
@@ -154,11 +159,12 @@ public class MessageMapper {
 				.withContent(toJson(request))
 				.withOrigin(request.origin())
 				.withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId())
 				.build())
 			.toList();
 	}
 
-	public Message toMessage(final String origin, final String issuer, final String batchId, final MessageRequest.Message request) {
+	public Message toMessage(final String municipalityId, final String origin, final String issuer, final String batchId, final MessageRequest.Message request) {
 		final var messageId = UUID.randomUUID().toString();
 
 		return Message.builder()
@@ -174,6 +180,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(origin)
 			.withIssuer(issuer)
+			.withMunicipalityId(municipalityId)
 			.build();
 	}
 
@@ -187,6 +194,7 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
 }
