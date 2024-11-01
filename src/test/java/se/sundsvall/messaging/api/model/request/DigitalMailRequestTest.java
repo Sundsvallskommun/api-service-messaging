@@ -34,11 +34,12 @@ class DigitalMailRequestTest {
 	private static final String URL = "url";
 	private static final String CONTENT = "content";
 	private static final String FILENAME = "someFilename";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// DigitalMailRequest
 	@Test
 	void testDigitalMailRequestConstructor() {
-		final var bean = new DigitalMailRequest(PARTY, SENDER, SUBJECT, DEPARTMENT, CONTENT_TYPE, BODY, ORIGIN, ISSUER, ATTACHMENTS);
+		final var bean = new DigitalMailRequest(PARTY, SENDER, SUBJECT, DEPARTMENT, CONTENT_TYPE, BODY, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertDigitalMailRequest(bean);
 	}
@@ -55,6 +56,7 @@ class DigitalMailRequestTest {
 			.withParty(PARTY)
 			.withSender(SENDER)
 			.withSubject(SUBJECT)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertDigitalMailRequest(bean);
@@ -71,6 +73,7 @@ class DigitalMailRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// DigitalMailRequest.Party

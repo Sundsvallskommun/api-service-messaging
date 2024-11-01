@@ -74,7 +74,8 @@ class MessageResourceMessageTest {
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		when(mockMessageService.sendMessages(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -101,7 +102,7 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendMessages(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendMessages(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -113,7 +114,8 @@ class MessageResourceMessageTest {
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		when(mockEventDispatcher.handleMessageRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleMessageRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -140,7 +142,7 @@ class MessageResourceMessageTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

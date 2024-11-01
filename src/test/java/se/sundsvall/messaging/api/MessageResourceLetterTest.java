@@ -74,7 +74,8 @@ class MessageResourceLetterTest {
 	void sendSynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
-		when(mockMessageService.sendLetter(any(LetterRequest.class), any(String.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -101,7 +102,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -111,7 +112,8 @@ class MessageResourceLetterTest {
 	void sendAsynchronous(final boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
-		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class), any(String.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -138,7 +140,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

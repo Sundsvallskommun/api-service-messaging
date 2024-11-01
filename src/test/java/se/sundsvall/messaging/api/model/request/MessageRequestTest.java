@@ -1,12 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Party;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender;
@@ -14,6 +8,11 @@ import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Em
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Sms;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class MessageRequestTest {
@@ -35,11 +34,12 @@ class MessageRequestTest {
 	private static final String ADDRESS = "address";
 	private static final String REPLY_TO = "replyTo";
 	private static final String SMS_NAME = "smsName";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// MessageRequest
 	@Test
 	void testMessageRequestConstructor() {
-		final var bean = new MessageRequest(ORIGIN, ISSUER, MESSAGES);
+		final var bean = new MessageRequest(ORIGIN, ISSUER, MESSAGES, MUNICIPALITY_ID);
 
 		assertMessageRequest(bean);
 	}
@@ -50,6 +50,7 @@ class MessageRequestTest {
 			.withIssuer(ISSUER)
 			.withMessages(MESSAGES)
 			.withOrigin(ORIGIN)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertMessageRequest(bean);
@@ -60,6 +61,7 @@ class MessageRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.messages()).isEqualTo(MESSAGES);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// MessageRequest.Message

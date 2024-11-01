@@ -1,12 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +12,11 @@ import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
 
+import java.util.List;
+import java.util.Map;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @With
 @Builder(setterPrefix = "with")
 public record MessageRequest(
@@ -26,7 +25,9 @@ public record MessageRequest(
 
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
 
-	@NotEmpty @Schema(description = "The messages to be sent", requiredMode = REQUIRED) List<@Valid Message> messages) {
+	@NotEmpty @Schema(description = "The messages to be sent", requiredMode = REQUIRED) List<@Valid Message> messages,
+
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")

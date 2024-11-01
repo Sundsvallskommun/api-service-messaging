@@ -66,7 +66,7 @@ class MessageResourceSlackTest {
 	void sendSynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();
-		when(mockMessageService.sendToSlack(any(), any())).thenReturn(DELIVERY_RESULT);
+		when(mockMessageService.sendToSlack(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -90,7 +90,7 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendToSlack(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendToSlack(includeOptionalHeaders ? addHeaderValues(request) : request);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -102,7 +102,7 @@ class MessageResourceSlackTest {
 	void sendAsynchronous(boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();
-		when(mockEventDispatcher.handleSlackRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleSlackRequest(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -126,7 +126,7 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSlackRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSlackRequest(includeOptionalHeaders ? addHeaderValues(request) : request);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

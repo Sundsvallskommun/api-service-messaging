@@ -96,7 +96,9 @@ class MessageResourceSmsBatchTest {
 		// Arrange
 		var request = createValidSmsBatchRequest();
 		request = request.withSender(senderName).withParties(List.of(request.parties().getFirst().withPartyId(partyId)));
-		when(mockEventDispatcher.handleSmsBatchRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -122,7 +124,7 @@ class MessageResourceSmsBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsBatchRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSmsBatchRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

@@ -1,11 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -17,6 +12,10 @@ import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.validation.ValidInstance;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")
@@ -34,7 +33,9 @@ public record WebMessageRequest(
 		"internal", "external"
 	}, example = "internal") @ValidInstance(nullable = true) String oepInstance,
 
-	@Size(max = 10) @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10) List<Attachment> attachments){
+	@Size(max = 10) @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10) List<Attachment> attachments,
+
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
 
 	@With
 	@Builder(setterPrefix = "with")

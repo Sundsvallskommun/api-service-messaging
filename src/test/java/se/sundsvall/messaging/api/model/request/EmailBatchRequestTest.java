@@ -33,11 +33,12 @@ class EmailBatchRequestTest {
 	private static final List<EmailBatchRequest.Attachment> ATTACHMENTS = List.of(EmailBatchRequest.Attachment.builder().build());
 	private static final List<EmailBatchRequest.Party> PARTIES = List.of(EmailBatchRequest.Party.builder().build());
 	private static final Map<Header, List<String>> HEADERS = Map.of(MESSAGE_ID, List.of("value"));
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// EmailBatchRequest
 	@Test
 	void testEmailBatchRequestConstructor() {
-		final var bean = new EmailBatchRequest(PARTIES, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS);
+		final var bean = new EmailBatchRequest(PARTIES, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
 
 		assertEmailBatchRequest(bean);
 	}
@@ -54,6 +55,7 @@ class EmailBatchRequestTest {
 			.withSender(SENDER)
 			.withAttachments(ATTACHMENTS)
 			.withParties(PARTIES)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertEmailBatchRequest(bean);
@@ -70,6 +72,7 @@ class EmailBatchRequestTest {
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
 		assertThat(bean.parties()).isEqualTo(PARTIES);
 		assertThat(bean.headers()).isEqualTo(HEADERS);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// EmailBatchRequest.Sender

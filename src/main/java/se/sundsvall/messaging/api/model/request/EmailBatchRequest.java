@@ -1,12 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -18,6 +12,11 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+
+import java.util.List;
+import java.util.Map;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")
@@ -39,7 +38,9 @@ public record EmailBatchRequest(
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class)) List<@Valid Attachment> attachments,
 
-	@Schema(description = "Headers") Map<Header, List<@Pattern(regexp = "^<.{1,1000}@.{1,1000}>$", message = "Header values must start with '<', contain '@' and end with '>'") String>> headers) {
+	@Schema(description = "Headers") Map<Header, List<@Pattern(regexp = "^<.{1,1000}@.{1,1000}>$", message = "Header values must start with '<', contain '@' and end with '>'") String>> headers,
+
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")

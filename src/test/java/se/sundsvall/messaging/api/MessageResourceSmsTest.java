@@ -80,10 +80,11 @@ class MessageResourceSmsTest {
 	@MethodSource("requestProvider")
 	void sendSynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
 		// Arrange
-		when(mockMessageService.sendSms(any(), any())).thenReturn(DELIVERY_RESULT);
+		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
 		final var request = createValidSmsRequest()
 			.withParty(party)
 			.withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 
 		// Act
 		final var response = webTestClient.post()
@@ -107,7 +108,7 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendSms(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendSms(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -116,10 +117,11 @@ class MessageResourceSmsTest {
 	@MethodSource("requestProvider")
 	void sendAsynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
 		// Arrange
-		when(mockEventDispatcher.handleSmsRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleSmsRequest(any())).thenReturn(DELIVERY_RESULT);
 		final var request = createValidSmsRequest()
 			.withParty(party)
 			.withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 
 		// Act
 		final var response = webTestClient.post()
@@ -143,7 +145,7 @@ class MessageResourceSmsTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

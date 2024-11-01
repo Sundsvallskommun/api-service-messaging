@@ -128,9 +128,10 @@ class MessageMapperTest {
 
 		final var origin = "someOrigin";
 		final var issuer = "someIssuer";
+		final var municipalityId = "someMunicipalityId";
 		final var request = createValidMessageRequestMessage();
 
-		final var message = messageMapper.toMessage(origin, issuer, batchId, request);
+		final var message = messageMapper.toMessage(municipalityId, origin, issuer, batchId, request);
 
 		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();

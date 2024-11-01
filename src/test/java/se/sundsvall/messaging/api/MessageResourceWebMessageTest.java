@@ -95,7 +95,8 @@ class MessageResourceWebMessageTest {
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
 			.withOepInstance(oepInstance);
-		when(mockMessageService.sendWebMessage(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendWebMessage(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -119,7 +120,7 @@ class MessageResourceWebMessageTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendWebMessage(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendWebMessage(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -131,7 +132,8 @@ class MessageResourceWebMessageTest {
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
 			.withOepInstance(oepInstance);
-		when(mockEventDispatcher.handleWebMessageRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleWebMessageRequest(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -155,7 +157,7 @@ class MessageResourceWebMessageTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleWebMessageRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleWebMessageRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

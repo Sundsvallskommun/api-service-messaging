@@ -25,11 +25,12 @@ class WebMessageRequestTest {
 	private static final String BASE64_DATA = "base64Data";
 	private static final String PARTY_ID = "partyId";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// WebMessageRequest
 	@Test
 	void testWebMessageRequestConstructor() {
-		final var bean = new WebMessageRequest(PARTY, MESSAGE, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS);
+		final var bean = new WebMessageRequest(PARTY, MESSAGE, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertWebMessageRequest(bean);
 	}
@@ -43,6 +44,7 @@ class WebMessageRequestTest {
 			.withOepInstance(OEP_INSTANCE)
 			.withOrigin(ORIGIN)
 			.withParty(PARTY)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertWebMessageRequest(bean);
@@ -56,6 +58,7 @@ class WebMessageRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// WebMessageRequest.Attachment

@@ -80,7 +80,8 @@ class MessageResourceEmailTest {
 		// Arrange
 		var request = createValidEmailRequest();
 		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
-		when(mockMessageService.sendEmail(any(), any())).thenReturn(DELIVERY_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -104,7 +105,7 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendEmail(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendEmail(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -115,8 +116,9 @@ class MessageResourceEmailTest {
 		// Arrange
 		var request = createValidEmailRequest();
 		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 
-		when(mockEventDispatcher.handleEmailRequest(any(), any())).thenReturn(DELIVERY_RESULT);
+		when(mockEventDispatcher.handleEmailRequest(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -140,7 +142,7 @@ class MessageResourceEmailTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleEmailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

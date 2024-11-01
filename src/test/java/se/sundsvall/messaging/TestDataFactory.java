@@ -58,6 +58,8 @@ public final class TestDataFactory {
 
 	public static final String HEADER_VALUE = "<test@test>";
 
+	public static final String MUNICIPALITY_ID = "2281";
+
 	private TestDataFactory() {}
 
 	public static Message createMessage(final MessageType type, final String content) {
@@ -353,6 +355,7 @@ public final class TestDataFactory {
 			.withToken("someToken")
 			.withChannel("someChannel")
 			.withMessage("someMessage")
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 	}
 

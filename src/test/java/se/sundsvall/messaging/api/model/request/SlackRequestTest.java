@@ -14,11 +14,12 @@ class SlackRequestTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER = "issuer";
 	private static final String MESSAGE = "message";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// SlackRequest
 	@Test
 	void testSlackRequestConstructor() {
-		final var bean = new SlackRequest(TOKEN, CHANNEL, ORIGIN, ISSUER, MESSAGE);
+		final var bean = new SlackRequest(TOKEN, CHANNEL, ORIGIN, ISSUER, MESSAGE, MUNICIPALITY_ID);
 
 		assertSlackRequest(bean);
 	}
@@ -31,6 +32,7 @@ class SlackRequestTest {
 			.withMessage(MESSAGE)
 			.withOrigin(ORIGIN)
 			.withToken(TOKEN)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertSlackRequest(bean);
@@ -43,6 +45,7 @@ class SlackRequestTest {
 		assertThat(bean.message()).isEqualTo(MESSAGE);
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.token()).isEqualTo(TOKEN);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// No dirt

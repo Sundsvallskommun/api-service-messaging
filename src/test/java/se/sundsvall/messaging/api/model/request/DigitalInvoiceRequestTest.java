@@ -37,11 +37,12 @@ class DigitalInvoiceRequestTest {
 	private static final String FILENAME = "filename";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 	private static final String PARTY_ID = "partyId";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// DigitalInvoiceRequest
 	@Test
 	void testDigitalInvoiceRequestConstructor() {
-		final var bean = new DigitalInvoiceRequest(PARTY, TYPE, SUBJECT, REFERENCE, PAYABLE, DETAILS, ORIGIN, ISSUER, FILES);
+		final var bean = new DigitalInvoiceRequest(PARTY, TYPE, SUBJECT, REFERENCE, PAYABLE, DETAILS, ORIGIN, ISSUER, FILES, MUNICIPALITY_ID);
 
 		assertDigitalInvoiceRequest(bean);
 	}
@@ -58,6 +59,7 @@ class DigitalInvoiceRequestTest {
 			.withReference(REFERENCE)
 			.withSubject(SUBJECT)
 			.withType(TYPE)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertDigitalInvoiceRequest(bean);
@@ -73,6 +75,7 @@ class DigitalInvoiceRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.files()).isEqualTo(FILES);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// DigitalInvoiceRequest.Details

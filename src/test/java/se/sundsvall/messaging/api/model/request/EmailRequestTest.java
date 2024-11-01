@@ -33,11 +33,12 @@ class EmailRequestTest {
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 	private static final String ADDRESS = "address";
 	private static final String REPLY_TO = "replyTo";
+	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// EmailRequest
 	@Test
 	void testEmailRequestConstructor() {
-		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS);
+		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
 
 		assertEmailRequest(bean);
 	}
@@ -55,6 +56,7 @@ class EmailRequestTest {
 			.withParty(PARTY)
 			.withSender(SENDER)
 			.withSubject(SUBJECT)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertEmailRequest(bean);
@@ -72,6 +74,7 @@ class EmailRequestTest {
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
 		assertThat(bean.headers()).isEqualTo(HEADERS);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// EmailRequest.Attachment

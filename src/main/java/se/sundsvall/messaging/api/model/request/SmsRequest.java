@@ -1,11 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +10,10 @@ import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidMSISDN;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")
@@ -32,7 +31,9 @@ public record SmsRequest(
 
 	@NotBlank @Schema(description = "Message", requiredMode = REQUIRED) String message,
 
-	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority) {
+	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
+
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")

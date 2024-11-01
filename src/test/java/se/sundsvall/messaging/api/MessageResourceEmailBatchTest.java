@@ -74,8 +74,9 @@ class MessageResourceEmailBatchTest {
 		// Arrange
 
 		final var request = createValidEmailBatchRequest();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 
-		when(mockEventDispatcher.handleEmailBatchRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleEmailBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -101,7 +102,7 @@ class MessageResourceEmailBatchTest {
 		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockEventDispatcher).handleEmailBatchRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleEmailBatchRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}

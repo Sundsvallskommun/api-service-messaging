@@ -74,7 +74,8 @@ class MessageResourceDigitalMailTest {
 	void sendSynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
-		when(mockMessageService.sendDigitalMail(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendDigitalMail(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -101,7 +102,7 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendDigitalMail(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockMessageService).sendDigitalMail(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -111,7 +112,8 @@ class MessageResourceDigitalMailTest {
 	void sendAsynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
-		when(mockEventDispatcher.handleDigitalMailRequest(any(), any())).thenReturn(DELIVERY_BATCH_RESULT);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleDigitalMailRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -138,7 +140,7 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleDigitalMailRequest(includeOptionalHeaders ? addHeaderValues(request) : request, MUNICIPALITY_ID);
+		verify(mockEventDispatcher).handleDigitalMailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
