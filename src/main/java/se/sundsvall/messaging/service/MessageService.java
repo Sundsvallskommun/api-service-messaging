@@ -1,29 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.Predicates.instanceOf;
-import static io.vavr.control.Try.ofCallable;
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
-import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
-import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
-import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +13,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -61,6 +36,31 @@ import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.Predicates.instanceOf;
+import static io.vavr.control.Try.ofCallable;
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
+import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOUND;
+import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Service
 public class MessageService {
@@ -214,11 +214,14 @@ public class MessageService {
 		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
-		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var messages = messageMapper.toMessages(request, batchId);
+		final var addressMessages = messageMapper.mapAddressesToMessages(request, batchId);
+		final var allMessages = Stream.concat(messages.stream(), addressMessages.stream()).toList();
+		dbIntegration.saveMessages(allMessages);
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
-		final var deliveryResults = deliveries.stream()
+		final var deliveryResults = allMessages.stream()
 			.map(this::routeAndSendLetter)
 			.flatMap(Collection::stream)
 			.toList();
@@ -345,37 +348,39 @@ public class MessageService {
 		final var result = new ArrayList<InternalDeliveryResult>();
 		final var request = fromJson(message.content(), LetterRequest.class);
 
-		// Re-map the request as a digital mail request
-		final var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
-		final var digitalMailRequestAsJson = toJson(digitalMailRequest);
+		if (message.partyId() != null) {
+			// Re-map the request as a digital mail request
+			final var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
+			final var digitalMailRequestAsJson = toJson(digitalMailRequest);
 
-		// Don't make an attempt to deliver as digital mail if there aren't any attachments
-		// intended for it
-		if (!digitalMailRequest.attachments().isEmpty()) {
-			// "Re-route" the message as digital mail
-			final var reroutedMessage = dbIntegration.saveMessage(message
-				.withType(DIGITAL_MAIL)
-				.withContent(digitalMailRequestAsJson));
+			// Don't make an attempt to deliver as digital mail if there aren't any attachments
+			// intended for it
+			if (!digitalMailRequest.attachments().isEmpty()) {
+				// "Re-route" the message as digital mail
+				final var reroutedMessage = dbIntegration.saveMessage(message
+					.withType(DIGITAL_MAIL)
+					.withContent(digitalMailRequestAsJson));
 
-			try {
-				// Deliver it
-				result.add(deliver(reroutedMessage));
+				try {
+					// Deliver it
+					result.add(deliver(reroutedMessage));
 
-				if (SENT.equals(result.getFirst().status())) {
-					return result;
+					if (SENT.equals(result.getFirst().status())) {
+						return result;
+					}
+				} catch (final Exception e) {
+					LOG.info("Unable to send LETTER as DIGITAL_MAIL");
+
+					result.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
 				}
-			} catch (final Exception e) {
-				LOG.info("Unable to send LETTER as DIGITAL_MAIL");
-
-				result.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
+			} else {
+				// No attachments intended for digital mail
+				LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 			}
-		} else {
-			// No attachments intended for digital mail
-			LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 		}
 
 		// Re-map the request as a snail-mail request
-		final var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId());
+		final var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId(), message.address());
 		final var snailMailRequestAsJson = toJson(snailMailRequest);
 		// Don't make an attempt to deliver as snail mail if there aren't any attachments
 		// intended for it

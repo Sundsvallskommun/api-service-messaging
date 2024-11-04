@@ -1,22 +1,22 @@
 package se.sundsvall.messaging.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequest;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
+import se.sundsvall.messaging.api.model.request.Address;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
 import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
 
 class RequestMapperTest {
 
@@ -128,6 +128,16 @@ class RequestMapperTest {
 		final var partyId = "partyId";
 		final var subject = "subject";
 		final var attachments = createAttachments(content, contentType, filename);
+		final var address = Address.builder()
+			.withAddress("someAddress")
+			.withCountry("someCountry")
+			.withZipCode("someZipCode")
+			.withFirstName("someFirstName")
+			.withLastName("someLastName")
+			.withCity("someCity")
+			.withApartmentNumber("someApartmentNumber")
+			.withOrganizationNumber("someOrganizationNumber")
+			.build();
 		final var letterRequest = LetterRequest.builder()
 			.withAttachments(attachments)
 			.withBody(body)
@@ -139,7 +149,7 @@ class RequestMapperTest {
 			.build();
 
 		// Act
-		final var snailMailRequest = mapper.toSnailMailRequest(letterRequest, partyId);
+		final var snailMailRequest = mapper.toSnailMailRequest(letterRequest, partyId, address);
 
 		// Assert
 		assertThat(snailMailRequest.attachments()).hasSize(2).satisfiesExactlyInAnyOrder(attachment -> {
@@ -152,6 +162,7 @@ class RequestMapperTest {
 			assertThat(attachment.name()).isEqualTo(filename + DeliveryMode.SNAIL_MAIL);
 		});
 
+		assertThat(snailMailRequest.address()).isEqualTo(address);
 		assertThat(snailMailRequest.department()).isEqualTo(department);
 		assertThat(snailMailRequest.deviation()).isEqualTo(deviation);
 		assertThat(snailMailRequest.origin()).isEqualTo(origin);

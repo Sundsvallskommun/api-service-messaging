@@ -1,19 +1,10 @@
 package se.sundsvall.messaging.service;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-
-import java.util.Collections;
-import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
@@ -32,6 +23,15 @@ import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
+
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
+import static se.sundsvall.messaging.model.MessageType.SMS;
 
 @Component
 public class MessageEventDispatcher {
@@ -173,9 +173,13 @@ public class MessageEventDispatcher {
 
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var messages = messageMapper.toMessages(request, batchId);
+		final var addressMessages = messageMapper.mapAddressesToMessages(request, batchId);
 
-		final var deliveries = messages.stream()
+		final var allMessages = Stream.concat(messages.stream(), addressMessages.stream()).toList();
+
+		dbIntegration.saveMessages(allMessages);
+		final var deliveries = allMessages.stream()
 			.map(this::publishMessageEvent)
 			.toList();
 

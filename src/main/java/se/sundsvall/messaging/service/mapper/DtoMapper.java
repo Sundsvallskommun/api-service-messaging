@@ -1,13 +1,6 @@
 package se.sundsvall.messaging.service.mapper;
 
-import static java.util.Optional.ofNullable;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -25,6 +18,12 @@ import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
 import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
 import se.sundsvall.messaging.model.ContentType;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 @Component
 public class DtoMapper {
@@ -171,6 +170,7 @@ public class DtoMapper {
 	public SnailMailDto toSnailMailDto(final SnailMailRequest request, String batchId) {
 		return SnailMailDto.builder()
 			.withPartyId(request.party().partyId())
+			.withAddress(request.address())
 			.withBatchId(batchId)
 			.withDepartment(request.department())
 			.withDeviation(request.deviation())
@@ -193,4 +193,5 @@ public class DtoMapper {
 			.withMessage(request.message())
 			.build();
 	}
+
 }

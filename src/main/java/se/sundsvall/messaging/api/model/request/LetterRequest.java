@@ -54,6 +54,8 @@ public record LetterRequest(
 
 		@NotEmpty @ArraySchema(schema = @Schema(description = "The message party ids", format = "uuid"), minItems = 1) List<@ValidUuid String> partyIds,
 
+		@ArraySchema(schema = @Schema(description = "Addresses that gets a letter copy")) List<Address> addresses,
+
 		@Schema(description = "External references") List<@Valid ExternalReference> externalReferences) {
 	}
 

@@ -1,5 +1,22 @@
 package se.sundsvall.messaging.service.mapper;
 
+import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.Message;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static java.util.Collections.emptyList;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -11,23 +28,6 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-
-import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SlackRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.model.Message;
 
 @Component
 public class MessageMapper {
@@ -164,6 +164,26 @@ public class MessageMapper {
 			.toList();
 	}
 
+	public List<Message> mapAddressesToMessages(final LetterRequest request, final String batchId) {
+		return Optional.ofNullable(request.party()).map(LetterRequest.Party::addresses).orElse(emptyList()).stream()
+			.map(address -> Message.builder()
+				.withBatchId(batchId)
+				.withMessageId(UUID.randomUUID().toString())
+				.withDeliveryId(UUID.randomUUID().toString())
+				.withPartyId(null)
+				.withAddress(address)
+				.withType(SNAIL_MAIL)
+				.withOriginalType(LETTER)
+				.withStatus(PENDING)
+				.withContent(toJson(request))
+				.withOrigin(request.origin())
+				.withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId())
+				.build())
+			.toList();
+
+	}
+
 	public Message toMessage(final String municipalityId, final String origin, final String issuer, final String batchId, final MessageRequest.Message request) {
 		final var messageId = UUID.randomUUID().toString();
 
@@ -197,4 +217,5 @@ public class MessageMapper {
 			.withMunicipalityId(request.municipalityId())
 			.build();
 	}
+
 }

@@ -1,15 +1,15 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 @UnitTest
 class SnailMailRequestTest {
@@ -25,11 +25,12 @@ class SnailMailRequestTest {
 	private static final String NAME = "name";
 	private static final String PARTY_ID = "partyId";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
+	private static final Address ADDRESS = createAddress();
 
 	// SnailMailRequest
 	@Test
 	void testSnailMailRequestConstructor() {
-		final var bean = new SnailMailRequest(PARTY, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS);
+		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS);
 
 		assertSnailMailRequest(bean);
 	}
@@ -43,6 +44,7 @@ class SnailMailRequestTest {
 			.withIssuer(ISSUER)
 			.withOrigin(ORIGIN)
 			.withParty(PARTY)
+			.withAddress(ADDRESS)
 			.build();
 
 		assertSnailMailRequest(bean);
@@ -56,6 +58,7 @@ class SnailMailRequestTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
+		assertThat(bean.address()).isEqualTo(ADDRESS);
 	}
 
 	// SnailMailRequest.Attachment

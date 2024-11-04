@@ -1,5 +1,19 @@
 package apptest;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.LOCATION;
@@ -12,22 +26,9 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
-
 @IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
+@DirtiesContext
 class LetterIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/letter";
@@ -140,6 +141,17 @@ class LetterIT extends AbstractMessagingAppTest {
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY);
+	}
+
+	@Test
+	void test4_sendLetter_withAddress() {
+		setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest(REQUEST_FILE)
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
+			.sendRequestAndVerifyResponse();
 	}
 
 	// TODO: create an additional app-test that tests the "ANY" delivery mode stuff...

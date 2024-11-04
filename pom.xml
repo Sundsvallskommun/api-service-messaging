@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
 	<artifactId>api-service-messaging</artifactId>
-	<version>5.1</version>
+	<version>5.2</version>
 	<name>api-service-messaging</name>
 	<properties>
 		<exposed.app.port>8080</exposed.app.port>
@@ -164,7 +164,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-2.0.yml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/snailmail-sender-2.2.yml</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.snailmail</modelPackage>
 							</configOptions>
