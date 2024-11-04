@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.service.mapper;
 
 import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.api.model.request.Address;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -128,11 +129,12 @@ public class RequestMapper {
 			.build();
 	}
 
-	public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId) {
+	public SnailMailRequest toSnailMailRequest(final LetterRequest request, final String partyId, final Address address) {
 		return SnailMailRequest.builder()
 			.withParty(SnailMailRequest.Party.builder()
 				.withPartyId(partyId)
 				.build())
+			.withAddress(address)
 			.withDepartment(request.department())
 			.withDeviation(request.deviation())
 			.withAttachments(request.attachments().stream()

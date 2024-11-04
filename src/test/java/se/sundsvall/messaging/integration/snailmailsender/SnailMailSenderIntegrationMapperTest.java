@@ -1,14 +1,13 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import generated.se.sundsvall.snailmail.Attachment;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import generated.se.sundsvall.snailmail.Attachment;
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 @UnitTest
 class SnailMailSenderIntegrationMapperTest {
@@ -33,6 +32,22 @@ class SnailMailSenderIntegrationMapperTest {
 		var mappedRequest = mapper.toSendSnailmailRequest(dto);
 
 		assertThat(mappedRequest.getAttachments()).hasSize(1);
+	}
+
+	@Test
+	void test_toAddress() {
+		var address = createAddress();
+
+		var snailMailAddress = mapper.toAddress(address);
+
+		assertThat(snailMailAddress.getAddress()).isEqualTo(address.address());
+		assertThat(snailMailAddress.getCity()).isEqualTo(address.city());
+		assertThat(snailMailAddress.getCountry()).isEqualTo(address.country());
+		assertThat(snailMailAddress.getZipCode()).isEqualTo(address.zipCode());
+		assertThat(snailMailAddress.getFirstName()).isEqualTo(address.firstName());
+		assertThat(snailMailAddress.getLastName()).isEqualTo(address.lastName());
+		assertThat(snailMailAddress.getOrganizationNumber()).isEqualTo(address.organizationNumber());
+		assertThat(snailMailAddress.getApartmentNumber()).isEqualTo(address.apartmentNumber());
 	}
 
 }

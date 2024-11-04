@@ -1,14 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Party;
@@ -16,6 +8,14 @@ import se.sundsvall.messaging.api.model.request.LetterRequest.Sender;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Sender.SupportInfo;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
 
 @UnitTest
 class LetterRequestTest {
@@ -41,6 +41,7 @@ class LetterRequestTest {
 	private static final String PHONE_NUMBER = "phonenumber";
 	private static final String URL = "url";
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final Address ADDRESS = createAddress();
 
 	// LetterRequest
 	@Test
@@ -115,7 +116,7 @@ class LetterRequestTest {
 	// LetterRequest.Party
 	@Test
 	void testLetterRequestPartyConstructor() {
-		final var bean = new LetterRequest.Party(PARTY_IDS, EXTERNAL_REFERENCES);
+		final var bean = new LetterRequest.Party(PARTY_IDS, List.of(ADDRESS), EXTERNAL_REFERENCES);
 
 		assertLetterRequestParty(bean);
 	}
@@ -125,6 +126,7 @@ class LetterRequestTest {
 		final var bean = LetterRequest.Party.builder()
 			.withExternalReferences(EXTERNAL_REFERENCES)
 			.withPartyIds(PARTY_IDS)
+			.withAddresses(List.of(ADDRESS))
 			.build();
 
 		assertLetterRequestParty(bean);
@@ -134,6 +136,7 @@ class LetterRequestTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.externalReferences()).isEqualTo(EXTERNAL_REFERENCES);
 		assertThat(bean.partyIds()).isEqualTo(PARTY_IDS);
+		assertThat(bean.addresses()).containsExactly(ADDRESS);
 	}
 
 	// LetterRequest.Sender
