@@ -31,7 +31,7 @@ class SnailMailSenderIntegrationMapper {
 				.orElse(null));
 	}
 
-	private generated.se.sundsvall.snailmail.Address toAddress(final Address address) {
+	generated.se.sundsvall.snailmail.Address toAddress(final Address address) {
 		return Optional.ofNullable(address).map(notNull -> new generated.se.sundsvall.snailmail.Address()
 			.firstName(address.firstName())
 			.lastName(address.lastName())
