@@ -298,6 +298,7 @@ public final class TestDataFactory {
 			.withParty(LetterRequest.Party.builder()
 				.withPartyIds(List.of(UUID.randomUUID().toString()))
 				.withExternalReferences(List.of(createExternalReference()))
+				.withAddresses(List.of(createAddress()))
 				.build())
 			.withSender(LetterRequest.Sender.builder()
 				.withSupportInfo(LetterRequest.Sender.SupportInfo.builder()
