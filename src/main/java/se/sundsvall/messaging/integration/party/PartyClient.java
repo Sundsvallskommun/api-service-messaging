@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 	configuration = PartyIntegrationConfiguration.class,
 	dismiss404 = true)
 @CircuitBreaker(name = INTEGRATION_NAME)
-public interface PartyClient {
+interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
 	Optional<String> getLegalIdByPartyId(
 		@PathVariable String municipalityId,
 		@PathVariable PartyType type,
 		@PathVariable String partyId);
-
 }
