@@ -8,6 +8,6 @@ import se.sundsvall.messaging.integration.AbstractRestIntegrationProperties;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "integration.party")
-public class PartyIntegrationProperties extends AbstractRestIntegrationProperties {
+class PartyIntegrationProperties extends AbstractRestIntegrationProperties {
 
 }
