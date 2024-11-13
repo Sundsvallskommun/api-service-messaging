@@ -21,7 +21,7 @@ public class SmsSenderIntegration {
 
 	private final SmsSenderIntegrationMapper mapper;
 
-	public SmsSenderIntegration(final SmsSenderClient client, final SmsSenderIntegrationMapper mapper) {
+	SmsSenderIntegration(final SmsSenderClient client, final SmsSenderIntegrationMapper mapper) {
 		this.client = client;
 		this.mapper = mapper;
 	}
