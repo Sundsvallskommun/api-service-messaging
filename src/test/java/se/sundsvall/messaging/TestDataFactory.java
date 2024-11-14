@@ -1,7 +1,20 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
-import se.sundsvall.messaging.api.model.request.Address;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
@@ -20,6 +33,7 @@ import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.model.AccountType;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
@@ -28,20 +42,6 @@ import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.ReferenceType;
 import se.sundsvall.messaging.service.model.Attachment;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 public final class TestDataFactory {
 
@@ -82,15 +82,14 @@ public final class TestDataFactory {
 
 	public static Address createAddress() {
 		return Address.builder()
-			.withCity("someCity")
-			.withCountry("someCountry")
-			.withZipCode("12345")
-			.withCareOf("someCareOf")
 			.withFirstName("someFirstName")
 			.withLastName("someLastName")
-			.withOrganizationNumber("1234567890")
 			.withAddress("someAddress")
 			.withApartmentNumber("someApartmentNumber")
+			.withCareOf("someCareOf")
+			.withZipCode("12345")
+			.withCity("someCity")
+			.withCountry("someCountry")
 			.build();
 	}
 

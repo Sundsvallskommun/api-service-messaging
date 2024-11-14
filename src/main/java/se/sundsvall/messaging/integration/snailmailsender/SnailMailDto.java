@@ -1,9 +1,10 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import lombok.Builder;
-import se.sundsvall.messaging.api.model.request.Address;
-
 import java.util.List;
+
+import se.sundsvall.messaging.model.Address;
+
+import lombok.Builder;
 
 @Builder(setterPrefix = "with")
 public record SnailMailDto(

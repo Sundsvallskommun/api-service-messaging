@@ -2,7 +2,6 @@ package se.sundsvall.messaging.model;
 
 import lombok.Builder;
 import lombok.With;
-import se.sundsvall.messaging.api.model.request.Address;
 
 @With
 @Builder(setterPrefix = "with")
