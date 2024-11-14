@@ -1,5 +1,24 @@
 package se.sundsvall.messaging.integration.db;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -9,26 +28,6 @@ import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.jpa.domain.Specification;
-
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -180,11 +179,11 @@ class DbIntegrationTest {
 		final var municipalityId = "2281";
 		final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department, municipalityId);
 
-		when(mockStatisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department, municipalityId)));
+		when(mockStatisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department, municipalityId)));
 
 		assertThat(dbIntegration.getStatsByMunicipalityIdAndOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to)).hasSize(1).contains(statsEntry);
 
-		verify(mockStatisticsRepository).getStatsBMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to);
+		verify(mockStatisticsRepository).getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to);
 	}
 
 }

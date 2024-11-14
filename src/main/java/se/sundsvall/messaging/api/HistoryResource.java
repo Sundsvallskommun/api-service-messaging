@@ -1,5 +1,36 @@
 package se.sundsvall.messaging.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.zalando.problem.Problem;
+import org.zalando.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.model.ApiMapper;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
+import se.sundsvall.messaging.api.model.response.HistoryResponse;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessages;
+import se.sundsvall.messaging.service.HistoryService;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
@@ -14,40 +45,6 @@ import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-
-import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
-import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.messaging.api.model.ApiMapper;
-import se.sundsvall.messaging.api.model.response.DeliveryResult;
-import se.sundsvall.messaging.api.model.response.HistoryResponse;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.api.model.response.UserMessages;
-import se.sundsvall.messaging.service.HistoryService;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "History Resources")
 @RestController
@@ -148,7 +145,6 @@ class HistoryResource {
 		@Parameter(name = "userId", description = "User id", example = "test") @PathVariable final String userId,
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
 		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
-
 		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
 		return ok(result);
 	}

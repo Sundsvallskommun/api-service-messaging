@@ -1,5 +1,39 @@
 package se.sundsvall.messaging.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.util.StreamUtils;
+import org.zalando.problem.Problem;
+import se.sundsvall.messaging.api.model.response.UserMessage;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
+import se.sundsvall.messaging.integration.party.PartyIntegration;
+import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,41 +50,6 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static se.sundsvall.messaging.TestDataFactory.createAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createHistoryEntity;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessage;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
-
-import se.sundsvall.messaging.api.model.response.UserMessage;
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
-import se.sundsvall.messaging.integration.party.PartyIntegration;
-import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -177,7 +176,7 @@ class HistoryServiceTest {
 		var spy = Mockito.spy(historyService);
 		var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
 		Page<MessageIdProjection> messageIdPage = new PageImpl<>(List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
-		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(PageRequest.class))).thenReturn(messageIdPage);
+		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(LocalDateTime.class), any(PageRequest.class))).thenReturn(messageIdPage);
 		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
 
 		var result = spy.getUserMessages(municipalityId, userId, page, limit);
@@ -190,7 +189,7 @@ class HistoryServiceTest {
 			assertThat(userMessages.metaData().getTotalRecords()).isEqualTo(3);
 			assertThat(userMessages.metaData().getTotalPages()).isEqualTo(1);
 		});
-		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), pageRequestCaptor.capture());
+		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), any(LocalDateTime.class), pageRequestCaptor.capture());
 		var pageRequest = pageRequestCaptor.getValue();
 		assertThat(pageRequest.getPageNumber()).isZero();
 		assertThat(pageRequest.getPageSize()).isEqualTo(limit);
@@ -215,8 +214,9 @@ class HistoryServiceTest {
 		var messageId = "someMessageId";
 		var histories = List.of(createHistoryEntity());
 		var spy = Mockito.spy(historyService);
-		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId))
-			.thenReturn(histories);
+		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(histories);
+		var subject = "someSubject";
+		doReturn(subject).when(spy).extractSubject(histories.getFirst());
 		var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
 		doReturn(recipients).when(spy).createRecipients(municipalityId, histories);
 		var attachments = List.of(UserMessage.MessageAttachment.builder().withContentType("application/pdf").withFileName("someFileName").build());

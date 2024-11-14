@@ -1,14 +1,13 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class UserMessageTest {
@@ -23,19 +22,21 @@ class UserMessageTest {
 	private static final String MESSAGE_TYPE = "messageType";
 	private static final String CONTENT_TYPE = "contentType";
 	private static final String FILE_NAME = "fileName";
+	private static final String SUBJECT = "subject";
 
 	@Test
 	void userMessageConstructor() {
-		var bean = new UserMessage(MESSAGE_ID, ISSUER, ORIGIN, SENT, RECIPIENTS, ATTACHMENTS);
+		var bean = new UserMessage(MESSAGE_ID, ISSUER, ORIGIN, SENT, SUBJECT, RECIPIENTS, ATTACHMENTS);
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.messageId()).isEqualTo(MESSAGE_ID);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.sent()).isEqualTo(SENT);
+		assertThat(bean.subject()).isEqualTo(SUBJECT);
 		assertThat(bean.recipients()).isEqualTo(RECIPIENTS);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
-		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "recipients", "attachments");
+		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "subject", "recipients", "attachments");
 	}
 
 	@Test
@@ -45,6 +46,7 @@ class UserMessageTest {
 			.withIssuer(ISSUER)
 			.withOrigin(ORIGIN)
 			.withSent(SENT)
+			.withSubject(SUBJECT)
 			.withRecipients(RECIPIENTS)
 			.withAttachments(ATTACHMENTS)
 			.build();
@@ -54,9 +56,10 @@ class UserMessageTest {
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.sent()).isEqualTo(SENT);
+		assertThat(bean.subject()).isEqualTo(SUBJECT);
 		assertThat(bean.recipients()).isEqualTo(RECIPIENTS);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
-		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "recipients", "attachments");
+		assertThat(bean).hasOnlyFields("messageId", "issuer", "origin", "sent", "subject", "recipients", "attachments");
 	}
 
 	@Test

@@ -432,6 +432,7 @@ public final class TestDataFactory {
 			.withSent(LocalDateTime.now())
 			.withRecipients(List.of())
 			.withAttachments(List.of())
+			.withSubject("someSubject")
 			.withOrigin("someOrigin")
 			.withIssuer("someIssuer")
 			.withMessageId("someMessageId")
@@ -474,6 +475,31 @@ public final class TestDataFactory {
 			.withDeliveryId("someDeliveryId")
 			.withCreatedAt(LocalDateTime.now())
 			.withMessageType(MessageType.SNAIL_MAIL)
+			.build();
+	}
+
+	public static HistoryEntity createDigitalMailHistoryEntity() {
+		return HistoryEntity.builder()
+			.withId(123L)
+			.withMunicipalityId("2281")
+			.withMessageId(UUID.randomUUID().toString())
+			.withStatus(MessageStatus.SENT)
+			.withIssuer("someIssuer")
+			.withContent("{\n" +
+				"    \"attachments\": [\n" +
+				"        {\n" +
+				"            \"name\": \"someFileName\",\n" +
+				"            \"content\": \"someContent\",\n" +
+				"            \"contentType\": \"application/pdf\"\n" +
+				"        }\n" +
+				"    ]\n" +
+				"	 \"subject\": \"someSubject\","
+				+ "\n" +
+				"}")
+			.withBatchId("someBatchId")
+			.withDeliveryId("someDeliveryId")
+			.withCreatedAt(LocalDateTime.now())
+			.withMessageType(MessageType.DIGITAL_MAIL)
 			.build();
 	}
 
