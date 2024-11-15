@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -32,8 +30,6 @@ import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 
 @Component
 public class MessageEventDispatcher {
-
-	private static final Logger LOG = LoggerFactory.getLogger(MessageEventDispatcher.class);
 
 	private final ApplicationEventPublisher eventPublisher;
 
