@@ -1,7 +1,7 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.api.model.request.Address;
+import se.sundsvall.messaging.model.Address;
 
 import java.util.List;
 

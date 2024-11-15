@@ -1,22 +1,23 @@
 package se.sundsvall.messaging.service.mapper;
 
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.api.model.request.Address;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
-import se.sundsvall.messaging.api.model.request.Priority;
-import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
-import se.sundsvall.messaging.configuration.Defaults;
-import se.sundsvall.messaging.model.ExternalReference;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
+import se.sundsvall.messaging.api.model.request.Priority;
+import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
+import se.sundsvall.messaging.configuration.Defaults;
+import se.sundsvall.messaging.model.Address;
+import se.sundsvall.messaging.model.ExternalReference;
 
 class RequestMapperTest {
 
@@ -136,7 +137,6 @@ class RequestMapperTest {
 			.withLastName("someLastName")
 			.withCity("someCity")
 			.withApartmentNumber("someApartmentNumber")
-			.withOrganizationNumber("someOrganizationNumber")
 			.build();
 		final var letterRequest = LetterRequest.builder()
 			.withAttachments(attachments)
