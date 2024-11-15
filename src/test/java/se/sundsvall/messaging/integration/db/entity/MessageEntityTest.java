@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -17,21 +18,22 @@ class MessageEntityTest {
 
 	@Test
 	void testBuilder() {
-		final var id = 1234L;
-		final var messageId = "messageId";
-		final var batchId = "batchId";
-		final var deliveryId = "deliveryId";
-		final var partyId = "partyId";
-		final var type = MessageType.SLACK;
-		final var originalMessageType = MessageType.EMAIL;
-		final var status = MessageStatus.NO_CONTACT_WANTED;
-		final var content = "content";
-		final var origin = "origin";
-		final var issuer = "issuer";
-		final var createdAt = LocalDateTime.now();
-		final var municipalityId = "municipalityId";
+		var id = 1234L;
+		var messageId = "messageId";
+		var batchId = "batchId";
+		var deliveryId = "deliveryId";
+		var partyId = "partyId";
+		var type = MessageType.SLACK;
+		var originalMessageType = MessageType.EMAIL;
+		var status = MessageStatus.NO_CONTACT_WANTED;
+		var content = "content";
+		var origin = "origin";
+		var issuer = "issuer";
+		var createdAt = LocalDateTime.now();
+		var municipalityId = "municipalityId";
+		var destinationAddress = Address.builder().withAddress("someAddress").build();
 
-		final var bean = MessageEntity.builder()
+		var bean = MessageEntity.builder()
 			.withBatchId(batchId)
 			.withContent(content)
 			.withCreatedAt(createdAt)
@@ -45,9 +47,10 @@ class MessageEntityTest {
 			.withOriginalMessageType(originalMessageType)
 			.withPartyId(partyId)
 			.withStatus(status)
+			.withDestinationAddress(destinationAddress)
 			.build();
 
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
 		assertThat(bean.getBatchId()).isEqualTo(batchId);
 		assertThat(bean.getContent()).isEqualTo(content);
 		assertThat(bean.getCreatedAt()).isEqualTo(createdAt);
@@ -61,6 +64,7 @@ class MessageEntityTest {
 		assertThat(bean.getOriginalMessageType()).isEqualTo(originalMessageType);
 		assertThat(bean.getPartyId()).isEqualTo(partyId);
 		assertThat(bean.getStatus()).isEqualTo(status);
+		assertThat(bean.getDestinationAddress()).isEqualTo(destinationAddress);
 	}
 
 	@Test
@@ -71,7 +75,7 @@ class MessageEntityTest {
 
 	@Test
 	void testPrePersist() {
-		final var bean = MessageEntity.builder().build();
+		var bean = MessageEntity.builder().build();
 		assertThat(bean.getCreatedAt()).isNull();
 
 		bean.prePersist();

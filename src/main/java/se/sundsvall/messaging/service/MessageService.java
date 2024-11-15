@@ -1,10 +1,8 @@
 package se.sundsvall.messaging.service;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.Predicates.instanceOf;
-import static io.vavr.control.Try.ofCallable;
+import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
@@ -14,6 +12,7 @@ import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.util.JsonUtils.fromJson;
@@ -23,10 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +46,7 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.citizen.CitizenIntegration;
 import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
@@ -59,6 +58,7 @@ import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderInteg
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
@@ -68,52 +68,43 @@ public class MessageService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
 
-	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
 	private final TransactionTemplate transactionTemplate;
-
 	private final DbIntegration dbIntegration;
-
+	private final CitizenIntegration citizenIntegration;
 	private final ContactSettingsIntegration contactSettingsIntegration;
-
-	private final SmsSenderIntegration smsSender;
-
-	private final EmailSenderIntegration emailSender;
-
-	private final DigitalMailSenderIntegration digitalMailSender;
-
-	private final WebMessageSenderIntegration webMessageSender;
-
-	private final SnailMailSenderIntegration snailmailSender;
-
+	private final SmsSenderIntegration smsSenderIntegration;
+	private final EmailSenderIntegration emailSenderIntegration;
+	private final DigitalMailSenderIntegration digitalMailSenderIntegration;
+	private final WebMessageSenderIntegration webMessageSenderIntegration;
+	private final SnailMailSenderIntegration snailMailSenderIntegration;
 	private final SlackIntegration slackIntegration;
 
 	private final MessageMapper messageMapper;
-
 	private final RequestMapper requestMapper;
-
 	private final DtoMapper dtoMapper;
 
 	public MessageService(final TransactionTemplate transactionTemplate,
 		final DbIntegration dbIntegration,
+		final CitizenIntegration citizenIntegration,
 		final ContactSettingsIntegration contactSettingsIntegration,
-		final SmsSenderIntegration smsSender,
-		final EmailSenderIntegration emailSender,
-		final DigitalMailSenderIntegration digitalMailSender,
-		final WebMessageSenderIntegration webMessageSender,
-		final SnailMailSenderIntegration snailmailSender,
+		final SmsSenderIntegration smsSenderIntegration,
+		final EmailSenderIntegration emailSenderIntegration,
+		final DigitalMailSenderIntegration digitalMailSenderIntegration,
+		final WebMessageSenderIntegration webMessageSenderIntegration,
+		final SnailMailSenderIntegration snailMailSenderIntegration,
 		final SlackIntegration slackIntegration,
 		final MessageMapper messageMapper,
 		final RequestMapper requestMapper,
 		final DtoMapper dtoMapper) {
 		this.transactionTemplate = transactionTemplate;
 		this.dbIntegration = dbIntegration;
+		this.citizenIntegration = citizenIntegration;
 		this.contactSettingsIntegration = contactSettingsIntegration;
-		this.smsSender = smsSender;
-		this.emailSender = emailSender;
-		this.digitalMailSender = digitalMailSender;
-		this.webMessageSender = webMessageSender;
-		this.snailmailSender = snailmailSender;
+		this.smsSenderIntegration = smsSenderIntegration;
+		this.emailSenderIntegration = emailSenderIntegration;
+		this.digitalMailSenderIntegration = digitalMailSenderIntegration;
+		this.webMessageSenderIntegration = webMessageSenderIntegration;
+		this.snailMailSenderIntegration = snailMailSenderIntegration;
 		this.slackIntegration = slackIntegration;
 		this.messageMapper = messageMapper;
 		this.requestMapper = requestMapper;
@@ -187,10 +178,10 @@ public class MessageService {
 
 	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
 		var batchId = UUID.randomUUID().toString();
-		var messages = messageMapper.toMessages(request, batchId);
 
-		var addressMessages = messageMapper.mapAddressesToMessages(request, batchId);
-		var allMessages = Stream.concat(messages.stream(), addressMessages.stream()).toList();
+		var messagesWithPartyId = messageMapper.toMessages(request, batchId);
+		var messagesWithAddress = messageMapper.mapAddressesToMessages(request, batchId);
+		var allMessages = Stream.concat(messagesWithPartyId.stream(), messagesWithAddress.stream()).toList();
 		dbIntegration.saveMessages(allMessages);
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
@@ -215,10 +206,10 @@ public class MessageService {
 		} else if (snailMailDeliveryResults.stream().allMatch(deliveryResult -> FAILED.equals(deliveryResult.status()))) {
 			LOG.warn("Not triggering batch {} since all deliveries within it failed", batchId);
 		} else {
-			deliveryResults.forEach(deliveryResult -> LOG.info("Delivery {} was sent as snail-mail", deliveryResult.deliveryId()));
+			snailMailDeliveryResults.forEach(deliveryResult -> LOG.info("Delivery {} was sent as snail-mail", deliveryResult.deliveryId()));
 
 			// At least one delivery was sent as snail-mail - send the batch
-			snailmailSender.sendBatch(municipalityId, batchId);
+			snailMailSenderIntegration.sendBatch(municipalityId, batchId);
 
 			LOG.info("Batch {} sent successfully", batchId);
 		}
@@ -234,8 +225,18 @@ public class MessageService {
 
 		var partyId = message.partyId();
 
-		// Get the message filters
 		var request = fromJson(message.content(), MessageRequest.Message.class);
+		// Make sure we have been able to recreate the original request
+		if (isNull(request)) {
+			LOG.warn("Unable to deliver MESSAGE since the original request can't be recreated");
+
+			var failedMessage = message.withStatus(FAILED);
+			archiveMessage(failedMessage, "Unable to recreate original MESSAGE request");
+
+			return List.of(new InternalDeliveryResult(failedMessage));
+		}
+
+		// Get the message filters
 		var filters = ofNullable(request.filters())
 			.map(LinkedMultiValueMap::new)
 			.orElseGet(LinkedMultiValueMap::new);
@@ -328,7 +329,17 @@ public class MessageService {
 		var result = new ArrayList<InternalDeliveryResult>();
 		var request = fromJson(message.content(), LetterRequest.class);
 
-		if (message.address() == null) {
+		// Make sure we have been able to recreate the original request
+		if (isNull(request)) {
+			LOG.warn("Unable to deliver {} since the original LETTER request can't be recreated", message.type());
+
+			var failedMessage = message.withStatus(FAILED);
+			archiveMessage(failedMessage, "Unable to recreate original LETTER request");
+
+			return List.of(new InternalDeliveryResult(failedMessage));
+		}
+
+		if (isNotBlank(message.partyId())) {
 			// Re-map the request as a digital mail request
 			var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
 			var digitalMailRequestAsJson = toJson(digitalMailRequest);
@@ -357,19 +368,55 @@ public class MessageService {
 				// No attachments intended for digital mail
 				LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 			}
+		} else {
+			// We're about to switch to snail-mail delivery - make sure that there exists some attachment(s) for that
+			if (request.attachments().stream().noneMatch(LetterRequest.Attachment::isIntendedForSnailMail)) {
+				// "Route" the failed message back to a LETTER
+				var failedMessage = message.withType(LETTER).withStatus(FAILED);
+				archiveMessage(failedMessage, "Only DIGITAL_MAIL delivery allowed and party id unset/address set");
+
+				return List.of(new InternalDeliveryResult(failedMessage));
+			}
 		}
 
 		// Re-map the request as a snail-mail request
 		var snailMailRequest = requestMapper.toSnailMailRequest(request, message.partyId(), message.address());
 		var snailMailRequestAsJson = toJson(snailMailRequest);
+
 		// Don't make an attempt to deliver as snail mail if there aren't any attachments
 		// intended for it
 		if (!snailMailRequest.attachments().isEmpty()) {
-			// Re-route the message as snail-mail
+			var address = message.address();
+			// Lookup destination address from the citizen API, if needed
+			if (address == null && isNotBlank(message.partyId())) {
+				try {
+					address = citizenIntegration.getCitizenAddress(message.partyId());
+				} catch (Exception e) {
+					// If something went wrong fetching the address, there's nothing more to do with this message but to bail out early
+					LOG.info("Unable to get address from citizen");
+
+					var failedMessage = message.withStatus(FAILED);
+					archiveMessage(failedMessage, e.getMessage());
+					result.add(new InternalDeliveryResult(failedMessage));
+					return result;
+				}
+			}
+
+			// Re-route the original message as snail-mail - if the party id is set on the original message,
+			// we've gotten here after attempting a digital mail delivery, so we need to treat the delivery
+			// as a new one with a fresh delivery id
+			var deliveryIdModified = false;
+			var deliveryId = message.deliveryId();
+			if (isNotBlank(message.partyId())) {
+				deliveryId = UUID.randomUUID().toString();
+				deliveryIdModified = true;
+			}
+
 			var reroutedMessage = dbIntegration.saveMessage(message
-				.withDeliveryId(UUID.randomUUID().toString())
+				.withDeliveryId(deliveryId)
 				.withType(SNAIL_MAIL)
-				.withContent(snailMailRequestAsJson));
+				.withContent(snailMailRequestAsJson)
+				.withAddress(address));
 
 			try {
 				// Deliver it
@@ -379,6 +426,11 @@ public class MessageService {
 
 				result.add(new InternalDeliveryResult(reroutedMessage.withStatus(FAILED)));
 			}
+
+			// If we modified the delivery id we need to delete the original delivery manually
+			if (deliveryIdModified) {
+				dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
+			}
 		} else {
 			LOG.info("No attachment(s) for SNAIL_MAIL - unable to send letter");
 		}
@@ -386,7 +438,6 @@ public class MessageService {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	InternalDeliveryResult deliver(final Message delivery) {
 		// Re-construct the original request
 		var request = fromJson(delivery.content(), switch (delivery.type()) {
@@ -399,45 +450,42 @@ public class MessageService {
 			case SLACK -> SlackRequest.class;
 			default -> throw new IllegalArgumentException("Unknown request type: " + delivery.type());
 		});
-		// Get the try call to start out with
-		var sendTry = switch (delivery.type()) {
-			case SMS -> ofCallable(() -> smsSender.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request)));
-			case EMAIL -> ofCallable(() -> emailSender.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request)));
-			case DIGITAL_MAIL -> ofCallable(() -> digitalMailSender.sendDigitalMail(delivery.municipalityId(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId())));
-			case DIGITAL_INVOICE -> ofCallable(() -> digitalMailSender.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request)));
-			case WEB_MESSAGE -> ofCallable(() -> webMessageSender.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request)));
-			case SNAIL_MAIL -> ofCallable(() -> snailmailSender.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId())));
-			case SLACK -> ofCallable(() -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request)));
+
+		// Get the delivery attempt for the given message type
+		Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
+			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
+			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
+			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
+			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
+			case WEB_MESSAGE -> () -> webMessageSenderIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request));
+			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId()));
+			case SLACK -> () -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
 
-		return sendTry
-			.peek(status ->
+		try {
+			// Perform the attempt
+			var status = deliveryAttempt.get();
 			// Archive the message
-			archiveMessage(delivery.withStatus(status)))
-			// Map to result
-			.map(status -> new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, delivery.municipalityId()))
-			// Make sure all exceptions that may occur are throwable problems
-			.mapFailure(
-				Case($(instanceOf(ThrowableProblem.class)), throwableProblem -> {
-					LOG.info("Unable to deliver {}: {}", delivery.type(), throwableProblem.getMessage());
+			archiveMessage(delivery.withStatus(status));
 
-					return throwableProblem;
-				}),
-				Case($(), e -> {
-					LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
+			return new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, delivery.municipalityId());
+		} catch (Exception e) {
+			LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
 
-					return Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
-				}))
-			.toEither()
-			// If we have a left (i.e. an exception has occurred) - archive the message and throw
-			.peekLeft(throwable -> {
-				// Archive the message
-				archiveMessage(delivery.withStatus(FAILED), throwable.getMessage());
+			// "Rewrite" the exception as a Problem if it isn't one already
+			ThrowableProblem throwableProblem;
+			if (e instanceof ThrowableProblem eAsThrowableProblem) {
+				throwableProblem = eAsThrowableProblem;
+			} else {
+				throwableProblem = Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
+			}
 
-				throw (ThrowableProblem) throwable;
-			})
-			.get();
+			// Archive the message with FAILED status
+			archiveMessage(delivery.withStatus(FAILED), e.getMessage());
+
+			throw throwableProblem;
+		}
 	}
 
 	void archiveMessage(final Message message) {

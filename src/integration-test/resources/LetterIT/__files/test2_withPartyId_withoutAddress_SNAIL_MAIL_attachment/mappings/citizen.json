@@ -1,0 +1,32 @@
+{
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "GET",
+		"queryParameters": {"ShowClassified": {"equalTo": "false"}},
+		"urlPath": "/citizen/e4e37771-397b-45b5-bb89-f389f8525e53"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"jsonBody": {
+			"addresses": [{
+				"country": "THE COUNTRY",
+				"address": "SOME STREET 19",
+				"city": "THE CITY",
+				"addressType": "POPULATION_REGISTRATION_ADDRESS",
+				"postalCode": "123 45",
+				"realEstateDescription": "APPLESEED 123",
+				"municipality": "2281",
+				"emigrated": false
+			}],
+			"gender": "M",
+			"givenname": "Bob",
+			"nrDate": "20100601",
+			"personId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+			"classified": "N",
+			"protectedNR": "N",
+			"lastname": "Something",
+			"civilStatus": "G "
+		},
+		"status": 200
+	}
+}

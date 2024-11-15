@@ -1,0 +1,20 @@
+{
+	"attachments": [{
+		"filename": "someFile.txt",
+		"deliveryMode": "DIGITAL_MAIL",
+		"contentType": "application/pdf",
+		"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+	}],
+	"subject": "Some subject",
+	"body": "This is the message contents",
+	"department": "Some department",
+	"contentType": "text/plain",
+	"party": {"addresses": [{
+		"firstName": "Bob",
+		"lastName": "Something",
+		"zipCode": "123 45",
+		"country": "The Country",
+		"address": "Some Street 19",
+		"city": "The City"
+	}]}
+}

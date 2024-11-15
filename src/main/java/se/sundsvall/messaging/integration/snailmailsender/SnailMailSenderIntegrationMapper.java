@@ -18,7 +18,6 @@ class SnailMailSenderIntegrationMapper {
 		}
 
 		return new SendSnailMailRequest()
-			.partyId(dto.partyId())
 			.address(toAddress(dto.address()))
 			.batchId(dto.batchId())
 			.department(dto.department())

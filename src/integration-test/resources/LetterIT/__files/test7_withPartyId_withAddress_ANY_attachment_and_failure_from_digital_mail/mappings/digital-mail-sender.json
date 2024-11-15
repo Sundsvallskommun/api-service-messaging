@@ -1,0 +1,16 @@
+{
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "POST",
+		"urlPath": "/digital-mail-sender/2281/send-digital-mail"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"jsonBody": {"deliveryStatus": {
+			"delivered": false,
+			"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+			"transactionId": "04f9919d-2507-4427-ba7e-d92205832bbf"
+		}},
+		"status": 200
+	}
+}
