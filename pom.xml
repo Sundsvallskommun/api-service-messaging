@@ -248,7 +248,6 @@
 						<exclude>**/se/sundsvall/messaging/configuration/**/**</exclude>
 						<exclude>**/se/sundsvall/messaging/integration/**/**IntegrationConfiguration**</exclude>
 						<exclude>**/se/sundsvall/messaging/integration/**/**IntegrationProperties**</exclude>
-						<exclude>**/se/sundsvall/messaging/service/**Blacklist**</exclude>
 						<!-- Exclude JPA specifications and metamodels -->
 						<exclude>**/se/sundsvall/messaging/integration/db/specification/HistorySpecification*</exclude>
 						<exclude>**/se/sundsvall/messaging/integration/db/entity/**/*Entity_*</exclude>

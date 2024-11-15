@@ -1,30 +1,11 @@
 package se.sundsvall.messaging.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-
 import se.sundsvall.messaging.TestDataFactory;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -44,6 +25,19 @@ import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class MessageEventDispatcherTest {
@@ -52,9 +46,6 @@ class MessageEventDispatcherTest {
 
 	@Mock
 	private ApplicationEventPublisher mockEventPublisher;
-
-	@Mock
-	private BlacklistService mockBlacklistService;
 
 	@Mock
 	private DbIntegration mockDbIntegration;
@@ -112,32 +103,24 @@ class MessageEventDispatcherTest {
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
 
-	@ParameterizedTest
-	@ValueSource(booleans = {
-		true, false
-	})
-	void handleSmsBatchRequest(final boolean whitelisted) {
+	@Test
+	void handleSmsBatchRequest() {
 		final var message = Message.builder().withMunicipalityId(MUNICIPALITY_ID).build();
 		final var smsRequest = SmsRequest.builder().build();
 		final var party = SmsBatchRequest.Party.builder().build();
 		final var smsBatchRequest = SmsBatchRequest.builder().withParties(List.of(party)).build();
 
-		if (whitelisted) {
-			when(mockRequestMapper.toSmsRequest(any(SmsBatchRequest.class), any(SmsBatchRequest.Party.class))).thenReturn(smsRequest);
-			when(mockMessageMapper.toMessage(any(SmsRequest.class), any(String.class))).thenReturn(message);
-			when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		} else {
-			doThrow(Problem.valueOf(Status.BAD_REQUEST)).when(mockBlacklistService).check(any(), any());
-		}
+		when(mockRequestMapper.toSmsRequest(any(SmsBatchRequest.class), any(SmsBatchRequest.Party.class))).thenReturn(smsRequest);
+		when(mockMessageMapper.toMessage(any(SmsRequest.class), any(String.class))).thenReturn(message);
+		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
 
 		assertThat(messageEventDispatcher.handleSmsBatchRequest(smsBatchRequest).batchId()).isNotEmpty();
 
-		if (whitelisted) {
-			verify(mockRequestMapper).toSmsRequest(smsBatchRequest, party);
-			verify(mockMessageMapper).toMessage(eq(smsRequest), any(String.class));
-			verify(mockDbIntegration).saveMessage(message);
-			verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
-		}
+		verify(mockRequestMapper).toSmsRequest(smsBatchRequest, party);
+		verify(mockMessageMapper).toMessage(eq(smsRequest), any(String.class));
+		verify(mockDbIntegration).saveMessage(message);
+		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
+
 		verifyNoMoreInteractions(mockRequestMapper, mockMessageMapper, mockDbIntegration, mockEventPublisher);
 	}
 
@@ -214,7 +197,6 @@ class MessageEventDispatcherTest {
 	void handleEmailBatchRequest() {
 		final var validEmailBatchRequest = TestDataFactory.createValidEmailBatchRequest();
 
-		doNothing().when(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
 		when(mockRequestMapper.toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
 			.thenReturn(EmailRequest.builder().build());
 
@@ -226,37 +208,11 @@ class MessageEventDispatcherTest {
 
 		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
 
-		verify(mockBlacklistService, times(2)).check(MessageType.EMAIL, "someone@somehost.com");
 		verify(mockRequestMapper, times(2)).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
 		verify(mockMessageMapper, times(2)).toMessage(any(EmailRequest.class), anyString());
 		verify(mockEventPublisher, times(2)).publishEvent(any(IncomingMessageEvent.class));
 
-		verifyNoMoreInteractions(mockBlacklistService, mockDbIntegration, mockRequestMapper, mockMessageMapper, mockEventPublisher);
-	}
-
-	@Test
-	void handleEmailBatch_whenEmailIsBlacklisted() {
-		final var validEmailBatchRequest = TestDataFactory.createValidEmailBatchRequestWithABlacklistedEmail();
-
-		doNothing().when(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
-		doThrow(Problem.valueOf(Status.BAD_REQUEST)).when(mockBlacklistService).check(MessageType.EMAIL, "blacklisted@somehost.com");
-		when(mockRequestMapper.toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class)))
-			.thenReturn(EmailRequest.builder().build());
-
-		final var message = TestDataFactory.createMessage(MessageType.EMAIL, "someContent");
-
-		when(mockMessageMapper.toMessage(any(EmailRequest.class), anyString())).thenReturn(message);
-		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		doNothing().when(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
-
-		messageEventDispatcher.handleEmailBatchRequest(validEmailBatchRequest);
-
-		verify(mockBlacklistService).check(MessageType.EMAIL, "someone@somehost.com");
-		verify(mockRequestMapper).toEmailRequest(any(EmailBatchRequest.class), any(EmailBatchRequest.Party.class));
-		verify(mockMessageMapper).toMessage(any(EmailRequest.class), anyString());
-		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
-
-		verifyNoMoreInteractions(mockBlacklistService, mockDbIntegration, mockRequestMapper, mockMessageMapper, mockEventPublisher);
+		verifyNoMoreInteractions(mockDbIntegration, mockRequestMapper, mockMessageMapper, mockEventPublisher);
 	}
 
 }

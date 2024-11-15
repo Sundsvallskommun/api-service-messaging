@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
@@ -19,7 +18,6 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
@@ -31,7 +29,6 @@ import java.util.stream.Stream;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
-import static se.sundsvall.messaging.model.MessageType.SMS;
 
 @Component
 public class MessageEventDispatcher {
@@ -40,8 +37,6 @@ public class MessageEventDispatcher {
 
 	private final ApplicationEventPublisher eventPublisher;
 
-	private final BlacklistService blacklistService;
-
 	private final DbIntegration dbIntegration;
 
 	private final MessageMapper messageMapper;
@@ -49,19 +44,16 @@ public class MessageEventDispatcher {
 	private final RequestMapper requestMapper;
 
 	public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher,
-		final BlacklistService blacklistService, final DbIntegration dbIntegration,
+		final DbIntegration dbIntegration,
 		final MessageMapper messageMapper,
 		final RequestMapper requestMapper) {
 		this.eventPublisher = eventPublisher;
-		this.blacklistService = blacklistService;
 		this.dbIntegration = dbIntegration;
 		this.messageMapper = messageMapper;
 		this.requestMapper = requestMapper;
 	}
 
 	public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 
@@ -78,9 +70,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
 		return publishMessageEvent(message);
@@ -90,7 +79,6 @@ public class MessageEventDispatcher {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var deliveryResults = ofNullable(request.parties()).orElse(Collections.emptyList()).stream()
-			.filter(party -> isWhitelisted(MessageType.EMAIL, party.emailAddress()))
 			.map(party -> requestMapper.toEmailRequest(request, party))
 			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId))
 			.map(dbIntegration::saveMessage)
@@ -109,7 +97,6 @@ public class MessageEventDispatcher {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var deliveryResults = ofNullable(cleanedRequest.parties()).orElse(emptyList()).stream()
-			.filter(party -> isWhitelisted(SMS, party.mobileNumber()))
 			.map(party -> requestMapper.toSmsRequest(cleanedRequest, party))
 			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId))
 			.map(dbIntegration::saveMessage)
@@ -126,17 +113,12 @@ public class MessageEventDispatcher {
 	public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 
-		// Check blacklist
-		blacklistService.check(cleanedRequest);
-
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest));
 
 		return publishMessageEvent(message);
 	}
 
 	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
 
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
@@ -144,9 +126,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
@@ -159,8 +138,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
 
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
@@ -168,9 +145,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = messageMapper.toMessages(request, batchId);
@@ -187,8 +161,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
 
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
 
@@ -199,17 +171,6 @@ public class MessageEventDispatcher {
 		eventPublisher.publishEvent(new IncomingMessageEvent(this, message.municipalityId(), message.type(), message.deliveryId(), message.origin()));
 
 		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(), message.municipalityId());
-	}
-
-	private boolean isWhitelisted(final MessageType type, final String destination) {
-		try {
-			blacklistService.check(type, destination);
-		} catch (final ThrowableProblem e) {
-			LOG.info("Found blacklisted {} destination: {}, skipping.", type, destination);
-			// Skipping blacklisted destination
-			return false;
-		}
-		return true;
 	}
 
 }

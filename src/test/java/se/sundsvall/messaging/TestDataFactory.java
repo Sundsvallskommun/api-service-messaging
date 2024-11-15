@@ -49,8 +49,6 @@ public final class TestDataFactory {
 
 	public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
 
-	public static final String BLACKLISTED_EMAIL_ADDRESS = "blacklisted@somehost.com";
-
 	public static final String DEFAULT_SENDER_NAME = "someSender";
 
 	public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
@@ -127,13 +125,6 @@ public final class TestDataFactory {
 			.build();
 	}
 
-	public static EmailBatchRequest.Party createBlacklistedEmailBatchRequestParty() {
-		return EmailBatchRequest.Party.builder()
-			.withEmailAddress(BLACKLISTED_EMAIL_ADDRESS)
-			.withPartyId(UUID.randomUUID().toString())
-			.build();
-	}
-
 	public static EmailBatchRequest.Sender createValidEmailBatchRequestSender() {
 		return EmailBatchRequest.Sender.builder()
 			.withAddress(DEFAULT_SENDER_EMAIL_ADDRESS)
@@ -154,19 +145,6 @@ public final class TestDataFactory {
 		return Map.of(MESSAGE_ID, List.of(HEADER_VALUE),
 			REFERENCES, List.of(HEADER_VALUE, HEADER_VALUE),
 			IN_REPLY_TO, List.of(HEADER_VALUE));
-
-	}
-
-	public static EmailBatchRequest createValidEmailBatchRequestWithABlacklistedEmail() {
-		return EmailBatchRequest.builder()
-			.withParties(List.of(createValidEmailBatchRequestParty(), createBlacklistedEmailBatchRequestParty()))
-			.withHeaders(createValidHeaders())
-			.withHtmlMessage("someHtmlMessage")
-			.withMessage("someMessage")
-			.withSubject("someSubject")
-			.withSender(createValidEmailBatchRequestSender())
-			.withAttachments(List.of(createValidEmailBatchRequestAttachment()))
-			.build();
 
 	}
 
