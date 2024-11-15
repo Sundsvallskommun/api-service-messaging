@@ -71,8 +71,6 @@ public class MessageService {
 
 	private final TransactionTemplate transactionTemplate;
 
-	private final BlacklistService blacklistService;
-
 	private final DbIntegration dbIntegration;
 
 	private final ContactSettingsIntegration contactSettingsIntegration;
@@ -96,7 +94,6 @@ public class MessageService {
 	private final DtoMapper dtoMapper;
 
 	public MessageService(final TransactionTemplate transactionTemplate,
-		final BlacklistService blacklistService,
 		final DbIntegration dbIntegration,
 		final ContactSettingsIntegration contactSettingsIntegration,
 		final SmsSenderIntegration smsSender,
@@ -109,7 +106,6 @@ public class MessageService {
 		final RequestMapper requestMapper,
 		final DtoMapper dtoMapper) {
 		this.transactionTemplate = transactionTemplate;
-		this.blacklistService = blacklistService;
 		this.dbIntegration = dbIntegration;
 		this.contactSettingsIntegration = contactSettingsIntegration;
 		this.smsSender = smsSender;
@@ -125,34 +121,21 @@ public class MessageService {
 
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
-
-		// Check blacklist
-		blacklistService.check(cleanedRequest);
-
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest)));
 	}
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
 	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
 	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
 		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
@@ -165,17 +148,11 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
 	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		final var batchId = UUID.randomUUID().toString();
 		final var messages = request.messages().stream()
 			.map(message -> messageMapper.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
@@ -210,8 +187,6 @@ public class MessageService {
 	}
 
 	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
 
 		final var batchId = UUID.randomUUID().toString();
 		final var messages = messageMapper.toMessages(request, batchId);
@@ -242,9 +217,6 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendToSlack(final SlackRequest request) {
-		// Check blacklist
-		blacklistService.check(request);
-
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}

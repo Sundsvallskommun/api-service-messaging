@@ -93,9 +93,6 @@ class MessageServiceTest {
 	private TransactionTemplate mockTransactionTemplate;
 
 	@Mock
-	private BlacklistService mockBlacklistService;
-
-	@Mock
 	private DbIntegration mockDbIntegration;
 
 	@Mock
@@ -617,7 +614,6 @@ class MessageServiceTest {
 				.build())
 			.withSubject("someSubject")
 			.withMessage("someMessage")
-			// .withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 	}
 
