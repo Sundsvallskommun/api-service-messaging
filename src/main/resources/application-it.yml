@@ -83,3 +83,10 @@ integration:
     token-url: http://localhost:${wiremock.server.port}/token
     client-id: someClientId
     client-secret: someClientSecret
+
+  # Citizen integration
+  citizen:
+    base-url: http://localhost:${wiremock.server.port}/citizen
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
