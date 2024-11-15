@@ -1,17 +1,5 @@
 package se.sundsvall.messaging.integration.db;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
-import java.time.LocalDate;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,9 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
-
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.time.LocalDate;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
@@ -69,10 +68,10 @@ class StatisticsRepositoryTest {
 
 	@ParameterizedTest()
 	@MethodSource("provideDateParameters")
-	void getStatsBMunicipalityIdAndyOriginAndDepartment(LocalDate from, LocalDate to) {
+	void getStatsByMunicipalityIdAndyOriginAndDepartment(LocalDate from, LocalDate to) {
 
 		final var origin = "origin1";
-		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
+		final var historyEntities = statisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment("2281", origin, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -85,7 +84,7 @@ class StatisticsRepositoryTest {
 	@MethodSource("provideDateParameters")
 	void getStatsByDepartment(LocalDate from, LocalDate to) {
 
-		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
+		final var historyEntities = statisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", LETTER, from, to);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
@@ -99,7 +98,7 @@ class StatisticsRepositoryTest {
 	@Test
 	void getStatsByDepartmentNoOriginAndDepartment() {
 
-		final var historyEntities = statisticsRepository.getStatsBMunicipalityIdAndyOriginAndDepartment("2281", null, null, LETTER, null, null);
+		final var historyEntities = statisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment("2281", null, null, LETTER, null, null);
 
 		// Assert that the map contains the expected keys
 		assertThat(historyEntities).extracting(StatsEntry::department, StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)

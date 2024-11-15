@@ -38,7 +38,7 @@ public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>
 		@Param("to_date") final LocalDateTime to,
 		@Param("municipality_id") final String municipalityId);
 
-	default List<StatsEntry> getStatsBMunicipalityIdAndyOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from,
+	default List<StatsEntry> getStatsByMunicipalityIdAndyOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from,
 		final LocalDate to) {
 		return getStatsByOriginAndDepartmentQuery(origin,
 			department,

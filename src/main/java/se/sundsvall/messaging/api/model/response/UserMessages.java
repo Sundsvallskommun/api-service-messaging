@@ -1,16 +1,14 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
-
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import se.sundsvall.dept44.models.api.paging.PagingMetaData;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 @Builder(setterPrefix = "with")
 @Schema(description = "User messages model")

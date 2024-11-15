@@ -1,5 +1,31 @@
 package se.sundsvall.messaging.api;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
+import se.sundsvall.messaging.api.model.response.HistoryResponse;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessages;
+import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.service.HistoryService;
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,33 +44,6 @@ import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.DeliveryResult;
-import se.sundsvall.messaging.api.model.response.HistoryResponse;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.api.model.response.UserMessages;
-import se.sundsvall.messaging.model.History;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.service.HistoryService;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @UnitTest

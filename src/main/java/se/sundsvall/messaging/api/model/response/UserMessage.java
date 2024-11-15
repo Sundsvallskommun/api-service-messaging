@@ -1,14 +1,14 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.With;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 @Builder(setterPrefix = "with")
 @Schema(description = "User message model")
@@ -21,6 +21,8 @@ public record UserMessage(
 	@Schema(description = "The system that the message originated from", example = "CASEDATA") String origin,
 
 	@Schema(description = "When the message was sent", example = "2021-01-01T12:00:00") LocalDateTime sent,
+
+	@Schema(description = "The message subject", example = "Important message") String subject,
 
 	@ArraySchema(schema = @Schema(implementation = Recipient.class, accessMode = READ_ONLY)) List<Recipient> recipients,
 
