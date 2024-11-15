@@ -2,9 +2,10 @@ package se.sundsvall.messaging.integration.snailmailsender;
 
 import generated.se.sundsvall.snailmail.Attachment;
 import generated.se.sundsvall.snailmail.SendSnailMailRequest;
-import java.util.Optional;
 import org.springframework.stereotype.Component;
-import se.sundsvall.messaging.api.model.request.Address;
+import se.sundsvall.messaging.model.Address;
+
+import java.util.Optional;
 
 @Component
 class SnailMailSenderIntegrationMapper {
@@ -15,6 +16,7 @@ class SnailMailSenderIntegrationMapper {
 		}
 
 		return new SendSnailMailRequest()
+			.address(toAddress(dto.address()))
 			.batchId(dto.batchId())
 			.address(toAddress(dto.address()))
 			.department(dto.department())
@@ -35,12 +37,10 @@ class SnailMailSenderIntegrationMapper {
 			.lastName(address.lastName())
 			.city(address.city())
 			.apartmentNumber(address.apartmentNumber())
-			.organizationNumber(address.organizationNumber())
 			.address(address.address())
 			.careOf(address.careOf())
 			.zipCode(address.zipCode())
 			.country(address.country()))
 			.orElse(null);
 	}
-
 }

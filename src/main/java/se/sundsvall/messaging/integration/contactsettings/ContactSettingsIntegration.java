@@ -15,7 +15,7 @@ public class ContactSettingsIntegration {
 
 	private final ContactSettingsClient client;
 
-	public ContactSettingsIntegration(final ContactSettingsClient client) {
+	ContactSettingsIntegration(final ContactSettingsClient client) {
 		this.client = client;
 	}
 

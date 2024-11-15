@@ -45,8 +45,6 @@ class SnailMailSenderIntegrationMapperTest {
 		assertThat(snailMailAddress.getZipCode()).isEqualTo(address.zipCode());
 		assertThat(snailMailAddress.getFirstName()).isEqualTo(address.firstName());
 		assertThat(snailMailAddress.getLastName()).isEqualTo(address.lastName());
-		assertThat(snailMailAddress.getOrganizationNumber()).isEqualTo(address.organizationNumber());
 		assertThat(snailMailAddress.getApartmentNumber()).isEqualTo(address.apartmentNumber());
 	}
-
 }

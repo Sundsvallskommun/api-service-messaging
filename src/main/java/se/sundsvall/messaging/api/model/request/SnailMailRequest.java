@@ -13,6 +13,7 @@ import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.model.Address;
 
 @With
 @Builder(setterPrefix = "with")
