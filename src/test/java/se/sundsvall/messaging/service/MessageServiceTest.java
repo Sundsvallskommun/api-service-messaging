@@ -1,53 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.SimpleTransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-import se.sundsvall.messaging.api.model.request.Address;
-import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
-import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
-import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.LetterRequest;
-import se.sundsvall.messaging.api.model.request.MessageRequest;
-import se.sundsvall.messaging.api.model.request.SlackRequest;
-import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.api.model.request.SnailMailRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.integration.contactsettings.ContactDto;
-import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
-import se.sundsvall.messaging.integration.emailsender.EmailDto;
-import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
-import se.sundsvall.messaging.integration.slack.SlackDto;
-import se.sundsvall.messaging.integration.slack.SlackIntegration;
-import se.sundsvall.messaging.integration.smssender.SmsDto;
-import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
-import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
-import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
-import se.sundsvall.messaging.model.ContentType;
-import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.service.mapper.DtoMapper;
-import se.sundsvall.messaging.service.mapper.MessageMapper;
-import se.sundsvall.messaging.service.mapper.RequestMapper;
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.List;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -82,6 +34,55 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import se.sundsvall.messaging.api.model.request.Address;
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
+import se.sundsvall.messaging.api.model.request.LetterRequest;
+import se.sundsvall.messaging.api.model.request.MessageRequest;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.integration.contactsettings.ContactDto;
+import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
+import se.sundsvall.messaging.integration.emailsender.EmailDto;
+import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
+import se.sundsvall.messaging.integration.slack.SlackDto;
+import se.sundsvall.messaging.integration.slack.SlackIntegration;
+import se.sundsvall.messaging.integration.smssender.SmsDto;
+import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
+import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
+import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
+import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
+import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
+import se.sundsvall.messaging.model.ContentType;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.service.mapper.DtoMapper;
+import se.sundsvall.messaging.service.mapper.MessageMapper;
+import se.sundsvall.messaging.service.mapper.RequestMapper;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -480,7 +481,7 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockSnailMailSenderIntegration.sendSnailMail(anyString(), any())).thenThrow(new RuntimeException());
+		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenThrow(new RuntimeException());
 
 		final var result = messageService.sendLetter(request);
 
