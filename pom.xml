@@ -12,7 +12,6 @@
 	<version>5.3</version>
 	<name>api-service-messaging</name>
 	<properties>
-		<exposed.app.port>8080</exposed.app.port>
 		<slack-api-client.version>1.44.2</slack-api-client.version>
 		<hypersistence-utils.version>3.9.0</hypersistence-utils.version>
 		<vavr.version>0.10.5</vavr.version>
