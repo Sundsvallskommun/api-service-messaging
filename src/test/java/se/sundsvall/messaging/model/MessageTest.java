@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

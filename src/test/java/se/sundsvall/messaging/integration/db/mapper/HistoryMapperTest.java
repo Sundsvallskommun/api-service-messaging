@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.Message;
 
 class HistoryMapperTest {
@@ -21,7 +22,7 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryFromHistoryEntity() {
-		final var historyEntity = HistoryEntity.builder()
+		var historyEntity = HistoryEntity.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -36,7 +37,7 @@ class HistoryMapperTest {
 			.withCreatedAt(LocalDateTime.now())
 			.build();
 
-		final var history = HistoryMapper.mapToHistory(historyEntity);
+		var history = HistoryMapper.mapToHistory(historyEntity);
 
 		assertThat(history).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(history.batchId()).isEqualTo(historyEntity.getBatchId());
@@ -56,8 +57,9 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntity() {
-		final var statusDetail = "someStatusDetail";
-		final var message = Message.builder()
+		var statusDetail = "someStatusDetail";
+		var address = Address.builder().withAddress("someAddress").build();
+		var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -69,11 +71,12 @@ class HistoryMapperTest {
 			.withOrigin("someOrigin")
 			.withIssuer("someIssuer")
 			.withMunicipalityId("someMunicipalityId")
+			.withAddress(address)
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
-		assertThat(historyEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id");
+		assertThat(historyEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "destinationAddressJson");
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
 		assertThat(historyEntity.getDeliveryId()).isEqualTo(message.deliveryId());
@@ -88,12 +91,13 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getDepartment()).isEqualTo("department");
 		assertThat(historyEntity.getCreatedAt()).isNotNull().isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
+		assertThat(historyEntity.getDestinationAddress()).isEqualTo(address);
 	}
 
 	@Test
 	void mapToHistoryEntityNoDepartment() {
-		final var statusDetail = "someStatusDetail";
-		final var message = Message.builder()
+		var statusDetail = "someStatusDetail";
+		var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -105,7 +109,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -123,8 +127,8 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntityWhenContentIsNull() {
-		final var statusDetail = "someStatusDetail";
-		final var message = Message.builder()
+		var statusDetail = "someStatusDetail";
+		var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -135,7 +139,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());

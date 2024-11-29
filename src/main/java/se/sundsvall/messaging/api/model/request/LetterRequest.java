@@ -5,7 +5,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Builder;
 import lombok.With;
-
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.model.Address;
@@ -54,7 +52,7 @@ public record LetterRequest(
 	@Schema(name = "LetterParty")
 	public record Party(
 
-		@NotEmpty @ArraySchema(schema = @Schema(description = "The message party ids", format = "uuid"), minItems = 1) List<@ValidUuid String> partyIds,
+		@ArraySchema(schema = @Schema(description = "The message party ids", format = "uuid")) List<@ValidUuid String> partyIds,
 
 		@ArraySchema(schema = @Schema(description = "Addresses that gets a letter copy")) List<Address> addresses,
 

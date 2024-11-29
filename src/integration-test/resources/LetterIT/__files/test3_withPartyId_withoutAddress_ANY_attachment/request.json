@@ -5,12 +5,6 @@
 			"deliveryMode": "DIGITAL_MAIL",
 			"contentType": "application/pdf",
 			"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
-		},
-		{
-			"filename": "someFile.txt",
-			"deliveryMode": "SNAIL_MAIL",
-			"contentType": "application/pdf",
-			"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
 		}
 	],
 	"subject": "Some subject",

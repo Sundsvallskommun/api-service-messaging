@@ -9,13 +9,11 @@ import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchReques
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode;
 import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.configuration.Defaults;
-
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
 

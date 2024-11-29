@@ -6,9 +6,7 @@ import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
