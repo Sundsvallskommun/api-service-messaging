@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -51,6 +52,18 @@ public final class JsonUtils {
 		final var valueTypeClass = (Class<T>) rawClass(valueType);
 
 		return fromJson(json, valueTypeClass);
+	}
+
+	public static <T> T fromJson(final String json, final TypeReference<T> typeReference) {
+		if (isBlank(json)) {
+			return null;
+		}
+
+		try {
+			return OBJECT_MAPPER.readValue(json, typeReference);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeJsonProcessingException(e);
+		}
 	}
 
 	public static <T> T fromJson(final String json, final Class<T> valueType) {

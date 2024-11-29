@@ -9,19 +9,23 @@ import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
 import static se.sundsvall.messaging.integration.citizen.CitizenIntegration.POPULATION_REGISTRATION_ADDRESS;
 
+import generated.se.sundsvall.citizen.CitizenAddress;
+import generated.se.sundsvall.citizen.CitizenExtended;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.ThrowableProblem;
-
-import generated.se.sundsvall.citizen.CitizenAddress;
-import generated.se.sundsvall.citizen.CitizenExtended;
 
 @ExtendWith(MockitoExtension.class)
 class CitizenIntegrationTest {
@@ -52,7 +56,16 @@ class CitizenIntegrationTest {
 
 		var result = citizenIntegration.getCitizenAddress(partyId);
 
-		assertThat(result).isNotNull().isEqualTo(address);
+		assertThat(result).isNotNull().satisfies(resultAddress -> {
+			assertThat(resultAddress.firstName()).isEqualTo(citizenIntegration.capitalize(address.firstName()));
+			assertThat(resultAddress.lastName()).isEqualTo(citizenIntegration.capitalize(address.lastName()));
+			assertThat(resultAddress.address()).isEqualTo(citizenIntegration.capitalize(address.address()));
+			assertThat(resultAddress.apartmentNumber()).isEqualTo(citizenIntegration.capitalize(address.apartmentNumber()));
+			assertThat(resultAddress.careOf()).isEqualTo(citizenIntegration.capitalize(address.careOf()));
+			assertThat(resultAddress.zipCode()).isEqualTo(citizenIntegration.capitalize(address.zipCode()));
+			assertThat(resultAddress.city()).isEqualTo(citizenIntegration.capitalize(address.city()));
+			assertThat(resultAddress.country()).isEqualTo(citizenIntegration.capitalize(address.country()));
+		});
 		verify(mockCitizenClient).getCitizen(partyId);
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
@@ -102,5 +115,26 @@ class CitizenIntegrationTest {
 
 		verify(mockCitizenClient).getCitizen(partyId);
 		verifyNoMoreInteractions(mockCitizenClient);
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(CapitalizeArgumentsProvider.class)
+	void capitalize(final String input, final String expected) {
+		assertThat(citizenIntegration.capitalize(input)).isEqualTo(expected);
+	}
+
+	static class CapitalizeArgumentsProvider implements ArgumentsProvider {
+
+		@Override
+		public Stream<? extends Arguments> provideArguments(final ExtensionContext extensionContext) {
+			return Stream.of(
+				Arguments.of(null, null),
+				Arguments.of("", ""),
+				Arguments.of("AAA", "Aaa"),
+				Arguments.of("bbb", "Bbb"),
+				Arguments.of("CCC DDD", "Ccc Ddd"),
+				Arguments.of("EEE 123", "Eee 123"),
+				Arguments.of("123", "123"));
+		}
 	}
 }

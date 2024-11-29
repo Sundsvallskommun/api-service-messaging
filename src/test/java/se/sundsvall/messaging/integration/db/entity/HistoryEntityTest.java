@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.within;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
@@ -15,23 +16,24 @@ class HistoryEntityTest {
 
 	@Test
 	void testBuilder() {
-		final var id = 1234L;
-		final var batchId = "batchId";
-		final var messageId = "messageId";
-		final var deliveryId = "deliveryId";
-		final var partyId = "partyId";
-		final var messageType = MessageType.SLACK;
-		final var originalMessageType = MessageType.EMAIL;
-		final var status = MessageStatus.NO_CONTACT_WANTED;
-		final var statusDetail = "statusDetail";
-		final var content = "content";
-		final var origin = "origin";
-		final var issuer = "issuer";
-		final var department = "department";
-		final var createdAt = LocalDateTime.now();
-		final var municipalityId = "municipalityId";
+		var id = 1234L;
+		var batchId = "batchId";
+		var messageId = "messageId";
+		var deliveryId = "deliveryId";
+		var partyId = "partyId";
+		var messageType = MessageType.SLACK;
+		var originalMessageType = MessageType.EMAIL;
+		var status = MessageStatus.NO_CONTACT_WANTED;
+		var statusDetail = "statusDetail";
+		var content = "content";
+		var origin = "origin";
+		var issuer = "issuer";
+		var department = "department";
+		var createdAt = LocalDateTime.now();
+		var municipalityId = "municipalityId";
+		var destinationAddress = Address.builder().withAddress("someStreet").build();
 
-		final var bean = HistoryEntity.builder()
+		var bean = HistoryEntity.builder()
 			.withBatchId(batchId)
 			.withContent(content)
 			.withCreatedAt(createdAt)
@@ -47,9 +49,10 @@ class HistoryEntityTest {
 			.withPartyId(partyId)
 			.withStatus(status)
 			.withStatusDetail(statusDetail)
+			.withDestinationAddress(destinationAddress)
 			.build();
 
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
 		assertThat(bean.getBatchId()).isEqualTo(batchId);
 		assertThat(bean.getContent()).isEqualTo(content);
 		assertThat(bean.getCreatedAt()).isEqualTo(createdAt);
@@ -65,20 +68,39 @@ class HistoryEntityTest {
 		assertThat(bean.getPartyId()).isEqualTo(partyId);
 		assertThat(bean.getStatus()).isEqualTo(status);
 		assertThat(bean.getStatusDetail()).isEqualTo(statusDetail);
+		assertThat(bean.getDestinationAddress()).isEqualTo(destinationAddress);
 	}
 
 	@Test
 	void noDirtOnCreatedBean() {
-		assertThat(HistoryEntity.builder().build()).hasAllNullFieldsOrProperties();
-		assertThat(new HistoryEntity()).hasAllNullFieldsOrProperties();
+		assertThat(HistoryEntity.builder().build()).hasAllNullFieldsOrPropertiesExcept("additionalMetadata");
+		assertThat(new HistoryEntity()).hasAllNullFieldsOrPropertiesExcept("additionalMetadata");
 	}
 
 	@Test
 	void testPrePersist() {
-		final var bean = HistoryEntity.builder().build();
-		assertThat(bean.getCreatedAt()).isNull();
+		var entity = HistoryEntity.builder()
+			.withDestinationAddress(Address.builder().withAddress("someAddress").build())
+			.build();
+		assertThat(entity.getCreatedAt()).isNull();
+		assertThat(entity.getDestinationAddressJson()).isNull();
 
-		bean.prePersist();
-		assertThat(bean.getCreatedAt()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+		entity.prePersist();
+
+		assertThat(entity.getCreatedAt()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+		assertThat(entity.getDestinationAddressJson()).isEqualTo("{\"address\":\"someAddress\"}");
+	}
+
+	@Test
+	void testPostLoad() {
+		var entity = new HistoryEntity();
+		entity.setDestinationAddressJson("{\"address\":\"someAddress\"}");
+
+		assertThat(entity.getDestinationAddress()).isNull();
+
+		entity.postLoad();
+
+		assertThat(entity.getDestinationAddress()).isNotNull();
+		assertThat(entity.getDestinationAddress().address()).isEqualTo("someAddress");
 	}
 }
