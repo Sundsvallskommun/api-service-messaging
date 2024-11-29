@@ -1,13 +1,15 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import generated.se.sundsvall.snailmail.Attachment;
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.TestDataFactory.createAddress;
+import org.junit.jupiter.api.Test;
+
+import se.sundsvall.messaging.test.annotation.UnitTest;
+
+import generated.se.sundsvall.snailmail.Attachment;
 
 @UnitTest
 class SnailMailSenderIntegrationMapperTest {
@@ -46,8 +48,6 @@ class SnailMailSenderIntegrationMapperTest {
 		assertThat(snailMailAddress.getZipCode()).isEqualTo(address.zipCode());
 		assertThat(snailMailAddress.getFirstName()).isEqualTo(address.firstName());
 		assertThat(snailMailAddress.getLastName()).isEqualTo(address.lastName());
-		assertThat(snailMailAddress.getOrganizationNumber()).isEqualTo(address.organizationNumber());
 		assertThat(snailMailAddress.getApartmentNumber()).isEqualTo(address.apartmentNumber());
 	}
-
 }

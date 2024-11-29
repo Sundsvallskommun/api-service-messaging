@@ -10,6 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "integration.party")
-public class PartyIntegrationProperties extends AbstractRestIntegrationProperties {
+class PartyIntegrationProperties extends AbstractRestIntegrationProperties {
 
 }

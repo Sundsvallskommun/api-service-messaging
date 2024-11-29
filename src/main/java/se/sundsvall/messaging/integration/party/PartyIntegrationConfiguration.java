@@ -16,7 +16,7 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 import feign.Request;
 import feign.codec.ErrorDecoder;
 
-public class PartyIntegrationConfiguration {
+class PartyIntegrationConfiguration {
 
 	private final PartyIntegrationProperties properties;
 

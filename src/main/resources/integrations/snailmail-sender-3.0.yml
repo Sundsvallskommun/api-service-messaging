@@ -1,0 +1,413 @@
+openapi: 3.0.1
+info:
+  title: SnailMailSender
+  contact: {}
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "3.0"
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: SnailMailSender
+  description: SnailMailSender
+paths:
+  /{municipalityId}/send/snailmail:
+    post:
+      tags:
+      - SnailMailSender
+      summary: Prepare snail mail for batch
+      operationId: sendSnailMail
+      parameters:
+      - name: x-issuer
+        in: header
+        description: |
+          Issuer of the request, is used as a prefix in a folder name.
+          Cannot contain any of: '"', '*', '<', '>', '?', '|', '/', '\', ':'
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendSnailMailRequest"
+        required: true
+      responses:
+        "400":
+          description: Bad RequestEntity
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "200":
+          description: Successful Operation
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/send/batch/{batchId}:
+    post:
+      tags:
+      - SnailMailSender
+      summary: Send batch
+      operationId: sendBatch
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: batchId
+        in: path
+        description: Batch id
+        required: true
+        schema:
+          type: string
+        example: b588d1b7-7911-4e78-89d5-b710b32e0f8e
+      responses:
+        "400":
+          description: Bad RequestEntity
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "200":
+          description: Successful Operation
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /api-docs:
+    get:
+      tags:
+      - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: The first name of the recipient
+          example: John
+        lastName:
+          type: string
+          description: The last name of the recipient
+          example: Doe
+        address:
+          type: string
+          description: The address
+          example: Main Street 1
+        apartmentNumber:
+          type: string
+          description: The apartment number
+          example: "1101"
+        careOf:
+          type: string
+          description: The care of
+          example: c/o John Doe
+        zipCode:
+          type: string
+          description: The zip code
+          example: "12345"
+        city:
+          type: string
+          description: The city
+          example: Main Street
+        country:
+          type: string
+          description: The country
+          example: Sweden
+        organizationNumber:
+          type: string
+          description: The organization number of the recipient
+          example: 123456-7890
+      description: Recipient address
+    Attachment:
+      required:
+      - name
+      type: object
+      properties:
+        content:
+          type: string
+          description: The attachment (file) content as a BASE64-encoded string
+          example: aGVsbG8gd29ybGQK
+        name:
+          type: string
+          description: The attachment filename
+          example: test.pdf
+        contentType:
+          type: string
+          description: The attachment content type
+          example: application/pdf
+          enum:
+          - application/pdf
+        envelopeType:
+          type: string
+          description: The envelope type for the letter
+          example: WINDOWED
+          enum:
+          - WINDOWED
+          - PLAIN
+      description: Attachments
+    SendSnailMailRequest:
+      required:
+      - address
+      - attachments
+      - batchId
+      - department
+      type: object
+      properties:
+        department:
+          type: string
+          description: DepartmentEntity and unit that should be billed
+          example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        deviation:
+          type: string
+          description: If the letter to send deviates from the standard
+          example: A3 Ritning
+        batchId:
+          type: string
+          description: BatchEntity id to be used for creating a csv-file
+          example: 6a5c3d04-412d-11ec-973a-0242ac130043
+        issuer:
+          type: string
+          description: The issuer of the request
+          example: user123
+        municipalityId:
+          type: string
+          description: The municipality id
+          example: "2281"
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: "#/components/schemas/Attachment"
+        address:
+          $ref: "#/components/schemas/Address"
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+    ConstraintViolationProblem:
+      type: object
+      properties:
+        cause:
+          $ref: "#/components/schemas/ThrowableProblem"
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              className:
+                type: string
+              nativeMethod:
+                type: boolean
+        type:
+          type: string
+          format: uri
+        status:
+          $ref: "#/components/schemas/StatusType"
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+        title:
+          type: string
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        detail:
+          type: string
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    className:
+                      type: string
+                    nativeMethod:
+                      type: boolean
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    ThrowableProblem:
+      type: object
+      properties:
+        cause:
+          $ref: "#/components/schemas/ThrowableProblem"
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              className:
+                type: string
+              nativeMethod:
+                type: boolean
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    className:
+                      type: string
+                    nativeMethod:
+                      type: boolean
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+  securitySchemes: {}

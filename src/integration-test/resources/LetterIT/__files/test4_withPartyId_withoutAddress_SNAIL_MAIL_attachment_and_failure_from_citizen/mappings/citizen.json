@@ -1,0 +1,9 @@
+{
+	"request": {
+		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"method": "GET",
+		"queryParameters": {"ShowClassified": {"equalTo": "false"}},
+		"urlPath": "/citizen/e4e37771-397b-45b5-bb89-f389f8525e53"
+	},
+	"response": {"status": 204}
+}

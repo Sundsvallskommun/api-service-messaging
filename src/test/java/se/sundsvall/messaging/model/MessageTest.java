@@ -1,7 +1,7 @@
 package se.sundsvall.messaging.model;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.api.model.request.Address;
+
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

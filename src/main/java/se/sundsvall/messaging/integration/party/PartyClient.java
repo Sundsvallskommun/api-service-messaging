@@ -13,7 +13,7 @@ import generated.se.sundsvall.party.PartyType;
 	url = "${integration.party.base-url}",
 	configuration = PartyIntegrationConfiguration.class,
 	dismiss404 = true)
-public interface PartyClient {
+interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
 	Optional<String> getLegalIdByPartyId(
