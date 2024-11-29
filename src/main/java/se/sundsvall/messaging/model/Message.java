@@ -17,6 +17,4 @@ public record Message(
 	String content,
 	String origin,
 	String issuer,
-	String municipalityId) {
-
-}
+	String municipalityId) {}

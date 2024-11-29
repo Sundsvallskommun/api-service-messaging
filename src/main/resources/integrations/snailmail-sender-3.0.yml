@@ -1,40 +1,40 @@
 openapi: 3.0.1
 info:
   title: SnailMailSender
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.2"
+  version: "3.0"
 servers:
-  - url: https://snailmail-sender-af-snailmailsender.apps.ocp201.sundsvall.se
-    description: Generated server url
+- url: http://localhost:8080
+  description: Generated server url
 tags:
-  - name: SnailMailSender
-    description: SnailMailSender
+- name: SnailMailSender
+  description: SnailMailSender
 paths:
   /{municipalityId}/send/snailmail:
     post:
       tags:
-        - SnailMailSender
+      - SnailMailSender
       summary: Prepare snail mail for batch
       operationId: sendSnailMail
       parameters:
-        - name: x-issuer
-          in: header
-          description: |
-            Issuer of the request, is used as a prefix in a folder name.
-            Cannot contain any of: '"', '*', '<', '>', '?', '|', '/', '\', ':'
-          required: false
-          schema:
-            type: string
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: x-issuer
+        in: header
+        description: |
+          Issuer of the request, is used as a prefix in a folder name.
+          Cannot contain any of: '"', '*', '<', '>', '?', '|', '/', '\', ':'
+        required: false
+        schema:
+          type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -48,37 +48,37 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "200":
+          description: Successful Operation
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
-        "200":
-          description: Successful Operation
   /{municipalityId}/send/batch/{batchId}:
     post:
       tags:
-        - SnailMailSender
+      - SnailMailSender
       summary: Send batch
       operationId: sendBatch
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: batchId
-          in: path
-          description: Batch id
-          required: true
-          schema:
-            type: string
-          example: b588d1b7-7911-4e78-89d5-b710b32e0f8e
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: batchId
+        in: path
+        description: Batch id
+        required: true
+        schema:
+          type: string
+        example: b588d1b7-7911-4e78-89d5-b710b32e0f8e
       responses:
         "400":
           description: Bad RequestEntity
@@ -86,20 +86,20 @@ paths:
             '*/*':
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "200":
+          description: Successful Operation
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
-        "200":
-          description: Successful Operation
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -125,22 +125,14 @@ components:
           type: string
           description: The last name of the recipient
           example: Doe
-        city:
-          type: string
-          description: The city
-          example: Main Street
-        apartmentNumber:
-          type: string
-          description: The apartment number
-          example: "1101"
-        organizationNumber:
-          type: string
-          description: The organization number of the recipient
-          example: 123456-7890
         address:
           type: string
           description: The address
           example: Main Street 1
+        apartmentNumber:
+          type: string
+          description: The apartment number
+          example: "1101"
         careOf:
           type: string
           description: The care of
@@ -149,14 +141,22 @@ components:
           type: string
           description: The zip code
           example: "12345"
+        city:
+          type: string
+          description: The city
+          example: Main Street
         country:
           type: string
           description: The country
           example: Sweden
+        organizationNumber:
+          type: string
+          description: The organization number of the recipient
+          example: 123456-7890
       description: Recipient address
     Attachment:
       required:
-        - name
+      - name
       type: object
       properties:
         content:
@@ -172,19 +172,21 @@ components:
           description: The attachment content type
           example: application/pdf
           enum:
-            - application/pdf
+          - application/pdf
         envelopeType:
           type: string
           description: The envelope type for the letter
           example: WINDOWED
           enum:
-            - WINDOWED
-            - PLAIN
+          - WINDOWED
+          - PLAIN
       description: Attachments
     SendSnailMailRequest:
       required:
-        - batchId
-        - department
+      - address
+      - attachments
+      - batchId
+      - department
       type: object
       properties:
         department:
@@ -199,10 +201,6 @@ components:
           type: string
           description: BatchEntity id to be used for creating a csv-file
           example: 6a5c3d04-412d-11ec-973a-0242ac130043
-        partyId:
-          type: string
-          description: Party id for the person the letter should be sent to
-          example: 6a5c3d04-412d-11ec-973a-0242ac130003
         issuer:
           type: string
           description: The issuer of the request
@@ -412,4 +410,4 @@ components:
           type: string
         message:
           type: string
-  securitySchemes: { }
+  securitySchemes: {}

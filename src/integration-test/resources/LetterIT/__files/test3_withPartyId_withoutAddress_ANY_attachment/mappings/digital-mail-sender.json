@@ -6,7 +6,11 @@
 	},
 	"response": {
 		"headers": {"Content-Type": "application/json"},
-		"bodyFileName": "test1_successfulRequestByDigital/responses/digital-mail-sender.json",
+		"jsonBody": {"deliveryStatus": {
+			"delivered": true,
+			"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+			"transactionId": "7704c37d-3186-4f9e-939f-67b8021e460e"
+		}},
 		"status": 200
 	}
 }
