@@ -15,6 +15,7 @@ import se.sundsvall.messaging.model.ExternalReference;
 
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
@@ -42,7 +43,7 @@ public record WebMessageRequest(
 	@Schema(name = "WebMessageParty")
 	public record Party(
 
-		@ValidUuid @Schema(description = "The message party id", format = "uuid", requiredMode = REQUIRED) String partyId,
+		@ValidUuid(nullable = true) @Schema(description = "The message party id", format = "uuid", requiredMode = NOT_REQUIRED) String partyId,
 
 		@Schema(description = "External references") List<@Valid ExternalReference> externalReferences) {
 	}
