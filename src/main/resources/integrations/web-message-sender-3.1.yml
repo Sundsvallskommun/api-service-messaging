@@ -1,11 +1,11 @@
 openapi: 3.0.1
 info:
-  title: api-web-message-sender
+  title: web-message-sender
   contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.0"
+  version: "3.1"
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -34,25 +34,18 @@ paths:
               $ref: "#/components/schemas/CreateWebMessageRequest"
         required: true
       responses:
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "201":
-          description: Successful operation
-          headers:
-            Location:
-              style: simple
-              schema:
-                type: string
         "400":
           description: Bad request
           content:
@@ -61,8 +54,15 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "404":
-          description: Not found
+        "201":
+          description: Successful operation
+          headers:
+            Location:
+              style: simple
+              schema:
+                type: string
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
@@ -89,14 +89,14 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "500":
-          description: Internal Server error
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -118,8 +118,8 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "404":
-          description: Not found
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
@@ -145,18 +145,20 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
+        "204":
+          description: Successful operation
         "400":
           description: Bad request
           content:
@@ -165,10 +167,8 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "204":
-          description: Successful operation
-        "404":
-          description: Not found
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
@@ -195,14 +195,14 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "500":
-          description: Internal Server error
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -228,8 +228,8 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "404":
-          description: Not found
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
@@ -267,14 +267,14 @@ paths:
             type: string
           example: 356t4r34f
       responses:
-        "500":
-          description: Internal Server error
+        "404":
+          description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -300,8 +300,8 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "404":
-          description: Not found
+        "502":
+          description: Bad gateway
           content:
             application/problem+json:
               schema:
@@ -397,9 +397,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
@@ -532,9 +532,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         suppressed:
           type: array
