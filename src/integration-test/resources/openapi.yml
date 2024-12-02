@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "5.3"
+  version: "5.4"
 servers:
   - url: http://localhost:55409
     description: Generated server url
@@ -1514,8 +1514,6 @@ components:
           description: "BASE64-encoded file, max size 10 MB"
       description: Attachment
     WebMessageParty:
-      required:
-        - partyId
       type: object
       properties:
         partyId:

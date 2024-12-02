@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,7 @@ class MessageResourceWebMessageFailureTest {
 	@ValueSource(strings = {
 		" ", "not-a-uuid"
 	})
-	@NullAndEmptySource
+	@EmptySource
 	void shouldFailWithInvalidPartyId(String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));

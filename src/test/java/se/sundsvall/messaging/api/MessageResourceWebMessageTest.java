@@ -10,11 +10,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -64,37 +66,42 @@ class MessageResourceWebMessageTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Stream<String> oepInstances() {
+		return Stream.of(null, "external", "internal", "eXtErNaL", "interNaL");
+	}
+
+	private static Stream<List<Attachment>> attachments() {
+		return Stream.of(null, emptyList());
+	}
+
+	private static Stream<Boolean> includeOptionalHeaders() {
+		return Stream.of(true, false);
+	}
+
+	private static Stream<Boolean> withPartyId() {
+		return Stream.of(true, false);
+	}
+
 	private static Stream<Arguments> argumentProvider() {
-		return Stream.of(
-			Arguments.of(null, null, true),
-			Arguments.of(null, null, false),
-			Arguments.of(null, emptyList(), true),
-			Arguments.of(null, emptyList(), false),
-			Arguments.of("external", null, true),
-			Arguments.of("external", null, false),
-			Arguments.of("external", emptyList(), true),
-			Arguments.of("external", emptyList(), false),
-			Arguments.of("internal", null, true),
-			Arguments.of("internal", null, false),
-			Arguments.of("internal", emptyList(), true),
-			Arguments.of("internal", emptyList(), false),
-			Arguments.of("eXtErNaL", null, true),
-			Arguments.of("eXtErNaL", null, false),
-			Arguments.of("eXtErNaL", emptyList(), true),
-			Arguments.of("eXtErNaL", emptyList(), false),
-			Arguments.of("interNaL", null, true),
-			Arguments.of("interNaL", null, false),
-			Arguments.of("interNaL", emptyList(), true),
-			Arguments.of("interNaL", emptyList(), false));
+		// Create stream of all permutations
+		return oepInstances()
+			.flatMap(instance -> attachments()
+				.flatMap(attachment -> includeOptionalHeaders()
+					.flatMap(includeOptionalHeader -> withPartyId()
+						.map(withPartyId -> Arguments.of(instance, attachment, includeOptionalHeader, withPartyId)))));
 	}
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders) {
+	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean withPartyId) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
-			.withOepInstance(oepInstance);
+			.withOepInstance(oepInstance)
+			.withParty(WebMessageRequest.Party.builder()
+				.withPartyId(withPartyId ? UUID.randomUUID().toString() : null)
+				.withExternalReferences(List.of(createExternalReference()))
+				.build());
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 		when(mockMessageService.sendWebMessage(any())).thenReturn(DELIVERY_RESULT);
 
@@ -127,11 +134,15 @@ class MessageResourceWebMessageTest {
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders) {
+	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean withPartyId) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
-			.withOepInstance(oepInstance);
+			.withOepInstance(oepInstance)
+			.withParty(WebMessageRequest.Party.builder()
+				.withPartyId(withPartyId ? UUID.randomUUID().toString() : null)
+				.withExternalReferences(List.of(createExternalReference()))
+				.build());
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
 		when(mockEventDispatcher.handleWebMessageRequest(any())).thenReturn(DELIVERY_RESULT);
 
