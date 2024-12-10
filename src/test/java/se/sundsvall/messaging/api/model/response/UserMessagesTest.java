@@ -5,9 +5,7 @@ import static se.sundsvall.messaging.TestDataFactory.createPagingMetaData;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessage;
 
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 

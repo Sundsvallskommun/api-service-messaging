@@ -16,7 +16,6 @@ import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 
 import java.util.Map;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +25,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import org.zalando.problem.violations.Violation;
-
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.HistoryService;
 import se.sundsvall.messaging.test.annotation.UnitTest;

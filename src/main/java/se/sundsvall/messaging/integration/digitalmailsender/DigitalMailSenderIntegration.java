@@ -4,14 +4,12 @@ import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-import se.sundsvall.messaging.model.MessageStatus;
-
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.model.MessageStatus;
 
 @Component
 @EnableConfigurationProperties(DigitalMailSenderIntegrationProperties.class)

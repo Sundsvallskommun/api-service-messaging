@@ -1,12 +1,9 @@
 package se.sundsvall.messaging.service.event;
 
 import java.io.Serial;
-
-import org.springframework.context.ApplicationEvent;
-
-import se.sundsvall.messaging.model.MessageType;
-
 import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
+import se.sundsvall.messaging.model.MessageType;
 
 @Getter
 public final class IncomingMessageEvent extends ApplicationEvent {

@@ -2,5 +2,9 @@
 	"subject": "Some subject",
 	"body": "This is the message contents",
 	"contentType": "text/plain",
-	"party": {"partyIds": ["e4e37771-397b-45b5-bb89-f389f8525e53"]}
+	"party": {
+		"partyIds": [
+			"e4e37771-397b-45b5-bb89-f389f8525e53"
+		]
+	}
 }

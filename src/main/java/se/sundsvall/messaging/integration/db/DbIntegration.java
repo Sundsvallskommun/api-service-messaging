@@ -1,5 +1,20 @@
 package se.sundsvall.messaging.integration.db;
 
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
+import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
+import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessageEntity;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.orderByCreatedAtDesc;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withMunicipalityId;
+import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withPartyId;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -15,22 +30,6 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
-import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
-import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
-import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessageEntity;
-import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.orderByCreatedAtDesc;
-import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtAfter;
-import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withCreatedAtBefore;
-import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withMunicipalityId;
-import static se.sundsvall.messaging.integration.db.specification.HistorySpecification.withPartyId;
 
 @Component
 @Transactional

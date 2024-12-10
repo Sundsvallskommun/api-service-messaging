@@ -6,9 +6,7 @@ import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistic
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.MessageType;

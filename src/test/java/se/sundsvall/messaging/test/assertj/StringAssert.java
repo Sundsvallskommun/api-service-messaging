@@ -1,7 +1,6 @@
 package se.sundsvall.messaging.test.assertj;
 
 import java.util.UUID;
-
 import org.assertj.core.api.AbstractStringAssert;
 import org.assertj.core.api.AssertionInfo;
 import org.assertj.core.error.BasicErrorMessageFactory;

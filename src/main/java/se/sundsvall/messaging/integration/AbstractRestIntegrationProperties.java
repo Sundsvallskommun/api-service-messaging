@@ -4,7 +4,6 @@ import static se.sundsvall.messaging.integration.Constants.DEFAULT_CONNECT_TIMEO
 import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
 
 import java.time.Duration;
-
 import lombok.Getter;
 import lombok.Setter;
 

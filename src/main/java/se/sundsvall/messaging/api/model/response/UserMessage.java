@@ -1,14 +1,13 @@
 package se.sundsvall.messaging.api.model.response;
 
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.With;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+import lombok.Builder;
+import lombok.With;
 
 @Builder(setterPrefix = "with")
 @Schema(description = "User message model")

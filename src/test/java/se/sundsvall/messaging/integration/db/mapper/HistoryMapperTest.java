@@ -8,9 +8,7 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.Message;
 

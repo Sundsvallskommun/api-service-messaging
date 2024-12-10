@@ -4,7 +4,6 @@ import static java.util.Objects.isNull;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
 import se.sundsvall.messaging.api.validation.ValidInstance;
 
 public class ValidInstanceConstraintValidator implements ConstraintValidator<ValidInstance, String> {

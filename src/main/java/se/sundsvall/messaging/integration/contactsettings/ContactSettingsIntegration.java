@@ -1,13 +1,11 @@
 package se.sundsvall.messaging.integration.contactsettings;
 
+import generated.se.sundsvall.contactsettings.ContactSetting;
 import java.util.Collection;
 import java.util.List;
-
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
-
-import generated.se.sundsvall.contactsettings.ContactSetting;
 
 @Component
 @EnableConfigurationProperties(ContactSettingsIntegrationProperties.class)

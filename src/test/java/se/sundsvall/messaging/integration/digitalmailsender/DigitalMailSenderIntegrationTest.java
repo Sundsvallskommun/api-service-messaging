@@ -9,6 +9,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
+import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
+import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
+import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
-import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
-import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
-import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
-import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

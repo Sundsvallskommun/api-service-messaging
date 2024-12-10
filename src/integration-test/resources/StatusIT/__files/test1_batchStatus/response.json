@@ -1,18 +1,20 @@
 {
-	"messages": [{
-		"messageId": "361d15eb-85a9-4277-862c-b059861da67d",
-		"deliveries": [
-			{
-				"deliveryId": "a64c0820-248c-4c85-937b-26a3f6962db9",
-				"messageType": "SNAIL_MAIL",
-				"status": "SENT"
-			},
-			{
-				"deliveryId": "b3e6b793-9127-4735-bc57-fa7cb02d85bc",
-				"messageType": "DIGITAL_MAIL",
-				"status": "FAILED"
-			}
-		]
-	}],
+	"messages": [
+		{
+			"messageId": "361d15eb-85a9-4277-862c-b059861da67d",
+			"deliveries": [
+				{
+					"deliveryId": "a64c0820-248c-4c85-937b-26a3f6962db9",
+					"messageType": "SNAIL_MAIL",
+					"status": "SENT"
+				},
+				{
+					"deliveryId": "b3e6b793-9127-4735-bc57-fa7cb02d85bc",
+					"messageType": "DIGITAL_MAIL",
+					"status": "FAILED"
+				}
+			]
+		}
+	],
 	"batchId": "0082d48f-21ad-4cbf-b616-5ef84b885a3d"
 }

@@ -9,7 +9,6 @@ import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.configuration.Defaults;
 

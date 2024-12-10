@@ -1,10 +1,12 @@
 {
 	"messages": [
 		{
-			"attachments": [{
-				"fileName": "beslut.pdf",
-				"contentType": "application/pdf"
-			}],
+			"attachments": [
+				{
+					"fileName": "beslut.pdf",
+					"contentType": "application/pdf"
+				}
+			],
 			"subject": "",
 			"recipients": [
 				{
@@ -24,10 +26,12 @@
 			"issuer": "issuer1"
 		},
 		{
-			"attachments": [{
-				"fileName": "beslut.pdf",
-				"contentType": "application/pdf"
-			}],
+			"attachments": [
+				{
+					"fileName": "beslut.pdf",
+					"contentType": "application/pdf"
+				}
+			],
 			"subject": "Beslut från Sundsvalls kommun",
 			"recipients": [
 				{

@@ -1,13 +1,12 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import generated.se.sundsvall.snailmail.Attachment;
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
+
+import generated.se.sundsvall.snailmail.Attachment;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
 class SnailMailSenderIntegrationMapperTest {

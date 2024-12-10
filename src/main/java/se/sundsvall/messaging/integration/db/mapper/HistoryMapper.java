@@ -2,10 +2,8 @@ package se.sundsvall.messaging.integration.db.mapper;
 
 import static java.util.Optional.ofNullable;
 
-import java.time.LocalDateTime;
-
 import com.google.gson.JsonParser;
-
+import java.time.LocalDateTime;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;

@@ -1,4 +1,6 @@
-{"SMS": {
-	"failed": 0,
-	"sent": 2
-}}
+{
+	"SMS": {
+		"failed": 0,
+		"sent": 2
+	}
+}

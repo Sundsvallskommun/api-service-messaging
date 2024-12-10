@@ -12,7 +12,6 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

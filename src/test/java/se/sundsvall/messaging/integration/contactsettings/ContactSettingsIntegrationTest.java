@@ -6,8 +6,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import generated.se.sundsvall.contactsettings.ContactChannel;
+import generated.se.sundsvall.contactsettings.ContactMethod;
+import generated.se.sundsvall.contactsettings.ContactSetting;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,12 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import generated.se.sundsvall.contactsettings.ContactChannel;
-import generated.se.sundsvall.contactsettings.ContactMethod;
-import generated.se.sundsvall.contactsettings.ContactSetting;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

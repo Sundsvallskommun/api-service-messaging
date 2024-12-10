@@ -1,11 +1,13 @@
 {
 	"reference": "12345",
 	"subject": "Invoice #12345",
-	"files": [{
-		"filename": "invoice_12345.pdf",
-		"contentType": "application/pdf",
-		"content": "someContent"
-	}],
+	"files": [
+		{
+			"filename": "invoice_12345.pdf",
+			"contentType": "application/pdf",
+			"content": "someContent"
+		}
+	],
 	"details": {
 		"amount": 12.5,
 		"dueDate": "2023-11-30",
@@ -15,5 +17,7 @@
 		"accountNumber": "1234567"
 	},
 	"type": "INVOICE",
-	"party": {"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53"}
+	"party": {
+		"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53"
+	}
 }

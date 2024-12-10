@@ -1,5 +1,18 @@
 package se.sundsvall.messaging;
 
+import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
+import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
+import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.api.model.request.Address;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -28,20 +41,6 @@ import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.ReferenceType;
 import se.sundsvall.messaging.service.model.Attachment;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
-import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
-import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 public final class TestDataFactory {
 

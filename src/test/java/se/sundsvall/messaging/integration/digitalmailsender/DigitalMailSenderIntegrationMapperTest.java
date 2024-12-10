@@ -2,19 +2,16 @@ package se.sundsvall.messaging.integration.digitalmailsender;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import generated.se.sundsvall.digitalmailsender.Details;
+import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import java.time.LocalDate;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import generated.se.sundsvall.digitalmailsender.Details;
-import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 
 @UnitTest
 class DigitalMailSenderIntegrationMapperTest {

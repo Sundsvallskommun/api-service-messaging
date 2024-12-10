@@ -1,17 +1,29 @@
 {
 	"request": {
-		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
 		"method": "POST",
-		"bodyPatterns": [{"equalToJson": {
-			"sender": {"name": "Batman"},
-			"mobileNumber": "+46703334455",
-			"priority": "NORMAL",
-			"message": "Your days are counted"
-		}}],
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"sender": {
+						"name": "Batman"
+					},
+					"mobileNumber": "+46703334455",
+					"priority": "NORMAL",
+					"message": "Your days are counted"
+				}
+			}
+		],
 		"urlPath": "/sms-sender/2281/send/sms"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test4_internalServerErrorFromSmsSenderOnBatch/responses/sms-sender-internal-error.json",
 		"status": 500
 	}

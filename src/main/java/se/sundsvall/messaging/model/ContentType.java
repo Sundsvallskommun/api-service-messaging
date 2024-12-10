@@ -1,8 +1,7 @@
 package se.sundsvall.messaging.model;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Arrays;
 import org.springframework.http.MediaType;
 
 public enum ContentType {

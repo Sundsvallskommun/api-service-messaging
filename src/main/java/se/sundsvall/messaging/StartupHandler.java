@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 

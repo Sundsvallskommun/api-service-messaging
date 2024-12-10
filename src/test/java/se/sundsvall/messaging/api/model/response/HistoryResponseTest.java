@@ -5,9 +5,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import java.time.LocalDateTime;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

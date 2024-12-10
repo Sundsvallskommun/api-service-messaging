@@ -4,12 +4,10 @@ import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
+import generated.se.sundsvall.smssender.SendSmsResponse;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.model.MessageStatus;
-
-import generated.se.sundsvall.smssender.SendSmsResponse;
 
 @Component
 @EnableConfigurationProperties(SmsSenderIntegrationProperties.class)

@@ -2,7 +2,6 @@ package se.sundsvall.messaging.integration.emailsender;
 
 import java.util.List;
 import java.util.Map;
-
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")

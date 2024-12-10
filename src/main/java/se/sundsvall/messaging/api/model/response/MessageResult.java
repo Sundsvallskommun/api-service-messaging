@@ -1,8 +1,7 @@
 package se.sundsvall.messaging.api.model.response;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")

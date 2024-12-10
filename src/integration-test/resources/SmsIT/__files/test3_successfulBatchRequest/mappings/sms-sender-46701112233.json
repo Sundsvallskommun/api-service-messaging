@@ -1,17 +1,29 @@
 {
 	"request": {
-		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
 		"method": "POST",
-		"bodyPatterns": [{"equalToJson": {
-			"sender": {"name": "Batman"},
-			"mobileNumber": "+46701112233",
-			"priority": "NORMAL",
-			"message": "Your days are counted"
-		}}],
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"sender": {
+						"name": "Batman"
+					},
+					"mobileNumber": "+46701112233",
+					"priority": "NORMAL",
+					"message": "Your days are counted"
+				}
+			}
+		],
 		"urlPath": "/sms-sender/2281/send/sms"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test3_successfulBatchRequest/responses/sms-sender.json",
 		"status": 200
 	}

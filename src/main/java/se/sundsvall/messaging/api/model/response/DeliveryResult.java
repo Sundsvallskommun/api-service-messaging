@@ -1,10 +1,9 @@
 package se.sundsvall.messaging.api.model.response;
 
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 @Builder(setterPrefix = "with")
 @Schema(description = "Delivery result")

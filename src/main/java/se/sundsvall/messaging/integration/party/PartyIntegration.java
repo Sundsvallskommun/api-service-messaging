@@ -1,9 +1,8 @@
 package se.sundsvall.messaging.integration.party;
 
+import generated.se.sundsvall.party.PartyType;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import generated.se.sundsvall.party.PartyType;
 
 @Component
 @EnableConfigurationProperties(PartyIntegrationProperties.class)
