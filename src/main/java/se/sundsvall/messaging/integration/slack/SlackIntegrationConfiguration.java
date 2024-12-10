@@ -3,13 +3,12 @@ package se.sundsvall.messaging.integration.slack;
 import com.slack.api.Slack;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.util.http.SlackHttpClient;
+import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.logbook.Logbook;
 import org.zalando.logbook.okhttp.GzipInterceptor;
 import org.zalando.logbook.okhttp.LogbookInterceptor;
-
-import okhttp3.OkHttpClient;
 
 @Configuration
 class SlackIntegrationConfiguration {

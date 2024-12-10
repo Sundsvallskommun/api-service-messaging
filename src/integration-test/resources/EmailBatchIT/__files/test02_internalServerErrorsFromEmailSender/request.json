@@ -1,9 +1,11 @@
 {
-	"attachments": [{
-		"name": "test.txt",
-		"contentType": "text/plain",
-		"content": "aGVsbG8gd29ybGQK"
-	}],
+	"attachments": [
+		{
+			"name": "test.txt",
+			"contentType": "text/plain",
+			"content": "aGVsbG8gd29ybGQK"
+		}
+	],
 	"sender": {
 		"address": "sender@someotherhost.com",
 		"name": "Some Sender"

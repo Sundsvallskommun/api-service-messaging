@@ -1,12 +1,10 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import generated.se.sundsvall.emailsender.Attachment;
 import generated.se.sundsvall.emailsender.SendEmailRequest;
 import generated.se.sundsvall.emailsender.Sender;
+import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 class EmailSenderIntegrationMapper {

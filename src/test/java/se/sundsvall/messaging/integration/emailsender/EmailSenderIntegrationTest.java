@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.createEmailDto;
 
+import generated.se.sundsvall.emailsender.SendEmailRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -18,10 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import generated.se.sundsvall.emailsender.SendEmailRequest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

@@ -1,7 +1,6 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
 import java.util.Optional;
-
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
 

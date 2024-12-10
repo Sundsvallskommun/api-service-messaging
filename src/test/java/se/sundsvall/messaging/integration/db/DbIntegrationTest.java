@@ -1,5 +1,18 @@
 package se.sundsvall.messaging.integration.db;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -14,20 +27,6 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

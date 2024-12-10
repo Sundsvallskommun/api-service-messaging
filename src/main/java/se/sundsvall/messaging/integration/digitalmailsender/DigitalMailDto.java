@@ -1,10 +1,8 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
 import java.util.List;
-
-import se.sundsvall.messaging.model.ContentType;
-
 import lombok.Builder;
+import se.sundsvall.messaging.model.ContentType;
 
 @Builder(setterPrefix = "with")
 public record DigitalMailDto(

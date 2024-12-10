@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
+
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.Address;
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 @UnitTest
 class MessageTest {

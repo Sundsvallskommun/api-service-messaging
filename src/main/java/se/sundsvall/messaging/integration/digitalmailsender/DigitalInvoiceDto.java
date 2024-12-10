@@ -2,12 +2,10 @@ package se.sundsvall.messaging.integration.digitalmailsender;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import lombok.Builder;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
-
-import lombok.Builder;
 
 @Builder(setterPrefix = "with")
 public record DigitalInvoiceDto(

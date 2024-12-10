@@ -3,13 +3,11 @@ package se.sundsvall.messaging.integration.webmessagesender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createExternalReference;
 
-import java.util.List;
-
-import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.Test;
-
 import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
+import java.util.List;
+import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

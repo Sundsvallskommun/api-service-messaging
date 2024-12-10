@@ -18,9 +18,7 @@ import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistic
 
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;

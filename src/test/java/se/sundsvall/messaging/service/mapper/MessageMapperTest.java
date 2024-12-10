@@ -19,9 +19,7 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest

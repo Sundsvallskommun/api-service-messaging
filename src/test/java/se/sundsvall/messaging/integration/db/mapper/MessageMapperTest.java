@@ -1,15 +1,15 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 class MessageMapperTest {
 	private static final String BATCH_ID = "someBatchId";

@@ -1,13 +1,10 @@
 package se.sundsvall.messaging.integration.db.projection.support;
 
+import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 import java.util.List;
-
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
-
-import io.hypersistence.utils.hibernate.type.util.ClassImportIntegrator;
 
 public class ClassImportIntegratorIntegratorProvider implements IntegratorProvider {
 

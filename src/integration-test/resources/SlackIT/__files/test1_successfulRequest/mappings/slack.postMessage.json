@@ -25,15 +25,17 @@
 					"app_id": "A050ASLLASU",
 					"updated": 1680619531
 				},
-				"blocks": [{
-					"text": {
-						"text": "Test message",
-						"type": "mrkdwn",
-						"verbatim": false
-					},
-					"type": "section",
-					"block_id": "zI5Z"
-				}],
+				"blocks": [
+					{
+						"text": {
+							"text": "Test message",
+							"type": "mrkdwn",
+							"verbatim": false
+						},
+						"type": "section",
+						"block_id": "zI5Z"
+					}
+				],
 				"text": "Test message",
 				"team": "T52PWM22NNO",
 				"type": "message",

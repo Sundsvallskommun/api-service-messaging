@@ -2,8 +2,6 @@ package se.sundsvall.messaging.integration.digitalmailsender;
 
 import static java.util.Optional.ofNullable;
 
-import org.springframework.stereotype.Component;
-
 import generated.se.sundsvall.digitalmailsender.Attachment;
 import generated.se.sundsvall.digitalmailsender.BodyInformation;
 import generated.se.sundsvall.digitalmailsender.Details;
@@ -12,6 +10,7 @@ import generated.se.sundsvall.digitalmailsender.Details.PaymentReferenceTypeEnum
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.SupportInfo;
+import org.springframework.stereotype.Component;
 
 @Component
 class DigitalMailSenderIntegrationMapper {

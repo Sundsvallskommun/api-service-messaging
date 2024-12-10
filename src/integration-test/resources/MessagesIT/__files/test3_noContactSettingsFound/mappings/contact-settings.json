@@ -1,12 +1,22 @@
 {
 	"request": {
-		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
 		"method": "GET",
-		"queryParameters": {"partyId": {"equalTo": "f427952b-247c-4d3b-b081-675a467b3619"}},
+		"queryParameters": {
+			"partyId": {
+				"equalTo": "f427952b-247c-4d3b-b081-675a467b3619"
+			}
+		},
 		"urlPath": "/contact-settings/2281/settings"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"status": 404
 	}
 }

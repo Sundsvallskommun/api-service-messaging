@@ -3,14 +3,13 @@ package se.sundsvall.messaging.util;
 import static com.fasterxml.jackson.databind.type.TypeFactory.rawClass;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.lang.reflect.Type;
 
 public final class JsonUtils {
 

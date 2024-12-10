@@ -1,26 +1,38 @@
 {
 	"request": {
-		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
 		"method": "POST",
-		"bodyPatterns": [{"equalToJson": {
-			"headers": {},
-			"emailAddress": "${json-unit.ignore}",
-			"attachments": [{
-				"name": "test.txt",
-				"contentType": "text/plain",
-				"content": "aGVsbG8gd29ybGQK"
-			}],
-			"sender": {
-				"address": "sender@someotherhost.com",
-				"name": "Some Sender"
-			},
-			"subject": "Some subject for test with internal error",
-			"message": "This is some e-mail content"
-		}}],
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"headers": {},
+					"emailAddress": "${json-unit.ignore}",
+					"attachments": [
+						{
+							"name": "test.txt",
+							"contentType": "text/plain",
+							"content": "aGVsbG8gd29ybGQK"
+						}
+					],
+					"sender": {
+						"address": "sender@someotherhost.com",
+						"name": "Some Sender"
+					},
+					"subject": "Some subject for test with internal error",
+					"message": "This is some e-mail content"
+				}
+			}
+		],
 		"urlPath": "/email-sender/2281/send/email"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test02_internalServerErrorsFromEmailSender/responses/email-sender.json",
 		"status": 500
 	}

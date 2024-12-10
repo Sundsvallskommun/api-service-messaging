@@ -1,5 +1,20 @@
 package se.sundsvall.messaging.api;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
+import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
+import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
+import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,6 +23,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,25 +44,6 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.service.HistoryService;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.springframework.http.MediaType.ALL_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.notFound;
-import static org.springframework.http.ResponseEntity.ok;
-import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
-import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
-import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
 
 @Tag(name = "History Resources")
 @RestController

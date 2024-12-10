@@ -6,7 +6,6 @@ import static se.sundsvall.messaging.integration.Constants.DEFAULT_CONNECT_TIMEO
 import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
 
 import java.time.Duration;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 

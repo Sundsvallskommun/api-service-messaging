@@ -1,5 +1,9 @@
 package se.sundsvall.messaging.api.model.request;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Party;
@@ -8,11 +12,6 @@ import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Em
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Sms;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @UnitTest
 class MessageRequestTest {

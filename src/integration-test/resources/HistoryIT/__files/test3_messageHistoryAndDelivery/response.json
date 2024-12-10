@@ -3,14 +3,20 @@
 		"messageType": "SNAIL_MAIL",
 		"content": {
 			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
-			"party": {"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"}
+			"party": {
+				"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"
+			}
 		},
 		"status": "SENT",
 		"timestamp": "2024-02-08T10:36:40.913355"
 	},
 	{
 		"messageType": "SNAIL_MAIL",
-		"content": {"party": {"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"}},
+		"content": {
+			"party": {
+				"partyId": "41a6bb65-6863-466d-af8c-acd1839e6012"
+			}
+		},
 		"status": "SENT",
 		"timestamp": "2024-02-08T10:36:40.913355"
 	}

@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest.Details;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest.File;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest.Party;

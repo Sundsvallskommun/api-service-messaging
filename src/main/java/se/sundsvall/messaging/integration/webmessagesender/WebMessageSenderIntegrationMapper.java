@@ -1,12 +1,10 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 import generated.se.sundsvall.webmessagesender.ExternalReference;
+import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 class WebMessageSenderIntegrationMapper {

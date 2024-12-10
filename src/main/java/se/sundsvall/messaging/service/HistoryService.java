@@ -1,9 +1,20 @@
 package se.sundsvall.messaging.service;
 
+import static java.util.Collections.emptyList;
+import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.zalando.problem.Status.NOT_FOUND;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.hc.client5.http.utils.Base64;
 import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,18 +31,6 @@ import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Collections.emptyList;
-import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.zalando.problem.Status.NOT_FOUND;
 
 @Service
 public class HistoryService {

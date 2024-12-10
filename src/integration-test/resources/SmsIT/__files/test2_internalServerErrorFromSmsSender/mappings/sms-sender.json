@@ -1,17 +1,29 @@
 {
 	"request": {
-		"headers": {"Authorization": {"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"}},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
 		"method": "POST",
-		"bodyPatterns": [{"equalToJson": {
-			"sender": {"name": "SomeSender"},
-			"mobileNumber": "+46708971081",
-			"priority": "NORMAL",
-			"message": "This is the message"
-		}}],
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"sender": {
+						"name": "SomeSender"
+					},
+					"mobileNumber": "+46708971081",
+					"priority": "NORMAL",
+					"message": "This is the message"
+				}
+			}
+		],
 		"urlPath": "/sms-sender/2281/send/sms"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test2_internalServerErrorFromSmsSender/responses/sms-sender.json",
 		"status": 500
 	}

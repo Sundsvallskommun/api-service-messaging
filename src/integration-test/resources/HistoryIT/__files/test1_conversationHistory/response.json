@@ -1,13 +1,19 @@
 [
 	{
 		"messageType": "DIGITAL_MAIL",
-		"content": {"party": {}},
+		"content": {
+			"party": {}
+		},
 		"status": "FAILED",
 		"timestamp": "2024-02-25T15:54:39.254123"
 	},
 	{
 		"messageType": "SMS",
-		"content": {"party": {"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"}},
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
+		},
 		"status": "SENT",
 		"timestamp": "2024-02-25T15:54:39.254123"
 	},
@@ -15,7 +21,9 @@
 		"messageType": "SNAIL_MAIL",
 		"content": {
 			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
-			"party": {"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"}
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
 		},
 		"status": "SENT",
 		"timestamp": "2024-01-26T13:19:38.336364"
@@ -24,14 +32,20 @@
 		"messageType": "SNAIL_MAIL",
 		"content": {
 			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
-			"party": {"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"}
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
 		},
 		"status": "SENT",
 		"timestamp": "2024-01-25T15:54:39.254123"
 	},
 	{
 		"messageType": "SMS",
-		"content": {"party": {"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"}},
+		"content": {
+			"party": {
+				"partyId": "d1d87cda-0dc5-41bb-9dd9-fa6ed2fd52ee"
+			}
+		},
 		"status": "SENT",
 		"timestamp": "2024-01-25T15:54:39.254123"
 	}

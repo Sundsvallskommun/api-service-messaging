@@ -2,10 +2,9 @@ package se.sundsvall.messaging.integration.snailmailsender;
 
 import generated.se.sundsvall.snailmail.Attachment;
 import generated.se.sundsvall.snailmail.SendSnailMailRequest;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.Address;
-
-import java.util.Optional;
 
 @Component
 class SnailMailSenderIntegrationMapper {

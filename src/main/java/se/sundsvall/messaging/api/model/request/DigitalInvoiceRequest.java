@@ -1,11 +1,16 @@
 package se.sundsvall.messaging.api.model.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
@@ -15,12 +20,6 @@ import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @With
 @Builder(setterPrefix = "with")

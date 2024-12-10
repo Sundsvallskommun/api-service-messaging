@@ -6,9 +6,7 @@ import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.MUNICI
 import static se.sundsvall.messaging.integration.db.entity.HistoryEntity_.PARTY_ID;
 
 import java.time.LocalDate;
-
 import org.springframework.data.jpa.domain.Specification;
-
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 public interface HistorySpecification {

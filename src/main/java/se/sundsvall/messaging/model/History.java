@@ -1,7 +1,6 @@
 package se.sundsvall.messaging.model;
 
 import java.time.LocalDateTime;
-
 import lombok.Builder;
 import lombok.With;
 

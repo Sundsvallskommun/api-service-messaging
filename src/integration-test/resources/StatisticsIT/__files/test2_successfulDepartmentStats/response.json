@@ -1,26 +1,30 @@
 [
 	{
-		"DEPARTMENT_STATISTICS": [{
-			"DIGITAL_MAIL": {
-				"failed": 1,
-				"sent": 0
-			},
-			"SNAIL_MAIL": {
-				"failed": 0,
-				"sent": 4
-			},
-			"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
-		}],
+		"DEPARTMENT_STATISTICS": [
+			{
+				"DIGITAL_MAIL": {
+					"failed": 1,
+					"sent": 0
+				},
+				"SNAIL_MAIL": {
+					"failed": 0,
+					"sent": 4
+				},
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+			}
+		],
 		"ORIGIN": "origin"
 	},
 	{
-		"DEPARTMENT_STATISTICS": [{
-			"SNAIL_MAIL": {
-				"failed": 0,
-				"sent": 1
-			},
-			"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
-		}],
+		"DEPARTMENT_STATISTICS": [
+			{
+				"SNAIL_MAIL": {
+					"failed": 0,
+					"sent": 1
+				},
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+			}
+		],
 		"ORIGIN": "origin2"
 	},
 	{

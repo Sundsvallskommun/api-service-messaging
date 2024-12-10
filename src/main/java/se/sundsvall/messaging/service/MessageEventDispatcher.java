@@ -1,5 +1,12 @@
 package se.sundsvall.messaging.service;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
+
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -19,14 +26,6 @@ import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
-
-import java.util.Collections;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 
 @Component
 public class MessageEventDispatcher {

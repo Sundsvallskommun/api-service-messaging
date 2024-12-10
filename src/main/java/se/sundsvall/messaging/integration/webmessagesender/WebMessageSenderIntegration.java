@@ -5,7 +5,6 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.messaging.model.MessageStatus;
 
 @Component

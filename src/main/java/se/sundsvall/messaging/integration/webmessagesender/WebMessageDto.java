@@ -1,10 +1,8 @@
 package se.sundsvall.messaging.integration.webmessagesender;
 
 import java.util.List;
-
-import se.sundsvall.messaging.model.ExternalReference;
-
 import lombok.Builder;
+import se.sundsvall.messaging.model.ExternalReference;
 
 @Builder(setterPrefix = "with")
 public record WebMessageDto(

@@ -2,13 +2,12 @@ package se.sundsvall.messaging.api.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import se.sundsvall.messaging.api.validation.impl.ValidNullOrNotEmptyValidator;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import se.sundsvall.messaging.api.validation.impl.ValidNullOrNotEmptyValidator;
 
 /**
  * Annotation for validating that a string is either null or not empty and has no starting or trailing spaces.
