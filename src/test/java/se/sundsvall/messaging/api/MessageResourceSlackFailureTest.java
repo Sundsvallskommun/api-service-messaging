@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import org.zalando.problem.violations.Violation;
@@ -30,10 +30,10 @@ class MessageResourceSlackFailureTest {
 
 	private static final String URL = "/" + MUNICIPALITY_ID + "/slack";
 
-	@MockBean
+	@MockitoBean
 	private MessageService messageServiceMock;
 
-	@MockBean
+	@MockitoBean
 	private MessageEventDispatcher eventDispatcherMock;
 
 	@Autowired
