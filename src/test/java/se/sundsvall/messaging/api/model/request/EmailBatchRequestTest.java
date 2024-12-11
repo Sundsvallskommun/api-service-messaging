@@ -1,7 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ class EmailBatchRequestTest {
 	private static final EmailBatchRequest.Sender SENDER = EmailBatchRequest.Sender.builder().build();
 	private static final List<EmailBatchRequest.Attachment> ATTACHMENTS = List.of(EmailBatchRequest.Attachment.builder().build());
 	private static final List<EmailBatchRequest.Party> PARTIES = List.of(EmailBatchRequest.Party.builder().build());
-	private static final Map<Header, List<String>> HEADERS = Map.of(MESSAGE_ID, List.of("value"));
+	private static final Map<String, List<String>> HEADERS = Map.of(Header.MESSAGE_ID.name(), List.of("value"));
 	private static final String MUNICIPALITY_ID = "municipalityId";
 
 	// EmailBatchRequest

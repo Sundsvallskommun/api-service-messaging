@@ -19,7 +19,6 @@ import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
-import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
 import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.Priority;
@@ -105,9 +104,10 @@ public final class TestDataFactory {
 			.withSubject("someSubject")
 			.withMessage("someMessage")
 			.withHtmlMessage("someHtmlMessage")
-			.withHeaders(Map.of(MESSAGE_ID, List.of("<someMessageId@test.com>"),
-				REFERENCES, List.of("<someReferences@test.com>", "<someMoreReferences@test.com>"),
-				IN_REPLY_TO, List.of("<someInReplyTo@test.com>")))
+			.withHeaders(Map.of(
+				MESSAGE_ID.name(), List.of("<someMessageId@test.com>"),
+				REFERENCES.name(), List.of("<someReferences@test.com>", "<someMoreReferences@test.com>"),
+				IN_REPLY_TO.name(), List.of("<someInReplyTo@test.com>")))
 			.withAttachments(List.of(
 				EmailRequest.Attachment.builder()
 					.withName("someName")
@@ -140,10 +140,10 @@ public final class TestDataFactory {
 			.build();
 	}
 
-	public static Map<Header, List<String>> createValidHeaders() {
-		return Map.of(MESSAGE_ID, List.of(HEADER_VALUE),
-			REFERENCES, List.of(HEADER_VALUE, HEADER_VALUE),
-			IN_REPLY_TO, List.of(HEADER_VALUE));
+	public static Map<String, List<String>> createValidHeaders() {
+		return Map.of(MESSAGE_ID.name(), List.of(HEADER_VALUE),
+			REFERENCES.name(), List.of(HEADER_VALUE, HEADER_VALUE),
+			IN_REPLY_TO.name(), List.of(HEADER_VALUE));
 
 	}
 
@@ -395,9 +395,9 @@ public final class TestDataFactory {
 				.withName(DEFAULT_SENDER_NAME)
 				.withReplyTo("test@testorsson.com")
 				.build())
-			.withHeaders(Map.of(MESSAGE_ID, List.of(HEADER_VALUE),
-				REFERENCES, List.of(HEADER_VALUE, HEADER_VALUE),
-				IN_REPLY_TO, List.of(HEADER_VALUE)))
+			.withHeaders(Map.of(MESSAGE_ID.name(), List.of(HEADER_VALUE),
+				REFERENCES.name(), List.of(HEADER_VALUE, HEADER_VALUE),
+				IN_REPLY_TO.name(), List.of(HEADER_VALUE)))
 			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
 			.withHtmlMessage("someHtmlMessage")
 			.withSubject("someSubject")

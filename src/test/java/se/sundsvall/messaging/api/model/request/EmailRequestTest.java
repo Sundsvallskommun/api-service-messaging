@@ -23,7 +23,7 @@ class EmailRequestTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER = "issuer";
 	private static final List<Attachment> ATTACHMENTS = List.of(Attachment.builder().build());
-	private static final Map<Header, List<String>> HEADERS = Map.of(Header.REFERENCES, List.of("value"));
+	private static final Map<String, List<String>> HEADERS = Map.of(Header.REFERENCES.name(), List.of("value"));
 	private static final String CONTENT = "content";
 	private static final String CONTENT_TYPE = "contentType";
 	private static final String NAME = "name";

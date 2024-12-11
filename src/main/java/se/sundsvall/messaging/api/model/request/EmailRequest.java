@@ -8,13 +8,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidHeaders;
 import se.sundsvall.messaging.model.ExternalReference;
 
 @With
@@ -39,7 +40,7 @@ public record EmailRequest(
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class)) List<@Valid Attachment> attachments,
 
-	@Schema(description = "Headers") Map<Header, List<@Pattern(regexp = "^<.{1,1000}@.{1,1000}>$", message = "Header values must start with '<', contain '@' and end with '>'") String>> headers,
+	@Schema(description = "Headers") @ValidHeaders Map<@NotBlank String, @NotEmpty List<String>> headers,
 
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 

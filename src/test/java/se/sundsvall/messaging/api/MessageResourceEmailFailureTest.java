@@ -57,11 +57,9 @@ class MessageResourceEmailFailureTest {
 		"", " ", "not-a-uuid"
 	})
 	void shouldFailWithInvalidPartyId(String partyId) {
-		// Arrange
-		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
+		var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -72,7 +70,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -85,14 +82,12 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithInvalidExternalReferenceKey(String key) {
-		// Arrange
-		final var externalReference = validRequest.party().externalReferences().getFirst();
+		var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
+		var request = validRequest.withParty(validRequest.party()
 			.withExternalReferences(List.of(externalReference.withKey(key))));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -103,7 +98,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -116,14 +110,12 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithInvalidExternalReferenceValue(String value) {
-		// Arrange
-		final var externalReference = validRequest.party().externalReferences().getFirst();
+		var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
+		var request = validRequest.withParty(validRequest.party()
 			.withExternalReferences(List.of(externalReference.withValue(value))));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -134,7 +126,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -149,11 +140,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrInvalidEmailAddress(String value) {
-		// Arrange
-		final var request = validRequest.withEmailAddress(value);
+		var request = validRequest.withEmailAddress(value);
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -164,7 +153,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -181,11 +169,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrBlankSubject(String value) {
-		// Arrange
-		final var request = validRequest.withSubject(value);
+		var request = validRequest.withSubject(value);
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -196,7 +182,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -209,11 +194,9 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithBlankSenderName(String value) {
-		// Arrange
-		final var request = validRequest.withSender(validRequest.sender().withName(value));
+		var request = validRequest.withSender(validRequest.sender().withName(value));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -224,7 +207,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -239,11 +221,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithBlankOrInvalidSenderAddress(String value) {
-		// Arrange
-		final var request = validRequest.withSender(validRequest.sender().withAddress(value));
+		var request = validRequest.withSender(validRequest.sender().withAddress(value));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -254,7 +234,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -267,11 +246,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidReplyToAddress() {
-		// Arrange
-		final var request = validRequest.withSender(validRequest.sender().withReplyTo("not-a-valid-email-address"));
+		var request = validRequest.withSender(validRequest.sender().withReplyTo("not-a-valid-email-address"));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -282,7 +259,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -293,11 +269,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidHtmlMessage() {
-		// Arrange
-		final var request = validRequest.withHtmlMessage("not-a-valid-base-64");
+		var request = validRequest.withHtmlMessage("not-a-valid-base-64");
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -308,7 +282,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -321,11 +294,9 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithMissingFileName(String fileName) {
-		// Arrange
-		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
+		var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -336,7 +307,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -347,11 +317,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidFileContent() {
-		// Arrange
-		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
+		var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
 
-		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -362,7 +330,6 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
@@ -376,11 +343,10 @@ class MessageResourceEmailFailureTest {
 		"", " ", "abc", "<abc>", "b@c", "<a@b", "a@>"
 	})
 	void shouldFailWithInvalidHeaderValue(String value) {
-		// Arrange
-		final var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID, List.of(value)));
+		var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID.getKey(), List.of(value)));
 
 		// Act
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -391,13 +357,11 @@ class MessageResourceEmailFailureTest {
 			.returnResult()
 			.getResponseBody();
 
-		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("headers[MESSAGE_ID][0]", "Header values must start with '<', contain '@' and end with '>'"));
+			.containsExactly(tuple("headers.Message-ID", "must start with '<', contain '@' and end with '>'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
-
 }
