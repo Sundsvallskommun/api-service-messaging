@@ -39,9 +39,9 @@ class DtoMapperTest {
 		assertThat(emailDto.subject()).isEqualTo(emailRequest.subject());
 		assertThat(emailDto.message()).isEqualTo(emailRequest.message());
 		assertThat(emailDto.attachments()).hasSize(emailRequest.attachments().size());
-		assertThat(emailDto.headers().get("MESSAGE_ID")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(MESSAGE_ID));
-		assertThat(emailDto.headers().get("IN_REPLY_TO")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(IN_REPLY_TO));
-		assertThat(emailDto.headers().get("REFERENCES")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(REFERENCES));
+		assertThat(emailDto.headers().get("MESSAGE_ID")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(MESSAGE_ID.name()));
+		assertThat(emailDto.headers().get("IN_REPLY_TO")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(IN_REPLY_TO.name()));
+		assertThat(emailDto.headers().get("REFERENCES")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(REFERENCES.name()));
 
 	}
 

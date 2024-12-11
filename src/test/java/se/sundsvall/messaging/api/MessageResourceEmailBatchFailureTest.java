@@ -74,16 +74,16 @@ class MessageResourceEmailBatchFailureTest {
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withContent("not base64"))), "attachments[0].content", "not a valid BASE64-encoded string"),
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withName(null))), "attachments[0].name", "must not be blank"),
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withName(""))), "attachments[0].name", "must not be blank"),
-			Arguments.of(REQUEST.withHeaders(Map.of(Header.MESSAGE_ID, List.of("not a valid message id"))), "headers[MESSAGE_ID][0]", "Header values must start with '<', contain '@' and end with '>'"),
-			Arguments.of(REQUEST.withHeaders(Map.of(Header.IN_REPLY_TO, List.of("not a valid in reply to"))), "headers[IN_REPLY_TO][0]", "Header values must start with '<', contain '@' and end with '>'"),
-			Arguments.of(REQUEST.withHeaders(Map.of(Header.REFERENCES, List.of("not a valid reference"))), "headers[REFERENCES][0]", "Header values must start with '<', contain '@' and end with '>'"));
+			Arguments.of(REQUEST.withHeaders(Map.of(Header.MESSAGE_ID.name(), List.of("not a valid message id"))), "headers.MESSAGE_ID", "must start with '<', contain '@' and end with '>'"),
+			Arguments.of(REQUEST.withHeaders(Map.of(Header.IN_REPLY_TO.name(), List.of("not a valid in reply to"))), "headers.IN_REPLY_TO", "must start with '<', contain '@' and end with '>'"),
+			Arguments.of(REQUEST.withHeaders(Map.of(Header.REFERENCES.name(), List.of("not a valid reference"))), "headers.REFERENCES", "must start with '<', contain '@' and end with '>'"),
+			Arguments.of(REQUEST.withHeaders(Map.of(Header.AUTO_SUBMITTED.name(), List.of("not a valid auto-submitted value"))), "headers.AUTO_SUBMITTED", "must be equal to 'auto-generated'"));
 	}
 
 	@ParameterizedTest
 	@MethodSource("emailBatchRequestBadRequestProvider")
 	void sendBatch(final EmailBatchRequest request, final String field, final String message) {
-
-		final var response = webTestClient.post()
+		var response = webTestClient.post()
 			.uri(URL)
 			.bodyValue(request)
 			.exchange()
@@ -101,5 +101,4 @@ class MessageResourceEmailBatchFailureTest {
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
 	}
-
 }
