@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,13 +47,10 @@ import se.sundsvall.messaging.service.HistoryService;
 @Tag(name = "History Resources")
 @RestController
 @Validated
-@ApiResponses({
-	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
-		Problem.class, ConstraintViolationProblem.class
-	}))),
-	@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
-})
+@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
+	Problem.class, ConstraintViolationProblem.class
+})))
+@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 class HistoryResource {
 
 	private final HistoryService historyService;
@@ -63,7 +59,11 @@ class HistoryResource {
 		this.historyService = historyService;
 	}
 
-	@Operation(summary = "Get the entire conversation history for a given party")
+	@Operation(summary = "Get the entire conversation history for a given party",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+
+		})
 	@GetMapping(value = CONVERSATION_HISTORY_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -78,8 +78,12 @@ class HistoryResource {
 			.toList());
 	}
 
-	@Operation(summary = "Get the status for a message batch, its messages and their deliveries")
-	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+	@Operation(summary = "Get the status for a message batch, its messages and their deliveries",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+
+		})
 	@GetMapping(value = BATCH_STATUS_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -91,8 +95,12 @@ class HistoryResource {
 		return history.isEmpty() ? notFound().build() : ok(toMessageBatchResult(history));
 	}
 
-	@Operation(summary = "Get the status for a single message and its deliveries")
-	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+	@Operation(summary = "Get the status for a single message and its deliveries",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+
+		})
 	@GetMapping(value = MESSAGE_STATUS_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -104,8 +112,12 @@ class HistoryResource {
 		return history.isEmpty() ? notFound().build() : ok(toMessageResult(history));
 	}
 
-	@Operation(summary = "Get the status for a single delivery")
-	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+	@Operation(summary = "Get the status for a single delivery",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+
+		})
 	@GetMapping(value = DELIVERY_STATUS_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -119,8 +131,12 @@ class HistoryResource {
 			.orElseGet(() -> notFound().build());
 	}
 
-	@Operation(summary = "Get a message and all its deliveries")
-	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+	@Operation(summary = "Get a message and all its deliveries",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+
+		})
 	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -135,7 +151,10 @@ class HistoryResource {
 		return history.isEmpty() ? notFound().build() : ok(history);
 	}
 
-	@Operation(summary = "Get historical messages sent by a user")
+	@Operation(summary = "Get historical messages sent by a user",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		})
 	@GetMapping(value = USER_MESSAGES_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -144,11 +163,14 @@ class HistoryResource {
 		@Parameter(name = "userId", description = "User id", example = "test") @PathVariable final String userId,
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
 		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
-		var result = historyService.getUserMessages(municipalityId, userId, page, limit);
+		final var result = historyService.getUserMessages(municipalityId, userId, page, limit);
 		return ok(result);
 	}
 
-	@Operation(summary = "Strean attachment by messageId and fileName")
+	@Operation(summary = "Stream attachment by messageId and fileName",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		})
 	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {
 		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})

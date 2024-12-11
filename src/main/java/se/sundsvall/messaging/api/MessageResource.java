@@ -47,7 +47,6 @@ import se.sundsvall.messaging.service.MessageService;
 }, produces = {
 	APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 })
-@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "502", description = "Bad Gateway", content = @Content(schema = @Schema(implementation = Problem.class)))
@@ -62,7 +61,9 @@ class MessageResource {
 		this.eventDispatcher = eventDispatcher;
 	}
 
-	@Operation(summary = "Send a single SMS")
+	@Operation(summary = "Send a single SMS", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/sms")
 	ResponseEntity<MessageResult> sendSms(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -82,7 +83,9 @@ class MessageResource {
 		return toResponse(messageService.sendSms(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a batch of sms asynchronously")
+	@Operation(summary = "Send a batch of sms asynchronously", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/sms/batch")
 	ResponseEntity<MessageBatchResult> sendSmsBatch(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -98,7 +101,9 @@ class MessageResource {
 		return toResponse(eventDispatcher.handleSmsBatchRequest(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a single e-mail")
+	@Operation(summary = "Send a single e-mail", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/email")
 	ResponseEntity<MessageResult> sendEmail(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -118,7 +123,9 @@ class MessageResource {
 		return toResponse(messageService.sendEmail(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a batch of e-mails asynchronously")
+	@Operation(summary = "Send a batch of e-mails asynchronously", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/email/batch")
 	ResponseEntity<MessageBatchResult> sendEmailBatch(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -134,7 +141,9 @@ class MessageResource {
 		return toResponse(eventDispatcher.handleEmailBatchRequest(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a single web message")
+	@Operation(summary = "Send a single web message", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/webmessage")
 	ResponseEntity<MessageResult> sendWebMessage(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -154,7 +163,9 @@ class MessageResource {
 		return toResponse(messageService.sendWebMessage(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a single digital mail to one or more parties")
+	@Operation(summary = "Send a single digital mail to one or more parties", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMail(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -174,7 +185,9 @@ class MessageResource {
 		return toResponse(messageService.sendDigitalMail(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a digital invoice")
+	@Operation(summary = "Send a digital invoice", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/digital-invoice")
 	ResponseEntity<MessageResult> sendDigitalInvoice(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -194,7 +207,9 @@ class MessageResource {
 		return toResponse(messageService.sendDigitalInvoice(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a batch of messages as e-mail or SMS to a list of parties")
+	@Operation(summary = "Send a batch of messages as e-mail or SMS to a list of parties", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/messages")
 	ResponseEntity<MessageBatchResult> sendMessages(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -214,7 +229,9 @@ class MessageResource {
 		return toResponse(messageService.sendMessages(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a single letter as digital mail or snail mail")
+	@Operation(summary = "Send a single letter as digital mail or snail mail", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/letter")
 	ResponseEntity<MessageBatchResult> sendLetter(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
@@ -234,7 +251,9 @@ class MessageResource {
 		return toResponse(messageService.sendLetter(decoratedRequest));
 	}
 
-	@Operation(summary = "Send a single Slack message")
+	@Operation(summary = "Send a single Slack message", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/slack")
 	ResponseEntity<MessageResult> sendToSlack(
 		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,

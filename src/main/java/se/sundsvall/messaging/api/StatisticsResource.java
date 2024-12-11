@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,13 +34,10 @@ import se.sundsvall.messaging.service.StatisticsService;
 @Tag(name = "Statistics Resources")
 @Validated
 @RestController
-@ApiResponses({
-	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-	@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
-		Problem.class, ConstraintViolationProblem.class
-	}))),
-	@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
-})
+@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(oneOf = {
+	Problem.class, ConstraintViolationProblem.class
+})))
+@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
 class StatisticsResource {
 
 	private final StatisticsService statisticsService;
@@ -50,7 +46,9 @@ class StatisticsResource {
 		this.statisticsService = statisticsService;
 	}
 
-	@Operation(summary = "Get delivery statistics")
+	@Operation(summary = "Get delivery statistics", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
 	@GetMapping(value = STATISTICS_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
@@ -63,7 +61,9 @@ class StatisticsResource {
 		return ok(statisticsService.getStatistics(messageType, from, to, municipalityId));
 	}
 
-	@Operation(summary = "Get letter delivery statistics by department")
+	@Operation(summary = "Get letter delivery statistics by department", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
 	@GetMapping(value = {
 		STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH
 	}, produces = {
