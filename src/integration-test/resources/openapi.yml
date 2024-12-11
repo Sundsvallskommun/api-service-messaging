@@ -1286,7 +1286,7 @@ paths:
     get:
       tags:
         - History Resources
-      summary: Strean attachment by messageId and fileName
+      summary: Stream attachment by messageId and fileName
       operationId: readAttachment
       parameters:
         - name: municipalityId
