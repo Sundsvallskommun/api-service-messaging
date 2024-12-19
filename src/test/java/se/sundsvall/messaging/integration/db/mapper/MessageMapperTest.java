@@ -7,11 +7,13 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
 class MessageMapperTest {
+
 	private static final String BATCH_ID = "someBatchId";
 	private static final String MESSAGE_ID = "someMessageId";
 	private static final String DELIVERY_ID = "someDeliveryId";
@@ -31,7 +33,7 @@ class MessageMapperTest {
 
 	@Test
 	void mapToMessage() {
-		final var messageEntity = MessageEntity.builder()
+		var messageEntity = MessageEntity.builder()
 			.withBatchId(BATCH_ID)
 			.withMessageId(MESSAGE_ID)
 			.withDeliveryId(DELIVERY_ID)
@@ -45,7 +47,7 @@ class MessageMapperTest {
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
-		final var message = MessageMapper.mapToMessage(messageEntity);
+		var message = MessageMapper.mapToMessage(messageEntity);
 
 		assertThat(message).isNotNull().hasNoNullFieldsOrPropertiesExcept("address");
 		assertThat(message.batchId()).isEqualTo(BATCH_ID);
@@ -68,7 +70,8 @@ class MessageMapperTest {
 
 	@Test
 	void mapToMessageEntity() {
-		final var message = Message.builder()
+		var address = Address.builder().withAddress("someAddress").build();
+		var message = Message.builder()
 			.withBatchId(BATCH_ID)
 			.withMessageId(MESSAGE_ID)
 			.withDeliveryId(DELIVERY_ID)
@@ -80,11 +83,12 @@ class MessageMapperTest {
 			.withOrigin(ORIGIN)
 			.withIssuer(ISSUER)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withAddress(address)
 			.build();
 
-		final var messageEntity = MessageMapper.mapToMessageEntity(message);
+		var messageEntity = MessageMapper.mapToMessageEntity(message);
 
-		assertThat(messageEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "createdAt");
+		assertThat(messageEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "createdAt", "destinationAddressJson");
 		assertThat(messageEntity.getBatchId()).isEqualTo(BATCH_ID);
 		assertThat(messageEntity.getMessageId()).isEqualTo(MESSAGE_ID);
 		assertThat(messageEntity.getDeliveryId()).isEqualTo(DELIVERY_ID);
@@ -96,5 +100,6 @@ class MessageMapperTest {
 		assertThat(messageEntity.getOrigin()).isEqualTo(ORIGIN);
 		assertThat(messageEntity.getIssuer()).isEqualTo(ISSUER);
 		assertThat(messageEntity.getMunicipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(messageEntity.getDestinationAddress()).isEqualTo(address);
 	}
 }

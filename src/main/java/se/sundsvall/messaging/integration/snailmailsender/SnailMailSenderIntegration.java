@@ -17,7 +17,7 @@ public class SnailMailSenderIntegration {
 
 	private final SnailMailSenderIntegrationMapper mapper;
 
-	public SnailMailSenderIntegration(final SnailMailSenderClient client, final SnailMailSenderIntegrationMapper mapper) {
+	SnailMailSenderIntegration(final SnailMailSenderClient client, final SnailMailSenderIntegrationMapper mapper) {
 		this.client = client;
 		this.mapper = mapper;
 	}

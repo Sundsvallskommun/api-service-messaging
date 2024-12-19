@@ -33,21 +33,22 @@ public final class HistoryMapper {
 	}
 
 	public static HistoryEntity mapToHistoryEntity(final Message message, final String statusDetail) {
-		return ofNullable(message).map(message1 -> HistoryEntity.builder()
-			.withBatchId(message.batchId())
-			.withMessageId(message.messageId())
-			.withDeliveryId(message.deliveryId())
-			.withPartyId(message.partyId())
-			.withMessageType(message.type())
-			.withOriginalMessageType(message.originalType())
-			.withStatus(message.status())
+		return ofNullable(message).map(actualMessage -> HistoryEntity.builder()
+			.withBatchId(actualMessage.batchId())
+			.withMessageId(actualMessage.messageId())
+			.withDeliveryId(actualMessage.deliveryId())
+			.withPartyId(actualMessage.partyId())
+			.withMessageType(actualMessage.type())
+			.withOriginalMessageType(actualMessage.originalType())
+			.withStatus(actualMessage.status())
 			.withStatusDetail(statusDetail)
-			.withContent(message.content())
-			.withOrigin(message.origin())
-			.withIssuer(message.issuer())
-			.withDepartment(toDepartment(message.content()))
+			.withContent(actualMessage.content())
+			.withOrigin(actualMessage.origin())
+			.withIssuer(actualMessage.issuer())
+			.withDepartment(toDepartment(actualMessage.content()))
 			.withCreatedAt(LocalDateTime.now())
-			.withMunicipalityId(message.municipalityId())
+			.withMunicipalityId(actualMessage.municipalityId())
+			.withDestinationAddress(actualMessage.address())
 			.build()).orElse(null);
 	}
 

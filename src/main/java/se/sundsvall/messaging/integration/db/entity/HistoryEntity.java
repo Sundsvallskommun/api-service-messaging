@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.integration.db.entity;
 
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,15 +11,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
@@ -31,9 +34,7 @@ import se.sundsvall.messaging.model.MessageType;
 	@Index(name = "idx_history_municipality_id", columnList = "municipality_id")
 })
 @Getter
-@Builder(setterPrefix = "with")
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HistoryEntity {
 
 	@Id
@@ -86,10 +87,52 @@ public class HistoryEntity {
 	@Column(name = "municipality_id")
 	private String municipalityId;
 
-	@Generated // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
+	@Transient
+	private Address destinationAddress;
+
+	@Column(name = "destination_address")
+	private String destinationAddressJson;
+
+	@Builder(setterPrefix = "with")
+	private HistoryEntity(final Long id, final String batchId, final String messageId, final String deliveryId, final String partyId,
+		final MessageType messageType, final MessageType originalMessageType, final MessageStatus status, final String statusDetail,
+		final String content, final String origin, final String issuer, final String department, final LocalDateTime createdAt,
+		final String municipalityId, final Address destinationAddress) {
+		this.id = id;
+		this.batchId = batchId;
+		this.messageId = messageId;
+		this.deliveryId = deliveryId;
+		this.partyId = partyId;
+		this.messageType = messageType;
+		this.originalMessageType = originalMessageType;
+		this.status = status;
+		this.statusDetail = statusDetail;
+		this.content = content;
+		this.origin = origin;
+		this.issuer = issuer;
+		this.department = department;
+		this.createdAt = createdAt;
+		this.municipalityId = municipalityId;
+		this.destinationAddress = destinationAddress;
+	}
+
+	String getDestinationAddressJson() {
+		return destinationAddressJson;
+	}
+
+	void setDestinationAddressJson(final String destinationAddressJson) {
+		this.destinationAddressJson = destinationAddressJson;
+	}
+
 	@PrePersist
 	void prePersist() {
 		createdAt = LocalDateTime.now();
+
+		destinationAddressJson = toJson(destinationAddress);
 	}
 
+	@PostLoad
+	void postLoad() {
+		destinationAddress = fromJson(destinationAddressJson, Address.class);
+	}
 }

@@ -19,7 +19,7 @@ public class SlackIntegration {
 
 	private final MethodsClient methodsClient;
 
-	public SlackIntegration(final MethodsClient methodsClient) {
+	SlackIntegration(final MethodsClient methodsClient) {
 		this.methodsClient = methodsClient;
 	}
 

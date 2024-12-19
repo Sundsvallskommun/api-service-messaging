@@ -21,7 +21,7 @@ public class DigitalMailSenderIntegration {
 
 	private final DigitalMailSenderIntegrationMapper mapper;
 
-	public DigitalMailSenderIntegration(final DigitalMailSenderClient client,
+	DigitalMailSenderIntegration(final DigitalMailSenderClient client,
 		final DigitalMailSenderIntegrationMapper mapper) {
 		this.client = client;
 		this.mapper = mapper;

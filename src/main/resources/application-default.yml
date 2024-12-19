@@ -78,3 +78,10 @@ integration:
     token-url: ${OAUTH2_TOKEN_URL}
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
+
+  # Citizen integration
+  citizen:
+    base-url: ${INTEGRATION_CITIZEN_BASE_URL}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}

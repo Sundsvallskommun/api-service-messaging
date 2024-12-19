@@ -99,6 +99,13 @@ integration:
   # Party integration
   party:
     base-url: http://party/api
-    token-url: http://party/api
+    token-url: http://party/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
+  # Citizen integration
+  citizen:
+    base-url: http://citizen/api
+    token-url: http://citizen/token
     client-id: someClientId
     client-secret: someClientSecret

@@ -1,5 +1,8 @@
 package se.sundsvall.messaging.integration.db.entity;
 
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,27 +10,26 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lombok.With;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
 @Entity
 @Table(name = "messages")
 @Getter
-@Builder(setterPrefix = "with")
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
 public class MessageEntity {
 
 	@Id
@@ -81,10 +83,50 @@ public class MessageEntity {
 	@Column(name = "municipality_id")
 	private String municipalityId;
 
-	@Generated // Dirty "fix", since somehow leaving this out f*cks up the Jacoco coverage...
+	@With
+	@Transient
+	private Address destinationAddress;
+
+	@Column(name = "destination_address")
+	private String destinationAddressJson;
+
+	@Builder(setterPrefix = "with")
+	private MessageEntity(final Long id, final String messageId, final String batchId, final String deliveryId, final String partyId, final MessageType type, final MessageType originalMessageType, final MessageStatus status, final String content,
+		final String origin, final String issuer, final LocalDateTime createdAt,
+		final String municipalityId, final Address destinationAddress) {
+		this.id = id;
+		this.messageId = messageId;
+		this.batchId = batchId;
+		this.deliveryId = deliveryId;
+		this.partyId = partyId;
+		this.type = type;
+		this.originalMessageType = originalMessageType;
+		this.status = status;
+		this.content = content;
+		this.origin = origin;
+		this.issuer = issuer;
+		this.createdAt = createdAt;
+		this.municipalityId = municipalityId;
+		this.destinationAddress = destinationAddress;
+	}
+
+	String getDestinationAddressJson() {
+		return destinationAddressJson;
+	}
+
+	void setDestinationAddressJson(final String destinationAddressJson) {
+		this.destinationAddressJson = destinationAddressJson;
+	}
+
 	@PrePersist
 	void prePersist() {
 		createdAt = LocalDateTime.now();
+
+		destinationAddressJson = toJson(destinationAddress);
 	}
 
+	@PostLoad
+	void postLoad() {
+		destinationAddress = fromJson(destinationAddressJson, Address.class);
+	}
 }
