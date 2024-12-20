@@ -35,3 +35,9 @@ logbook:
         value: '[base64]'
       - key: '$..files[*].body'
         value: '[base64]'
+        
+resilience4j.circuitbreaker:
+  instances:
+    DigitalMailSender:
+      ignore-exceptions:
+        - se.sundsvall.dept44.exception.ClientProblem
