@@ -18,6 +18,11 @@ class JsonUtilsTest {
 	}
 
 	@Test
+	void toJsonWhenValueIsNull() {
+		assertThat(JsonUtils.toJson(null)).isNull();
+	}
+
+	@Test
 	void fromJsonUsingClass() {
 		var json = "{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}";
 

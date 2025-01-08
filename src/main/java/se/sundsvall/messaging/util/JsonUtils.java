@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.util;
 
 import static com.fasterxml.jackson.databind.type.TypeFactory.rawClass;
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -33,6 +34,10 @@ public final class JsonUtils {
 	 * @return       JSON
 	 */
 	public static String toJson(final Object value) {
+		if (isNull(value)) {
+			return null;
+		}
+
 		try {
 			return OBJECT_MAPPER.writeValueAsString(value);
 		} catch (final JsonProcessingException e) {
