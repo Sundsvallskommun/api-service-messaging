@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
-public class PartyIntegrationConfiguration {
+class PartyIntegrationConfiguration {
 
 	private final PartyIntegrationProperties properties;
 

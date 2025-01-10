@@ -5,7 +5,7 @@ import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.api.model.request.Address;
+import se.sundsvall.messaging.model.Address;
 
 class SnailMailDtoTest {
 

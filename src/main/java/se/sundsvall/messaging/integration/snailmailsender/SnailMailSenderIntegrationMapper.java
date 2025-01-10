@@ -4,7 +4,7 @@ import generated.se.sundsvall.snailmail.Attachment;
 import generated.se.sundsvall.snailmail.SendSnailMailRequest;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
-import se.sundsvall.messaging.api.model.request.Address;
+import se.sundsvall.messaging.model.Address;
 
 @Component
 class SnailMailSenderIntegrationMapper {
@@ -15,9 +15,9 @@ class SnailMailSenderIntegrationMapper {
 		}
 
 		return new SendSnailMailRequest()
-			.partyId(dto.partyId())
 			.address(toAddress(dto.address()))
 			.batchId(dto.batchId())
+			.address(toAddress(dto.address()))
 			.department(dto.department())
 			.deviation(dto.deviation())
 			.attachments(Optional.ofNullable(dto.attachments())
@@ -36,12 +36,10 @@ class SnailMailSenderIntegrationMapper {
 			.lastName(address.lastName())
 			.city(address.city())
 			.apartmentNumber(address.apartmentNumber())
-			.organizationNumber(address.organizationNumber())
 			.address(address.address())
 			.careOf(address.careOf())
 			.zipCode(address.zipCode())
 			.country(address.country()))
 			.orElse(null);
 	}
-
 }

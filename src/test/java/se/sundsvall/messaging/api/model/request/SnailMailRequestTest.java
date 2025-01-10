@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Party;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
