@@ -389,6 +389,9 @@ public class MessageService {
 			if (address == null && isNotBlank(message.partyId())) {
 				try {
 					address = citizenIntegration.getCitizenAddress(message.partyId());
+
+					snailMailRequest = snailMailRequest.withAddress(address);
+					snailMailRequestAsJson = toJson(snailMailRequest);
 				} catch (Exception e) {
 					// If something went wrong fetching the address, there's nothing more to do with this message but to bail out early
 					LOG.info("Unable to get address from citizen");
