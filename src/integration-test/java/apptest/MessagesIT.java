@@ -11,10 +11,8 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
+import se.sundsvall.dept44.requestid.RequestId;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
@@ -26,19 +27,24 @@ class MessageEventHandler {
 	@Async
 	@TransactionalEventListener(value = IncomingMessageEvent.class, fallbackExecution = true)
 	public void handleIncomingMessageEvent(final IncomingMessageEvent event) {
+		try {
+			RequestId.init();
 
-		// Get the message (delivery)
-		final var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
-			.orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
-				"Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
+			// Get the message (delivery)
+			final var message = dbIntegration.getMessageByDeliveryId(event.getDeliveryId())
+				.orElseThrow(() -> Problem.valueOf(Status.INTERNAL_SERVER_ERROR,
+					"Unable to send " + event.getMessageType() + " with id " + event.getDeliveryId()));
 
-		// Handle it
-		if (message.type() == MESSAGE) {
-			messageService.sendMessage(message);
-		} else if (message.type() == LETTER) {
-			messageService.sendLetter(message);
-		} else {
-			messageService.deliver(message);
+			// Handle it
+			if (message.type() == MESSAGE) {
+				messageService.sendMessage(message);
+			} else if (message.type() == LETTER) {
+				messageService.sendLetter(message);
+			} else {
+				messageService.deliver(message);
+			}
+		} finally {
+			RequestId.reset();
 		}
 	}
 
