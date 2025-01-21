@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
 	<artifactId>api-service-messaging</artifactId>
-	<version>6.0</version>
+	<version>6.1</version>
 	<name>api-service-messaging</name>
 	<properties>
 		<slack-api-client.version>1.45.1</slack-api-client.version>
@@ -181,7 +181,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-3.1.yml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-3.2.yml</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>
 							</configOptions>

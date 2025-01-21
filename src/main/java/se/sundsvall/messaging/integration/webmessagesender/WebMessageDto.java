@@ -9,6 +9,7 @@ public record WebMessageDto(
 	String partyId,
 	List<ExternalReference> externalReferences,
 	String message,
+	String userId,
 	String oepInstance,
 	List<Attachment> attachments) {
 

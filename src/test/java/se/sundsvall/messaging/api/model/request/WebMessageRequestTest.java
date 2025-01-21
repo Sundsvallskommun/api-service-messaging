@@ -24,11 +24,13 @@ class WebMessageRequestTest {
 	private static final String PARTY_ID = "partyId";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String USER_ID = "userId";
+	private static final WebMessageRequest.Sender SENDER = WebMessageRequest.Sender.builder().build();
 
 	// WebMessageRequest
 	@Test
 	void testWebMessageRequestConstructor() {
-		final var bean = new WebMessageRequest(PARTY, MESSAGE, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new WebMessageRequest(PARTY, MESSAGE, SENDER, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertWebMessageRequest(bean);
 	}
@@ -39,6 +41,7 @@ class WebMessageRequestTest {
 			.withAttachments(ATTACHMENTS)
 			.withIssuer(ISSUER)
 			.withMessage(MESSAGE)
+			.withSender(SENDER)
 			.withOepInstance(OEP_INSTANCE)
 			.withOrigin(ORIGIN)
 			.withParty(PARTY)
@@ -53,6 +56,7 @@ class WebMessageRequestTest {
 		assertThat(bean.party()).isEqualTo(PARTY);
 		assertThat(bean.oepInstance()).isEqualTo(OEP_INSTANCE);
 		assertThat(bean.message()).isEqualTo(MESSAGE);
+		assertThat(bean.sender()).isEqualTo(SENDER);
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
@@ -109,11 +113,31 @@ class WebMessageRequestTest {
 		assertThat(bean.partyId()).isEqualTo(PARTY_ID);
 	}
 
+	// WebMessageRequest.Sender
+	@Test
+	void testWebMessageRequestSenderConstructor() {
+		final var bean = new WebMessageRequest.Sender(USER_ID);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.userId()).isEqualTo(USER_ID);
+	}
+
+	@Test
+	void testWebMessageRequestSenderBuilder() {
+		final var bean = WebMessageRequest.Sender.builder()
+			.withUserId(USER_ID)
+			.build();
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.userId()).isEqualTo(USER_ID);
+	}
+
 	// No dirt
 	@Test
 	void testNoDirtOnCreatedBeans() {
 		assertThat(WebMessageRequest.builder().build()).hasAllNullFieldsOrProperties();
 		assertThat(WebMessageRequest.Attachment.builder().build()).hasAllNullFieldsOrProperties();
 		assertThat(WebMessageRequest.Party.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(WebMessageRequest.Sender.builder().build()).hasAllNullFieldsOrProperties();
 	}
 }

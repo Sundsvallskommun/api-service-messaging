@@ -24,6 +24,7 @@ class WebMessageSenderIntegrationMapperTest {
 	void test_toCreateWebMessageRequest() {
 		final var dto = WebMessageDto.builder()
 			.withPartyId("somePartyId")
+			.withUserId("someUserId")
 			.withExternalReferences(List.of(createExternalReference()))
 			.withMessage("someMessage")
 			.withOepInstance("internal")
@@ -37,6 +38,7 @@ class WebMessageSenderIntegrationMapperTest {
 		final var mappedRequest = mapper.toCreateWebMessageRequest(dto);
 
 		assertThat(mappedRequest.getPartyId()).isEqualTo(dto.partyId());
+		assertThat(mappedRequest.getSender().getUserId()).isEqualTo(dto.userId());
 		assertThat(mappedRequest.getOepInstance()).isEqualTo(CreateWebMessageRequest.OepInstanceEnum.fromValue(dto.oepInstance()));
 		assertThat(mappedRequest.getExternalReferences()).hasSameSizeAs(dto.externalReferences());
 		assertThat(mappedRequest.getMessage()).isEqualTo(dto.message());

@@ -1,11 +1,11 @@
 openapi: 3.0.1
 info:
-  title: web-message-sender
-  contact: { }
+  title: api-web-message-sender
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.1"
+  version: "3.2"
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -34,14 +34,15 @@ paths:
               $ref: "#/components/schemas/CreateWebMessageRequest"
         required: true
       responses:
+        "201":
+          description: Successful operation
+          headers:
+            Location:
+              style: simple
+              schema:
+                type: string
         "404":
           description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -54,15 +55,14 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "201":
-          description: Successful operation
-          headers:
-            Location:
-              style: simple
-              schema:
-                type: string
         "502":
           description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -89,27 +89,18 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/WebMessage"
+        "404":
+          description: Not found
+          content:
             application/problem+json:
               schema:
-                $ref: "#/components/schemas/WebMessage"
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -120,6 +111,12 @@ paths:
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
         "502":
           description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -145,20 +142,14 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
+        "204":
+          description: Successful operation
         "404":
           description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "204":
-          description: Successful operation
         "400":
           description: Bad request
           content:
@@ -169,6 +160,12 @@ paths:
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
         "502":
           description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -195,18 +192,6 @@ paths:
             type: string
           example: 81471222-5798-11e9-ae24-57fa13b361e1
       responses:
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful operation
           content:
@@ -215,11 +200,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/WebMessage"
+        "404":
+          description: Not found
+          content:
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/WebMessage"
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -230,6 +216,12 @@ paths:
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
         "502":
           description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -267,18 +259,6 @@ paths:
             type: string
           example: 356t4r34f
       responses:
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful operation
           content:
@@ -287,11 +267,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/WebMessage"
+        "404":
+          description: Not found
+          content:
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/WebMessage"
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -302,6 +283,12 @@ paths:
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
         "502":
           description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
           content:
             application/problem+json:
               schema:
@@ -348,6 +335,8 @@ components:
           type: string
           description: Party ID (e.g. a personId or an organizationId)
           example: 81471222-5798-11e9-ae24-57fa13b361e1
+        sender:
+          $ref: "#/components/schemas/Sender"
         message:
           type: string
           description: The message
@@ -382,6 +371,14 @@ components:
           description: The external reference value
           example: "356746349"
       description: ExternalReference model
+    Sender:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The user ID of the sender. I.e. employee ID
+          example: joe01doe
+      description: Sender model
     Problem:
       type: object
       properties:
@@ -397,9 +394,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -532,9 +529,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         suppressed:
           type: array
@@ -586,8 +583,9 @@ components:
         municipalityId:
           type: string
           description: Municipality ID
-          readOnly: true
           example: "2281"
+        sender:
+          $ref: "#/components/schemas/Sender"
         partyId:
           type: string
           description: Party ID (e.g. a personId or an organizationId)
@@ -608,10 +606,10 @@ components:
           type: string
           description: Created timestamp
           format: date-time
-          readOnly: true
         attachments:
           type: array
           items:
             $ref: "#/components/schemas/Attachment"
       description: WebMessage model
-  securitySchemes: { }
+      readOnly: true
+  securitySchemes: {}
