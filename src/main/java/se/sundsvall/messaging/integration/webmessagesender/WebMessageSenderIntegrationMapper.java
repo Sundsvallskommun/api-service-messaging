@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.webmessagesender;
 import generated.se.sundsvall.webmessagesender.Attachment;
 import generated.se.sundsvall.webmessagesender.CreateWebMessageRequest;
 import generated.se.sundsvall.webmessagesender.ExternalReference;
+import generated.se.sundsvall.webmessagesender.Sender;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,9 @@ class WebMessageSenderIntegrationMapper {
 							.mimeType(attachment.mimeType())
 							.base64Data(attachment.base64Data()))
 						.toList())
+					.orElse(null))
+				.sender(Optional.ofNullable(dto.userId())
+					.map(userId -> new Sender().userId(userId))
 					.orElse(null)))
 			.orElse(null);
 	}

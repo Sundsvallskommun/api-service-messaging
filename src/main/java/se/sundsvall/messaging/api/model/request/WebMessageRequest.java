@@ -25,6 +25,8 @@ public record WebMessageRequest(
 
 	@NotBlank @Schema(description = "Message", requiredMode = REQUIRED) String message,
 
+	@Schema(description = "The sender", requiredMode = NOT_REQUIRED) Sender sender,
+
 	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
 
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
@@ -57,5 +59,13 @@ public record WebMessageRequest(
 		@Schema(description = "Mime-type") String mimeType,
 
 		@Schema(description = "BASE64-encoded file, max size 10 MB") String base64Data) {
+	}
+
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(name = "WebMessageSender", description = "Sender", requiredMode = NOT_REQUIRED)
+	public record Sender(
+
+		@Schema(description = "The user ID of the sender. I.e. employee ID", example = "joe01doe") String userId) {
 	}
 }
