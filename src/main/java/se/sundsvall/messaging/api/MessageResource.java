@@ -3,6 +3,8 @@ package se.sundsvall.messaging.api;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
+import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
 import static se.sundsvall.messaging.api.model.ApiMapper.toResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,8 +68,8 @@ class MessageResource {
 	})
 	@PostMapping("/sms")
 	ResponseEntity<MessageResult> sendSms(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SmsRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -88,8 +90,8 @@ class MessageResource {
 	})
 	@PostMapping("/sms/batch")
 	ResponseEntity<MessageBatchResult> sendSmsBatch(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SmsBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
@@ -106,8 +108,8 @@ class MessageResource {
 	})
 	@PostMapping("/email")
 	ResponseEntity<MessageResult> sendEmail(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final EmailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -128,8 +130,8 @@ class MessageResource {
 	})
 	@PostMapping("/email/batch")
 	ResponseEntity<MessageBatchResult> sendEmailBatch(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final EmailBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
@@ -146,8 +148,8 @@ class MessageResource {
 	})
 	@PostMapping("/webmessage")
 	ResponseEntity<MessageResult> sendWebMessage(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final WebMessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -168,8 +170,8 @@ class MessageResource {
 	})
 	@PostMapping("/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMail(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final DigitalMailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -190,8 +192,8 @@ class MessageResource {
 	})
 	@PostMapping("/digital-invoice")
 	ResponseEntity<MessageResult> sendDigitalInvoice(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final DigitalInvoiceRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -212,8 +214,8 @@ class MessageResource {
 	})
 	@PostMapping("/messages")
 	ResponseEntity<MessageBatchResult> sendMessages(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final MessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -234,8 +236,8 @@ class MessageResource {
 	})
 	@PostMapping("/letter")
 	ResponseEntity<MessageBatchResult> sendLetter(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final LetterRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
@@ -256,8 +258,8 @@ class MessageResource {
 	})
 	@PostMapping("/slack")
 	ResponseEntity<MessageResult> sendToSlack(
-		@Parameter(name = "x-origin", description = "Origin of the request") @RequestHeader(name = "x-origin", required = false) final String origin,
-		@Parameter(name = "x-issuer", description = "Issuer of the request") @RequestHeader(name = "x-issuer", required = false) final String issuer,
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SlackRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {

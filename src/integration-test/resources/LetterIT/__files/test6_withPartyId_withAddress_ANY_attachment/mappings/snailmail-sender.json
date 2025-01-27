@@ -1,6 +1,12 @@
 {
 	"request": {
 		"headers": {
+			"x-issuer": {
+				"equalTo": "Test-issuer"
+			},
+			"x-origin": {
+				"equalTo": "Test-origin"
+			},
 			"Authorization": {
 				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
 			}

@@ -11,6 +11,8 @@ public record SnailMailDto(
 	String batchId,
 	String department,
 	String deviation,
+	String issuer,
+	String origin,
 	List<Attachment> attachments) {
 
 	@Builder(setterPrefix = "with")

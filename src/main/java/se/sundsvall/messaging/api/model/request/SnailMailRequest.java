@@ -2,7 +2,6 @@ package se.sundsvall.messaging.api.model.request;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -28,9 +27,9 @@ public record SnailMailRequest(
 
 	@Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning") String deviation,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", example = "web", hidden = true) String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", example = "user123", hidden = true) String issuer,
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1) List<@Valid Attachment> attachments) {
 
