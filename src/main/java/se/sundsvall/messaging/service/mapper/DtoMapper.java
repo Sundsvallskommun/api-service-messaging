@@ -84,7 +84,7 @@ public class DtoMapper {
 				.orElse(null))
 			.withHeaders(ofNullable(request.headers()).orElse(Map.of()).entrySet().stream()
 				.collect(Collectors.toMap(
-					e -> e.getKey().toString(),
+					Map.Entry::getKey,
 					Map.Entry::getValue)))
 			.build();
 	}
