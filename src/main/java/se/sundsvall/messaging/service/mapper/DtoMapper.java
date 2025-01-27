@@ -84,7 +84,7 @@ public class DtoMapper {
 				.orElse(null))
 			.withHeaders(ofNullable(request.headers()).orElse(Map.of()).entrySet().stream()
 				.collect(Collectors.toMap(
-					e -> e.getKey().toString(),
+					Map.Entry::getKey,
 					Map.Entry::getValue)))
 			.build();
 	}
@@ -176,6 +176,8 @@ public class DtoMapper {
 			.withBatchId(batchId)
 			.withDepartment(request.department())
 			.withDeviation(request.deviation())
+			.withIssuer(request.issuer())
+			.withOrigin(request.origin())
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> SnailMailDto.Attachment.builder()

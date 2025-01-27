@@ -172,6 +172,9 @@ public final class TestDataFactory {
 					.withContentType("someContentType")
 					.withContent("someContent")
 					.build()))
+			.withAddress(createAddress())
+			.withIssuer("someIssuer")
+			.withOrigin("someOrigin")
 			.build();
 	}
 
@@ -213,6 +216,9 @@ public final class TestDataFactory {
 					.withMimeType("text/plain")
 					.withBase64Data("bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK")
 					.build()))
+			.withSender(WebMessageRequest.Sender.builder()
+				.withUserId(UUID.randomUUID().toString())
+				.build())
 			.build();
 	}
 

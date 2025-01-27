@@ -39,9 +39,9 @@ public record LetterRequest(
 
 	@Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning") String deviation,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", example = "web", hidden = true) String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", example = "user123", hidden = true) String issuer,
 
 	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments,
 
