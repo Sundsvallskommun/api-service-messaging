@@ -27,8 +27,8 @@ public class CitizenIntegration {
 		this.client = client;
 	}
 
-	public Address getCitizenAddress(final String partyId) {
-		var citizen = client.getCitizen(partyId)
+	public Address getCitizenAddress(final String partyId, final String municipalityId) {
+		final var citizen = client.getCitizen(municipalityId, partyId)
 			.orElseThrow(() -> Problem.builder()
 				.withTitle("No citizen data found")
 				.withStatus(INTERNAL_SERVER_ERROR)

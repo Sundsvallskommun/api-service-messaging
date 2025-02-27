@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 	configuration = CitizenIntegrationConfiguration.class)
 interface CitizenClient {
 
-	@GetMapping(path = "/{personId}?ShowClassified=false", produces = APPLICATION_JSON_VALUE)
-	Optional<CitizenExtended> getCitizen(@PathVariable(name = "personId") String personId);
+	@GetMapping(path = "/{municipalityId}/{personId}?ShowClassified=false", produces = APPLICATION_JSON_VALUE)
+	Optional<CitizenExtended> getCitizen(
+		@PathVariable(name = "municipalityId") String municipalityId,
+		@PathVariable(name = "personId") String personId);
 }
