@@ -217,7 +217,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/integrations/citizen-v2.yml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/citizen-v3.yml</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.citizen</modelPackage>
 							</configOptions>

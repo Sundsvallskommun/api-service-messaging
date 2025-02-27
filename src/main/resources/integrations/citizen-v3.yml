@@ -1,13 +1,20 @@
 openapi: 3.0.1
 info:
   title: Citizen API
-  version: v2
+  version: v3
 paths:
-  /api/v2/citizen/api-docs:
+  '/api/v3/citizen/{municipalityId}/api-docs':
     get:
       tags:
         - Citizen
       summary: OpenAPI specification
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -22,15 +29,15 @@ paths:
               schema:
                 type: string
       x-auth-type: None
-  '/api/v2/citizen/{personId}':
+  '/api/v3/citizen/{municipalityId}/{personId}':
     get:
       tags:
         - Citizen
-      summary: Show information about specific citizen
+      summary: Visar en information om en invånare
       parameters:
         - name: personId
           in: path
-          description: ID for specific citizen
+          description: Id på efterfrågad person
           required: true
           schema:
             type: string
@@ -41,6 +48,12 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -57,7 +70,7 @@ paths:
         '204':
           description: No Content
         '400':
-          description: Bad RequestEntity
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -92,11 +105,11 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /api/v2/citizen/batch:
+  '/api/v3/citizen/{municipalityId}/batch':
     post:
       tags:
         - Citizen
-      summary: Show information about list of citizens
+      summary: Visar information om önskade invånare
       parameters:
         - name: ShowClassified
           in: query
@@ -104,7 +117,14 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       requestBody:
+        description: List med PersonId som förfrågas
         content:
           application/json:
             schema:
@@ -144,7 +164,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CitizenExtended'
         '400':
-          description: Bad RequestEntity
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -179,7 +199,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /api/v2/citizen/changedaddress:
+  '/api/v3/citizen/{municipalityId}/changedaddress':
     get:
       tags:
         - Citizen
@@ -191,6 +211,12 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -213,7 +239,7 @@ paths:
         '204':
           description: No Content
         '400':
-          description: Bad RequestEntity
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -248,7 +274,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  '/api/v2/citizen/{personId}/personnumber':
+  '/api/v3/citizen/{municipalityId}/{personId}/personnumber':
     get:
       tags:
         - Citizen
@@ -261,6 +287,12 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -277,7 +309,7 @@ paths:
         '204':
           description: No Content
         '400':
-          description: Bad RequestEntity
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -312,7 +344,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  '/api/v2/citizen/{personNumber}/guid':
+  '/api/v3/citizen/{municipalityId}/{personNumber}/guid':
     get:
       tags:
         - Citizen
@@ -321,6 +353,12 @@ paths:
         - name: personNumber
           in: path
           description: Personal identity number for specific citizen
+          required: true
+          schema:
+            type: string
+        - name: municipalityId
+          in: path
+          description: Kommunkod
           required: true
           schema:
             type: string
@@ -343,7 +381,7 @@ paths:
         '204':
           description: No Content
         '400':
-          description: Bad RequestEntity
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -390,11 +428,18 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /api/v2/citizen/guid/batch:
+  '/api/v3/citizen/{municipalityId}/guid/batch':
     post:
       tags:
         - Citizen
       summary: Get an array of personIds from Personal identity numbers
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Kommunkod
+          required: true
+          schema:
+            type: string
       requestBody:
         description: A string array of Personal identity number for specific citizen
         content:
@@ -433,100 +478,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/PersonGuidBatch'
         '400':
-          description: Bad RequestEntity
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '500':
-          description: Server Error
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '503':
-          description: Server Error
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-  /api/v2/citizen/guid:
-    post:
-      tags:
-        - Citizen
-      summary: Create person
-      requestBody:
-        description: Personal identity number for specific citizen
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ModelPostPerson'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/ModelPostPerson'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/ModelPostPerson'
-      responses:
-        '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                type: string
-                format: uuid
-            application/json:
-              schema:
-                type: string
-                format: uuid
-            text/json:
-              schema:
-                type: string
-                format: uuid
-        '400':
-          description: Bad RequestEntity
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '404':
-          description: Not Found
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '409':
-          description: Conflict
+          description: Bad Request
           content:
             text/plain:
               schema:
@@ -714,13 +666,6 @@ components:
         unRegDate:
           type: string
           format: date-time
-          nullable: true
-      additionalProperties: false
-    ModelPostPerson:
-      type: object
-      properties:
-        personalNumber:
-          type: string
           nullable: true
       additionalProperties: false
     PersonGuidBatch:

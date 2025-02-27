@@ -110,7 +110,7 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
-		var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
+		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest)));
 	}
@@ -126,11 +126,11 @@ public class MessageService {
 	}
 
 	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
-		var batchId = UUID.randomUUID().toString();
+		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
-		var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
 		// Deliver them
-		var deliveryResults = deliveries.stream()
+		final var deliveryResults = deliveries.stream()
 			.map(this::deliver)
 			.toList();
 
@@ -143,15 +143,15 @@ public class MessageService {
 	}
 
 	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
-		var batchId = UUID.randomUUID().toString();
-		var messages = request.messages().stream()
+		final var batchId = UUID.randomUUID().toString();
+		final var messages = request.messages().stream()
 			.map(message -> messageMapper.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
 			.map(dbIntegration::saveMessage)
 			.toList();
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
-		var deliveryResults = messages.stream()
+		final var deliveryResults = messages.stream()
 			.map(this::sendMessage)
 			.flatMap(Collection::stream)
 			.toList();
@@ -160,9 +160,9 @@ public class MessageService {
 	}
 
 	public void sendLetter(final Message message) {
-		var batchId = message.batchId();
+		final var batchId = message.batchId();
 
-		var deliveryResults = routeAndSendLetter(message);
+		final var deliveryResults = routeAndSendLetter(message);
 
 		// Trigger the batch if no messages are left unsent
 		if (!dbIntegration.existsByBatchId(batchId)) {
@@ -175,16 +175,16 @@ public class MessageService {
 	}
 
 	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
-		var batchId = UUID.randomUUID().toString();
+		final var batchId = UUID.randomUUID().toString();
 
-		var messagesWithPartyId = messageMapper.toMessages(request, batchId);
-		var messagesWithAddress = messageMapper.mapAddressesToMessages(request, batchId);
-		var allMessages = Stream.concat(messagesWithPartyId.stream(), messagesWithAddress.stream()).toList();
+		final var messagesWithPartyId = messageMapper.toMessages(request, batchId);
+		final var messagesWithAddress = messageMapper.mapAddressesToMessages(request, batchId);
+		final var allMessages = Stream.concat(messagesWithPartyId.stream(), messagesWithAddress.stream()).toList();
 		dbIntegration.saveMessages(allMessages);
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
-		var deliveryResults = allMessages.stream()
+		final var deliveryResults = allMessages.stream()
 			.map(this::routeAndSendLetter)
 			.flatMap(Collection::stream)
 			.toList();
@@ -197,7 +197,7 @@ public class MessageService {
 	}
 
 	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId, final String municipalityId) {
-		var snailMailDeliveryResults = deliveryResults.stream().filter(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType())).toList();
+		final var snailMailDeliveryResults = deliveryResults.stream().filter(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType())).toList();
 
 		if (snailMailDeliveryResults.isEmpty()) {
 			LOG.info("Not triggering batch {} since it contains no snail-mail deliveries", batchId);
@@ -219,28 +219,28 @@ public class MessageService {
 	}
 
 	List<InternalDeliveryResult> sendMessage(final Message message) {
-		var deliveryResults = new ArrayList<InternalDeliveryResult>();
+		final var deliveryResults = new ArrayList<InternalDeliveryResult>();
 
-		var partyId = message.partyId();
+		final var partyId = message.partyId();
 
-		var request = fromJson(message.content(), MessageRequest.Message.class);
+		final var request = fromJson(message.content(), MessageRequest.Message.class);
 		// Make sure we have been able to recreate the original request
 		if (isNull(request)) {
 			LOG.warn("Unable to deliver MESSAGE since the original request can't be recreated");
 
-			var failedMessage = message.withStatus(FAILED);
+			final var failedMessage = message.withStatus(FAILED);
 			archiveMessage(failedMessage, "Unable to recreate original MESSAGE request");
 
 			return List.of(new InternalDeliveryResult(failedMessage));
 		}
 
 		// Get the message filters
-		var filters = ofNullable(request.filters())
+		final var filters = ofNullable(request.filters())
 			.map(LinkedMultiValueMap::new)
 			.orElseGet(LinkedMultiValueMap::new);
 
 		// Get contact settings and maybe act upon them
-		var contactSettings = contactSettingsIntegration.getContactSettings(message.municipalityId(), partyId, filters);
+		final var contactSettings = contactSettingsIntegration.getContactSettings(message.municipalityId(), partyId, filters);
 		if (contactSettings.isEmpty()) {
 			LOG.info("No contact settings found for {} with filters {}", partyId, filters);
 
@@ -249,9 +249,9 @@ public class MessageService {
 
 			deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_SETTINGS_FOUND));
 		} else {
-			for (var contactSetting : contactSettings) {
+			for (final var contactSetting : contactSettings) {
 				// Determine the contact method, if any
-				var actualContactMethod = ofNullable(contactSetting.contactMethod())
+				final var actualContactMethod = ofNullable(contactSetting.contactMethod())
 					.map(contactMethod -> {
 						if (contactSetting.disabled()) {
 							return NO_CONTACT;
@@ -264,11 +264,11 @@ public class MessageService {
 				// Re-map the delivery to use the actual contact method and deliver it
 				switch (actualContactMethod) {
 					case EMAIL -> {
-						var deliveryId = UUID.randomUUID().toString();
+						final var deliveryId = UUID.randomUUID().toString();
 
 						LOG.info("Handling incoming message {} as e-mail with delivery id {}", message.messageId(), deliveryId);
 
-						var delivery = message
+						final var delivery = message
 							.withDeliveryId(deliveryId)
 							.withType(EMAIL)
 							.withContent(requestMapper.toEmailRequest(message, contactSetting.destination()));
@@ -281,11 +281,11 @@ public class MessageService {
 						deliveryResults.add(deliver(delivery));
 					}
 					case SMS -> {
-						var deliveryId = UUID.randomUUID().toString();
+						final var deliveryId = UUID.randomUUID().toString();
 
 						LOG.info("Handling incoming message {} as SMS with delivery id {}", message.messageId(), deliveryId);
 
-						var delivery = message
+						final var delivery = message
 							.withDeliveryId(deliveryId)
 							.withType(SMS)
 							.withContent(requestMapper.toSmsRequest(message, contactSetting.destination()));
@@ -308,7 +308,7 @@ public class MessageService {
 						LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
 							message.messageId(), message.deliveryId());
 
-						var statusDetail = String.format(
+						final var statusDetail = String.format(
 							"Unknown/missing contact method for message %s and delivery id %s",
 							message.messageId(), message.deliveryId());
 
@@ -324,14 +324,14 @@ public class MessageService {
 	}
 
 	List<InternalDeliveryResult> routeAndSendLetter(final Message message) {
-		var result = new ArrayList<InternalDeliveryResult>();
-		var request = fromJson(message.content(), LetterRequest.class);
+		final var result = new ArrayList<InternalDeliveryResult>();
+		final var request = fromJson(message.content(), LetterRequest.class);
 
 		// Make sure we have been able to recreate the original request
 		if (isNull(request)) {
 			LOG.warn("Unable to deliver {} since the original LETTER request can't be recreated", message.type());
 
-			var failedMessage = message.withStatus(FAILED);
+			final var failedMessage = message.withStatus(FAILED);
 			archiveMessage(failedMessage, "Unable to recreate original LETTER request");
 
 			return List.of(new InternalDeliveryResult(failedMessage));
@@ -339,14 +339,14 @@ public class MessageService {
 
 		if (isNotBlank(message.partyId())) {
 			// Re-map the request as a digital mail request
-			var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
-			var digitalMailRequestAsJson = toJson(digitalMailRequest);
+			final var digitalMailRequest = requestMapper.toDigitalMailRequest(request, message.partyId());
+			final var digitalMailRequestAsJson = toJson(digitalMailRequest);
 
 			// Don't make an attempt to deliver as digital mail if there aren't any attachments
 			// intended for it
 			if (!digitalMailRequest.attachments().isEmpty()) {
 				// "Re-route" the message as digital mail
-				var reroutedMessage = dbIntegration.saveMessage(message
+				final var reroutedMessage = dbIntegration.saveMessage(message
 					.withType(DIGITAL_MAIL)
 					.withContent(digitalMailRequestAsJson));
 
@@ -370,7 +370,7 @@ public class MessageService {
 			// We're about to switch to snail-mail delivery - make sure that there exists some attachment(s) for that
 			if (request.attachments().stream().noneMatch(LetterRequest.Attachment::isIntendedForSnailMail)) {
 				// "Route" the failed message back to a LETTER
-				var failedMessage = message.withType(LETTER).withStatus(FAILED);
+				final var failedMessage = message.withType(LETTER).withStatus(FAILED);
 				archiveMessage(failedMessage, "Only DIGITAL_MAIL delivery allowed and party id unset/address set");
 
 				return List.of(new InternalDeliveryResult(failedMessage));
@@ -388,15 +388,15 @@ public class MessageService {
 			// Lookup destination address from the citizen API, if needed
 			if (address == null && isNotBlank(message.partyId())) {
 				try {
-					address = citizenIntegration.getCitizenAddress(message.partyId());
+					address = citizenIntegration.getCitizenAddress(message.partyId(), message.municipalityId());
 
 					snailMailRequest = snailMailRequest.withAddress(address);
 					snailMailRequestAsJson = toJson(snailMailRequest);
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					// If something went wrong fetching the address, there's nothing more to do with this message but to bail out early
 					LOG.info("Unable to get address from citizen");
 
-					var failedMessage = message.withStatus(FAILED);
+					final var failedMessage = message.withStatus(FAILED);
 					archiveMessage(failedMessage, e.getMessage());
 					result.add(new InternalDeliveryResult(failedMessage));
 					return result;
@@ -413,7 +413,7 @@ public class MessageService {
 				deliveryIdModified = true;
 			}
 
-			var reroutedMessage = dbIntegration.saveMessage(message
+			final var reroutedMessage = dbIntegration.saveMessage(message
 				.withDeliveryId(deliveryId)
 				.withType(SNAIL_MAIL)
 				.withContent(snailMailRequestAsJson)
@@ -441,7 +441,7 @@ public class MessageService {
 
 	InternalDeliveryResult deliver(final Message delivery) {
 		// Re-construct the original request
-		var request = fromJson(delivery.content(), switch (delivery.type()) {
+		final var request = fromJson(delivery.content(), switch (delivery.type()) {
 			case SMS -> SmsRequest.class;
 			case EMAIL -> EmailRequest.class;
 			case DIGITAL_MAIL -> DigitalMailRequest.class;
@@ -453,7 +453,7 @@ public class MessageService {
 		});
 
 		// Get the delivery attempt for the given message type
-		Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
+		final Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
 			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
 			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
 			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
@@ -466,17 +466,17 @@ public class MessageService {
 
 		try {
 			// Perform the attempt
-			var status = deliveryAttempt.get();
+			final var status = deliveryAttempt.get();
 			// Archive the message
 			archiveMessage(delivery.withStatus(status));
 
 			return new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, delivery.municipalityId());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
 
 			// "Rewrite" the exception as a Problem if it isn't one already
-			ThrowableProblem throwableProblem;
-			if (e instanceof ThrowableProblem eAsThrowableProblem) {
+			final ThrowableProblem throwableProblem;
+			if (e instanceof final ThrowableProblem eAsThrowableProblem) {
 				throwableProblem = eAsThrowableProblem;
 			} else {
 				throwableProblem = Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());

@@ -38,9 +38,10 @@ class CitizenIntegrationTest {
 
 	@Test
 	void getCitizenAddress() {
-		var partyId = UUID.randomUUID().toString();
-		var address = createAddress();
-		var citizen = new CitizenExtended()
+		final var partyId = UUID.randomUUID().toString();
+		final var municipalityId = "someMunicipalityId";
+		final var address = createAddress();
+		final var citizen = new CitizenExtended()
 			.givenname(address.firstName())
 			.lastname(address.lastName())
 			.addresses(List.of(new CitizenAddress()
@@ -52,9 +53,9 @@ class CitizenIntegrationTest {
 				.city(address.city())
 				.country(address.country())));
 
-		when(mockCitizenClient.getCitizen(partyId)).thenReturn(Optional.of(citizen));
+		when(mockCitizenClient.getCitizen(municipalityId, partyId)).thenReturn(Optional.of(citizen));
 
-		var result = citizenIntegration.getCitizenAddress(partyId);
+		final var result = citizenIntegration.getCitizenAddress(partyId, municipalityId);
 
 		assertThat(result).isNotNull().satisfies(resultAddress -> {
 			assertThat(resultAddress.firstName()).isEqualTo(citizenIntegration.capitalize(address.firstName()));
@@ -66,33 +67,35 @@ class CitizenIntegrationTest {
 			assertThat(resultAddress.city()).isEqualTo(citizenIntegration.capitalize(address.city()));
 			assertThat(resultAddress.country()).isEqualTo(citizenIntegration.capitalize(address.country()));
 		});
-		verify(mockCitizenClient).getCitizen(partyId);
+		verify(mockCitizenClient).getCitizen(municipalityId, partyId);
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
 
 	@Test
 	void getCitizenAddressWhenNoCitizenIsFound() {
-		var partyId = UUID.randomUUID().toString();
+		final var partyId = UUID.randomUUID().toString();
+		final var municipalityId = "someMunicipalityId";
 
-		when(mockCitizenClient.getCitizen(partyId)).thenReturn(Optional.empty());
+		when(mockCitizenClient.getCitizen(municipalityId, partyId)).thenReturn(Optional.empty());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> citizenIntegration.getCitizenAddress(partyId))
+			.isThrownBy(() -> citizenIntegration.getCitizenAddress(partyId, municipalityId))
 			.satisfies(thrownProblem -> {
 				assertThat(thrownProblem.getStatus()).isEqualTo(INTERNAL_SERVER_ERROR);
 				assertThat(thrownProblem.getTitle()).isEqualTo("No citizen data found");
 				assertThat(thrownProblem.getDetail()).isEqualTo("Failed to fetch data from Citizen API");
 			});
 
-		verify(mockCitizenClient).getCitizen(partyId);
+		verify(mockCitizenClient).getCitizen(municipalityId, partyId);
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
 
 	@Test
 	void getCitizenAddressWhenNoCitizenHasNoPopulationRegistrationAddress() {
-		var partyId = UUID.randomUUID().toString();
-		var address = createAddress();
-		var citizen = new CitizenExtended()
+		final var partyId = UUID.randomUUID().toString();
+		final var address = createAddress();
+		final var municipalityId = "someMunicipalityId";
+		final var citizen = new CitizenExtended()
 			.givenname(address.firstName())
 			.lastname(address.lastName())
 			.addresses(List.of(new CitizenAddress()
@@ -103,17 +106,17 @@ class CitizenIntegrationTest {
 				.city(address.city())
 				.country(address.country())));
 
-		when(mockCitizenClient.getCitizen(partyId)).thenReturn(Optional.of(citizen));
+		when(mockCitizenClient.getCitizen(municipalityId, partyId)).thenReturn(Optional.of(citizen));
 
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> citizenIntegration.getCitizenAddress(partyId))
+			.isThrownBy(() -> citizenIntegration.getCitizenAddress(partyId, municipalityId))
 			.satisfies(thrownProblem -> {
 				assertThat(thrownProblem.getStatus()).isEqualTo(INTERNAL_SERVER_ERROR);
 				assertThat(thrownProblem.getTitle()).isEqualTo("No citizen address data found");
 				assertThat(thrownProblem.getDetail()).isEqualTo("Unable to extract address data from Citizen API");
 			});
 
-		verify(mockCitizenClient).getCitizen(partyId);
+		verify(mockCitizenClient).getCitizen(municipalityId, partyId);
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
 
