@@ -123,7 +123,9 @@ Configuration is crucial for the application to run successfully. Ensure all nec
 server:
   port: 8080
 ```
+
 - **External Service URLs**
+
 ```yaml
   integration:
     citizen:
@@ -190,7 +192,9 @@ server:
             web-message.sender:
               token-uri: <token-url>
 ```
+
 ### Additional Notes
+
 - **Application Profiles:**
   Use Spring profiles (`dev`, `prod`, etc.) to manage different configurations for different environments.
 
