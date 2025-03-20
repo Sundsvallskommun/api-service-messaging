@@ -58,7 +58,7 @@ public record WebMessageRequest(
 
 		@Schema(description = "Mime-type") String mimeType,
 
-		@Schema(description = "BASE64-encoded file, max size 10 MB") String base64Data) {
+		@Schema(description = "BASE64-encoded file, max size 50 MB") String base64Data) {
 	}
 
 	@With
