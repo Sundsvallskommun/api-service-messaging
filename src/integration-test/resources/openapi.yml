@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
@@ -1511,7 +1511,7 @@ components:
           description: Mime-type
         base64Data:
           type: string
-          description: "BASE64-encoded file, max size 10 MB"
+          description: "BASE64-encoded file, max size 50 MB"
       description: Attachment
     WebMessageParty:
       type: object
@@ -2695,4 +2695,4 @@ components:
         timestamp:
           type: string
           format: date-time
-  securitySchemes: {}
+  securitySchemes: { }
