@@ -5,7 +5,9 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +17,14 @@ import java.lang.reflect.Type;
 
 public final class JsonUtils {
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(
+		new JsonFactoryBuilder()
+			.streamReadConstraints(
+				StreamReadConstraints
+					.builder()
+					.maxStringLength(Integer.MAX_VALUE)
+					.build())
+			.build())
 		.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
 		.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 		.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
@@ -66,7 +75,7 @@ public final class JsonUtils {
 
 		try {
 			return OBJECT_MAPPER.readValue(json, typeReference);
-		} catch (JsonProcessingException e) {
+		} catch (final JsonProcessingException e) {
 			throw new RuntimeJsonProcessingException(e);
 		}
 	}
