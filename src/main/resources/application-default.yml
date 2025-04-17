@@ -30,6 +30,14 @@ messaging:
         url: ${DEFAULT_DIGITAL_MAIL_SENDER_SUPPORT_INFO_URL}
 
 integration:
+
+  # OepIntegrator integration
+  oep-integrator:
+    base-url: ${INTEGRATION_OEP_INTEGRATOR_BASE_URL}
+    token-url: ${OAUTH2_TOKEN_URL}
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
+
   # SmsSender integration
   sms-sender:
     base-url: ${INTEGRATION_SMS_SENDER_BASE_URL}

@@ -1,23 +1,25 @@
-package se.sundsvall.messaging.integration.webmessagesender;
+package se.sundsvall.messaging.integration.oepintegrator;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import feign.Request;
 import feign.codec.ErrorDecoder;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
-@Import(FeignConfiguration.class)
-class WebMessageSenderIntegrationConfiguration {
+@Configuration
+class OepIntegratorConfiguration {
 
-	private final WebMessageSenderIntegrationProperties properties;
+	private final OepIntegratorProperties properties;
 
-	WebMessageSenderIntegrationConfiguration(final WebMessageSenderIntegrationProperties properties) {
+	OepIntegratorConfiguration(final OepIntegratorProperties properties) {
 		this.properties = properties;
 	}
 
@@ -32,7 +34,7 @@ class WebMessageSenderIntegrationConfiguration {
 
 	private ClientRegistration clientRegistration() {
 		return ClientRegistration
-			.withRegistrationId(WebMessageSenderIntegration.INTEGRATION_NAME)
+			.withRegistrationId(OepIntegratorIntegration.INTEGRATION_NAME)
 			.tokenUri(properties.getTokenUrl())
 			.clientId(properties.getClientId())
 			.clientSecret(properties.getClientSecret())
@@ -48,6 +50,6 @@ class WebMessageSenderIntegrationConfiguration {
 	}
 
 	private ErrorDecoder errorDecoder() {
-		return new ProblemErrorDecoder(WebMessageSenderIntegration.INTEGRATION_NAME);
+		return new ProblemErrorDecoder(OepIntegratorIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.value()));
 	}
 }

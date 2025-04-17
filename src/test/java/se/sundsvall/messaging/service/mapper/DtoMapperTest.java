@@ -21,8 +21,8 @@ import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
+import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
 import se.sundsvall.messaging.model.ContentType;
 
 class DtoMapperTest {

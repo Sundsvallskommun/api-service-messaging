@@ -18,10 +18,10 @@ import se.sundsvall.messaging.configuration.Defaults;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
+import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
 import se.sundsvall.messaging.integration.slack.SlackDto;
 import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
 import se.sundsvall.messaging.model.ContentType;
 
 @Component
@@ -157,6 +157,7 @@ public class DtoMapper {
 			.withMessage(request.message())
 			.withOepInstance(Optional.ofNullable(request.oepInstance())
 				.orElse("external"))
+			.withSendAsOwner(request.sendAsOwner())
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> WebMessageDto.Attachment.builder()

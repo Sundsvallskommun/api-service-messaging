@@ -56,7 +56,7 @@ class MessageResourceWebMessageFailureTest {
 	@Test
 	void shouldFailWithNullParty() {
 		// Arrange
-		final var request = validRequest.withParty(null);
+		final var request = validRequest.withParty(null).withSendAsOwner(true);
 
 		// Act
 		final var response = webTestClient.post()

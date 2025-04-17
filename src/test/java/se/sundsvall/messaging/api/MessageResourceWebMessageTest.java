@@ -76,7 +76,7 @@ class MessageResourceWebMessageTest {
 		return Stream.of(true, false);
 	}
 
-	private static Stream<Boolean> withPartyId() {
+	private static Stream<Boolean> withSendAsOwner() {
 		return Stream.of(true, false);
 	}
 
@@ -85,19 +85,23 @@ class MessageResourceWebMessageTest {
 		return oepInstances()
 			.flatMap(instance -> attachments()
 				.flatMap(attachment -> includeOptionalHeaders()
-					.flatMap(includeOptionalHeader -> withPartyId()
-						.map(withPartyId -> Arguments.of(instance, attachment, includeOptionalHeader, withPartyId)))));
+					.flatMap(includeOptionalHeader -> withSendAsOwner()
+						.map(sendAsOwner -> Arguments.of(instance, attachment, includeOptionalHeader, sendAsOwner)))));
 	}
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean withPartyId) {
+	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean sendAsOwner) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
 			.withOepInstance(oepInstance)
+			.withSendAsOwner(sendAsOwner)
+			.withSender(WebMessageRequest.Sender.builder()
+				.withUserId("userId")
+				.build())
 			.withParty(WebMessageRequest.Party.builder()
-				.withPartyId(withPartyId ? UUID.randomUUID().toString() : null)
+				.withPartyId(sendAsOwner ? null : UUID.randomUUID().toString())
 				.withExternalReferences(List.of(createExternalReference()))
 				.build());
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
@@ -132,13 +136,17 @@ class MessageResourceWebMessageTest {
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean withPartyId) {
+	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean sendAsOwner) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
 			.withAttachments(attachments)
 			.withOepInstance(oepInstance)
+			.withSendAsOwner(sendAsOwner)
+			.withSender(WebMessageRequest.Sender.builder()
+				.withUserId("userId")
+				.build())
 			.withParty(WebMessageRequest.Party.builder()
-				.withPartyId(withPartyId ? UUID.randomUUID().toString() : null)
+				.withPartyId(sendAsOwner ? null : UUID.randomUUID().toString())
 				.withExternalReferences(List.of(createExternalReference()))
 				.build());
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
