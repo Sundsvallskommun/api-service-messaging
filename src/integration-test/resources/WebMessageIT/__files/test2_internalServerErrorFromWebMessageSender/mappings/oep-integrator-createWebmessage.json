@@ -6,13 +6,13 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/web-message-sender/2281/webmessages"
+		"urlPath": "/oep-integrator/2281/external/webmessages"
 	},
 	"response": {
 		"headers": {
 			"Content-Type": "application/json"
 		},
-		"bodyFileName": "test2_internalServerErrorFromWebMessageSender/responses/web-message-sender.json",
+		"bodyFileName": "test2_internalServerErrorFromWebMessageSender/responses/oep-integrator-createWebmessage.json",
 		"status": 500
 	}
 }

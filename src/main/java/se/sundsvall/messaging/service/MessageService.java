@@ -49,10 +49,10 @@ import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegra
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
+import se.sundsvall.messaging.integration.oepintegrator.OepIntegratorIntegration;
 import se.sundsvall.messaging.integration.slack.SlackIntegration;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
@@ -73,9 +73,9 @@ public class MessageService {
 	private final SmsSenderIntegration smsSenderIntegration;
 	private final EmailSenderIntegration emailSenderIntegration;
 	private final DigitalMailSenderIntegration digitalMailSenderIntegration;
-	private final WebMessageSenderIntegration webMessageSenderIntegration;
 	private final SnailMailSenderIntegration snailMailSenderIntegration;
 	private final SlackIntegration slackIntegration;
+	private final OepIntegratorIntegration oepIntegration;
 
 	private final MessageMapper messageMapper;
 	private final RequestMapper requestMapper;
@@ -88,9 +88,9 @@ public class MessageService {
 		final SmsSenderIntegration smsSenderIntegration,
 		final EmailSenderIntegration emailSenderIntegration,
 		final DigitalMailSenderIntegration digitalMailSenderIntegration,
-		final WebMessageSenderIntegration webMessageSenderIntegration,
 		final SnailMailSenderIntegration snailMailSenderIntegration,
 		final SlackIntegration slackIntegration,
+		final OepIntegratorIntegration oepIntegration,
 		final MessageMapper messageMapper,
 		final RequestMapper requestMapper,
 		final DtoMapper dtoMapper) {
@@ -101,9 +101,9 @@ public class MessageService {
 		this.smsSenderIntegration = smsSenderIntegration;
 		this.emailSenderIntegration = emailSenderIntegration;
 		this.digitalMailSenderIntegration = digitalMailSenderIntegration;
-		this.webMessageSenderIntegration = webMessageSenderIntegration;
 		this.snailMailSenderIntegration = snailMailSenderIntegration;
 		this.slackIntegration = slackIntegration;
+		this.oepIntegration = oepIntegration;
 		this.messageMapper = messageMapper;
 		this.requestMapper = requestMapper;
 		this.dtoMapper = dtoMapper;
@@ -458,7 +458,7 @@ public class MessageService {
 			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
 			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
 			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
-			case WEB_MESSAGE -> () -> webMessageSenderIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request));
+			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request), ((WebMessageRequest) request).attachments());
 			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId()));
 			case SLACK -> () -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());

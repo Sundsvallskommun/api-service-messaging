@@ -1,4 +1,4 @@
-package se.sundsvall.messaging.integration.webmessagesender;
+package se.sundsvall.messaging.integration.oepintegrator;
 
 import java.util.List;
 import lombok.Builder;
@@ -11,6 +11,7 @@ public record WebMessageDto(
 	String message,
 	String userId,
 	String oepInstance,
+	boolean sendAsOwner,
 	List<Attachment> attachments) {
 
 	@Builder(setterPrefix = "with")

@@ -66,14 +66,14 @@ import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
 import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailSenderIntegration;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.integration.emailsender.EmailSenderIntegration;
+import se.sundsvall.messaging.integration.oepintegrator.OepIntegratorIntegration;
+import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
 import se.sundsvall.messaging.integration.slack.SlackDto;
 import se.sundsvall.messaging.integration.slack.SlackIntegration;
 import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageDto;
-import se.sundsvall.messaging.integration.webmessagesender.WebMessageSenderIntegration;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
@@ -104,11 +104,11 @@ class MessageServiceTest {
 	@Mock
 	private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
 	@Mock
-	private WebMessageSenderIntegration mockWebMessageSenderIntegration;
-	@Mock
 	private SnailMailSenderIntegration mockSnailMailSenderIntegration;
 	@Mock
 	private SlackIntegration mockSlackIntegration;
+	@Mock
+	private OepIntegratorIntegration mockOepIntegratorIntegration;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private MessageMapper mockMessageMapper;
@@ -130,7 +130,6 @@ class MessageServiceTest {
 			mockEmailSenderIntegration,
 			mockSmsSenderIntegration,
 			mockDigitalMailSenderIntegration,
-			mockWebMessageSenderIntegration,
 			mockSnailMailSenderIntegration,
 			mockSlackIntegration);
 
@@ -211,7 +210,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockWebMessageSenderIntegration.sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class))).thenReturn(SENT);
+		when(mockOepIntegratorIntegration.sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class), anyList())).thenReturn(SENT);
 
 		final var result = messageService.sendWebMessage(request);
 
@@ -221,9 +220,9 @@ class MessageServiceTest {
 		assertThat(result.status()).isEqualTo(SENT);
 
 		// Verify external integration interactions
-		verify(mockWebMessageSenderIntegration).sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class));
-		verifyNoMoreInteractions(mockWebMessageSenderIntegration);
-		verifyNoExternalIntegrationInteractionsExcept(mockWebMessageSenderIntegration);
+		verify(mockOepIntegratorIntegration).sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class), anyList());
+		verifyNoMoreInteractions(mockOepIntegratorIntegration);
+		verifyNoExternalIntegrationInteractionsExcept(mockOepIntegratorIntegration);
 		// Verify db integration interactions
 		verifyDbIntegrationInteractions();
 		// Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)

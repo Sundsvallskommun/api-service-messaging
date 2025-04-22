@@ -1,0 +1,69 @@
+package se.sundsvall.messaging.integration.oepintegrator;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Base64;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.model.MessageStatus;
+
+@ExtendWith(MockitoExtension.class)
+class OepIntegratorIntegrationTest {
+
+	@Mock
+	private OepIntegratorClient client;
+
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private OepIntegratorMapper mapper;
+
+	@InjectMocks
+	private OepIntegratorIntegration integration;
+
+	@ParameterizedTest
+	@MethodSource("argumentsProvider")
+	void sendWebMessage(final HttpStatus status, final MessageStatus expected) {
+		var municipalityId = "2281";
+		var partyId = "828ab8cf-c07e-47ff-b5e3-82dea276b2e4";
+		var externalReference = new ExternalReference("key", "value");
+		var externalReferences = List.of(externalReference);
+		var message = "message";
+		var userId = "userId";
+		var oepInstance = "oepInstance";
+		var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, false, null);
+		var attachments = List.of(new WebMessageRequest.Attachment("fileName", "mimeType", createBase64String()));
+		var responseMock = mock(ResponseEntity.class);
+
+		when(client.createWebmessage(eq(municipalityId), eq(webMessageDto.oepInstance()), any(), any())).thenReturn(responseMock);
+		when(responseMock.getStatusCode()).thenReturn(status);
+
+		var result = integration.sendWebMessage(municipalityId, webMessageDto, attachments);
+
+		assertThat(result).isNotNull().isEqualTo(expected);
+	}
+
+	private static Stream<Arguments> argumentsProvider() {
+		return Stream.of(
+			Arguments.of(HttpStatus.OK, MessageStatus.SENT),
+			Arguments.of(HttpStatus.NOT_FOUND, MessageStatus.NOT_SENT));
+	}
+
+	private String createBase64String() {
+		return Base64.getEncoder().encodeToString("test".getBytes());
+	}
+}

@@ -25,12 +25,13 @@ class WebMessageRequestTest {
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 	private static final String MUNICIPALITY_ID = "municipalityId";
 	private static final String USER_ID = "userId";
+	private static final Boolean SEND_AS_OWNER = false;
 	private static final WebMessageRequest.Sender SENDER = WebMessageRequest.Sender.builder().build();
 
 	// WebMessageRequest
 	@Test
 	void testWebMessageRequestConstructor() {
-		final var bean = new WebMessageRequest(PARTY, MESSAGE, SENDER, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new WebMessageRequest(PARTY, MESSAGE, SENDER, SEND_AS_OWNER, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertWebMessageRequest(bean);
 	}
@@ -135,7 +136,7 @@ class WebMessageRequestTest {
 	// No dirt
 	@Test
 	void testNoDirtOnCreatedBeans() {
-		assertThat(WebMessageRequest.builder().build()).hasAllNullFieldsOrProperties();
+		assertThat(WebMessageRequest.builder().build()).hasAllNullFieldsOrPropertiesExcept("sendAsOwner");
 		assertThat(WebMessageRequest.Attachment.builder().build()).hasAllNullFieldsOrProperties();
 		assertThat(WebMessageRequest.Party.builder().build()).hasAllNullFieldsOrProperties();
 		assertThat(WebMessageRequest.Sender.builder().build()).hasAllNullFieldsOrProperties();

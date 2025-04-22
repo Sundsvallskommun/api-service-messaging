@@ -1,5 +1,6 @@
 {
 	"message": "This is a test message",
+	"sendAsOwner": true,
 	"party": {
 		"partyId": "f427952b-247c-4d3b-b081-675a467b3619"
 	}

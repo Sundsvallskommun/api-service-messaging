@@ -54,6 +54,14 @@ messaging:
         url: someUrl
 
 integration:
+
+  # OepIntegrator integration
+  oep-integrator:
+    base-url: http://oep-integrator/api
+    token-url: http://oep-integrator/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
   # SmsSender integration
   sms-sender:
     base-url: http://sms-sender/api

@@ -59,6 +59,13 @@ integration:
     client-id: someClientId
     client-secret: someClientSecret
 
+  # OepIntegrator integration
+  oep-integrator:
+    base-url: http://localhost:${wiremock.server.port}/oep-integrator
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+
   # DigitalMailSender integration
   digital-mail-sender:
     base-url: http://localhost:${wiremock.server.port}/digital-mail-sender

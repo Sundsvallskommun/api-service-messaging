@@ -15,10 +15,12 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.validation.ValidInstance;
+import se.sundsvall.messaging.api.validation.ValidWebMessageRequest;
 import se.sundsvall.messaging.model.ExternalReference;
 
 @With
 @Builder(setterPrefix = "with")
+@ValidWebMessageRequest
 public record WebMessageRequest(
 
 	@Valid @NotNull @Schema(description = "Party", requiredMode = REQUIRED) Party party,
@@ -26,6 +28,8 @@ public record WebMessageRequest(
 	@NotBlank @Schema(description = "Message", requiredMode = REQUIRED) String message,
 
 	@Schema(description = "The sender", requiredMode = NOT_REQUIRED) Sender sender,
+
+	@Schema(description = "Send as owner", requiredMode = NOT_REQUIRED, defaultValue = "false") boolean sendAsOwner,
 
 	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
 

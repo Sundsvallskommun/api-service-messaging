@@ -6,7 +6,7 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/web-message-sender/2281/webmessages"
+		"urlPath": "/oep-integrator/2281/internal/webmessages"
 	},
 	"response": {
 		"headers": {
