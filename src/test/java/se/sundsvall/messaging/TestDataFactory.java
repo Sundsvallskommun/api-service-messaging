@@ -443,44 +443,22 @@ public final class TestDataFactory {
 			.withMessageId(UUID.randomUUID().toString())
 			.withStatus(MessageStatus.SENT)
 			.withIssuer("someIssuer")
-			.withContent("{\n" +
-				"    \"attachments\": [\n" +
-				"        {\n" +
-				"            \"name\": \"someFileName\",\n" +
-				"            \"content\": \"someContent\",\n" +
-				"            \"contentType\": \"application/pdf\"\n" +
-				"        }\n" +
-				"    ]\n" +
-				"}")
+			.withContent("""
+				{
+				    "attachments": [
+				        {
+				            "name": "someFileName",
+				            "content": "someContent",
+				            "contentType": "application/pdf"
+				        }
+				    ],
+				    "subject": "someSubject"
+				}
+				""")
 			.withBatchId("someBatchId")
 			.withDeliveryId("someDeliveryId")
 			.withCreatedAt(LocalDateTime.now())
 			.withMessageType(MessageType.SNAIL_MAIL)
-			.build();
-	}
-
-	public static HistoryEntity createDigitalMailHistoryEntity() {
-		return HistoryEntity.builder()
-			.withId(123L)
-			.withMunicipalityId("2281")
-			.withMessageId(UUID.randomUUID().toString())
-			.withStatus(MessageStatus.SENT)
-			.withIssuer("someIssuer")
-			.withContent("{\n" +
-				"    \"attachments\": [\n" +
-				"        {\n" +
-				"            \"name\": \"someFileName\",\n" +
-				"            \"content\": \"someContent\",\n" +
-				"            \"contentType\": \"application/pdf\"\n" +
-				"        }\n" +
-				"    ]\n" +
-				"	 \"subject\": \"someSubject\","
-				+ "\n" +
-				"}")
-			.withBatchId("someBatchId")
-			.withDeliveryId("someDeliveryId")
-			.withCreatedAt(LocalDateTime.now())
-			.withMessageType(MessageType.DIGITAL_MAIL)
 			.build();
 	}
 
@@ -491,5 +469,4 @@ public final class TestDataFactory {
 			.withContentType("someContentType")
 			.build();
 	}
-
 }

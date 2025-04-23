@@ -1,17 +1,16 @@
 package apptest;
 
-import org.junit.jupiter.api.Test;
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
-
-import java.io.IOException;
-import java.util.List;
-
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
+
+import java.io.IOException;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
 @IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/HistoryIT/", classes = Application.class)
@@ -19,6 +18,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 
 	private static final String CONVERSATION_HISTORY_PATH = "/" + MUNICIPALITY_ID + "/conversation-history/";
 	private static final String MESSAGE_AND_DELIVERY_PATH = "/" + MUNICIPALITY_ID + "/message/";
+	private static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/" + MUNICIPALITY_ID + "/message/%s/metadata";
 	private static final String USER_MESSAGES_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages";
 	private static final String MESSAGE_ATTACHMENT_PATH = "/" + MUNICIPALITY_ID + "/messages/%s/attachments/%s";
 
@@ -111,6 +111,28 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+	
+	@Test
+	void test9_messageMetadata() {
+		final var messageId = "d4545198-3356-40a8-83a9-5950e74585a6";
+		setupCall()
+			.withServicePath(MESSAGE_AND_DELIVERY_METADATA_PATH.formatted(messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+	
+	@Test
+	void test10_messageMetadataNotFound() {
+		final var messageId = "54b91773-4c53-4b44-b6cf-a99231dc2fda";
+		setupCall()
+			.withServicePath(MESSAGE_AND_DELIVERY_METADATA_PATH.formatted(messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
+			.withExpectedResponseBodyIsNull()
 			.sendRequestAndVerifyResponse();
 	}
 }

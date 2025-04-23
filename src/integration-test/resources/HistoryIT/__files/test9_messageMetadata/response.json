@@ -1,0 +1,30 @@
+[
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
+			"attachments": [
+				{
+					"name": "beslut.pdf",
+					"contentType": "application/pdf"
+				}
+			]
+		},
+		"timestamp": "2050-02-25T15:54:39.254123"
+	},
+	{
+		"messageType": "SNAIL_MAIL",
+		"status": "SENT",
+		"content": {
+			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
+			"attachments": [
+				{
+					"name": "beslut.pdf",
+					"contentType": "application/pdf"
+				}
+			]
+		},
+		"timestamp": "2050-02-25T15:54:39.254123"
+	}
+]
