@@ -2,6 +2,8 @@ package se.sundsvall.messaging.api.model.request;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,8 +38,8 @@ public record WebMessageRequest(
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Determines if the message should be added to the internal or external OeP instance", allowableValues = {
-		"internal", "external"
-	}, example = "internal") @ValidInstance(nullable = true) String oepInstance,
+		OEP_INSTANCE_INTERNAL, OEP_INSTANCE_EXTERNAL
+	}, example = OEP_INSTANCE_INTERNAL) @ValidInstance(nullable = true) String oepInstance,
 
 	@Size(max = 10) @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10) List<Attachment> attachments,
 

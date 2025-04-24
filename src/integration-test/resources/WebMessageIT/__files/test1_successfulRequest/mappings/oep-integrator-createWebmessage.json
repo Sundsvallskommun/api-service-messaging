@@ -6,7 +6,7 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/oep-integrator/2281/internal/webmessages"
+		"urlPath": "/oep-integrator/2281/INTERNAL/webmessages"
 	},
 	"response": {
 		"headers": {

@@ -65,7 +65,7 @@ class MessageResourceWebMessageTest {
 	private WebTestClient webTestClient;
 
 	private static Stream<String> oepInstances() {
-		return Stream.of(null, "external", "internal", "eXtErNaL", "interNaL");
+		return Stream.of(null, "EXTERNAL", "INTERNAL");
 	}
 
 	private static Stream<List<Attachment>> attachments() {

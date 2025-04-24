@@ -209,7 +209,6 @@ public final class TestDataFactory {
 				.withExternalReferences(List.of(createExternalReference()))
 				.build())
 			.withMessage("someMessage")
-			.withOepInstance("internal")
 			.withAttachments(List.of(
 				WebMessageRequest.Attachment.builder()
 					.withFileName("someFileName")

@@ -1,6 +1,8 @@
 package se.sundsvall.messaging.api.validation.impl;
 
 import static java.util.Objects.isNull;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -24,7 +26,7 @@ public class ValidInstanceConstraintValidator implements ConstraintValidator<Val
 		if (isNull(value)) {
 			return nullable;
 		}
-		return "internal".equalsIgnoreCase(value) || "external".equalsIgnoreCase(value);
+		return OEP_INSTANCE_INTERNAL.equals(value) || OEP_INSTANCE_EXTERNAL.equals(value);
 	}
 
 }

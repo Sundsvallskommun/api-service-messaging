@@ -1547,10 +1547,10 @@ components:
           type: string
           description: Determines if the message should be added to the internal or
             external OeP instance
-          example: internal
+          example: INTERNAL
           enum:
-            - internal
-            - external
+            - INTERNAL
+            - EXTERNAL
         attachments:
           maxItems: 10
           minItems: 0

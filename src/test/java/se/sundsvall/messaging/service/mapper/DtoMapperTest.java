@@ -2,6 +2,8 @@ package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalInvoiceRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
@@ -136,7 +138,7 @@ class DtoMapperTest {
 
 	@Test
 	void toWebMEssageDtoTest() {
-		final var webMessageRequest = createValidWebMessageRequest();
+		final var webMessageRequest = createValidWebMessageRequest().withOepInstance(OEP_INSTANCE_INTERNAL);
 		final var webMessageDto = dtoMapper.toWebMessageDto(webMessageRequest);
 
 		assertThat(webMessageDto.partyId()).isEqualTo(webMessageRequest.party().partyId());
@@ -144,6 +146,26 @@ class DtoMapperTest {
 		assertThat(webMessageDto.externalReferences()).isEqualTo(webMessageRequest.party().externalReferences());
 		assertThat(webMessageDto.message()).isEqualTo(webMessageRequest.message());
 		assertThat(webMessageDto.oepInstance()).isEqualTo(webMessageRequest.oepInstance());
+
+		// Verify that each attachment is there and mapped correctly
+		assertThat(webMessageDto.attachments())
+			.extracting(WebMessageDto.Attachment::fileName, WebMessageDto.Attachment::mimeType, WebMessageDto.Attachment::base64Data)
+			.containsExactlyInAnyOrder(
+				webMessageRequest.attachments().stream()
+					.map(attachment -> tuple(attachment.fileName(), attachment.mimeType(), attachment.base64Data()))
+					.toArray(Tuple[]::new));
+	}
+
+	@Test
+	void toWebMEssageDtoWhenOepInstanceIsNullTest() {
+		final var webMessageRequest = createValidWebMessageRequest();
+		final var webMessageDto = dtoMapper.toWebMessageDto(webMessageRequest);
+
+		assertThat(webMessageDto.partyId()).isEqualTo(webMessageRequest.party().partyId());
+		assertThat(webMessageDto.userId()).isEqualTo(webMessageRequest.sender().userId());
+		assertThat(webMessageDto.externalReferences()).isEqualTo(webMessageRequest.party().externalReferences());
+		assertThat(webMessageDto.message()).isEqualTo(webMessageRequest.message());
+		assertThat(webMessageDto.oepInstance()).isEqualTo(OEP_INSTANCE_EXTERNAL);
 
 		// Verify that each attachment is there and mapped correctly
 		assertThat(webMessageDto.attachments())
