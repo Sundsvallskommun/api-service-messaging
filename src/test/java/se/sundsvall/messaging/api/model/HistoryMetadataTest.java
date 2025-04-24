@@ -6,6 +6,7 @@ import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.LetterRequest;
@@ -101,6 +102,40 @@ class HistoryMetadataTest {
 			.containsExactlyInAnyOrder(
 				tuple("someFileName.pdf", "application/pdf", null),
 				tuple("anotherFileName.pdf", "application/pdf", null));
+	}
+
+	@Test
+	void testDigitalInvoice_toMetadataHistoryResponse() {
+		var history = createDigitalInvoiceHistory();
+		var historyWithoutFileContent = ApiMapper.toMetadataHistoryResponse(history);
+		var historyWithFileContent = ApiMapper.toHistoryResponse(history);
+
+		// Check that the two objects are equal, ignoring the content field
+		assertThat(historyWithFileContent)
+			.usingRecursiveComparison()
+			.ignoringFieldsMatchingRegexes(".*\\.content")// Ignore all content fields
+			.isEqualTo(historyWithoutFileContent);
+
+		// Verify that the content has been removed
+		var digitalInvoiceRequest = (DigitalInvoiceRequest) historyWithoutFileContent.content();
+
+		assertThat(digitalInvoiceRequest.files())
+			.extracting(DigitalInvoiceRequest.File::filename, DigitalInvoiceRequest.File::contentType, DigitalInvoiceRequest.File::content)
+			.containsExactlyInAnyOrder(
+				tuple("string", "application/pdf", null),
+				tuple("string2", "application/pdf", null));
+	}
+
+	@Test
+	void testMessage_toMetadataHistoryResponse() {
+		var history = createMessageHistory();
+		var historyWithoutFileContent = ApiMapper.toMetadataHistoryResponse(history);
+		var historyWithFileContent = ApiMapper.toHistoryResponse(history);
+
+		// Check that the two objects are equal, since no content should be removed we can compare them directly
+		assertThat(historyWithFileContent)
+			.usingRecursiveComparison()
+			.isEqualTo(historyWithoutFileContent);
 	}
 
 	@Test
