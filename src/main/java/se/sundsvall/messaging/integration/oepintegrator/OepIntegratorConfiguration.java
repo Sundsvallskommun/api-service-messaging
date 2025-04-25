@@ -7,6 +7,7 @@ import feign.codec.ErrorDecoder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
+import org.springframework.cloud.openfeign.support.JsonFormWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -51,5 +52,11 @@ class OepIntegratorConfiguration {
 
 	private ErrorDecoder errorDecoder() {
 		return new ProblemErrorDecoder(OepIntegratorIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.value()));
+	}
+
+	@Bean
+	JsonFormWriter jsonFormWriter() {
+		// Needed for Feign to handle json objects sent as requestpart correctly
+		return new JsonFormWriter();
 	}
 }

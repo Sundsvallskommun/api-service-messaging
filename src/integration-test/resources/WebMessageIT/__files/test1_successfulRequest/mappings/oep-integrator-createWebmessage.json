@@ -6,7 +6,45 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/oep-integrator/2281/INTERNAL/webmessages"
+		"urlPath": "/oep-integrator/2281/INTERNAL/webmessages",
+		"multipartPatterns": [
+			{
+				"matchingType": "ANY",
+				"headers": {
+					"Content-Disposition": {
+						"contains": "name=\"request\""
+					},
+					"Content-Type": {
+						"contains": "application/json"
+					}
+				},
+				"bodyPatterns": [
+					{
+						"equalToJson": {
+							"sender": {
+								"userId": "someUserId",
+								"partyId": "f427952b-247c-4d3b-b081-675a467b3619"
+							},
+							"message": "This is a test message"
+						}
+					}
+				]
+			},
+			{
+				"matchingType": "ANY",
+				"headers": {
+					"Content-Disposition": {
+						"contains": "filename=\"someFile.txt\""
+					},
+					"Content-Type": {
+						"equalTo": "text/plain"
+					},
+					"Content-Transfer-Encoding": {
+						"equalTo": "binary"
+					}
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {
