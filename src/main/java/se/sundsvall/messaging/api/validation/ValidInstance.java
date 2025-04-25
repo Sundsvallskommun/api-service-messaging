@@ -17,7 +17,7 @@ import se.sundsvall.messaging.api.validation.impl.ValidInstanceConstraintValidat
 @Constraint(validatedBy = ValidInstanceConstraintValidator.class)
 public @interface ValidInstance {
 
-	String message() default "instance must be 'internal' or 'external'";
+	String message() default "instance must be 'INTERNAL' or 'EXTERNAL'";
 
 	boolean nullable();
 

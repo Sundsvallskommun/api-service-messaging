@@ -171,7 +171,7 @@ class MessageResourceWebMessageFailureTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"", " ", "invalid"
+		"", " ", "invalid", "internal", "external", "iNTERNAL", "eXTERNAL"
 	})
 	void shouldFailWithInvalidOepInstance(String oepInstance) {
 		// Arrange
@@ -193,7 +193,7 @@ class MessageResourceWebMessageFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("oepInstance", "instance must be 'internal' or 'external'"));
+			.containsExactly(tuple("oepInstance", "instance must be 'INTERNAL' or 'EXTERNAL'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}

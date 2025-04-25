@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.service.mapper;
 
 import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
 
 import java.util.Map;
 import java.util.Optional;
@@ -156,7 +157,7 @@ public class DtoMapper {
 				.orElse(null))
 			.withMessage(request.message())
 			.withOepInstance(Optional.ofNullable(request.oepInstance())
-				.orElse("external"))
+				.orElse(OEP_INSTANCE_EXTERNAL))
 			.withSendAsOwner(request.sendAsOwner())
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
