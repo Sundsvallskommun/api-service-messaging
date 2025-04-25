@@ -25,6 +25,6 @@ interface OepIntegratorClient {
 	ResponseEntity<Void> createWebmessage(
 		@PathVariable(value = "municipalityId") final String municipalityId,
 		@PathVariable(value = "instanceType") final String instanceType,
-		@Valid @RequestPart final WebmessageRequest request,
+		@Valid @RequestPart(value = "request") final WebmessageRequest request,
 		@RequestPart(value = "attachments", required = false) final List<AttachmentMultipartFile> attachments);
 }
