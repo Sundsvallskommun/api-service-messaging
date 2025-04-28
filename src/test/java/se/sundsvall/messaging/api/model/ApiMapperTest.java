@@ -247,5 +247,4 @@ class ApiMapperTest {
 		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get batch status");
 	}
-
 }

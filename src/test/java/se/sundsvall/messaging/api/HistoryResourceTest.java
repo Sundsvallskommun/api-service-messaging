@@ -12,11 +12,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import java.time.LocalDate;
@@ -369,5 +371,46 @@ class HistoryResourceTest {
 		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
 
 		return parameters;
+	}
+
+	@Test
+	void getMessageMetadata() {
+		var messageId = UUID.randomUUID().toString();
+		final var history = History.builder()
+			.withBatchId("someBatchId")
+			.withMessageId(messageId)
+			.withDeliveryId("someDeliveryId")
+			.withMessageType(DIGITAL_MAIL)
+			.withStatus(SENT)
+			.build();
+
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId)).thenReturn(List.of(history));
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBodyList(HistoryResponse.class);
+
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getMessageMetadataWhenNoHistoryExists() {
+		var messageId = UUID.randomUUID().toString();
+
+		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId)).thenReturn(emptyList());
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isNotFound()
+			.expectBody().isEmpty();
+
+		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+		verifyNoMoreInteractions(mockHistoryService);
 	}
 }

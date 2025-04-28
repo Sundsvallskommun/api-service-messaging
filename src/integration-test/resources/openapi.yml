@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
@@ -1337,7 +1337,76 @@ paths:
       tags:
         - History Resources
       summary: Get a message and all its deliveries
+      description: "This endpoint is deprecated and will be removed in a future version.Use\
+        \ /message/{messageId}/metadata instead. To get the file content for the message\
+        \ use /messages/{messageId}/attachments/{fileName}."
       operationId: getMessage
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      deprecated: true
+  /{municipalityId}/message/{messageId}/metadata:
+    get:
+      tags:
+        - History Resources
+      summary: Get metadata for a message and all its deliveries
+      operationId: getMessageMetadata
       parameters:
         - name: municipalityId
           in: path
@@ -1587,11 +1656,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     DeliveryResult:
       type: object
       properties:
@@ -2699,4 +2768,4 @@ components:
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

@@ -8,6 +8,7 @@ import static org.springframework.http.ResponseEntity.ok;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
@@ -131,7 +132,14 @@ class HistoryResource {
 			.orElseGet(() -> notFound().build());
 	}
 
+	/**
+	 * @deprecated Use {@link #getMessageMetadata(String, String)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2025-04-28")
 	@Operation(summary = "Get a message and all its deliveries",
+		deprecated = true,
+		description = "This endpoint is deprecated and will be removed in a future version."
+			+ "Use /message/{messageId}/metadata instead. To get the file content for the message use /messages/{messageId}/attachments/{fileName}.",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
@@ -146,6 +154,26 @@ class HistoryResource {
 
 		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId).stream()
 			.map(ApiMapper::toHistoryResponse)
+			.toList();
+
+		return history.isEmpty() ? notFound().build() : ok(history);
+	}
+
+	@Operation(summary = "Get metadata for a message and all its deliveries",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+
+		})
+	@GetMapping(value = MESSAGE_AND_DELIVERY_METADATA_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
+	ResponseEntity<List<HistoryResponse>> getMessageMetadata(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
+
+		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId).stream()
+			.map(ApiMapper::toMetadataHistoryResponse)
 			.toList();
 
 		return history.isEmpty() ? notFound().build() : ok(history);

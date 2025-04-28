@@ -16,6 +16,8 @@ public final class Constants {
 
 	public static final String MESSAGE_AND_DELIVERY_PATH = "/{municipalityId}/message/{messageId}";
 
+	public static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/{municipalityId}/message/{messageId}/metadata";
+
 	public static final String DELIVERY_STATUS_PATH = "/{municipalityId}/status/delivery/{deliveryId}";
 
 	public static final String USER_MESSAGES_PATH = "/{municipalityId}/users/{userId}/messages";
