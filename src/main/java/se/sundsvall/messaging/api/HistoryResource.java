@@ -132,7 +132,14 @@ class HistoryResource {
 			.orElseGet(() -> notFound().build());
 	}
 
+	/**
+	 * @deprecated Use {@link #getMessageMetadata(String, String)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2025-04-28")
 	@Operation(summary = "Get a message and all its deliveries",
+		deprecated = true,
+		description = "This endpoint is deprecated and will be removed in a future version."
+			+ "Use /message/{messageId}/metadata instead. To get the file content for the message use /messages/{messageId}/attachments/{fileName}.",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
