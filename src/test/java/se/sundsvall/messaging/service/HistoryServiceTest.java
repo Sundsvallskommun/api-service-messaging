@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -45,9 +46,12 @@ import org.springframework.util.StreamUtils;
 import org.zalando.problem.Problem;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -312,7 +316,12 @@ class HistoryServiceTest {
 	@Test
 	void createRecipientTest() {
 		var municipalityId = "2281";
-		var histories = List.of(createHistoryEntity());
+		var history = HistoryEntity.builder()
+			.withPartyId("partyId")
+			.withMessageType(MessageType.MESSAGE)
+			.withStatus(MessageStatus.SENT)
+			.build();
+		var histories = List.of(history);
 		var expectedLegalId = "123456-7890";
 		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId())).thenReturn(expectedLegalId);
 
@@ -325,6 +334,27 @@ class HistoryServiceTest {
 		});
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId());
+		verifyNoMoreInteractions(partyIntegrationMock);
+	}
+
+	@Test
+	void createRecipientTest_nullPartyId() {
+		var municipalityId = "2281";
+		var history = HistoryEntity.builder()
+			.withMessageType(MessageType.MESSAGE)
+			.withStatus(MessageStatus.SENT)
+			.build();
+		var histories = List.of(history);
+
+		var result = historyService.createRecipients(municipalityId, histories);
+
+		assertThat(result).isNotNull().satisfies(recipients -> {
+			assertThat(recipients).hasSize(1);
+			assertThat(recipients.getFirst().personId()).isNull();
+			assertThat(recipients.getFirst().messageType()).isEqualTo(histories.getFirst().getMessageType().name());
+		});
+
+		verify(partyIntegrationMock, never()).getLegalIdByPartyId(eq(municipalityId), any());
 		verifyNoMoreInteractions(partyIntegrationMock);
 	}
 
