@@ -20,6 +20,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 	private static final String MESSAGE_AND_DELIVERY_PATH = "/" + MUNICIPALITY_ID + "/message/";
 	private static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/" + MUNICIPALITY_ID + "/message/%s/metadata";
 	private static final String USER_MESSAGES_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages";
+	private static final String USER_MESSAGE_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages/%s";
 	private static final String MESSAGE_ATTACHMENT_PATH = "/" + MUNICIPALITY_ID + "/messages/%s/attachments/%s";
 
 	@Test
@@ -127,12 +128,37 @@ class HistoryIT extends AbstractMessagingAppTest {
 	
 	@Test
 	void test10_messageMetadataNotFound() {
-		final var messageId = "54b91773-4c53-4b44-b6cf-a99231dc2fda";
+		final var messageId = "5b79fd71-c4fc-4f78-a5f4-15b070fbc51f";
 		setupCall()
 			.withServicePath(MESSAGE_AND_DELIVERY_METADATA_PATH.formatted(messageId))
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponseBodyIsNull()
+			.sendRequestAndVerifyResponse();
+	}
+	
+	@Test
+	void test11_userMessage() {
+		final var userId = "issuer123";
+		final var messageId = "d5161acb-2462-4065-a679-53b1cd77be92";
+		setupCall()
+			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test12_userMessageNotFound() {
+		// messageId exists but not for the userId/issuer, should be a 404
+		final var userId = "not-found";
+		final var messageId = "d5161acb-2462-4065-a679-53b1cd77be92";
+		setupCall()
+			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
+			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
 }

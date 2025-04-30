@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -358,4 +359,59 @@ class HistoryServiceTest {
 		verifyNoMoreInteractions(partyIntegrationMock);
 	}
 
+	@Test
+	void getUserMessageTest() throws JsonProcessingException {
+		var municipalityId = "2281";
+		var history = createHistoryEntity();
+		var messageId = history.getMessageId();
+		var issuer = history.getIssuer();
+		var jsonNodeMock = mock(JsonNode.class);
+
+		when(objectMapper.readTree(history.getContent())).thenReturn(jsonNodeMock);
+		when(mockDbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).thenReturn(true);
+		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(List.of(history));
+
+		var result = historyService.getUserMessage(municipalityId, issuer, messageId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.messageId()).isEqualTo(messageId);
+		assertThat(result.issuer()).isEqualTo(issuer);
+		assertThat(result.attachments()).isEmpty();
+		assertThat(result.recipients()).satisfies(recipients -> {
+			assertThat(recipients).hasSize(1);
+			assertThat(recipients.getFirst().messageType()).isEqualTo(history.getMessageType().name());
+			assertThat(recipients.getFirst().status()).isEqualTo(history.getStatus().name());
+			assertThat(recipients.getFirst().address().address()).isEqualTo("someAddress");
+			assertThat(recipients.getFirst().address().city()).isEqualTo("someCity");
+			assertThat(recipients.getFirst().address().country()).isEqualTo("someCountry");
+			assertThat(recipients.getFirst().address().firstName()).isEqualTo("someFirstName");
+			assertThat(recipients.getFirst().address().lastName()).isEqualTo("someLastName");
+			assertThat(recipients.getFirst().address().careOf()).isEqualTo("someCareOf");
+			assertThat(recipients.getFirst().address().zipCode()).isEqualTo("12345");
+		});
+
+		verify(objectMapper, times(2)).readTree(history.getContent());
+		verify(mockDbIntegration).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
+		verify(mockDbIntegration).getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
+		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, history.getPartyId());
+		verifyNoInteractions(httpServletResponseMock);
+		verifyNoMoreInteractions(objectMapper, mockDbIntegration, partyIntegrationMock);
+	}
+
+	@Test
+	void getUserMessageTest_whenMessageIdNotFound() {
+		var municipalityId = "2281";
+		var messageId = "someMessageId";
+		var issuer = "someIssuer";
+
+		when(mockDbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).thenReturn(false);
+
+		assertThatThrownBy(() -> historyService.getUserMessage(municipalityId, issuer, messageId))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Not Found: No message found for message id " + messageId + " and user id " + issuer);
+
+		verify(mockDbIntegration).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
+		verifyNoInteractions(objectMapper, partyIntegrationMock, httpServletResponseMock);
+		verifyNoMoreInteractions(mockDbIntegration);
+	}
 }

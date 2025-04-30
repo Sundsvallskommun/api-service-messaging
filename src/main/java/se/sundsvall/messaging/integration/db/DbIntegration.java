@@ -143,4 +143,7 @@ public class DbIntegration {
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No history found for message id " + messageId));
 	}
 
+	public boolean existsByMunicipalityIdAndMessageIdAndIssuer(String municipalityId, final String messageId, final String issuer) {
+		return historyRepository.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
+	}
 }

@@ -150,4 +150,22 @@ class HistoryRepositoryTest {
 				tuple(municipalityId, "754378a4-d93a-43c2-8784-d274cb8b7880", "64d78f7a-e38e-47da-8910-541044d27617", "3774daaa-3f22-4af7-93a9-7386c21210df", "origin1", "issuer2"),
 				tuple(municipalityId, "2e0a24de-71bc-488c-9f1b-3cf05352bd4f", "72971e8e-e4ae-4539-9c4e-3675ae4baa37", "8fffe36f-be9d-42b9-a676-24244877c5ae", "origin2", "issuer2"));
 	}
+
+	@Test
+	void existsByMunicipalityIdAndMessageIdAndIssuer() {
+		final var municipalityId = "2281";
+		final var messageId = "d5161acb-2462-4065-a679-53b1cd77be92";
+		final var issuer = "issuer1";
+
+		assertThat(historyRepository.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).isTrue();
+	}
+
+	@Test
+	void existsByMunicipalityIdAndMessageIdAndIssuerWhenNoMatch() {
+		final var municipalityId = "2262";
+		final var messageId = "c8276a4a-25ef-4f45-b89e-7802f3c45b3a";
+		final var issuer = "issuer1";
+
+		assertThat(historyRepository.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).isFalse();
+	}
 }

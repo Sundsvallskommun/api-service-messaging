@@ -28,6 +28,7 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
@@ -184,8 +185,39 @@ public class HistoryService {
 				.orElse(null);
 			var messageType = history.getMessageType().toString();
 			var status = history.getStatus().name();
-			return new UserMessage.Recipient(legalId, messageType, status);
+			var address = history.getDestinationAddress();
+			return new UserMessage.Recipient(createAddress(address), legalId, messageType, status);
 		}).toList();
 	}
 
+	UserMessage.Address createAddress(Address address) {
+		return Optional.ofNullable(address)
+			.map(addr -> UserMessage.Address.builder()
+				.withAddress(addr.address())
+				.withCity(addr.city())
+				.withCountry(addr.country())
+				.withFirstName(addr.firstName())
+				.withLastName(addr.lastName())
+				.withCareOf(addr.careOf())
+				.withZipCode(addr.zipCode())
+				.build())
+			.orElse(null);
+	}
+
+	/**
+	 * Retrieves a specific user message based on the municipalityId, issuer, and messageId.
+	 *
+	 * @param  municipalityId The municipality ID.
+	 * @param  issuer         The issuer of the message.
+	 * @param  messageId      The message ID.
+	 * @return                The UserMessage.
+	 */
+	public UserMessage getUserMessage(final String municipalityId, final String issuer, final String messageId) {
+		// Do a sanity check that the messageId for the user exists, the "createUserMessage" doesn't check this
+		if (!dbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)) {
+			throw Problem.valueOf(NOT_FOUND, "No message found for message id " + messageId + " and user id " + issuer);
+		}
+
+		return createUserMessage(municipalityId, messageId);
+	}
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
@@ -16,6 +17,7 @@ import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PAT
 import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -35,11 +37,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.zalando.problem.Problem;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
@@ -412,5 +416,35 @@ class HistoryResourceTest {
 
 		verify(mockHistoryService).getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessage() {
+		var messageId = UUID.randomUUID().toString();
+		var userId = "someUser";
+
+		when(mockHistoryService.getUserMessage(MUNICIPALITY_ID, userId, messageId)).thenReturn(UserMessage.builder().build());
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
+				Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(UserMessage.class);
+	}
+
+	@Test
+	void getUserMessageNoMessageExists() {
+		var messageId = UUID.randomUUID().toString();
+		var userId = "someUser";
+
+		when(mockHistoryService.getUserMessage(MUNICIPALITY_ID, userId, messageId))
+			.thenThrow(Problem.valueOf(NOT_FOUND, "No message found for message id " + messageId + " and user id " + userId));
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
+				Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isNotFound();
 	}
 }

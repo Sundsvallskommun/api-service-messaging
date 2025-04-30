@@ -28,4 +28,6 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer, LocalDateTime createdAt, Pageable pageable);
 
 	Optional<HistoryEntity> findFirstByMunicipalityIdAndMessageId(String municipalityId, String messageId);
+
+	boolean existsByMunicipalityIdAndMessageIdAndIssuer(String municipalityId, String messageId, String issuer);
 }
