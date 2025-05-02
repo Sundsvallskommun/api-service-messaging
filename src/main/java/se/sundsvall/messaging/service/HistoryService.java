@@ -179,7 +179,9 @@ public class HistoryService {
 
 	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
 		return histories.stream().map(history -> {
-			var legalId = partyIntegration.getLegalIdByPartyId(municipalityId, history.getPartyId());
+			var legalId = Optional.ofNullable(history.getPartyId())
+				.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
+				.orElse(null);
 			var messageType = history.getMessageType().toString();
 			var status = history.getStatus().name();
 			return new UserMessage.Recipient(legalId, messageType, status);
