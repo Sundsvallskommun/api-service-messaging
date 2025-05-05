@@ -28,6 +28,8 @@ public record SmsBatchRequest(
 
 	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
 
+	@Schema(description = "Department", example = "API-Team") String department,
+
 	@NotEmpty @Schema(description = "Parties to send the sms message to", requiredMode = REQUIRED) List<@Valid Party> parties,
 
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {

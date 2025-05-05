@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.0"
+  version: "7.1"
 servers:
-  - url: http://localhost:57862
+  - url: http://localhost:60077
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -1432,20 +1432,20 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
       properties:
@@ -1523,6 +1523,10 @@ components:
           enum:
             - HIGH
             - NORMAL
+        department:
+          type: string
+          description: Department
+          example: API-Team
     SmsRequestParty:
       type: object
       properties:
@@ -1559,6 +1563,10 @@ components:
           enum:
             - HIGH
             - NORMAL
+        department:
+          type: string
+          description: Department
+          example: API-Team
         parties:
           minItems: 1
           type: array
@@ -2315,12 +2323,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
