@@ -8,10 +8,10 @@ import static org.springframework.http.ResponseEntity.ok;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
@@ -104,7 +104,7 @@ class HistoryResource {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
 
 		})
-	@GetMapping(value = MESSAGE_STATUS_PATH, produces = {
+	@GetMapping(value = MESSAGES_STATUS_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	ResponseEntity<MessageResult> getMessageStatus(
@@ -141,13 +141,13 @@ class HistoryResource {
 	@Operation(summary = "Get a message and all its deliveries",
 		deprecated = true,
 		description = "This endpoint is deprecated and will be removed in a future version."
-			+ "Use /message/{messageId}/metadata instead. To get the file content for the message use /messages/{messageId}/attachments/{fileName}.",
+			+ "Use /messages/{messageId}/metadata instead. To get the file content for the message use /messages/{messageId}/attachments/{fileName}.",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
 
 		})
-	@GetMapping(value = MESSAGE_AND_DELIVERY_PATH, produces = {
+	@GetMapping(value = MESSAGES_AND_DELIVERY_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	ResponseEntity<List<HistoryResponse>> getMessage(
@@ -167,7 +167,7 @@ class HistoryResource {
 			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
 
 		})
-	@GetMapping(value = MESSAGE_AND_DELIVERY_METADATA_PATH, produces = {
+	@GetMapping(value = MESSAGES_AND_DELIVERY_METADATA_PATH, produces = {
 		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	ResponseEntity<List<HistoryResponse>> getMessageMetadata(
@@ -216,7 +216,7 @@ class HistoryResource {
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 		})
-	@GetMapping(value = MESSAGE_ATTACHMENT_PATH, produces = {
+	@GetMapping(value = MESSAGES_ATTACHMENT_PATH, produces = {
 		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	void readAttachment(

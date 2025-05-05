@@ -15,7 +15,7 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class StatusIT extends AbstractMessagingAppTest {
 
 	private static final String BATCH_STATUS_PATH = "/" + MUNICIPALITY_ID + "/status/batch/";
-	private static final String MESSAGE_STATUS_PATH = "/" + MUNICIPALITY_ID + "/status/message/";
+	private static final String MESSAGE_STATUS_PATH = "/" + MUNICIPALITY_ID + "/status/messages/";
 	private static final String DELIVERY_STATUS_PATH = "/" + MUNICIPALITY_ID + "/status/delivery/";
 
 	@Test

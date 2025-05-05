@@ -936,7 +936,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/status/message/{messageId}:
+  /{municipalityId}/status/messages/{messageId}:
     get:
       tags:
         - History Resources
@@ -1391,13 +1391,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/message/{messageId}:
+  /{municipalityId}/messages/{messageId}:
     get:
       tags:
         - History Resources
       summary: Get a message and all its deliveries
       description: "This endpoint is deprecated and will be removed in a future version.Use\
-        \ /message/{messageId}/metadata instead. To get the file content for the message\
+        \ /messages/{messageId}/metadata instead. To get the file content for the message\
         \ use /messages/{messageId}/attachments/{fileName}."
       operationId: getMessage
       parameters:
@@ -1460,7 +1460,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
       deprecated: true
-  /{municipalityId}/message/{messageId}/metadata:
+  /{municipalityId}/messages/{messageId}/metadata:
     get:
       tags:
         - History Resources

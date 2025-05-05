@@ -13,9 +13,9 @@ import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
@@ -258,7 +258,7 @@ class HistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(MessageResult.class)
@@ -281,7 +281,7 @@ class HistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -307,7 +307,7 @@ class HistoryResourceTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBodyList(HistoryResponse.class)
@@ -333,7 +333,7 @@ class HistoryResourceTest {
 
 		// Act
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isNotFound()
 			.expectBody().isEmpty();
@@ -391,7 +391,7 @@ class HistoryResourceTest {
 		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId)).thenReturn(List.of(history));
 
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
 			.exchange()
 			.expectStatus().isOk()
@@ -408,7 +408,7 @@ class HistoryResourceTest {
 		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId)).thenReturn(emptyList());
 
 		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
 			.exchange()
 			.expectStatus().isNotFound()

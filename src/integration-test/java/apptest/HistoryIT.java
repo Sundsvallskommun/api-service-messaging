@@ -17,8 +17,8 @@ import se.sundsvall.messaging.test.annotation.IntegrationTest;
 class HistoryIT extends AbstractMessagingAppTest {
 
 	private static final String CONVERSATION_HISTORY_PATH = "/" + MUNICIPALITY_ID + "/conversation-history/";
-	private static final String MESSAGE_AND_DELIVERY_PATH = "/" + MUNICIPALITY_ID + "/message/";
-	private static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/" + MUNICIPALITY_ID + "/message/%s/metadata";
+	private static final String MESSAGE_AND_DELIVERY_PATH = "/" + MUNICIPALITY_ID + "/messages/";
+	private static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/" + MUNICIPALITY_ID + "/messages/%s/metadata";
 	private static final String USER_MESSAGES_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages";
 	private static final String USER_MESSAGE_PATH = "/" + MUNICIPALITY_ID + "/users/%s/messages/%s";
 	private static final String MESSAGE_ATTACHMENT_PATH = "/" + MUNICIPALITY_ID + "/messages/%s/attachments/%s";
