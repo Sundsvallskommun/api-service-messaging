@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,7 +47,7 @@ public class ApiMapper {
 	private ApiMapper() {}
 
 	public static ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {
-		final var uri = fromPath(MESSAGE_STATUS_PATH)
+		final var uri = fromPath(MESSAGES_STATUS_PATH)
 			.buildAndExpand(deliveryResult.municipalityId(), deliveryResult.messageId())
 			.toUri();
 

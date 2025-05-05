@@ -9,10 +9,10 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_METADATA_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 
@@ -98,7 +98,7 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -146,7 +146,7 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
@@ -195,7 +195,7 @@ class HistoryResourceFailureTest {
 		var fileName = "file.txt";
 
 		var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
 			.exchange()
 			.expectStatus().isBadRequest()
@@ -217,7 +217,7 @@ class HistoryResourceFailureTest {
 		var fileName = "file.txt";
 
 		var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_ATTACHMENT_PATH)
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
 			.exchange()
 			.expectStatus().isBadRequest()
@@ -237,7 +237,7 @@ class HistoryResourceFailureTest {
 		var messageId = "not-valid";
 
 		var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
 			.exchange()
 			.expectStatus().isBadRequest()
@@ -259,7 +259,7 @@ class HistoryResourceFailureTest {
 		var messageId = UUID.randomUUID().toString();
 
 		var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGE_AND_DELIVERY_METADATA_PATH).build(
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", municipalityId, "messageId", messageId)))
 			.exchange()
 			.expectStatus().isBadRequest()

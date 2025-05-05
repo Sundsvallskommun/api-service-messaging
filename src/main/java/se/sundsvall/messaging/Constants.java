@@ -12,11 +12,11 @@ public final class Constants {
 
 	public static final String BATCH_STATUS_PATH = "/{municipalityId}/status/batch/{batchId}";
 
-	public static final String MESSAGE_STATUS_PATH = "/{municipalityId}/status/message/{messageId}";
+	public static final String MESSAGES_STATUS_PATH = "/{municipalityId}/status/messages/{messageId}";
 
-	public static final String MESSAGE_AND_DELIVERY_PATH = "/{municipalityId}/message/{messageId}";
+	public static final String MESSAGES_AND_DELIVERY_PATH = "/{municipalityId}/messages/{messageId}";
 
-	public static final String MESSAGE_AND_DELIVERY_METADATA_PATH = "/{municipalityId}/message/{messageId}/metadata";
+	public static final String MESSAGES_AND_DELIVERY_METADATA_PATH = "/{municipalityId}/messages/{messageId}/metadata";
 
 	public static final String DELIVERY_STATUS_PATH = "/{municipalityId}/status/delivery/{deliveryId}";
 
@@ -24,7 +24,7 @@ public final class Constants {
 
 	public static final String USER_MESSAGES_PATH = "/{municipalityId}/users/{userId}/messages";
 
-	public static final String MESSAGE_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachments/{fileName}";
+	public static final String MESSAGES_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachments/{fileName}";
 
 	public static final String X_ISSUER_HEADER_KEY = "x-issuer";
 
