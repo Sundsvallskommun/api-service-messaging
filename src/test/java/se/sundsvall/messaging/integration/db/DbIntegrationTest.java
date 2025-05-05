@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -185,4 +186,17 @@ class DbIntegrationTest {
 		verify(mockStatisticsRepository).getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to);
 	}
 
+	@Test
+	void existsByMunicipalityIdAndMessageIdAndIssuer() {
+		final var municipalityId = "municipalityId";
+		final var messageId = "messageId";
+		final var issuer = "issuer";
+
+		when(mockHistoryRepository.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).thenReturn(true);
+
+		assertThat(dbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).isTrue();
+
+		verify(mockHistoryRepository).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
+		verifyNoMoreInteractions(mockHistoryRepository);
+	}
 }

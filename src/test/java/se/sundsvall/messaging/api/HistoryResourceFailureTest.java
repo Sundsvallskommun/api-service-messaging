@@ -14,6 +14,7 @@ import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 
 import java.util.Map;
 import java.util.UUID;
@@ -270,6 +271,51 @@ class HistoryResourceFailureTest {
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
 			.containsExactly(tuple("getMessageMetadata.municipalityId", "not a valid municipality ID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessage_shouldFailWithInvalidMessageId() {
+		var messageId = "not-valid";
+		var userId = "userId";
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
+				Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getUserMessage.messageId", "not a valid UUID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessage_shouldFailWithInvalidMunicipalityId() {
+		var municipalityId = "not-valid";
+		var userId = "userId";
+		var messageId = UUID.randomUUID().toString();
+
+		var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
+				Map.of("municipalityId", municipalityId, "userId", userId, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getUserMessage.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
 	}

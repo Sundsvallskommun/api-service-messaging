@@ -13,6 +13,7 @@ import static se.sundsvall.messaging.Constants.MESSAGE_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGE_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
 
@@ -42,6 +43,7 @@ import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.service.HistoryService;
 
@@ -192,6 +194,21 @@ class HistoryResource {
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
 		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
 		final var result = historyService.getUserMessages(municipalityId, userId, page, limit);
+		return ok(result);
+	}
+
+	@Operation(summary = "Get a historical message sent by a user",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		})
+	@GetMapping(value = USER_MESSAGE_PATH, produces = {
+		APPLICATION_JSON_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
+	ResponseEntity<UserMessage> getUserMessage(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
+		@Parameter(name = "userId", description = "User id", example = "test") @PathVariable final String userId,
+		@Parameter(schema = @Schema(format = "uuid")) @PathVariable @ValidUuid final String messageId) {
+		final var result = historyService.getUserMessage(municipalityId, userId, messageId);
 		return ok(result);
 	}
 

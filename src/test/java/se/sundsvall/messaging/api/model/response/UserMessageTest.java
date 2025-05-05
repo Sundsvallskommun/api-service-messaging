@@ -22,6 +22,7 @@ class UserMessageTest {
 	private static final String CONTENT_TYPE = "contentType";
 	private static final String FILE_NAME = "fileName";
 	private static final String SUBJECT = "subject";
+	private static final UserMessage.Address ADDRESS = UserMessage.Address.builder().build();
 
 	@Test
 	void userMessageConstructor() {
@@ -63,13 +64,14 @@ class UserMessageTest {
 
 	@Test
 	void userMessageRecipientConstructor() {
-		var bean = new UserMessage.Recipient(PERSON_ID, MESSAGE_TYPE, MessageStatus.SENT.name());
+		var bean = new UserMessage.Recipient(ADDRESS, PERSON_ID, MESSAGE_TYPE, MessageStatus.SENT.name());
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
 		assertThat(bean.status()).isEqualTo(MessageStatus.SENT.name());
-		assertThat(bean).hasOnlyFields("personId", "messageType", "status");
+		assertThat(bean.address()).isEqualTo(ADDRESS);
+		assertThat(bean).hasOnlyFields("personId", "messageType", "status", "address");
 	}
 
 	@Test
@@ -78,13 +80,15 @@ class UserMessageTest {
 			.withPersonId(PERSON_ID)
 			.withMessageType(MESSAGE_TYPE)
 			.withStatus(MessageStatus.SENT.name())
+			.withAddress(ADDRESS)
 			.build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.personId()).isEqualTo(PERSON_ID);
 		assertThat(bean.messageType()).isEqualTo(MESSAGE_TYPE);
 		assertThat(bean.status()).isEqualTo(MessageStatus.SENT.name());
-		assertThat(bean).hasOnlyFields("personId", "messageType", "status");
+		assertThat(bean.address()).isEqualTo(ADDRESS);
+		assertThat(bean).hasOnlyFields("personId", "messageType", "status", "address");
 	}
 
 	@Test

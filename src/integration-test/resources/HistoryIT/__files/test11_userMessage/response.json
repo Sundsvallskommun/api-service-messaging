@@ -1,0 +1,28 @@
+{
+	"messageId": "d5161acb-2462-4065-a679-53b1cd77be92",
+	"issuer": "issuer123",
+	"origin": "origin1",
+	"sent": "2024-01-16T14:44:17.538371",
+	"subject": "",
+	"recipients": [
+		{
+			"personId": "190101010159",
+			"messageType": "DIGITAL_MAIL",
+			"status": "FAILED"
+		},
+		{
+			"address": {
+				"address": "Storgatan 1",
+				"city": "Sundsvall",
+				"country": "Sverige",
+				"firstName": "Kalle",
+				"lastName": "Anka",
+				"zipCode": "123 45"
+			},
+			"personId": "190101010159",
+			"messageType": "SNAIL_MAIL",
+			"status": "SENT"
+		}
+	],
+	"attachments": []
+}

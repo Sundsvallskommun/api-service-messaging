@@ -444,7 +444,7 @@ public final class TestDataFactory {
 			.withStatus(MessageStatus.SENT)
 			.withIssuer("someIssuer")
 			.withContent("""
-				{
+				    {
 				    "attachments": [
 				        {
 				            "name": "someFileName",
@@ -459,6 +459,8 @@ public final class TestDataFactory {
 			.withDeliveryId("someDeliveryId")
 			.withCreatedAt(LocalDateTime.now())
 			.withMessageType(MessageType.SNAIL_MAIL)
+			.withDestinationAddress(createAddress())
+			.withPartyId("somePartyId")
 			.build();
 	}
 

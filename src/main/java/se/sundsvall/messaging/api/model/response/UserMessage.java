@@ -32,6 +32,8 @@ public record UserMessage(
 	@Schema(description = "Recipient model")
 	public record Recipient(
 
+		@Schema(description = "The recipient address") Address address,
+
 		@Schema(description = "The person identifier", example = "199001011234") String personId,
 
 		@Schema(description = "The message type", example = "SNAIL_MAIL") String messageType,
@@ -48,5 +50,17 @@ public record UserMessage(
 
 		@Schema(description = "The attachment file name", example = "attachment.pdf") String fileName) {
 	}
+
+	@With
+	@Builder(setterPrefix = "with")
+	@Schema(description = "Address model")
+	public record Address(
+		@Schema(description = "The address", example = "Storgatan 1") String address,
+		@Schema(description = "The city", example = "Sundsvall") String city,
+		@Schema(description = "The country", example = "Sweden") String country,
+		@Schema(description = "The first name", example = "Kalle") String firstName,
+		@Schema(description = "The last name", example = "Kula") String lastName,
+		@Schema(description = "The care of", example = "c/o Name Namesson") String careOf,
+		@Schema(description = "The zip code", example = "123 45") String zipCode) {}
 
 }

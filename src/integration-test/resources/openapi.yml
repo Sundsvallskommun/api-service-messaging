@@ -877,6 +877,65 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/users/{userId}/messages/{messageId}:
+    get:
+      tags:
+        - History Resources
+      summary: Get a historical message sent by a user
+      operationId: getUserMessage
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
+          example: test
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserMessage"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/UserMessage"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/status/message/{messageId}:
     get:
       tags:
@@ -2617,6 +2676,8 @@ components:
     Recipient:
       type: object
       properties:
+        address:
+          $ref: "#/components/schemas/Address"
         personId:
           type: string
           description: The person identifier
