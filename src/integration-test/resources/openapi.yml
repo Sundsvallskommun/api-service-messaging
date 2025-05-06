@@ -1,13 +1,13 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "7.0"
 servers:
-  - url: http://localhost:60077
+  - url: http://localhost:57862
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -1340,16 +1340,15 @@ paths:
 components:
   schemas:
     ExternalReference:
-      required:
-        - key
-        - value
       type: object
       properties:
         key:
+          minLength: 1
           type: string
           description: The external reference key
           example: flowInstanceId
         value:
+          minLength: 1
           type: string
           description: The external reference value
           example: 356t4r34f
@@ -1389,6 +1388,7 @@ components:
         party:
           $ref: "#/components/schemas/WebMessageParty"
         message:
+          minLength: 1
           type: string
           description: Message
         sender:
@@ -1432,12 +1432,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -1514,6 +1514,7 @@ components:
           type: string
           description: Mobile number. Should start with +467x
         message:
+          minLength: 1
           type: string
           description: Message
         priority:
@@ -1549,6 +1550,7 @@ components:
             \ by (a,a,o) respectively"
           example: sender
         message:
+          minLength: 1
           type: string
           description: Message to send as sms
         priority:
@@ -1558,6 +1560,7 @@ components:
             - HIGH
             - NORMAL
         parties:
+          minItems: 1
           type: array
           description: Parties to send the sms message to
           items:
@@ -1596,24 +1599,26 @@ components:
       type: object
       properties:
         token:
+          minLength: 1
           type: string
           description: App/bot token
         channel:
+          minLength: 1
           type: string
           description: Channel name/id
         message:
+          minLength: 1
           type: string
           description: Message (supports Slack markdown formatting)
     Email:
-      required:
-        - address
-        - name
       type: object
       properties:
         name:
+          minLength: 1
           type: string
           description: The sender of the e-mail
         address:
+          minLength: 1
           type: string
           description: Sender e-mail address
           example: sender@sender.se
@@ -1651,6 +1656,7 @@ components:
           type: string
           description: The message subject (for E-mails)
         message:
+          minLength: 1
           type: string
           description: Plain-text message text
         htmlMessage:
@@ -1678,6 +1684,7 @@ components:
       type: object
       properties:
         messages:
+          minItems: 1
           type: array
           description: The messages to be sent
           items:
@@ -1691,8 +1698,6 @@ components:
           $ref: "#/components/schemas/Sms"
       description: Sender
     Sms:
-      required:
-        - name
       type: object
       properties:
         name:
@@ -1739,9 +1744,7 @@ components:
       description: Addresses that gets a letter copy
     LetterAttachment:
       required:
-        - content
         - deliveryMode
-        - filename
       type: object
       properties:
         deliveryMode:
@@ -1754,6 +1757,7 @@ components:
             - DIGITAL_MAIL
             - SNAIL_MAIL
         filename:
+          minLength: 1
           type: string
           description: Filename
         contentType:
@@ -1762,6 +1766,7 @@ components:
           enum:
             - application/pdf
         content:
+          minLength: 1
           type: string
           description: Content (BASE64-encoded)
       description: Attachment
@@ -1786,8 +1791,6 @@ components:
       description: Party
     LetterRequest:
       required:
-        - attachments
-        - department
         - party
         - subject
       type: object
@@ -1810,6 +1813,7 @@ components:
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
             \ if contentType is set to 'text/html')"
         department:
+          minLength: 1
           type: string
           description: Department and unit that should be billed in case of snailmail
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
@@ -1836,6 +1840,7 @@ components:
       type: object
       properties:
         text:
+          minLength: 1
           type: string
           description: Text
         emailAddress:
@@ -1855,6 +1860,7 @@ components:
       type: object
       properties:
         name:
+          minLength: 1
           type: string
           description: The attachment filename
           example: test.txt
@@ -1876,9 +1882,11 @@ components:
         party:
           $ref: "#/components/schemas/EmailRequestParty"
         emailAddress:
+          minLength: 1
           type: string
           description: Recipient e-mail address
         subject:
+          minLength: 1
           type: string
           description: E-mail subject
         message:
@@ -1916,15 +1924,14 @@ components:
             $ref: "#/components/schemas/ExternalReference"
       description: Party
     EmailSender:
-      required:
-        - address
-        - name
       type: object
       properties:
         name:
+          minLength: 1
           type: string
           description: The sender of the e-mail
         address:
+          minLength: 1
           type: string
           description: Sender e-mail address
           example: sender@sender.se
@@ -1935,15 +1942,16 @@ components:
       description: Sender
     EmailBatchRequest:
       required:
-        - parties
         - subject
       type: object
       properties:
         parties:
+          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/Party"
         subject:
+          minLength: 1
           type: string
           description: E-mail subject
         message:
@@ -1978,13 +1986,11 @@ components:
           format: uuid
           example: e8660aab-6df9-4ed5-86d1-d9b90a5f7e87
         emailAddress:
+          minLength: 1
           type: string
           description: Recipient e-mail address
           example: someone@somewhere.com
     DigitalMailAttachment:
-      required:
-        - content
-        - filename
       type: object
       properties:
         contentType:
@@ -1993,15 +1999,15 @@ components:
           enum:
             - application/pdf
         content:
+          minLength: 1
           type: string
           description: Content (BASE64-encoded)
         filename:
+          minLength: 1
           type: string
           description: Filename
       description: Attachment
     DigitalMailParty:
-      required:
-        - partyIds
       type: object
       properties:
         partyIds:
@@ -2019,8 +2025,6 @@ components:
       description: Party
     DigitalMailRequest:
       required:
-        - body
-        - contentType
         - party
       type: object
       properties:
@@ -2038,12 +2042,14 @@ components:
           nullable: true
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
         contentType:
+          minLength: 1
           type: string
           description: Content type
           enum:
             - text/plain
             - text/html
         body:
+          minLength: 1
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
             \ if contentType is set to 'application/html')"
@@ -2066,6 +2072,7 @@ components:
       type: object
       properties:
         text:
+          minLength: 1
           type: string
           description: Text
         emailAddress:
@@ -2105,6 +2112,7 @@ components:
             - TENANT_REF
         paymentReference:
           maxLength: 25
+          minLength: 1
           type: string
           description: The payment reference number
           example: "426523791"
@@ -2114,6 +2122,7 @@ components:
             - BANKGIRO
             - PLUSGIRO
         accountNumber:
+          minLength: 1
           type: string
           description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
           example: "12345"
@@ -2134,6 +2143,7 @@ components:
           type: string
           description: Content (BASE64-encoded)
         filename:
+          minLength: 1
           type: string
           description: Filename
       description: Files
@@ -2305,12 +2315,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
@@ -2555,4 +2565,4 @@ components:
         timestamp:
           type: string
           format: date-time
-  securitySchemes: {}
+  securitySchemes: { }
