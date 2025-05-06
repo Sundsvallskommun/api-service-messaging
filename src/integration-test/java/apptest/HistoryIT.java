@@ -161,4 +161,16 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
+	
+	@Test
+	void test13_userMessageNoAttachment() {
+		final var userId = "issuer123";
+		final var messageId = "ed0e2373-b15a-4261-86eb-b3c0ecedfdb8";
+		setupCall()
+			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 }

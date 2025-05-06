@@ -1,0 +1,14 @@
+{
+	"messageId": "ed0e2373-b15a-4261-86eb-b3c0ecedfdb8",
+	"issuer": "issuer123",
+	"sent": "2024-02-25T15:54:39.254123",
+	"subject": "",
+	"recipients": [
+		{
+			"personId": "190101010159",
+			"messageType": "SMS",
+			"status": "SENT"
+		}
+	],
+	"attachments": []
+}

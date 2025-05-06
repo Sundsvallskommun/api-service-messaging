@@ -168,7 +168,7 @@ public final class TestDataFactory {
 			.withDeviation("someDeviation")
 			.withAttachments(List.of(
 				SnailMailRequest.Attachment.builder()
-					.withName("someName")
+					.withFilename("someName")
 					.withContentType("someContentType")
 					.withContent("someContent")
 					.build()))
@@ -447,7 +447,7 @@ public final class TestDataFactory {
 				    {
 				    "attachments": [
 				        {
-				            "name": "someFileName",
+				            "fileName": "someFileName",
 				            "content": "someContent",
 				            "contentType": "application/pdf"
 				        }

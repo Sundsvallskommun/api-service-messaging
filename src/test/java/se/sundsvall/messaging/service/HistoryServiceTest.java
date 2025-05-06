@@ -19,6 +19,15 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static se.sundsvall.messaging.TestDataFactory.createAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createHistoryEntity;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessage;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SLACK;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,8 +42,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.hc.client5.http.utils.Base64;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -306,7 +319,7 @@ class HistoryServiceTest {
 		when(attachmentArrayNode.iterator()).thenReturn(List.of(attachmentNode).iterator());
 		when(attachmentNode.get("contentType")).thenReturn(contentTypeNode);
 		when(contentTypeNode.asText()).thenReturn("application/pdf");
-		when(attachmentNode.get("name")).thenReturn(fileNameNode);
+		when(attachmentNode.get("filename")).thenReturn(fileNameNode);
 		when(fileNameNode.asText()).thenReturn("someFileName");
 
 		var result = historyService.extractAttachment(history);
@@ -346,7 +359,7 @@ class HistoryServiceTest {
 	void createRecipientTest_nullPartyId() {
 		var municipalityId = "2281";
 		var history = HistoryEntity.builder()
-			.withMessageType(MessageType.MESSAGE)
+			.withMessageType(MESSAGE)
 			.withStatus(MessageStatus.SENT)
 			.build();
 		var histories = List.of(history);
@@ -417,5 +430,62 @@ class HistoryServiceTest {
 		verify(mockDbIntegration).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
 		verifyNoInteractions(objectMapper, partyIntegrationMock, httpServletResponseMock);
 		verifyNoMoreInteractions(mockDbIntegration);
+	}
+
+	@ParameterizedTest
+	@MethodSource("attachmentFieldProvider")
+	void testGetAttachmentField(MessageType messageType, String attachmentFieldName) {
+		assertThat(historyService.getAttachmentsField(messageType)).isEqualTo(attachmentFieldName);
+	}
+
+	@ParameterizedTest
+	@MethodSource("fileNameFieldProvider")
+	void testGetFileNameField(MessageType messageType, String attachmentFieldName) {
+		assertThat(historyService.getFileNameField(messageType)).isEqualTo(attachmentFieldName);
+	}
+
+	@ParameterizedTest
+	@MethodSource("contentTypeFieldProvider")
+	void testGetContentTypeField(MessageType messageType, String attachmentFieldName) {
+		assertThat(historyService.getContentTypeField(messageType)).isEqualTo(attachmentFieldName);
+	}
+
+	public static Stream<Arguments> attachmentFieldProvider() {
+		return Stream.of(
+			Arguments.of(MESSAGE, null),
+			Arguments.of(EMAIL, "attachments"),
+			Arguments.of(SMS, null),
+			Arguments.of(WEB_MESSAGE, "attachments"),
+			Arguments.of(DIGITAL_MAIL, "attachments"),
+			Arguments.of(DIGITAL_INVOICE, "files"),
+			Arguments.of(SNAIL_MAIL, "attachments"),
+			Arguments.of(LETTER, "attachments"),
+			Arguments.of(SLACK, null));
+	}
+
+	public static Stream<Arguments> fileNameFieldProvider() {
+		return Stream.of(
+			Arguments.of(MESSAGE, null),
+			Arguments.of(EMAIL, "name"),
+			Arguments.of(SMS, null),
+			Arguments.of(WEB_MESSAGE, "fileName"),
+			Arguments.of(DIGITAL_MAIL, "filename"),
+			Arguments.of(DIGITAL_INVOICE, "filename"),
+			Arguments.of(SNAIL_MAIL, "filename"),
+			Arguments.of(LETTER, "filename"),
+			Arguments.of(SLACK, null));
+	}
+
+	public static Stream<Arguments> contentTypeFieldProvider() {
+		return Stream.of(
+			Arguments.of(MESSAGE, null),
+			Arguments.of(EMAIL, "contentType"),
+			Arguments.of(SMS, null),
+			Arguments.of(WEB_MESSAGE, "mimeType"),
+			Arguments.of(DIGITAL_MAIL, "contentType"),
+			Arguments.of(DIGITAL_INVOICE, "contentType"),
+			Arguments.of(SNAIL_MAIL, "contentType"),
+			Arguments.of(LETTER, "contentType"),
+			Arguments.of(SLACK, null));
 	}
 }

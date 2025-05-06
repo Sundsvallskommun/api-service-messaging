@@ -22,7 +22,7 @@ class SnailMailSenderIntegrationMapperTest {
 	void test_toSendSnailmailRequest() {
 		var dto = SnailMailDto.builder()
 			.withAttachments(List.of(SnailMailDto.Attachment.builder()
-				.withName("someName")
+				.withFilename("someName")
 				.withContentType(Attachment.ContentTypeEnum.APPLICATION_PDF.getValue())
 				.withContent("someContent")
 				.build()))

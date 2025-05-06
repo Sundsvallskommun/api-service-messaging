@@ -48,7 +48,7 @@ public record SnailMailRequest(
 	@Schema(name = "SnailmailAttachment", description = "Attachment")
 	public record Attachment(
 
-		@NotBlank @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED) String name,
+		@NotBlank @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED) String filename,
 
 		@Schema(description = "The attachment content type", example = "text/plain") String contentType,
 

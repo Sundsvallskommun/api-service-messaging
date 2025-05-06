@@ -6,7 +6,7 @@
 			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
 			"attachments": [
 				{
-					"name": "beslut.pdf",
+					"filename": "beslut.pdf",
 					"contentType": "application/pdf"
 				}
 			]
@@ -20,7 +20,7 @@
 			"department": "SBK(Gatuavdelningen, Trafiksektionen)",
 			"attachments": [
 				{
-					"name": "beslut.pdf",
+					"filename": "beslut.pdf",
 					"contentType": "application/pdf"
 				}
 			]
