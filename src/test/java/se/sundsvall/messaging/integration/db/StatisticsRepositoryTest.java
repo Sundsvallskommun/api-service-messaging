@@ -10,6 +10,7 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,7 +52,11 @@ class StatisticsRepositoryTest {
 		assertThat(statsEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::status)
 			.containsExactly(
 				tuple(SMS, SMS, SENT),
-				tuple(SMS, SMS, SENT));
+				tuple(SMS, SMS, SENT),
+				tuple(SMS, SMS, SENT),
+				tuple(SMS, SMS, FAILED),
+				tuple(SMS, SMS, SENT),
+				tuple(SMS, SMS, FAILED));
 	}
 
 	@Test
@@ -113,6 +118,22 @@ class StatisticsRepositoryTest {
 				tuple("", SNAIL_MAIL, LETTER, SENT),
 				tuple("", SNAIL_MAIL, LETTER, FAILED),
 				tuple(null, SNAIL_MAIL, LETTER, SENT));
+	}
+
+	@Test
+	void getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes() {
+		var statEntries = statisticsRepository.getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes("2281", "SBK(Gatuavdelningen, Trafiksektionen)", null, List.of(LETTER, SMS), LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 25));
+
+		assertThat(statEntries).extracting(StatsEntry::messageType, StatsEntry::originalMessageType, StatsEntry::department, StatsEntry::status)
+			.containsExactlyInAnyOrder(
+				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", FAILED),
+				tuple(SMS, SMS, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+				tuple(SMS, SMS, "SBK(Gatuavdelningen, Trafiksektionen)", FAILED),
+				tuple(SMS, SMS, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+				tuple(SMS, SMS, "SBK(Gatuavdelningen, Trafiksektionen)", FAILED));
 	}
 
 }

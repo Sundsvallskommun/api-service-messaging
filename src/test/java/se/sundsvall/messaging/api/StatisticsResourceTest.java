@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.DepartmentStats;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
@@ -192,6 +193,46 @@ class StatisticsResourceTest {
 		assertThat(response).containsExactly(statistics);
 
 		verify(mockStatisticsService).getDepartmentLetterStatistics(origin, department, from, to, MUNICIPALITY_ID);
+		verifyNoMoreInteractions(mockStatisticsService);
+	}
+
+	@Test
+	void getStatisticsByDepartment() {
+		final var department = "department";
+		final var origin = "origin";
+		final var from = LocalDate.now().minusDays(2);
+		final var to = LocalDate.now();
+		final var departmentStats = DepartmentStats.builder()
+			.withOrigin(origin)
+			.withDepartment(department)
+			.withSms(new Count(1, 1))
+			.withSnailMail(new Count(1, 1))
+			.withDigitalMail(new Count(1, 1))
+			.build();
+
+		when(mockStatisticsService.getStatisticsByDepartment(MUNICIPALITY_ID, department, origin, from, to)).thenReturn(departmentStats);
+
+		final var response = webTestClient.get()
+			.uri((uriBuilder -> uriBuilder.path("/{municipalityId}/statistics/delivery-status")
+				.queryParam("origin", origin)
+				.queryParam("department", department)
+				.queryParam("to", to)
+				.queryParam("from", from).build(Map.of("municipalityId", MUNICIPALITY_ID))))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(DepartmentStats.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull().satisfies(stats -> {
+			assertThat(stats.origin()).isEqualTo(origin);
+			assertThat(stats.department()).isEqualTo(department);
+			assertThat(stats.sms()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(stats.snailMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(stats.digitalMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+		});
+
+		verify(mockStatisticsService).getStatisticsByDepartment(MUNICIPALITY_ID, department, origin, from, to);
 		verifyNoMoreInteractions(mockStatisticsService);
 	}
 }

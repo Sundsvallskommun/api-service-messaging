@@ -12,8 +12,10 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.mapToCount;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toCount;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatisticsList;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStats;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
 
 import java.util.List;
@@ -25,6 +27,64 @@ import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
 
 class StatisticsMapperTest {
+
+	private static final String MUNICIPALITY_ID = "2281";
+
+	@Test
+	void test_toDepartmentStats() {
+		var department = "department";
+		var origin = "origin";
+		var statsEntries = List.of(
+			new StatsEntry(SMS, SMS, SENT, MUNICIPALITY_ID),
+			new StatsEntry(SMS, SMS, FAILED, MUNICIPALITY_ID),
+			new StatsEntry(SNAIL_MAIL, LETTER, SENT, MUNICIPALITY_ID),
+			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, MUNICIPALITY_ID),
+			new StatsEntry(DIGITAL_MAIL, LETTER, SENT, MUNICIPALITY_ID),
+			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, MUNICIPALITY_ID));
+
+		var result = toDepartmentStats(statsEntries, department, origin);
+
+		assertThat(result).isNotNull().satisfies(departmentStats -> {
+			assertThat(departmentStats.department()).isEqualTo(department);
+			assertThat(departmentStats.origin()).isEqualTo(origin);
+			assertThat(departmentStats.sms()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(departmentStats.digitalMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(departmentStats.snailMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+		});
+	}
+
+	@Test
+	void test_mapToCount() {
+		var statsEntries = List.of(
+			new StatsEntry(SMS, SMS, SENT, MUNICIPALITY_ID),
+			new StatsEntry(SMS, SMS, FAILED, MUNICIPALITY_ID),
+			new StatsEntry(SNAIL_MAIL, LETTER, SENT, MUNICIPALITY_ID),
+			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, MUNICIPALITY_ID),
+			new StatsEntry(DIGITAL_MAIL, LETTER, SENT, MUNICIPALITY_ID),
+			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, MUNICIPALITY_ID));
+
+		var smsResult = mapToCount(statsEntries, SMS);
+		var snailMailResult = mapToCount(statsEntries, SNAIL_MAIL);
+		var digitalMailResult = mapToCount(statsEntries, DIGITAL_MAIL);
+
+		assertThat(smsResult).isNotNull().satisfies(count -> {
+			assertThat(count.sent()).isEqualTo(1);
+			assertThat(count.failed()).isEqualTo(1);
+			assertThat(count.total()).isEqualTo(2);
+		});
+
+		assertThat(snailMailResult).isNotNull().satisfies(count -> {
+			assertThat(count.sent()).isEqualTo(1);
+			assertThat(count.failed()).isEqualTo(1);
+			assertThat(count.total()).isEqualTo(2);
+		});
+
+		assertThat(digitalMailResult).isNotNull().satisfies(count -> {
+			assertThat(count.sent()).isEqualTo(1);
+			assertThat(count.failed()).isEqualTo(1);
+			assertThat(count.total()).isEqualTo(2);
+		});
+	}
 
 	@Test
 	void test_toStatistics() {

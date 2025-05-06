@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+import se.sundsvall.messaging.api.model.response.DepartmentStats;
 import se.sundsvall.messaging.api.validation.ValidNullOrNotEmpty;
 import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.MessageType;
@@ -81,6 +82,20 @@ class StatisticsResource {
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
 		return ok(statisticsService.getDepartmentLetterStatistics(origin, department, from, to, municipalityId));
+	}
+
+	@Operation(summary = "Get letter and sms delivery statistics by department", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
+	@GetMapping(value = "/{municipalityId}/statistics/delivery-status", produces = APPLICATION_JSON_VALUE)
+	ResponseEntity<DepartmentStats> getStatisticsByDepartment(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@RequestParam(name = "department", required = false) @Parameter(description = "Department name") @ValidNullOrNotEmpty final String department,
+		@RequestParam(name = "origin", required = false) @Parameter(description = "Origin name") final String origin,
+		@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
+		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
+
+		return ok(statisticsService.getStatisticsByDepartment(municipalityId, department, origin, from, to));
 	}
 
 }

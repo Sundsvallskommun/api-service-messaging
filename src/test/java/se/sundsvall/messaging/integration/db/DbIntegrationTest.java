@@ -7,9 +7,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -199,4 +204,31 @@ class DbIntegrationTest {
 		verify(mockHistoryRepository).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
 		verifyNoMoreInteractions(mockHistoryRepository);
 	}
+
+	@Test
+	void getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes() {
+		final var municipalityId = "2281";
+		final var department = "department";
+		final var origin = "origin";
+		final var messageTypes = List.of(LETTER, SMS);
+		final var from = LocalDate.now().minusDays(1);
+		final var to = LocalDate.now();
+		final var statEntries = List.of(
+			new StatsEntry(SMS, SMS, SENT, origin, department, municipalityId),
+			new StatsEntry(SMS, SMS, FAILED, origin, department, municipalityId),
+			new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
+			new StatsEntry(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
+
+		when(mockStatisticsRepository.getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(municipalityId, department, origin, messageTypes, from, to))
+			.thenReturn(statEntries);
+
+		var result = dbIntegration.getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(municipalityId, department, origin, messageTypes, from, to);
+
+		assertThat(result).isEqualTo(statEntries);
+		verify(mockStatisticsRepository).getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(municipalityId, department, origin, messageTypes, from, to);
+		verifyNoMoreInteractions(mockStatisticsRepository);
+	}
+
 }

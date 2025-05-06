@@ -119,15 +119,17 @@ public class DbIntegration {
 	}
 
 	@Transactional(readOnly = true)
-	public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
-		final LocalDate to, final String municipalityId) {
+	public List<StatsEntry> getStats(final MessageType messageType, final LocalDate from, final LocalDate to, final String municipalityId) {
 		return statisticsRepository.getStats(messageType, from, to, municipalityId);
 	}
 
 	@Transactional(readOnly = true)
-	public List<StatsEntry> getStatsByMunicipalityIdAndOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from,
-		final LocalDate to) {
+	public List<StatsEntry> getStatsByMunicipalityIdAndOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from, final LocalDate to) {
 		return statisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, messageType, from, to);
+	}
+
+	public List<StatsEntry> getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(final String municipalityId, final String department, final String origin, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
+		return statisticsRepository.getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(municipalityId, department, origin, messageTypes, from, to);
 	}
 
 	public Page<MessageIdProjection> getUniqueMessageIds(final String municipalityId, final String issuer, final LocalDateTime dateTime, final PageRequest pageRequest) {
