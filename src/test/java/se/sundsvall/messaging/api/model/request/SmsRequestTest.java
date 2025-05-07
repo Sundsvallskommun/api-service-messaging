@@ -20,12 +20,13 @@ class SmsRequestTest {
 	private static final Priority PRIORITY = Priority.HIGH;
 	private static final String PARTY_ID = "partyId";
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String DEPARTMENT = "department";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 
 	// SmsRequest
 	@Test
 	void testSmsRequestConstructor() {
-		final var bean = new SmsRequest(PARTY, SENDER, MOBILE_NUMBER, ORIGIN, ISSUER, MESSAGE, PRIORITY, MUNICIPALITY_ID);
+		final var bean = new SmsRequest(PARTY, SENDER, MOBILE_NUMBER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT, MUNICIPALITY_ID);
 
 		assertSmsRequest(bean);
 	}
@@ -41,6 +42,7 @@ class SmsRequestTest {
 			.withPriority(PRIORITY)
 			.withSender(SENDER)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withDepartment(DEPARTMENT)
 			.build();
 
 		assertSmsRequest(bean);
@@ -56,6 +58,7 @@ class SmsRequestTest {
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.priority()).isEqualTo(PRIORITY);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(bean.department()).isEqualTo(DEPARTMENT);
 	}
 
 	// SmsRequest

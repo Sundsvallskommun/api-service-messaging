@@ -5,8 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
@@ -71,6 +74,38 @@ class StatisticsServiceTest {
 					.build())));
 
 		verify(mockDbIntegration).getStatsByMunicipalityIdAndOriginAndDepartment(municipalityId, origin, department, LETTER, fromDate, toDate);
+	}
+
+	@Test
+	void getStatisticsByDepartment() {
+		final var municipalityId = "2281";
+		final var department = "department";
+		final var origin = "origin";
+		final var fromDate = LocalDate.now();
+		final var toDate = LocalDate.now().plusMonths(1);
+		final var messageTypes = List.of(LETTER, SMS);
+		final var statEntries = List.of(
+			new StatsEntry(SMS, SMS, SENT, origin, department, municipalityId),
+			new StatsEntry(SMS, SMS, FAILED, origin, department, municipalityId),
+			new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
+			new StatsEntry(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
+
+		when(mockDbIntegration.getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(municipalityId, department, origin, messageTypes, fromDate, toDate)).thenReturn(statEntries);
+
+		final var result = statisticsService.getStatisticsByDepartment(municipalityId, department, origin, fromDate, toDate);
+
+		assertThat(result).isNotNull().satisfies(departmentStats -> {
+			assertThat(departmentStats.origin()).isEqualTo(origin);
+			assertThat(departmentStats.department()).isEqualTo(department);
+			assertThat(departmentStats.sms()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(departmentStats.snailMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+			assertThat(departmentStats.digitalMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
+		});
+
+		verify(mockDbIntegration).getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(municipalityId, department, origin, messageTypes, fromDate, toDate);
+		verifyNoMoreInteractions(mockDbIntegration);
 	}
 
 }

@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.0"
 servers:
-  - url: http://localhost:57862
+  - url: http://localhost:60040
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -1120,6 +1120,67 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/statistics/delivery-status:
+    get:
+      tags:
+        - Statistics Resources
+      summary: Get letter and sms delivery statistics by department
+      operationId: getStatisticsByDepartment
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: department
+          in: query
+          description: Department name
+          required: false
+          schema:
+            type: string
+        - name: origin
+          in: query
+          description: Origin name
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)"
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepartmentStats"
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/messages/{messageId}:
     get:
       tags:
@@ -1432,12 +1493,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -1523,6 +1584,10 @@ components:
           enum:
             - HIGH
             - NORMAL
+        department:
+          type: string
+          description: Department
+          example: API-Team
     SmsRequestParty:
       type: object
       properties:
@@ -1559,6 +1624,10 @@ components:
           enum:
             - HIGH
             - NORMAL
+        department:
+          type: string
+          description: Department
+          example: API-Team
         parties:
           minItems: 1
           type: array
@@ -2315,12 +2384,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
@@ -2535,6 +2604,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DepartmentLetterStatistics"
+    DepartmentStats:
+      type: object
+      properties:
+        ORIGIN:
+          type: string
+        DEPARTMENT:
+          type: string
+        SNAIL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        DIGITAL_MAIL:
+          $ref: "#/components/schemas/StatisticsCounter"
+        SMS:
+          $ref: "#/components/schemas/StatisticsCounter"
     HistoryResponse:
       type: object
       properties:

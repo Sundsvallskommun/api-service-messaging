@@ -1,0 +1,16 @@
+{
+	"ORIGIN": "origin1",
+	"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
+	"SNAIL_MAIL": {
+		"sent": 1,
+		"failed": 0
+	},
+	"DIGITAL_MAIL": {
+		"sent": 0,
+		"failed": 0
+	},
+	"SMS": {
+		"sent": 0,
+		"failed": 0
+	}
+}

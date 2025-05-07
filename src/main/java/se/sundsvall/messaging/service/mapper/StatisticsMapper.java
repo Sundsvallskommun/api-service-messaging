@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import se.sundsvall.messaging.api.model.response.DepartmentStats;
 import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
@@ -90,7 +91,7 @@ public class StatisticsMapper {
 			.map(entry -> isEmpty(entry.department()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), UNCATEGORIZED_DEPARTMENT, municipalityId) : entry)
 			.toList();
 
-		final var letterStats = statsWithUncategorized.stream()
+		final Map<String, Map<String, Map<MessageType, Map<MessageStatus, Integer>>>> letterStats = statsWithUncategorized.stream()
 			.filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()) && isNotEmpty(entry.origin()))
 			.collect(groupingBy(StatsEntry::origin,
 				groupingBy(StatsEntry::department,
@@ -98,6 +99,50 @@ public class StatisticsMapper {
 						groupingBy(StatsEntry::status, summingInt(n -> 1))))));
 
 		return sortDepartmentStatistics(letterStats.keySet().stream().map(origin -> toDepartmentStatistics(origin, letterStats.get(origin))).toList());
+	}
+
+	/**
+	 * Converts a list of {@code StatsEntry} instances into a {@code DepartmentStats} object representing the delivery
+	 * statistics
+	 *
+	 * @param  statsEntries the list of {@code StatsEntry} objects containing message data
+	 * @param  department   the department name
+	 * @param  origin       the origin of the message
+	 * @return              a {@code DepartmentStats} object containing the delivery statistics for the specified department
+	 *                      and origin
+	 */
+	public static DepartmentStats toDepartmentStats(final List<StatsEntry> statsEntries, final String department, final String origin) {
+		return DepartmentStats.builder()
+			.withDepartment(department)
+			.withOrigin(origin)
+			.withSms(mapToCount(statsEntries, SMS))
+			.withDigitalMail(mapToCount(statsEntries, DIGITAL_MAIL))
+			.withSnailMail(mapToCount(statsEntries, SNAIL_MAIL))
+			.build();
+	}
+
+	/**
+	 * Converts a list of {@code StatsEntry} instances into a {@code Count} object representing the number of successful and
+	 * failed message entries for the specified message type.
+	 *
+	 * @param  statsEntries the list of {@code StatsEntry} objects containing message data
+	 * @param  messageType  the {@code MessageType} for which the count is to be calculated
+	 * @return              a {@code Count} object containing the counts of sent and failed messages of the given
+	 *                      {@code MessageType}
+	 */
+	static Count mapToCount(final List<StatsEntry> statsEntries, final MessageType messageType) {
+		var typeEntries = statsEntries.stream()
+			.filter(entry -> entry.messageType() == messageType)
+			.toList();
+
+		var success = Math.toIntExact(typeEntries.stream()
+			.filter(entry -> entry.status() == SENT)
+			.count());
+		var failed = Math.toIntExact(typeEntries.stream()
+			.filter(entry -> entry.status() == FAILED)
+			.count());
+
+		return new Count(success, failed);
 	}
 
 	public static Count toCount(final Map<MessageStatus, Integer> stat) {

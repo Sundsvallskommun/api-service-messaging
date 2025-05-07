@@ -32,6 +32,8 @@ public record SmsRequest(
 
 	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
 
+	@Schema(description = "Department", example = "API-Team") String department,
+
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With

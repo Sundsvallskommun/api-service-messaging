@@ -19,11 +19,12 @@ class SmsBatchRequestTest {
 	private static final String PARTY_ID = "partyId";
 	private static final String MOBILE_NUMBER = "mobileNumber";
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String DEPARTMENT = "department";
 
 	// SmsBatchRequest
 	@Test
 	void testSmsBatchRequestConstructor() {
-		final var bean = new SmsBatchRequest(SENDER, ORIGIN, ISSUER, MESSAGE, PRIORITY, PARTIES, MUNICIPALITY_ID);
+		final var bean = new SmsBatchRequest(SENDER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT, PARTIES, MUNICIPALITY_ID);
 
 		assertSmsBatchRequest(bean);
 	}
@@ -38,6 +39,7 @@ class SmsBatchRequestTest {
 			.withPriority(PRIORITY)
 			.withSender(SENDER)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withDepartment(DEPARTMENT)
 			.build();
 
 		assertSmsBatchRequest(bean);
@@ -52,6 +54,7 @@ class SmsBatchRequestTest {
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.priority()).isEqualTo(PRIORITY);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(bean.department()).isEqualTo(DEPARTMENT);
 	}
 
 	// SmsBatchRequest.Party
