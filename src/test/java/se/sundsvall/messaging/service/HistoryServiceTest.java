@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static se.sundsvall.messaging.TestDataFactory.createAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createHistoryEntity;
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.apache.hc.client5.http.utils.Base64;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -166,6 +168,8 @@ class HistoryServiceTest {
 
 			verify(httpServletResponseMock).addHeader(CONTENT_TYPE, attachment.getContentType());
 			verify(httpServletResponseMock).addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getName() + "\"");
+			verify(httpServletResponseMock).addHeader(CONTENT_LENGTH, String.valueOf(Base64.decodeBase64(attachment.getContent()).length));
+			verify(httpServletResponseMock).setContentLength(Base64.decodeBase64(attachment.getContent()).length);
 			streamMock.verify(() -> StreamUtils.copy(any(InputStream.class), any(OutputStream.class)));
 		}
 	}
