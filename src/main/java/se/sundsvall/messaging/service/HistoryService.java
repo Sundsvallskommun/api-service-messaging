@@ -3,6 +3,7 @@ package se.sundsvall.messaging.service;
 import static java.util.Collections.emptyList;
 import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.zalando.problem.Status.NOT_FOUND;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -97,10 +98,13 @@ public class HistoryService {
 	}
 
 	private void setupResponse(final HttpServletResponse response, final Attachment attachment) throws IOException {
+		var decodedContent = Base64.decodeBase64(attachment.getContent());
 		response.addHeader(CONTENT_TYPE, attachment.getContentType());
 		response.addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getName() + "\"");
+		response.addHeader(CONTENT_LENGTH, String.valueOf(decodedContent.length));
+		response.setContentLength(decodedContent.length);
 
-		var binaryStream = new BinaryStreamImpl(Base64.decodeBase64(attachment.getContent()));
+		var binaryStream = new BinaryStreamImpl(decodedContent);
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
