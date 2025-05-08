@@ -2,8 +2,8 @@ package se.sundsvall.messaging.service;
 
 import static java.util.Collections.emptyList;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.zalando.problem.Status.NOT_FOUND;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
 import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
@@ -157,6 +158,9 @@ public class HistoryService {
 	}
 
 	List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
+		if (StringUtils.isBlank(history.getContent())) {
+			return emptyList();
+		}
 		List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
 		var messageType = history.getMessageType();
 
