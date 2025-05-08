@@ -17,7 +17,7 @@ public record SnailMailDto(
 
 	@Builder(setterPrefix = "with")
 	public record Attachment(
-		String name,
+		String filename,
 		String contentType,
 		String content) {
 	}

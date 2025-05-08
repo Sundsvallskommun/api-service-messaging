@@ -139,7 +139,7 @@ public class RequestMapper {
 			.withAttachments(request.attachments().stream()
 				.filter(LetterRequest.Attachment::isIntendedForSnailMail)
 				.map(attachment -> SnailMailRequest.Attachment.builder()
-					.withName(attachment.filename())
+					.withFilename(attachment.filename())
 					.withContent(attachment.content())
 					.withContentType(attachment.contentType())
 					.build())

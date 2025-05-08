@@ -23,7 +23,7 @@ class SnailMailSenderIntegrationMapper {
 			.attachments(Optional.ofNullable(dto.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> new Attachment()
-						.name(attachment.name())
+						.name(attachment.filename())
 						.contentType(Attachment.ContentTypeEnum.fromValue(attachment.contentType()))
 						.content(attachment.content()))
 					.toList())

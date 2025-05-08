@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.service;
 
 import static java.util.Collections.emptyList;
-import static org.apache.hc.core5.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.zalando.problem.Status.NOT_FOUND;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
 import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
@@ -68,15 +69,11 @@ public class HistoryService {
 
 	public void streamAttachment(final String municipalityId, final String messageId, final String fileName, final HttpServletResponse response) throws IOException {
 		var history = dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
-		var nameField = getNameField(history.getMessageType());
+		var nameField = getFileNameField(history.getMessageType());
 		var content = objectMapper.readTree(history.getContent());
 
 		var attachment = findAttachmentByName(content, nameField, fileName);
 		setupResponse(response, attachment);
-	}
-
-	private String getNameField(final MessageType messageType) {
-		return messageType.equals(MessageType.SNAIL_MAIL) ? "name" : "filename";
 	}
 
 	Attachment findAttachmentByName(final JsonNode content, final String nameField, final String fileName) {
@@ -161,21 +158,30 @@ public class HistoryService {
 	}
 
 	List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
+		if (StringUtils.isBlank(history.getContent())) {
+			return emptyList();
+		}
 		List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
-		var fieldName = getNameField(history.getMessageType());
+		var messageType = history.getMessageType();
+
 		JsonNode attachmentsNode;
+
 		try {
 			var jsonNode = objectMapper.readTree(history.getContent());
-			attachmentsNode = jsonNode.get("attachments");
+			var attachmentsField = getAttachmentsField(messageType);
+			attachmentsNode = jsonNode.get(attachmentsField);
 		} catch (JsonProcessingException ignored) {
 			return emptyList();
 		}
 
 		if (attachmentsNode != null && attachmentsNode.isArray()) {
+			var fileNameField = getFileNameField(messageType);
+			var contentTypeField = getContentTypeField(messageType);
+
 			for (var attachment : attachmentsNode) {
 				attachments.add(UserMessage.MessageAttachment.builder()
-					.withFileName(attachment.get(fieldName).asText())
-					.withContentType(attachment.get("contentType").asText())
+					.withFileName(attachment.get(fileNameField).asText())
+					.withContentType(attachment.get(contentTypeField).asText())
 					.build());
 			}
 		}
@@ -223,5 +229,48 @@ public class HistoryService {
 		}
 
 		return createUserMessage(municipalityId, messageId);
+	}
+
+	/**
+	 * Get the attachments field name for the given message type.
+	 * 
+	 * @param  messageType messageType to get the attachments field for
+	 * @return             the attachments field name
+	 */
+	String getAttachmentsField(final MessageType messageType) {
+		return switch (messageType) {
+			case DIGITAL_MAIL, EMAIL, LETTER, SNAIL_MAIL, WEB_MESSAGE -> "attachments";
+			case DIGITAL_INVOICE -> "files";
+			default -> null; // SMS, MESSAGE and SLACK
+		};
+	}
+
+	/**
+	 * Get the name field name for the given message type.
+	 * 
+	 * @param  messageType messageType to get the name field for
+	 * @return             the name field name
+	 */
+	String getFileNameField(final MessageType messageType) {
+		return switch (messageType) {
+			case DIGITAL_INVOICE, DIGITAL_MAIL, LETTER, SNAIL_MAIL -> "filename";
+			case EMAIL -> "name";
+			case WEB_MESSAGE -> "fileName";
+			default -> null; // SMS, MESSAGE and SLACK
+		};
+	}
+
+	/**
+	 * Get the content type field name for the given message type.
+	 * 
+	 * @param  messageType messageType to get the content type field name for
+	 * @return             the content type field name
+	 */
+	String getContentTypeField(final MessageType messageType) {
+		return switch (messageType) {
+			case DIGITAL_INVOICE, DIGITAL_MAIL, EMAIL, LETTER, SNAIL_MAIL -> "contentType";
+			case WEB_MESSAGE -> "mimeType";
+			default -> null; // SMS, MESSAGE and SLACK
+		};
 	}
 }

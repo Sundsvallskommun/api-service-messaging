@@ -153,11 +153,11 @@ class RequestMapperTest {
 		assertThat(snailMailRequest.attachments()).hasSize(2).satisfiesExactlyInAnyOrder(attachment -> {
 			assertThat(attachment.content()).isEqualTo(content + DeliveryMode.ANY);
 			assertThat(attachment.contentType()).isEqualTo(contentType + DeliveryMode.ANY);
-			assertThat(attachment.name()).isEqualTo(filename + DeliveryMode.ANY);
+			assertThat(attachment.filename()).isEqualTo(filename + DeliveryMode.ANY);
 		}, attachment -> {
 			assertThat(attachment.content()).isEqualTo(content + DeliveryMode.SNAIL_MAIL);
 			assertThat(attachment.contentType()).isEqualTo(contentType + DeliveryMode.SNAIL_MAIL);
-			assertThat(attachment.name()).isEqualTo(filename + DeliveryMode.SNAIL_MAIL);
+			assertThat(attachment.filename()).isEqualTo(filename + DeliveryMode.SNAIL_MAIL);
 		});
 
 		assertThat(snailMailRequest.address()).isEqualTo(address);

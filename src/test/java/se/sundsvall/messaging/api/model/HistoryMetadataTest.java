@@ -154,7 +154,7 @@ class HistoryMetadataTest {
 		var snailMailRequest = (SnailMailRequest) historyWithoutFileContent.content();
 
 		assertThat(snailMailRequest.attachments())
-			.extracting(SnailMailRequest.Attachment::name, SnailMailRequest.Attachment::contentType, SnailMailRequest.Attachment::content)
+			.extracting(SnailMailRequest.Attachment::filename, SnailMailRequest.Attachment::contentType, SnailMailRequest.Attachment::content)
 			.containsExactlyInAnyOrder(
 				tuple("test.pdf", "application/pdf", null),
 				tuple("test2.pdf", "application/pdf", null));
@@ -476,12 +476,12 @@ class HistoryMetadataTest {
 				  "deviation": "A3 Ritning",
 				  "attachments": [
 				    {
-				        "name":"test.pdf",
+				        "filename":"test.pdf",
 				        "contentType":"application/pdf",
 				        "content":"someContent"
 				    },
 				    {
-				        "name":"test2.pdf",
+				        "filename":"test2.pdf",
 				        "contentType":"application/pdf",
 				        "content":"anotherContent"
 				    }

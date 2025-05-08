@@ -13,7 +13,7 @@ class SnailMailDtoTest {
 
 	@Test
 	void testRecord() {
-		var attachments = List.of(SnailMailDto.Attachment.builder().withName("name").withContentType("contentType").withContent("content").build());
+		var attachments = List.of(SnailMailDto.Attachment.builder().withFilename("name").withContentType("contentType").withContent("content").build());
 
 		var snailMailDto = new SnailMailDto("partyId", ADDRESS, "batchId", "department", "deviation", "issuer", "origin", attachments);
 

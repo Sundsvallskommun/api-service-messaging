@@ -183,7 +183,7 @@ public class DtoMapper {
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> SnailMailDto.Attachment.builder()
-						.withName(attachment.name())
+						.withFilename(attachment.filename())
 						.withContentType(attachment.contentType())
 						.withContent(attachment.content())
 						.build())

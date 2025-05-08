@@ -74,7 +74,7 @@ class SnailMailRequestTest {
 		final var bean = SnailMailRequest.Attachment.builder()
 			.withContent(CONTENT)
 			.withContentType(CONTENT_TYPE)
-			.withName(NAME)
+			.withFilename(NAME)
 			.build();
 
 		assertSnailMailRequestAttachment(bean);
@@ -84,7 +84,7 @@ class SnailMailRequestTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
-		assertThat(bean.name()).isEqualTo(NAME);
+		assertThat(bean.filename()).isEqualTo(NAME);
 	}
 
 	// SnailMailRequest.Party

@@ -194,10 +194,10 @@ class DtoMapperTest {
 
 		// Verify that each attachment is there and mapped correctly
 		assertThat(snailMailDto.attachments())
-			.extracting(SnailMailDto.Attachment::name, SnailMailDto.Attachment::contentType, SnailMailDto.Attachment::content)
+			.extracting(SnailMailDto.Attachment::filename, SnailMailDto.Attachment::contentType, SnailMailDto.Attachment::content)
 			.containsExactlyInAnyOrder(
 				snailMailRequest.attachments().stream()
-					.map(attachment -> tuple(attachment.name(), attachment.contentType(), attachment.content()))
+					.map(attachment -> tuple(attachment.filename(), attachment.contentType(), attachment.content()))
 					.toArray(Tuple[]::new));
 	}
 
