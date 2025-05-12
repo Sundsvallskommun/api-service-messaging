@@ -23,6 +23,7 @@ import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
 import se.sundsvall.messaging.integration.slack.SlackDto;
 import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
 
 @Component
@@ -171,10 +172,10 @@ public class DtoMapper {
 			.build();
 	}
 
-	public SnailMailDto toSnailMailDto(final SnailMailRequest request, String batchId) {
+	public SnailMailDto toSnailMailDto(final SnailMailRequest request, String batchId, Address address) {
 		return SnailMailDto.builder()
 			.withPartyId(request.party().partyId())
-			.withAddress(request.address())
+			.withAddress(address)
 			.withBatchId(batchId)
 			.withDepartment(request.department())
 			.withDeviation(request.deviation())

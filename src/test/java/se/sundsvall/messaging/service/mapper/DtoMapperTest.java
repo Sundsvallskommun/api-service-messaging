@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
 import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalInvoiceRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
@@ -181,7 +182,8 @@ class DtoMapperTest {
 		final var snailMailRequest = createValidSnailMailRequest();
 		final var batchId = "batchId";
 
-		final var snailMailDto = dtoMapper.toSnailMailDto(snailMailRequest, batchId);
+		// Not using the address from the request since it will be taken from the delivery.
+		final var snailMailDto = dtoMapper.toSnailMailDto(snailMailRequest, batchId, createAddress());
 
 		assertThat(snailMailDto.partyId()).isEqualTo(snailMailRequest.party().partyId());
 		assertThat(snailMailDto.address()).isEqualTo(snailMailRequest.address());
