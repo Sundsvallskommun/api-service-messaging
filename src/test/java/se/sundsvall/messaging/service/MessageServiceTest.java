@@ -366,7 +366,7 @@ class MessageServiceTest {
 		verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
 		verify(mockMessageMapper).mapAddressesToMessages(any(LetterRequest.class), any(String.class));
 		verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
-		verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
+		verify(mockDtoMapper).toSnailMailDto(any(SnailMailRequest.class), any(String.class), any(Address.class));
 		verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
 		verify(mockRequestMapper).toSnailMailRequest(any(LetterRequest.class), nullable(String.class), nullable(Address.class));
 
@@ -411,7 +411,7 @@ class MessageServiceTest {
 		verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
 		verify(mockMessageMapper).mapAddressesToMessages(any(LetterRequest.class), any(String.class));
 		verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
-		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
+		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class), any(Address.class));
 		verify(mockRequestMapper, times(2)).toSnailMailRequest(any(LetterRequest.class), nullable(String.class), nullable(Address.class));
 		verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
 		verifyNoMoreInteractions(mockCitizenIntegration, mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
@@ -454,7 +454,7 @@ class MessageServiceTest {
 		verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
 		verify(mockMessageMapper).mapAddressesToMessages(any(LetterRequest.class), any(String.class));
 		verify(mockDtoMapper).toDigitalMailDto(any(DigitalMailRequest.class), any(String.class));
-		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
+		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class), any(Address.class));
 		verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
 		verify(mockRequestMapper, times(2)).toSnailMailRequest(any(LetterRequest.class), nullable(String.class), nullable(Address.class));
 		verifyNoMoreInteractions(mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
@@ -493,7 +493,7 @@ class MessageServiceTest {
 		// Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
 		verify(mockMessageMapper, times(1 + 1)).toMessages(any(LetterRequest.class), any(String.class));
 		verify(mockMessageMapper).mapAddressesToMessages(any(LetterRequest.class), any(String.class));
-		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class));
+		verify(mockDtoMapper, times(2)).toSnailMailDto(any(SnailMailRequest.class), any(String.class), any(Address.class));
 		verify(mockRequestMapper, times(2)).toSnailMailRequest(any(LetterRequest.class), nullable(String.class), nullable(Address.class));
 		verify(mockRequestMapper).toDigitalMailRequest(any(LetterRequest.class), any(String.class));
 		verifyNoMoreInteractions(mockDigitalMailSenderIntegration, mockSnailMailSenderIntegration, mockRequestMapper, mockDtoMapper);
