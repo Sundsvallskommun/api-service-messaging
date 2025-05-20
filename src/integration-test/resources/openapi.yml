@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.0"
 servers:
-  - url: http://localhost:60040
+  - url: http://localhost:51406
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -1401,6 +1401,9 @@ paths:
 components:
   schemas:
     ExternalReference:
+      required:
+        - key
+        - value
       type: object
       properties:
         key:
@@ -1680,6 +1683,9 @@ components:
           type: string
           description: Message (supports Slack markdown formatting)
     Email:
+      required:
+        - address
+        - name
       type: object
       properties:
         name:
@@ -1767,6 +1773,8 @@ components:
           $ref: "#/components/schemas/Sms"
       description: Sender
     Sms:
+      required:
+        - name
       type: object
       properties:
         name:
@@ -1813,7 +1821,9 @@ components:
       description: Addresses that gets a letter copy
     LetterAttachment:
       required:
+        - content
         - deliveryMode
+        - filename
       type: object
       properties:
         deliveryMode:
@@ -1860,6 +1870,8 @@ components:
       description: Party
     LetterRequest:
       required:
+        - attachments
+        - department
         - party
         - subject
       type: object
@@ -1993,6 +2005,9 @@ components:
             $ref: "#/components/schemas/ExternalReference"
       description: Party
     EmailSender:
+      required:
+        - address
+        - name
       type: object
       properties:
         name:
@@ -2011,6 +2026,7 @@ components:
       description: Sender
     EmailBatchRequest:
       required:
+        - parties
         - subject
       type: object
       properties:
@@ -2060,6 +2076,9 @@ components:
           description: Recipient e-mail address
           example: someone@somewhere.com
     DigitalMailAttachment:
+      required:
+        - content
+        - filename
       type: object
       properties:
         contentType:
@@ -2077,6 +2096,8 @@ components:
           description: Filename
       description: Attachment
     DigitalMailParty:
+      required:
+        - partyIds
       type: object
       properties:
         partyIds:
@@ -2094,6 +2115,8 @@ components:
       description: Party
     DigitalMailRequest:
       required:
+        - body
+        - contentType
         - party
       type: object
       properties:
