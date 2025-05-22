@@ -7,12 +7,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.TestDataFactory.createStatsProjection;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
@@ -28,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
@@ -162,33 +159,23 @@ class DbIntegrationTest {
 	}
 
 	@Test
-	void getStats() {
-		final var from = LocalDate.now().minusDays(1);
-		final var to = LocalDate.now();
-		final var municipalityId = "2281";
-		final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, municipalityId);
-
-		when(mockStatisticsRepository.getStats(MESSAGE, from, to, municipalityId)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT, municipalityId)));
-
-		assertThat(dbIntegration.getStats(MESSAGE, from, to, municipalityId)).isNotEmpty().hasSize(1).contains(statsEntry);
-
-		verify(mockStatisticsRepository).getStats(MESSAGE, from, to, municipalityId);
-	}
-
-	@Test
-	void getStatsByDepartmentAndOrigin() {
+	void getStatsByParameters() {
+		final var municipalityId = "municipalityId";
 		final var department = "department";
 		final var origin = "origin";
+		final var messageTypes = List.of(LETTER, SMS);
 		final var from = LocalDate.now().minusDays(1);
 		final var to = LocalDate.now();
-		final var municipalityId = "2281";
-		final var statsEntry = new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department, municipalityId);
 
-		when(mockStatisticsRepository.getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to)).thenReturn(List.of(new StatsEntry(MESSAGE, MESSAGE, SENT, origin, department, municipalityId)));
+		final var statsProjection = createStatsProjection(SNAIL_MAIL, LETTER, SENT, null, null, "2281");
 
-		assertThat(dbIntegration.getStatsByMunicipalityIdAndOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to)).hasSize(1).contains(statsEntry);
+		when(mockStatisticsRepository.findAllByParameters(municipalityId, department, origin, messageTypes, from, to))
+			.thenReturn(List.of(statsProjection));
 
-		verify(mockStatisticsRepository).getStatsByMunicipalityIdAndyOriginAndDepartment(municipalityId, origin, department, MESSAGE, from, to);
+		var result = dbIntegration.getStatsByParameters(municipalityId, department, origin, messageTypes, from, to);
+
+		assertThat(result).isNotEmpty().hasSize(1).allSatisfy(entry -> assertThat(entry).isEqualTo(statsProjection));
+		verify(mockStatisticsRepository).findAllByParameters(municipalityId, department, origin, messageTypes, from, to);
 	}
 
 	@Test
@@ -203,32 +190,6 @@ class DbIntegrationTest {
 
 		verify(mockHistoryRepository).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
 		verifyNoMoreInteractions(mockHistoryRepository);
-	}
-
-	@Test
-	void getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes() {
-		final var municipalityId = "2281";
-		final var department = "department";
-		final var origin = "origin";
-		final var messageTypes = List.of(LETTER, SMS);
-		final var from = LocalDate.now().minusDays(1);
-		final var to = LocalDate.now();
-		final var statEntries = List.of(
-			new StatsEntry(SMS, SMS, SENT, origin, department, municipalityId),
-			new StatsEntry(SMS, SMS, FAILED, origin, department, municipalityId),
-			new StatsEntry(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
-			new StatsEntry(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
-			new StatsEntry(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
-			new StatsEntry(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
-
-		when(mockStatisticsRepository.getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(municipalityId, department, origin, messageTypes, from, to))
-			.thenReturn(statEntries);
-
-		var result = dbIntegration.getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(municipalityId, department, origin, messageTypes, from, to);
-
-		assertThat(result).isEqualTo(statEntries);
-		verify(mockStatisticsRepository).getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(municipalityId, department, origin, messageTypes, from, to);
-		verifyNoMoreInteractions(mockStatisticsRepository);
 	}
 
 }

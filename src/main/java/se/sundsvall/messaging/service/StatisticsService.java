@@ -25,25 +25,15 @@ public class StatisticsService {
 	}
 
 	public Statistics getStatistics(final MessageType messageType, final LocalDate from, final LocalDate to, final String municipalityId) {
-		return toStatistics(dbIntegration.getStats(messageType, from, to, municipalityId));
+		return toStatistics(dbIntegration.getStatsByParameters(municipalityId, null, null, List.of(messageType), from, to));
 	}
 
 	public List<DepartmentStatistics> getDepartmentLetterStatistics(final String origin, final String department, final LocalDate from, final LocalDate to, final String municipalityId) {
-		return toDepartmentStatisticsList(dbIntegration.getStatsByMunicipalityIdAndOriginAndDepartment(municipalityId, origin, department, LETTER, from, to), municipalityId);
+		return toDepartmentStatisticsList(dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER), from, to), municipalityId);
 	}
 
-	/**
-	 * Get SMS and LETTER delivery statistics for a specific department and origin
-	 *
-	 * @param  municipalityId the municipality id
-	 * @param  department     the department
-	 * @param  origin         the origin
-	 * @param  from           the start date
-	 * @param  to             the end date
-	 * @return                the department statistics
-	 */
 	public DepartmentStats getStatisticsByDepartment(final String municipalityId, final String department, final String origin, final LocalDate from, final LocalDate to) {
-		var statEntries = dbIntegration.getStatsByMunicipalityIdAndDepartmentAndOriginAndAndMessageTypes(municipalityId, department, origin, List.of(LETTER, SMS), from, to);
+		var statEntries = dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER, SMS), from, to);
 		return toDepartmentStats(statEntries, department, origin);
 	}
 
