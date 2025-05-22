@@ -15,6 +15,7 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ class MessageResourceMessageTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER_HEADER = "x-issuer";
 	private static final String ISSUER = "issuer";
+	private static final String X_SENT_BY_HEADER = "X-Sent-By";
+	private static final String X_SENT_BY = "type=adAccount; joe01doe";
+	private static final String X_SENT_BY_VALUE = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -145,17 +149,62 @@ class MessageResourceMessageTest {
 		verifyNoInteractions(mockMessageService);
 	}
 
+	@Test
+	void testOldHeadersShouldBePreserved() {
+		// Arrange
+		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.headers(oldHeaders())
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageBatchResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
+			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
+		});
+
+		verify(mockMessageService).sendMessages(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
 			}
+		};
+	}
+
+	private static Consumer<HttpHeaders> oldHeaders() {
+		return httpHeaders -> {
+			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+			httpHeaders.add(ISSUER_HEADER, ISSUER);
 		};
 	}
 
 	private static MessageRequest addHeaderValues(MessageRequest request) {
 		return request.withOrigin(ORIGIN)
-			.withIssuer(ISSUER);
+			.withIssuer(X_SENT_BY_VALUE);
 	}
 }
