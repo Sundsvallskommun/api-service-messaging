@@ -14,6 +14,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 
 import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ class MessageResourceDigitalInvoiceTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER_HEADER = "x-issuer";
 	private static final String ISSUER = "issuer";
+	private static final String X_SENT_BY_HEADER = "X-Sent-By";
+	private static final String X_SENT_BY = "type=adAccount; joe01doe";
+	private static final String X_SENT_BY_VALUE = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -131,17 +135,60 @@ class MessageResourceDigitalInvoiceTest {
 		verifyNoInteractions(mockMessageService);
 	}
 
+	@Test
+	void testOldHeaderShouldBePreserved() {
+		// Arrange
+		final var request = createValidDigitalInvoiceRequest();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.headers(oldHeaders())
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService).sendDigitalInvoice(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
+
 			}
+		};
+	}
+
+	private static Consumer<HttpHeaders> oldHeaders() {
+		return httpHeaders -> {
+			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+			httpHeaders.add(ISSUER_HEADER, ISSUER);
 		};
 	}
 
 	private static DigitalInvoiceRequest addHeaderValues(DigitalInvoiceRequest request) {
 		return request.withOrigin(ORIGIN)
-			.withIssuer(ISSUER);
+			.withIssuer(X_SENT_BY_VALUE);
 	}
 }

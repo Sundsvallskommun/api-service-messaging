@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -44,6 +45,9 @@ class MessageResourceSmsBatchTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER_HEADER = "x-issuer";
 	private static final String ISSUER = "issuer";
+	private static final String X_SENT_BY_HEADER = "X-Sent-By";
+	private static final String X_SENT_BY = "type=adAccount; joe01doe";
+	private static final String X_SENT_BY_VALUE = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -127,17 +131,64 @@ class MessageResourceSmsBatchTest {
 		verifyNoInteractions(mockMessageService);
 	}
 
+	@Test
+	void testOldHeadersShouldBePreserved() {
+		// Arrange
+		var request = createValidSmsBatchRequest();
+		var uuid = UUID.randomUUID().toString();
+		request = request.withSender("senderName").withParties(List.of(request.parties().getFirst().withPartyId(uuid)));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.headers(oldHeaders())
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageBatchResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().messageId()).isEqualTo("someMessageId");
+		assertThat(response.messages().getFirst().deliveries()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher).handleSmsBatchRequest(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
 			}
+		};
+	}
+
+	private static Consumer<HttpHeaders> oldHeaders() {
+		return httpHeaders -> {
+			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+			httpHeaders.add(ISSUER_HEADER, ISSUER);
 		};
 	}
 
 	private static SmsBatchRequest addHeaderValues(SmsBatchRequest request) {
 		return request.withOrigin(ORIGIN)
-			.withIssuer(ISSUER);
+			.withIssuer(X_SENT_BY_VALUE);
 	}
 }

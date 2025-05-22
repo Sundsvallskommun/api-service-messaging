@@ -15,6 +15,7 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,6 +43,9 @@ class MessageResourceSmsTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER_HEADER = "x-issuer";
 	private static final String ISSUER = "issuer";
+	private static final String X_SENT_BY_HEADER = "X-Sent-By";
+	private static final String X_SENT_BY = "type=adAccount; joe01doe";
+	private static final String X_SENT_BY_VALUE = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -148,17 +152,63 @@ class MessageResourceSmsTest {
 		verifyNoInteractions(mockMessageService);
 	}
 
+	@Test
+	void testOldHeaderShouldBePreserved() {
+		var senderName = "senderName";
+		var party = createValidSmsRequest().party();
+		// Arrange
+		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
+		final var request = createValidSmsRequest()
+			.withParty(party)
+			.withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.headers(oldHeaders())
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
+			.expectStatus().isCreated()
+			.expectBody(MessageResult.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService).sendSms(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
 				httpHeaders.add(ISSUER_HEADER, ISSUER);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
 			}
+		};
+	}
+
+	private static Consumer<HttpHeaders> oldHeaders() {
+		return httpHeaders -> {
+			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
+			httpHeaders.add(ISSUER_HEADER, ISSUER);
 		};
 	}
 
 	private static SmsRequest addHeaderValues(SmsRequest request) {
 		return request.withOrigin(ORIGIN)
-			.withIssuer(ISSUER);
+			.withIssuer(X_SENT_BY_VALUE);
 	}
 }
