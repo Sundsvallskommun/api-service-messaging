@@ -190,7 +190,7 @@ class DtoMapperTest {
 		assertThat(snailMailDto.batchId()).isEqualTo(batchId);
 		assertThat(snailMailDto.department()).isEqualTo(snailMailRequest.department());
 		assertThat(snailMailDto.deviation()).isEqualTo(snailMailRequest.deviation());
-		assertThat(snailMailDto.issuer()).isEqualTo(snailMailRequest.issuer());
+		assertThat(snailMailDto.sentBy()).isEqualTo(snailMailRequest.issuer());
 		assertThat(snailMailDto.origin()).isEqualTo(snailMailRequest.origin());
 		assertThat(snailMailDto.attachments()).hasSize(snailMailRequest.attachments().size());
 

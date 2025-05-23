@@ -179,7 +179,7 @@ public class DtoMapper {
 			.withBatchId(batchId)
 			.withDepartment(request.department())
 			.withDeviation(request.deviation())
-			.withIssuer(request.issuer())
+			.withSentBy(request.issuer())
 			.withOrigin(request.origin())
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()

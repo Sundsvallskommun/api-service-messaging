@@ -15,13 +15,13 @@ class SnailMailDtoTest {
 	void testRecord() {
 		var attachments = List.of(SnailMailDto.Attachment.builder().withFilename("name").withContentType("contentType").withContent("content").build());
 
-		var snailMailDto = new SnailMailDto("partyId", ADDRESS, "batchId", "department", "deviation", "issuer", "origin", attachments);
+		var snailMailDto = new SnailMailDto("partyId", ADDRESS, "batchId", "department", "deviation", "sentBy", "origin", attachments);
 
 		assertThat(snailMailDto.partyId()).isEqualTo("partyId");
 		assertThat(snailMailDto.batchId()).isEqualTo("batchId");
 		assertThat(snailMailDto.department()).isEqualTo("department");
 		assertThat(snailMailDto.deviation()).isEqualTo("deviation");
-		assertThat(snailMailDto.issuer()).isEqualTo("issuer");
+		assertThat(snailMailDto.sentBy()).isEqualTo("sentBy");
 		assertThat(snailMailDto.origin()).isEqualTo("origin");
 		assertThat(snailMailDto.attachments()).isEqualTo(attachments);
 	}

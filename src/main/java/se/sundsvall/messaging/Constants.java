@@ -30,6 +30,8 @@ public final class Constants {
 
 	public static final String X_ORIGIN_HEADER_KEY = "x-origin";
 
+	public static final String X_SENT_BY_HEADER_KEY = "X-Sent-By";
+
 	public static final String OEP_INSTANCE_EXTERNAL = "EXTERNAL";
 
 	public static final String OEP_INSTANCE_INTERNAL = "INTERNAL";
