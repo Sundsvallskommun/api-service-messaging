@@ -94,7 +94,7 @@ curl -X 'POST' \
   'http://localhost:8080/2281/sms?async=false' \
   -H 'accept: application/json' \
   -H 'x-origin: <origin>' \
-  -H 'x-issuer: <issuer>' \
+  -H 'X-Sent-By: <type=adAccount; joe01doe>' \
   -H 'Content-Type: application/json' \
   -d '{
   "sender": "<sender>",
