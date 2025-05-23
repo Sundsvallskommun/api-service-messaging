@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
@@ -17,6 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,7 +81,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -104,7 +104,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleSmsBatchRequest(decoratedRequest));
@@ -125,7 +125,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -148,7 +148,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleEmailBatchRequest(decoratedRequest));
@@ -169,7 +169,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -193,7 +193,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -217,7 +217,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -241,7 +241,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -265,7 +265,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -289,7 +289,7 @@ class MessageResource {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(sentByHeader(issuer)) // Replace with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -298,15 +298,12 @@ class MessageResource {
 		return toResponse(messageService.sendToSlack(decoratedRequest));
 	}
 
-	private String sentByHeader(final String issuer) {
-		var identifier = Identifier.get();
-		if (!isNull(identifier) && isNotBlank(identifier.getValue())) {
-			return identifier.getValue();
-		} else if (isNotBlank(issuer)) {
-			return issuer;
-		} else {
-			return null;
-		}
+	// Determine the value of the "sentBy" header, if present use it, otherwise try to get the value from the
+	// x-issuer-header
+	private String resolveSentBy(final String issuer) {
+		return Optional.ofNullable(Identifier.get())
+			.map(Identifier::getValue)
+			.filter(StringUtils::isNotBlank)
+			.orElseGet(() -> StringUtils.isNotBlank(issuer) ? issuer : null);
 	}
-
 }
