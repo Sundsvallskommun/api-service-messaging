@@ -39,7 +39,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_ISSUER, ISSUER)
+			.withHeader(HEADER_SENDER, SENDER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -73,7 +73,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
+						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
 					});
 
 				return true;
@@ -128,7 +128,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test3_noContactSettingsFound() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ISSUER, ISSUER)
+			.withHeader(HEADER_SENDER, SENDER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -162,7 +162,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_SETTINGS_FOUND);
 						assertThat(historyEntry.getOrigin()).isNull();
-						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
+						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
 					});
 
 				return true;
@@ -218,7 +218,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_ISSUER, ISSUER)
+			.withHeader(HEADER_SENDER, SENDER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -255,7 +255,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
+						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
 					});
 
 				return true;
