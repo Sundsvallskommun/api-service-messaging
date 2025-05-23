@@ -2,7 +2,7 @@
 	"request": {
 		"headers": {
 			"x-issuer": {
-				"equalTo": "Test-issuer"
+				"equalTo": "joe01doe"
 			},
 			"x-origin": {
 				"equalTo": "Test-origin"
