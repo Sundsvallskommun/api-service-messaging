@@ -37,50 +37,22 @@ public class StatisticsMapper {
 	private StatisticsMapper() {}
 
 	public static Statistics toStatistics(final List<StatsProjection> stats) {
-		// "Extract" MESSAGE entries, since they require special handling
-		final var message = stats.stream()
-			.filter(entry -> entry.getOriginalMessageType() == MESSAGE)
-			.collect(groupingBy(StatsProjection::getMessageType,
-				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
+		var messageAndLetterEntries = stats.stream()
+			.filter(entry -> EnumSet.of(MESSAGE, LETTER).contains(entry.getOriginalMessageType()))
+			.toList();
 
-		// "Extract" LETTER entries, since they require special handling
-		final var letter = stats.stream()
-			.filter(entry -> entry.getOriginalMessageType() == LETTER)
-			.collect(groupingBy(StatsProjection::getMessageType,
-				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
-
-		// "Extract" everything except MESSAGE and LETTER entries
-		final var other = stats.stream()
+		var otherEntries = stats.stream()
 			.filter(entry -> !EnumSet.of(MESSAGE, LETTER).contains(entry.getOriginalMessageType()))
-			.collect(groupingBy(StatsProjection::getMessageType,
-				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
+			.toList();
 
 		return Statistics.builder()
-			.withMessage(message.isEmpty() ? null
-				: new Statistics.Message(
-					// Sum up EMAIL stats
-					toCount(message.get(EMAIL)),
-					// Sum up SMS stats
-					toCount(message.get(SMS)),
-					// In the case of a message not being delivered due to contact-settings indicating
-					// that either no settings have been found or that the recipient has opted-out of
-					// receiving messages - treat both cases as "undeliverable" and sum them up
-					ofNullable(message.get(MESSAGE))
-						.map(undeliverable -> undeliverable.values().stream()
-							.mapToInt(i -> i)
-							.sum())
-						.orElse(null)))
-			.withLetter(letter.isEmpty() ? null
-				: new Statistics.Letter(
-					// Sum up SNAIL_MAIL stats
-					toCount(letter.get(SNAIL_MAIL)),
-					// Sum up DIGITAL_MAIL stats
-					toCount(letter.get(DIGITAL_MAIL))))
-			.withEmail(toCount(other.get(EMAIL)))
-			.withSms(toCount(other.get(SMS)))
-			.withWebMessage(toCount(other.get(WEB_MESSAGE)))
-			.withDigitalMail(toCount(other.get(DIGITAL_MAIL)))
-			.withSnailMail(toCount(other.get(SNAIL_MAIL)))
+			.withMessage(mapToMessage(messageAndLetterEntries))
+			.withLetter(mapToLetter(messageAndLetterEntries))
+			.withWebMessage(mapToCount(otherEntries, WEB_MESSAGE))
+			.withDigitalMail(mapToCount(otherEntries, DIGITAL_MAIL))
+			.withSnailMail(mapToCount(otherEntries, SNAIL_MAIL))
+			.withSms(mapToCount(otherEntries, SMS))
+			.withEmail(mapToCount(otherEntries, EMAIL))
 			.build();
 	}
 
@@ -136,6 +108,10 @@ public class StatisticsMapper {
 			.filter(projection -> projection.getMessageType() == messageType)
 			.toList();
 
+		if (typeEntries.isEmpty()) {
+			return null;
+		}
+
 		var success = Math.toIntExact(typeEntries.stream()
 			.filter(projection -> projection.getStatus() == SENT)
 			.count());
@@ -144,6 +120,40 @@ public class StatisticsMapper {
 			.count());
 
 		return new Count(success, failed);
+	}
+
+	static Statistics.Message mapToMessage(final List<StatsProjection> statsEntries) {
+		var messageEntries = statsEntries.stream()
+			.filter(projection -> projection.getOriginalMessageType() == MESSAGE)
+			.toList();
+
+		if (messageEntries.isEmpty()) {
+			return null;
+		}
+
+		var sms = mapToCount(messageEntries, SMS);
+		var email = mapToCount(messageEntries, EMAIL);
+
+		var undeliverable = Math.toIntExact(messageEntries.stream()
+			.filter(projection -> projection.getMessageType() == MESSAGE)
+			.count());
+
+		return new Statistics.Message(email, sms, undeliverable);
+	}
+
+	static Statistics.Letter mapToLetter(final List<StatsProjection> statsEntries) {
+		var letterEntries = statsEntries.stream()
+			.filter(projection -> projection.getOriginalMessageType() == LETTER)
+			.toList();
+
+		if (letterEntries.isEmpty()) {
+			return null;
+		}
+
+		var snailMail = mapToCount(letterEntries, SNAIL_MAIL);
+		var digitalMail = mapToCount(letterEntries, DIGITAL_MAIL);
+
+		return new Statistics.Letter(snailMail, digitalMail);
 	}
 
 	public static Count toCount(final Map<MessageStatus, Integer> stat) {
