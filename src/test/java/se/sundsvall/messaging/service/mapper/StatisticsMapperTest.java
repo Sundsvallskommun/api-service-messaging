@@ -106,7 +106,6 @@ class StatisticsMapperTest {
 
 			createStatsProjection(EMAIL, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
 			createStatsProjection(EMAIL, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
-
 			createStatsProjection(SMS, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
 			createStatsProjection(SMS, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
 
