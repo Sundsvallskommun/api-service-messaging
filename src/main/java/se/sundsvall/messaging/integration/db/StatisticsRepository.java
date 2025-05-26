@@ -1,81 +1,40 @@
 package se.sundsvall.messaging.integration.db;
 
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withDepartment;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withMunicipalityId;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOrigin;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOriginalMessageTypeIn;
+
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.integration.db.projection.StatsProjection;
 import se.sundsvall.messaging.model.MessageType;
 
 @Repository
 @CircuitBreaker(name = "statisticsRepository")
-public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long> {
+public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>, JpaSpecificationExecutor<HistoryEntity> {
 
-	default List<StatsEntry> getStats(final MessageType messageType, final LocalDate from,
-		final LocalDate to, final String municipalityId) {
-		return getStatsQuery(messageType, startOfDay(from), endOfDay(to), municipalityId);
+	default List<StatsProjection> findAllByParameters(final String municipalityId, final String origin, final String department, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
+		var specification = Specification
+			.where(withMunicipalityId(municipalityId))
+			.and(withOrigin(origin))
+			.and(withDepartment(department))
+			.and(withOriginalMessageTypeIn(messageTypes))
+			.and(withCreatedAtAfter(startOfDay(from)))
+			.and(withCreatedAtBefore(endOfDay(to)));
+
+		return findBy(specification, query -> query.as(StatsProjection.class).all());
 	}
-
-	@Query("""
-		SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.municipalityId) FROM HistoryEntity h WHERE
-		(:message_type IS NULL OR h.originalMessageType = :message_type) AND
-		(:from_date IS NULL OR h.createdAt >= :from_date) AND
-		(:to_date IS NULL OR h.createdAt <= :to_date) AND
-		(:municipality_id IS NULL OR h.municipalityId = :municipality_id)
-		""")
-	List<StatsEntry> getStatsQuery(
-		@Param("message_type") final MessageType messageType,
-		@Param("from_date") final LocalDateTime from,
-		@Param("to_date") final LocalDateTime to,
-		@Param("municipality_id") final String municipalityId);
-
-	default List<StatsEntry> getStatsByMunicipalityIdAndyOriginAndDepartment(final String municipalityId, final String origin, final String department, final MessageType messageType, final LocalDate from, final LocalDate to) {
-		return getStatsByOriginAndDepartmentQuery(origin, department, messageType, startOfDay(from), endOfDay(to), municipalityId);
-	}
-
-	@Query(value = """
-		SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.origin, h.department, h.municipalityId) FROM HistoryEntity h WHERE
-		(:message_type IS NULL OR h.originalMessageType = :message_type) AND
-		(:from_date IS NULL OR h.createdAt >= :from_date) AND
-		(:to_date IS NULL OR h.createdAt <= :to_date) AND
-		(:department IS NULL OR h.department = :department) AND
-		(:origin IS NULL OR h.origin = :origin) AND
-		(:municipality_id IS NULL OR h.municipalityId = :municipality_id)
-		""")
-	List<StatsEntry> getStatsByOriginAndDepartmentQuery(
-		@Param("origin") final String origin,
-		@Param("department") final String department,
-		@Param("message_type") final MessageType messageType,
-		@Param("from_date") final LocalDateTime from,
-		@Param("to_date") final LocalDateTime to,
-		@Param("municipality_id") final String municipalityId);
-
-	default List<StatsEntry> getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypes(final String municipalityId, final String department, final String origin, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
-		return getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypesQuery(municipalityId, department, origin, messageTypes, startOfDay(from), endOfDay(to));
-	}
-
-	@Query(value = """
-		SELECT NEW StatsEntry(h.messageType, h.originalMessageType, h.status, h.origin, h.department, h.municipalityId) FROM HistoryEntity h WHERE
-		(:message_types IS NULL OR h.originalMessageType IN :message_types) AND
-		(:from_date IS NULL OR h.createdAt >= :from_date) AND
-		(:to_date IS NULL OR h.createdAt <= :to_date) AND
-		(:department IS NULL OR h.department = :department) AND
-		(:origin IS NULL OR h.origin = :origin) AND
-		(:municipality_id IS NULL OR h.municipalityId = :municipality_id)
-		""")
-	List<StatsEntry> getStatsByMunicipalityIdAndDepartmentAndOriginAndMessageTypesQuery(
-		@Param("municipality_id") final String municipalityId,
-		@Param("department") final String department,
-		@Param("origin") final String origin,
-		@Param("message_types") final List<MessageType> messageTypes,
-		@Param("from_date") final LocalDateTime from,
-		@Param("to_date") final LocalDateTime to);
 
 	default LocalDateTime startOfDay(LocalDate date) {
 		return Optional.ofNullable(date)

@@ -29,6 +29,7 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.StatsProjection;
 import se.sundsvall.messaging.integration.emailsender.EmailDto;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.Address;
@@ -470,5 +471,40 @@ public final class TestDataFactory {
 			.withContent("someContent")
 			.withContentType("someContentType")
 			.build();
+	}
+
+	public static StatsProjection createStatsProjection(MessageType messageType, MessageType originalMessageType, MessageStatus messageStatus, String origin, String department, String municipalityId) {
+		return new StatsProjection() {
+			@Override
+			public MessageType getMessageType() {
+				return messageType;
+			}
+
+			@Override
+			public MessageType getOriginalMessageType() {
+				return originalMessageType;
+			}
+
+			@Override
+			public MessageStatus getStatus() {
+				return messageStatus;
+			}
+
+			@Override
+			public String getOrigin() {
+				return origin;
+			}
+
+			@Override
+			public String getDepartment() {
+				return department;
+			}
+
+			@Override
+			public String getMunicipalityId() {
+				return municipalityId;
+			}
+		};
+
 	}
 }

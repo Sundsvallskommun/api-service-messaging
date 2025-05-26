@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static se.sundsvall.messaging.integration.db.projection.ProjectionUtil.overrideStatsProjection;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -20,7 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import se.sundsvall.messaging.api.model.response.DepartmentStats;
-import se.sundsvall.messaging.integration.db.projection.StatsEntry;
+import se.sundsvall.messaging.integration.db.projection.StatsProjection;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
@@ -31,28 +32,28 @@ import se.sundsvall.messaging.model.Statistics;
 public class StatisticsMapper {
 
 	private static final String UNCATEGORIZED_DEPARTMENT = "Ej kategoriserad";
-	private static final String UNCATEGORIZED_ORGIN = "Other";
+	private static final String UNCATEGORIZED_ORIGIN = "Other";
 
 	private StatisticsMapper() {}
 
-	public static Statistics toStatistics(final List<StatsEntry> stats) {
+	public static Statistics toStatistics(final List<StatsProjection> stats) {
 		// "Extract" MESSAGE entries, since they require special handling
 		final var message = stats.stream()
-			.filter(entry -> entry.originalMessageType() == MESSAGE)
-			.collect(groupingBy(StatsEntry::messageType,
-				groupingBy(StatsEntry::status, summingInt(n -> 1))));
+			.filter(entry -> entry.getOriginalMessageType() == MESSAGE)
+			.collect(groupingBy(StatsProjection::getMessageType,
+				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
 
 		// "Extract" LETTER entries, since they require special handling
 		final var letter = stats.stream()
-			.filter(entry -> entry.originalMessageType() == LETTER)
-			.collect(groupingBy(StatsEntry::messageType,
-				groupingBy(StatsEntry::status, summingInt(n -> 1))));
+			.filter(entry -> entry.getOriginalMessageType() == LETTER)
+			.collect(groupingBy(StatsProjection::getMessageType,
+				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
 
 		// "Extract" everything except MESSAGE and LETTER entries
 		final var other = stats.stream()
-			.filter(entry -> !EnumSet.of(MESSAGE, LETTER).contains(entry.originalMessageType()))
-			.collect(groupingBy(StatsEntry::messageType,
-				groupingBy(StatsEntry::status, summingInt(n -> 1))));
+			.filter(entry -> !EnumSet.of(MESSAGE, LETTER).contains(entry.getOriginalMessageType()))
+			.collect(groupingBy(StatsProjection::getMessageType,
+				groupingBy(StatsProjection::getStatus, summingInt(n -> 1))));
 
 		return Statistics.builder()
 			.withMessage(message.isEmpty() ? null
@@ -65,7 +66,7 @@ public class StatisticsMapper {
 					// that either no settings have been found or that the recipient has opted-out of
 					// receiving messages - treat both cases as "undeliverable" and sum them up
 					ofNullable(message.get(MESSAGE))
-						.map(undeliverables -> undeliverables.values().stream()
+						.map(undeliverable -> undeliverable.values().stream()
 							.mapToInt(i -> i)
 							.sum())
 						.orElse(null)))
@@ -83,20 +84,20 @@ public class StatisticsMapper {
 			.build();
 	}
 
-	public static List<DepartmentStatistics> toDepartmentStatisticsList(final List<StatsEntry> stats, final String municipalityId) {
+	public static List<DepartmentStatistics> toDepartmentStatisticsList(final List<StatsProjection> stats, final String municipalityId) {
 
 		final var statsWithUncategorized = stats.stream()
-			.filter(entry -> entry.originalMessageType() == LETTER)
-			.map(entry -> isEmpty(entry.origin()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), UNCATEGORIZED_ORGIN, entry.department(), municipalityId) : entry)
-			.map(entry -> isEmpty(entry.department()) ? new StatsEntry(entry.messageType(), entry.originalMessageType(), entry.status(), entry.origin(), UNCATEGORIZED_DEPARTMENT, municipalityId) : entry)
+			.filter(projection -> projection.getOriginalMessageType() == LETTER)
+			.map(projection -> isEmpty(projection.getOrigin()) ? overrideStatsProjection(projection, UNCATEGORIZED_ORIGIN, projection.getDepartment(), municipalityId) : projection)
+			.map(projection -> isEmpty(projection.getDepartment()) ? overrideStatsProjection(projection, projection.getOrigin(), UNCATEGORIZED_DEPARTMENT, municipalityId) : projection)
 			.toList();
 
 		final Map<String, Map<String, Map<MessageType, Map<MessageStatus, Integer>>>> letterStats = statsWithUncategorized.stream()
-			.filter(entry -> entry.originalMessageType() == LETTER && isNotEmpty(entry.department()) && isNotEmpty(entry.origin()))
-			.collect(groupingBy(StatsEntry::origin,
-				groupingBy(StatsEntry::department,
-					groupingBy(StatsEntry::messageType,
-						groupingBy(StatsEntry::status, summingInt(n -> 1))))));
+			.filter(projection -> projection.getOriginalMessageType() == LETTER && isNotEmpty(projection.getDepartment()) && isNotEmpty(projection.getOrigin()))
+			.collect(groupingBy(StatsProjection::getOrigin,
+				groupingBy(StatsProjection::getDepartment,
+					groupingBy(StatsProjection::getMessageType,
+						groupingBy(StatsProjection::getStatus, summingInt(n -> 1))))));
 
 		return sortDepartmentStatistics(letterStats.keySet().stream().map(origin -> toDepartmentStatistics(origin, letterStats.get(origin))).toList());
 	}
@@ -111,7 +112,7 @@ public class StatisticsMapper {
 	 * @return              a {@code DepartmentStats} object containing the delivery statistics for the specified department
 	 *                      and origin
 	 */
-	public static DepartmentStats toDepartmentStats(final List<StatsEntry> statsEntries, final String department, final String origin) {
+	public static DepartmentStats toDepartmentStats(final List<StatsProjection> statsEntries, final String department, final String origin) {
 		return DepartmentStats.builder()
 			.withDepartment(department)
 			.withOrigin(origin)
@@ -130,16 +131,16 @@ public class StatisticsMapper {
 	 * @return              a {@code Count} object containing the counts of sent and failed messages of the given
 	 *                      {@code MessageType}
 	 */
-	static Count mapToCount(final List<StatsEntry> statsEntries, final MessageType messageType) {
+	static Count mapToCount(final List<StatsProjection> statsEntries, final MessageType messageType) {
 		var typeEntries = statsEntries.stream()
-			.filter(entry -> entry.messageType() == messageType)
+			.filter(projection -> projection.getMessageType() == messageType)
 			.toList();
 
 		var success = Math.toIntExact(typeEntries.stream()
-			.filter(entry -> entry.status() == SENT)
+			.filter(projection -> projection.getStatus() == SENT)
 			.count());
 		var failed = Math.toIntExact(typeEntries.stream()
-			.filter(entry -> entry.status() == FAILED)
+			.filter(projection -> projection.getStatus() == FAILED)
 			.count());
 
 		return new Count(success, failed);
