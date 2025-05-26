@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+import se.sundsvall.dept44.support.Identifier;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
@@ -69,14 +72,16 @@ class MessageResource {
 	@PostMapping("/sms")
 	ResponseEntity<MessageResult> sendSms(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SmsRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -91,13 +96,15 @@ class MessageResource {
 	@PostMapping("/sms/batch")
 	ResponseEntity<MessageBatchResult> sendSmsBatch(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SmsBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleSmsBatchRequest(decoratedRequest));
@@ -109,14 +116,16 @@ class MessageResource {
 	@PostMapping("/email")
 	ResponseEntity<MessageResult> sendEmail(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final EmailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -131,13 +140,15 @@ class MessageResource {
 	@PostMapping("/email/batch")
 	ResponseEntity<MessageBatchResult> sendEmailBatch(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final EmailBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleEmailBatchRequest(decoratedRequest));
@@ -149,14 +160,16 @@ class MessageResource {
 	@PostMapping("/webmessage")
 	ResponseEntity<MessageResult> sendWebMessage(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final WebMessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -171,14 +184,16 @@ class MessageResource {
 	@PostMapping("/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMail(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final DigitalMailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -193,14 +208,16 @@ class MessageResource {
 	@PostMapping("/digital-invoice")
 	ResponseEntity<MessageResult> sendDigitalInvoice(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final DigitalInvoiceRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -215,14 +232,16 @@ class MessageResource {
 	@PostMapping("/messages")
 	ResponseEntity<MessageBatchResult> sendMessages(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final MessageRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -237,14 +256,16 @@ class MessageResource {
 	@PostMapping("/letter")
 	ResponseEntity<MessageBatchResult> sendLetter(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final LetterRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -259,14 +280,16 @@ class MessageResource {
 	@PostMapping("/slack")
 	ResponseEntity<MessageResult> sendToSlack(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
-		@Parameter(name = X_ISSUER_HEADER_KEY, description = "Issuer of the request") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
+		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
+			deprecated = true,
+			description = "Issuer of the request.  **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.") @RequestHeader(name = X_ISSUER_HEADER_KEY, required = false) final String issuer,
 		@RequestBody @Valid final SlackRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
-			.withIssuer(issuer)
+			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
 		if (async) {
@@ -275,4 +298,12 @@ class MessageResource {
 		return toResponse(messageService.sendToSlack(decoratedRequest));
 	}
 
+	// Determine the value of the "sentBy" header, if present use it, otherwise try to get the value from the
+	// x-issuer-header
+	private String resolveSentBy(final String issuer) {
+		return Optional.ofNullable(Identifier.get())
+			.map(Identifier::getValue)
+			.filter(StringUtils::isNotBlank)
+			.orElseGet(() -> StringUtils.isNotBlank(issuer) ? issuer : null);
+	}
 }

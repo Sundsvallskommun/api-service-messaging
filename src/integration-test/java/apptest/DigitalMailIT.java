@@ -37,7 +37,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_ISSUER, ISSUER)
+			.withHeader(HEADER_SENDER, SENDER)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -67,7 +67,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-						assertThat(historyEntry.getIssuer()).isEqualTo(ISSUER);
+						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
 					});
 
 				return true;

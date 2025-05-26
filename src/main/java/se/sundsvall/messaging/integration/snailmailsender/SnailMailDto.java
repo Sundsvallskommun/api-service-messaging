@@ -11,7 +11,7 @@ public record SnailMailDto(
 	String batchId,
 	String department,
 	String deviation,
-	String issuer,
+	String sentBy,
 	String origin,
 	List<Attachment> attachments) {
 

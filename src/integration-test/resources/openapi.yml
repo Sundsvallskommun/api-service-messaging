@@ -1,13 +1,13 @@
 openapi: 3.0.1
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.0"
+  version: "7.1"
 servers:
-  - url: http://localhost:51406
+  - url: http://127.0.0.1:8080
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -25,8 +25,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -94,8 +96,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -163,8 +167,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -225,8 +231,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -294,8 +302,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -363,8 +373,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -432,8 +444,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -501,8 +515,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -563,8 +579,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -632,8 +650,10 @@ paths:
             type: string
         - name: x-issuer
           in: header
-          description: Issuer of the request
+          description: "Issuer of the request.  **DEPRECATED**: This parameter will\
+          \ be removed in a future version, use X-Sent-By instead."
           required: false
+          deprecated: true
           schema:
             type: string
         - name: municipalityId
@@ -1496,12 +1516,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -2407,12 +2427,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
@@ -2670,4 +2690,4 @@ components:
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}
