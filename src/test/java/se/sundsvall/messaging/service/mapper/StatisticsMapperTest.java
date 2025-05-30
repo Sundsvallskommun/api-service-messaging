@@ -2,7 +2,8 @@ package se.sundsvall.messaging.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static se.sundsvall.messaging.TestDataFactory.createStatsProjection;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -22,9 +23,13 @@ import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistic
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 
 class StatisticsMapperTest {
 
@@ -32,17 +37,17 @@ class StatisticsMapperTest {
 
 	@Test
 	void test_toDepartmentStats() {
-		var department = "department";
-		var origin = "origin";
-		var statsProjections = List.of(
-			createStatsProjection(SMS, SMS, SENT, null, null, MUNICIPALITY_ID),
-			createStatsProjection(SMS, SMS, FAILED, null, null, MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID));
+		final var department = "department";
+		final var origin = "origin";
+		final var statsProjections = List.of(
+			createStatisticsEntity(SMS, SMS, SENT, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, SMS, FAILED, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID));
 
-		var result = toDepartmentStats(statsProjections, department, origin);
+		final var result = toDepartmentStats(statsProjections, department, origin);
 
 		assertThat(result).isNotNull().satisfies(departmentStats -> {
 			assertThat(departmentStats.department()).isEqualTo(department);
@@ -55,17 +60,17 @@ class StatisticsMapperTest {
 
 	@Test
 	void test_mapToCount() {
-		var statsProjections = List.of(
-			createStatsProjection(SMS, SMS, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SMS, SMS, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID));
+		final var statsProjections = List.of(
+			createStatisticsEntity(SMS, SMS, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, SMS, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID));
 
-		var smsResult = mapToCount(statsProjections, SMS);
-		var snailMailResult = mapToCount(statsProjections, SNAIL_MAIL);
-		var digitalMailResult = mapToCount(statsProjections, DIGITAL_MAIL);
+		final var smsResult = mapToCount(statsProjections, SMS);
+		final var snailMailResult = mapToCount(statsProjections, SNAIL_MAIL);
+		final var digitalMailResult = mapToCount(statsProjections, DIGITAL_MAIL);
 
 		assertThat(smsResult).isNotNull().satisfies(count -> {
 			assertThat(count.sent()).isEqualTo(1);
@@ -88,33 +93,33 @@ class StatisticsMapperTest {
 
 	@Test
 	void test_toStatistics() {
-		var input = List.of(
-			createStatsProjection(DIGITAL_MAIL, DIGITAL_MAIL, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, DIGITAL_MAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
+		final var input = List.of(
+			createStatisticsEntity(DIGITAL_MAIL, DIGITAL_MAIL, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, DIGITAL_MAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(SNAIL_MAIL, SNAIL_MAIL, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, SNAIL_MAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, SNAIL_MAIL, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, SNAIL_MAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(SMS, SMS, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SMS, SMS, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, SMS, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, SMS, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(EMAIL, EMAIL, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(EMAIL, EMAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(EMAIL, EMAIL, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(EMAIL, EMAIL, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(WEB_MESSAGE, WEB_MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(WEB_MESSAGE, WEB_MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(WEB_MESSAGE, WEB_MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(WEB_MESSAGE, WEB_MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(EMAIL, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(EMAIL, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SMS, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SMS, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(EMAIL, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(EMAIL, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, MESSAGE, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SMS, MESSAGE, FAILED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(MESSAGE, MESSAGE, NO_CONTACT_WANTED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(MESSAGE, MESSAGE, NO_CONTACT_WANTED, "origin", "department", MUNICIPALITY_ID),
 
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID));
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID));
 
 		final var result = toStatistics(input);
 
@@ -138,15 +143,15 @@ class StatisticsMapperTest {
 
 	@Test
 	void test_toDepartmentStatistics() {
-		var input = List.of(
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID));
+		final var input = List.of(
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, "origin", "department", MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID));
 
 		final var result = toDepartmentStatisticsList(input, MUNICIPALITY_ID);
 
@@ -204,4 +209,21 @@ class StatisticsMapperTest {
 		assertThat(result.total()).isEqualTo(7);
 	}
 
+	@Test
+	void overrideEntryValues() {
+		final var projectionMock = Mockito.mock(StatisticEntity.class);
+		when(projectionMock.getStatus()).thenReturn(MessageStatus.SENT);
+		when(projectionMock.getOriginalMessageType()).thenReturn(MessageType.SMS);
+		when(projectionMock.getMessageType()).thenReturn(MessageType.SNAIL_MAIL);
+
+		final var result = StatisticsMapper.overrideEntryValues(projectionMock, "origin", "department", "municipalityId");
+
+		assertThat(result.getStatus()).isEqualTo(MessageStatus.SENT);
+		assertThat(result.getOriginalMessageType()).isEqualTo(MessageType.SMS);
+		assertThat(result.getMessageType()).isEqualTo(MessageType.SNAIL_MAIL);
+		assertThat(result.getOrigin()).isEqualTo("origin");
+		assertThat(result.getDepartment()).isEqualTo("department");
+		assertThat(result.getMunicipalityId()).isEqualTo("municipalityId");
+
+	}
 }

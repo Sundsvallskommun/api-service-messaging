@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.TestDataFactory.createStatsProjection;
+import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
@@ -167,7 +167,7 @@ class DbIntegrationTest {
 		final var from = LocalDate.now().minusDays(1);
 		final var to = LocalDate.now();
 
-		final var statsProjection = createStatsProjection(SNAIL_MAIL, LETTER, SENT, null, null, "2281");
+		final var statsProjection = createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, null, null, "2281");
 
 		when(mockStatisticsRepository.findAllByParameters(municipalityId, department, origin, messageTypes, from, to))
 			.thenReturn(List.of(statsProjection));
