@@ -3,17 +3,19 @@ package se.sundsvall.messaging.integration.db;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.lang.Nullable;
 
 @NoRepositoryBean
-public interface ReadOnlyJpaSpecificationExecutor<T> {
+public interface ReadOnlyJpaSpecificationExecutor<T, ID> extends Repository<T, ID> {
 
 	/**
 	 * Returns a single entity matching the given {@link Specification} or {@link Optional#empty()} if none found.
