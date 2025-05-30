@@ -7,15 +7,13 @@ import static se.sundsvall.messaging.integration.db.specification.StatisticsSpec
 import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOrigin;
 import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOriginalMessageTypeIn;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.model.MessageType;
 
