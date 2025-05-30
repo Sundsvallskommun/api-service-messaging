@@ -13,19 +13,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
-import se.sundsvall.messaging.integration.db.projection.StatsProjection;
+import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.model.MessageType;
 
 @Repository
 @CircuitBreaker(name = "statisticsRepository")
-public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>, JpaSpecificationExecutor<HistoryEntity> {
+public interface StatisticsRepository extends ReadOnlyJpaSpecificationExecutor<StatisticEntity, Long> {
 
-	default List<StatsProjection> findAllByParameters(final String municipalityId, final String origin, final String department, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
-		var specification = Specification
+	default List<StatisticEntity> findAllByParameters(final String municipalityId, final String origin, final String department, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
+		final var specification = Specification
 			.where(withMunicipalityId(municipalityId))
 			.and(withOrigin(origin))
 			.and(withDepartment(department))
@@ -33,7 +30,7 @@ public interface StatisticsRepository extends JpaRepository<HistoryEntity, Long>
 			.and(withCreatedAtAfter(startOfDay(from)))
 			.and(withCreatedAtBefore(endOfDay(to)));
 
-		return findBy(specification, query -> query.as(StatsProjection.class).all());
+		return findAll(specification);
 	}
 
 	default LocalDateTime startOfDay(LocalDate date) {

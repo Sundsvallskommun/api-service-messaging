@@ -78,7 +78,18 @@ class DigitalInvoiceIT extends AbstractMessagingAppTest {
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
+			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
 
+	@Test
+	void test3_invalidCertificateInDigitalMailSender() {
+		setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withRequest(REQUEST_FILE)
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(BAD_GATEWAY)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 }

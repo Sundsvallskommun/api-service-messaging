@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.oepintegrator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,21 +39,21 @@ class OepIntegratorIntegrationTest {
 	@ParameterizedTest
 	@MethodSource("argumentsProvider")
 	void sendWebMessage(final HttpStatus status, final MessageStatus expected) {
-		var municipalityId = "2281";
-		var partyId = "828ab8cf-c07e-47ff-b5e3-82dea276b2e4";
-		var externalReference = new ExternalReference("key", "value");
-		var externalReferences = List.of(externalReference);
-		var message = "message";
-		var userId = "userId";
-		var oepInstance = "oepInstance";
-		var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, false, null);
-		var attachments = List.of(new WebMessageRequest.Attachment("fileName", "mimeType", createBase64String()));
-		var responseMock = mock(ResponseEntity.class);
+		final var municipalityId = "2281";
+		final var partyId = "828ab8cf-c07e-47ff-b5e3-82dea276b2e4";
+		final var externalReference = new ExternalReference("key", "value");
+		final var externalReferences = List.of(externalReference);
+		final var message = "message";
+		final var userId = "userId";
+		final var oepInstance = "oepInstance";
+		final var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, false, null);
+		final var attachments = List.of(new WebMessageRequest.Attachment("fileName", "mimeType", createBase64String()));
+		final var responseMock = mock(ResponseEntity.class);
 
-		when(client.createWebmessage(eq(municipalityId), eq(webMessageDto.oepInstance()), any(), any())).thenReturn(responseMock);
+		doReturn(responseMock).when(client).createWebmessage(eq(municipalityId), eq(webMessageDto.oepInstance()), any(), any());
 		when(responseMock.getStatusCode()).thenReturn(status);
 
-		var result = integration.sendWebMessage(municipalityId, webMessageDto, attachments);
+		final var result = integration.sendWebMessage(municipalityId, webMessageDto, attachments);
 
 		assertThat(result).isNotNull().isEqualTo(expected);
 	}

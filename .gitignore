@@ -37,3 +37,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local settings
+.env
+application-default.*
+

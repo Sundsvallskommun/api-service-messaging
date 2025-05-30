@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.messaging.TestDataFactory.createStatsProjection;
+import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -44,7 +44,7 @@ class StatisticsServiceTest {
 		final var messageType = SMS;
 		final var now = LocalDate.now();
 		final var municipalityId = "2281";
-		final var statsProjection = createStatsProjection(SMS, SMS, SENT, null, null, municipalityId);
+		final var statsProjection = createStatisticsEntity(SMS, SMS, SENT, null, null, municipalityId);
 
 		when(mockDbIntegration.getStatsByParameters(municipalityId, null, null, List.of(messageType), now, now.plusMonths(1)))
 			.thenReturn(List.of(statsProjection));
@@ -64,7 +64,7 @@ class StatisticsServiceTest {
 		final var fromDate = LocalDate.now();
 		final var toDate = LocalDate.now().plusMonths(1);
 		final var municipalityId = "2281";
-		final var statsProjection = createStatsProjection(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId);
+		final var statsProjection = createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId);
 
 		when(mockDbIntegration.getStatsByParameters(anyString(), anyString(), anyString(), anyList(), any(LocalDate.class), any(LocalDate.class)))
 			.thenReturn(List.of(statsProjection));
@@ -90,12 +90,12 @@ class StatisticsServiceTest {
 		final var toDate = LocalDate.now().plusMonths(1);
 		final var messageTypes = List.of(LETTER, SMS);
 		final var statProjections = List.of(
-			createStatsProjection(SMS, SMS, SENT, origin, department, municipalityId),
-			createStatsProjection(SMS, SMS, FAILED, origin, department, municipalityId),
-			createStatsProjection(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
-			createStatsProjection(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
-			createStatsProjection(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
-			createStatsProjection(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
+			createStatisticsEntity(SMS, SMS, SENT, origin, department, municipalityId),
+			createStatisticsEntity(SMS, SMS, FAILED, origin, department, municipalityId),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
+			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
 
 		when(mockDbIntegration.getStatsByParameters(municipalityId, origin, department, messageTypes, fromDate, toDate)).thenReturn(statProjections);
 

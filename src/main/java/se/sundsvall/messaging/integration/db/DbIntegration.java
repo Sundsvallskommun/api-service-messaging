@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zalando.problem.Problem;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.integration.db.mapper.HistoryMapper;
 import se.sundsvall.messaging.integration.db.mapper.MessageMapper;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
-import se.sundsvall.messaging.integration.db.projection.StatsProjection;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
@@ -119,7 +119,7 @@ public class DbIntegration {
 	}
 
 	@Transactional(readOnly = true)
-	public List<StatsProjection> getStatsByParameters(final String municipalityId, final String origin, final String department, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
+	public List<StatisticEntity> getStatsByParameters(final String municipalityId, final String origin, final String department, final List<MessageType> messageTypes, final LocalDate from, final LocalDate to) {
 		return statisticsRepository.findAllByParameters(municipalityId, origin, department, messageTypes, from, to);
 	}
 
