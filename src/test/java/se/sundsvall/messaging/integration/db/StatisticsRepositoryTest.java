@@ -45,10 +45,10 @@ class StatisticsRepositoryTest {
 
 	@Test
 	void findAllByParameters() {
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), null, null);
+		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), null, null);
 
 		// Assert that the map contains the expected keys
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
 			.containsExactly(
 				tuple(SMS, SMS, SENT),
 				tuple(SMS, SMS, SENT),
@@ -60,10 +60,10 @@ class StatisticsRepositoryTest {
 
 	@Test
 	void findAllByParametersWithFromAndTo() {
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
+		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
 
 		// Assert that the map contains the expected keys
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
 			.containsExactly(
 				tuple(SMS, SMS, SENT));
 	}
@@ -71,10 +71,10 @@ class StatisticsRepositoryTest {
 	@ParameterizedTest()
 	@MethodSource("provideDateParameters")
 	void findAllByParametersWithMunicipalityIdAndyOriginAndDepartment(LocalDate from, LocalDate to) {
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters("2281", "origin1", "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", "origin1", "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
 			.containsExactly(
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
@@ -84,10 +84,10 @@ class StatisticsRepositoryTest {
 	@MethodSource("provideDateParameters")
 	void findAllByParametersWithDepartment(LocalDate from, LocalDate to) {
 
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
 			.containsExactly(
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
@@ -98,10 +98,10 @@ class StatisticsRepositoryTest {
 	@Test
 	void findAllByParametersWithDepartmentNoOriginAndDepartment() {
 
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters("2281", null, null, List.of(LETTER), null, null);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, null, List.of(LETTER), null, null);
 
 		// Assert that the map contains the expected keys
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
 			.containsExactlyInAnyOrder(
 				tuple("BOU Förskola", SNAIL_MAIL, LETTER, FAILED),
 				tuple("Kultur och fritid", SNAIL_MAIL, LETTER, FAILED),
@@ -118,9 +118,9 @@ class StatisticsRepositoryTest {
 
 	@Test
 	void findAllByParametersWithMunicipalityIdAndDepartmentAndOriginAndMessageTypes() {
-		final var StatisticsEntitys = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER, SMS), LocalDate.of(2022, 1, 1), LocalDate.of(2024, 12, 25));
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER, SMS), LocalDate.of(2022, 1, 1), LocalDate.of(2024, 12, 25));
 
-		assertThat(StatisticsEntitys).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getDepartment, StatisticEntity::getStatus)
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getDepartment, StatisticEntity::getStatus)
 			.containsExactlyInAnyOrder(
 				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
 				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
