@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.MethodMode;
 
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
@@ -90,7 +91,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext
+	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test3_successfulBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
@@ -133,7 +134,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext
+	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test4_internalServerErrorFromSmsSenderOnBatch() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
@@ -212,7 +213,7 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext
+	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
