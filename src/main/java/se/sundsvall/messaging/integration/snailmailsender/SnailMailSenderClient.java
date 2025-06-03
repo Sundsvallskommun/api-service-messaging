@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
-import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
 import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
 import static se.sundsvall.messaging.Constants.X_SENT_BY_HEADER_KEY;
 import static se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration.INTEGRATION_NAME;
@@ -20,9 +19,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface SnailMailSenderClient {
 
-	// Remove xIssuer when snail-mail has been updated.
 	@PostMapping("{municipalityId}/send/snailmail")
-	ResponseEntity<Void> sendSnailmail(@RequestHeader(X_SENT_BY_HEADER_KEY) String sentBy, @RequestHeader(X_ISSUER_HEADER_KEY) String xIssuer, @RequestHeader(X_ORIGIN_HEADER_KEY) String xOrigin, @PathVariable String municipalityId,
+	ResponseEntity<Void> sendSnailmail(@RequestHeader(X_SENT_BY_HEADER_KEY) String sentBy, @RequestHeader(X_ORIGIN_HEADER_KEY) String xOrigin, @PathVariable String municipalityId,
 		SendSnailMailRequest request);
 
 	@PostMapping("{municipalityId}/send/batch/{batchId}")

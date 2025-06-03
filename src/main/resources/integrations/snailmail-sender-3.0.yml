@@ -5,36 +5,38 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.0"
+  version: "3.1"
 servers:
-- url: http://localhost:8080
-  description: Generated server url
+  - url: http://localhost:8080
+    description: Generated server url
 tags:
-- name: SnailMailSender
-  description: SnailMailSender
+  - name: SnailMailSender
+    description: SnailMailSender
 paths:
   /{municipalityId}/send/snailmail:
     post:
       tags:
-      - SnailMailSender
+        - SnailMailSender
       summary: Prepare snail mail for batch
       operationId: sendSnailMail
       parameters:
-      - name: x-issuer
-        in: header
-        description: |
-          Issuer of the request, is used as a prefix in a folder name.
-          Cannot contain any of: '"', '*', '<', '>', '?', '|', '/', '\', ':'
-        required: false
-        schema:
-          type: string
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
+        - name: x-issuer
+          in: header
+          description: |
+            **DEPRECATED**: This parameter will be removed in a future version, use X-Sent-By instead.
+            Issuer of the request, is used as a prefix in a folder name.
+            Cannot contain any of: '"', '*', '<', '>', '?', '|', '/', '\', ':'
+          required: false
+          deprecated: true
+          schema:
+            type: string
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
@@ -42,16 +44,16 @@ paths:
               $ref: "#/components/schemas/SendSnailMailRequest"
         required: true
       responses:
+        "200":
+          description: Successful Operation
         "400":
           description: Bad RequestEntity
           content:
             '*/*':
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -61,35 +63,35 @@ paths:
   /{municipalityId}/send/batch/{batchId}:
     post:
       tags:
-      - SnailMailSender
+        - SnailMailSender
       summary: Send batch
       operationId: sendBatch
       parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: batchId
-        in: path
-        description: Batch id
-        required: true
-        schema:
-          type: string
-        example: b588d1b7-7911-4e78-89d5-b710b32e0f8e
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: batchId
+          in: path
+          description: Batch id
+          required: true
+          schema:
+            type: string
+          example: b588d1b7-7911-4e78-89d5-b710b32e0f8e
       responses:
+        "200":
+          description: Successful Operation
         "400":
           description: Bad RequestEntity
           content:
             '*/*':
               schema:
                 oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "200":
-          description: Successful Operation
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -99,7 +101,7 @@ paths:
   /api-docs:
     get:
       tags:
-      - API
+        - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -156,7 +158,7 @@ components:
       description: Recipient address
     Attachment:
       required:
-      - name
+        - name
       type: object
       properties:
         content:
@@ -164,6 +166,7 @@ components:
           description: The attachment (file) content as a BASE64-encoded string
           example: aGVsbG8gd29ybGQK
         name:
+          minLength: 1
           type: string
           description: The attachment filename
           example: test.pdf
@@ -172,24 +175,25 @@ components:
           description: The attachment content type
           example: application/pdf
           enum:
-          - application/pdf
+            - application/pdf
         envelopeType:
           type: string
           description: The envelope type for the letter
           example: WINDOWED
           enum:
-          - WINDOWED
-          - PLAIN
+            - WINDOWED
+            - PLAIN
       description: Attachments
     SendSnailMailRequest:
       required:
-      - address
-      - attachments
-      - batchId
-      - department
+        - address
+        - attachments
+        - batchId
+        - department
       type: object
       properties:
         department:
+          minLength: 1
           type: string
           description: DepartmentEntity and unit that should be billed
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
@@ -198,18 +202,22 @@ components:
           description: If the letter to send deviates from the standard
           example: A3 Ritning
         batchId:
+          minLength: 1
           type: string
           description: BatchEntity id to be used for creating a csv-file
           example: 6a5c3d04-412d-11ec-973a-0242ac130043
         issuer:
           type: string
-          description: The issuer of the request
+          description: "The issuer of the request. **DEPRECATED**: This parameter\
+            \ will be removed in a future version, use X-Sent-By instead."
           example: user123
+          deprecated: true
         municipalityId:
           type: string
           description: The municipality id
           example: "2281"
         attachments:
+          minItems: 1
           type: array
           description: Attachments
           items:

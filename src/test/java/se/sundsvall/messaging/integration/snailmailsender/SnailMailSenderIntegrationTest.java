@@ -42,20 +42,20 @@ class SnailMailSenderIntegrationTest {
 	@Test
 	void test_sendSnailmail() {
 		when(mockMapper.toSendSnailmailRequest(any(SnailMailDto.class))).thenReturn(new SendSnailMailRequest());
-		when(mockClient.sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class)))
+		when(mockClient.sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class)))
 			.thenReturn(ResponseEntity.ok().build());
 
 		integration.sendSnailMail(MUNICIPALITY_ID, snailmailDto);
 
 		verify(mockMapper, times(1)).toSendSnailmailRequest(any(SnailMailDto.class));
-		verify(mockClient, times(1)).sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class));
+		verify(mockClient, times(1)).sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class));
 		verifyNoMoreInteractions(mockMapper, mockClient);
 	}
 
 	@Test
 	void test_sendSnailmail_whenExceptionIsThrownByClient() {
 		when(mockMapper.toSendSnailmailRequest(any(SnailMailDto.class))).thenReturn(new SendSnailMailRequest());
-		when(mockClient.sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class)))
+		when(mockClient.sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class)))
 			.thenThrow(Problem.builder()
 				.withStatus(Status.BAD_GATEWAY)
 				.withCause(Problem.builder()
@@ -71,7 +71,7 @@ class SnailMailSenderIntegrationTest {
 			});
 
 		verify(mockMapper, times(1)).toSendSnailmailRequest(any(SnailMailDto.class));
-		verify(mockClient, times(1)).sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class));
+		verify(mockClient, times(1)).sendSnailmail(eq(X_SENT_BY_HEADER_VALUE), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class));
 		verifyNoMoreInteractions(mockMapper, mockClient);
 	}
 }

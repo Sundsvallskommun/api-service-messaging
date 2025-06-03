@@ -4,9 +4,6 @@
 			"X-Sent-By": {
 				"equalTo": "joe01doe"
 			},
-			"x-issuer": {
-				"equalTo": "joe01doe"
-			},
 			"x-origin": {
 				"equalTo": "Test-origin"
 			},
