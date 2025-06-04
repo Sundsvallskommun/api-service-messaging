@@ -7,7 +7,6 @@ import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -152,7 +151,7 @@ public class ApiMapper {
 				var jsonNode = objectMapper.readTree(content);
 				removeAttachmentFileContents(jsonNode);
 				content = objectMapper.writeValueAsString(jsonNode);
-			} catch (JsonProcessingException e) {
+			} catch (Exception e) {
 				// We couldn't parse the content, do nothing
 				LOG.warn("Couldn't remove attachment content from history, no big issue", e);
 			}
