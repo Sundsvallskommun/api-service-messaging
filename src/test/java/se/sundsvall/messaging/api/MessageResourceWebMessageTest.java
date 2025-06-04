@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -30,7 +29,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
-import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
@@ -72,10 +70,6 @@ class MessageResourceWebMessageTest {
 		return Stream.of(null, "EXTERNAL", "INTERNAL");
 	}
 
-	private static Stream<List<Attachment>> attachments() {
-		return Stream.of(null, emptyList());
-	}
-
 	private static Stream<Boolean> includeOptionalHeaders() {
 		return Stream.of(true, false);
 	}
@@ -87,18 +81,16 @@ class MessageResourceWebMessageTest {
 	private static Stream<Arguments> argumentProvider() {
 		// Create stream of all permutations
 		return oepInstances()
-			.flatMap(instance -> attachments()
-				.flatMap(attachment -> includeOptionalHeaders()
-					.flatMap(includeOptionalHeader -> withSendAsOwner()
-						.map(sendAsOwner -> Arguments.of(instance, attachment, includeOptionalHeader, sendAsOwner)))));
+			.flatMap(attachment -> includeOptionalHeaders()
+				.flatMap(includeOptionalHeader -> withSendAsOwner()
+					.map(sendAsOwner -> Arguments.of(attachment, includeOptionalHeader, sendAsOwner))));
 	}
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendSynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean sendAsOwner) {
+	void sendSynchronous(final String oepInstance, boolean includeOptionalHeaders, boolean sendAsOwner) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
-			.withAttachments(attachments)
 			.withOepInstance(oepInstance)
 			.withSendAsOwner(sendAsOwner)
 			.withSender(WebMessageRequest.Sender.builder()
@@ -140,10 +132,9 @@ class MessageResourceWebMessageTest {
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void sendAsynchronous(final String oepInstance, final List<Attachment> attachments, boolean includeOptionalHeaders, boolean sendAsOwner) {
+	void sendAsynchronous(final String oepInstance, boolean includeOptionalHeaders, boolean sendAsOwner) {
 		// Arrange
 		final var request = createValidWebMessageRequest()
-			.withAttachments(attachments)
 			.withOepInstance(oepInstance)
 			.withSendAsOwner(sendAsOwner)
 			.withSender(WebMessageRequest.Sender.builder()

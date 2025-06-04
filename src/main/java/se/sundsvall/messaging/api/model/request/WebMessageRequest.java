@@ -41,7 +41,12 @@ public record WebMessageRequest(
 		OEP_INSTANCE_INTERNAL, OEP_INSTANCE_EXTERNAL
 	}, example = OEP_INSTANCE_INTERNAL) @ValidInstance(nullable = true) String oepInstance,
 
-	@Size(max = 10) @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10) List<Attachment> attachments,
+	// The attachment object is a record and no restrictions are placed on the fields means that empty attachments are
+	// allowed.
+	// This will create immutable lists and doesn't play nice with when deserialization happens.
+	// The solution is to set minItems to 1 in @Size, which allows attachments to be null or omitted,
+	// but if provided, must contain at least one item (or 10).
+	@Size(min = 1, max = 10, message = "Attachments must contain 1-10 items when provided, or be null/omitted") @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10, minItems = 1) List<Attachment> attachments,
 
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
 
