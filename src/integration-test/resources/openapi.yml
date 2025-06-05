@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.1"
+  version: "7.2"
 servers:
   - url: http://127.0.0.1:8080
     description: Generated server url
@@ -1491,7 +1491,7 @@ components:
             - EXTERNAL
         attachments:
           maxItems: 10
-          minItems: 0
+          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/WebMessageAttachment"
@@ -1516,20 +1516,20 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
       properties:
@@ -2427,12 +2427,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:

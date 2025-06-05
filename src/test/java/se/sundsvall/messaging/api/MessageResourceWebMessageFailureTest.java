@@ -247,7 +247,33 @@ class MessageResourceWebMessageFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("attachments", "size must be between 0 and 10"));
+			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
+
+		verifyNoInteractions(mockMessageService, mockEventDispatcher);
+	}
+
+	@Test
+	void shouldFailWithEmptyAttachmentList() {
+		// Arrange
+		final var request = validRequest.withAttachments(List.of());
+
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL)
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
