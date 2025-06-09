@@ -19,9 +19,19 @@ class OepIntegratorMapper {
 				.externalReferences(toExternalReferences(webMessageDto.externalReferences()))
 				.message(dto.message())
 				.sender(new Sender()
-					.partyId(dto.sendAsOwner() ? null : dto.partyId())
-					.userId(dto.sendAsOwner() ? null : dto.userId())
-					.administratorId(dto.sendAsOwner() ? findNonNull(dto.userId(), dto.partyId()) : null)))
+					.partyId(Optional.of(dto)
+						.filter(WebMessageDto::sendAsOwner)
+						.map(WebMessageDto::partyId)
+						.orElse(null))
+					.userId(Optional.of(dto)
+						.filter(WebMessageDto::sendAsOwner)
+						.map(WebMessageDto::userId)
+						.orElse(null))
+					.administratorId(
+						Optional.of(dto)
+							.filter(d -> !d.sendAsOwner())
+							.map(d -> findNonNull(d.userId(), d.partyId()))
+							.orElse(null))))
 			.orElse(null);
 	}
 
