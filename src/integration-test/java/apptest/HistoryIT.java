@@ -7,7 +7,9 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.test.annotation.IntegrationTest;
@@ -69,7 +71,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 
 	@Test
 	void test5_userHistoricalMessages() {
-		var userId = "issuer1";
+		final var userId = "issuer1";
 		setupCall()
 			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?page=1&limit=10")
 			.withHttpMethod(GET)
@@ -80,7 +82,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 
 	@Test
 	void test6_userHistoricalMessagesNotFound() {
-		var userId = "nonExistingUser";
+		final var userId = "nonExistingUser";
 		setupCall()
 			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?page=1&limit=10")
 			.withHttpMethod(GET)
@@ -91,8 +93,8 @@ class HistoryIT extends AbstractMessagingAppTest {
 
 	@Test
 	void test7_readAttachment() throws IOException {
-		var messageId = "0c803a34-9418-48a8-a058-10e8394116b8";
-		var fileName = "smiley.jpg";
+		final var messageId = "0c803a34-9418-48a8-a058-10e8394116b8";
+		final var fileName = "smiley.jpg";
 
 		setupCall()
 			.withServicePath(MESSAGE_ATTACHMENT_PATH.formatted(messageId, fileName))
@@ -114,7 +116,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
-	
+
 	@Test
 	void test9_messageMetadata() {
 		final var messageId = "d4545198-3356-40a8-83a9-5950e74585a6";
@@ -125,7 +127,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
-	
+
 	@Test
 	void test10_messageMetadataNotFound() {
 		final var messageId = "5b79fd71-c4fc-4f78-a5f4-15b070fbc51f";
@@ -136,7 +138,7 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponseBodyIsNull()
 			.sendRequestAndVerifyResponse();
 	}
-	
+
 	@Test
 	void test11_userMessage() {
 		final var userId = "issuer123";
@@ -161,13 +163,24 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
-	
+
 	@Test
 	void test13_userMessageNoAttachment() {
 		final var userId = "issuer123";
 		final var messageId = "ed0e2373-b15a-4261-86eb-b3c0ecedfdb8";
 		setupCall()
 			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test14_batchFilteredUserHistoricalMessages() {
+		final var userId = "issuer1";
+		setupCall()
+			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?batchId=acf4b29e-8405-424c-afea-1d347a96a6aa&page=1&limit=10")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)

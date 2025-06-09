@@ -165,14 +165,14 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getUserMessages_invalid_municipalityId() {
-		var municipalityId = "not-a-valid-municipalityId";
-		var userId = "userId";
-		var page = 1;
-		var limit = 15;
+		final var municipalityId = "not-a-valid-municipalityId";
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(page, limit))
+				.queryParams(createParameterMap(null, page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
 			.exchange()
 			.expectStatus().isBadRequest()
@@ -189,12 +189,38 @@ class HistoryResourceFailureTest {
 	}
 
 	@Test
-	void readAttachment_invalid_municipalityId() {
-		var municipalityId = "not-a-valid-municipalityId";
-		var messageId = UUID.randomUUID().toString();
-		var fileName = "file.txt";
+	void getUserMessages_invalid_batchId() {
+		final var municipalityId = "2281";
+		final var batchId = "invalid-uuid";
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(batchId, page, limit))
+				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getUserMessages.batchId", "not a valid UUID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void readAttachment_invalid_municipalityId() {
+		final var municipalityId = "not-a-valid-municipalityId";
+		final var messageId = UUID.randomUUID().toString();
+		final var fileName = "file.txt";
+
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
 			.exchange()
@@ -212,11 +238,11 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void readAttachment_invalid_messageId() {
-		var municipalityId = "2281";
-		var messageId = "not-a-valid-messageId";
-		var fileName = "file.txt";
+		final var municipalityId = "2281";
+		final var messageId = "not-a-valid-messageId";
+		final var fileName = "file.txt";
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
 			.exchange()
@@ -234,9 +260,9 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getMessageMetadata_shouldFailWithInvalidMessageId() {
-		var messageId = "not-valid";
+		final var messageId = "not-valid";
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
 			.exchange()
@@ -255,10 +281,10 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getMessageMetadata_shouldFailWithInvalidMunicipalityId() {
-		var municipalityId = "not-valid";
-		var messageId = UUID.randomUUID().toString();
+		final var municipalityId = "not-valid";
+		final var messageId = UUID.randomUUID().toString();
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
 				Map.of("municipalityId", municipalityId, "messageId", messageId)))
 			.exchange()
@@ -277,10 +303,10 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getUserMessage_shouldFailWithInvalidMessageId() {
-		var messageId = "not-valid";
-		var userId = "userId";
+		final var messageId = "not-valid";
+		final var userId = "userId";
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
 				Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
 			.exchange()
@@ -299,11 +325,11 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getUserMessage_shouldFailWithInvalidMunicipalityId() {
-		var municipalityId = "not-valid";
-		var userId = "userId";
-		var messageId = UUID.randomUUID().toString();
+		final var municipalityId = "not-valid";
+		final var userId = "userId";
+		final var messageId = UUID.randomUUID().toString();
 
-		var response = webTestClient.get()
+		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
 				Map.of("municipalityId", municipalityId, "userId", userId, "messageId", messageId)))
 			.exchange()
@@ -320,9 +346,10 @@ class HistoryResourceFailureTest {
 		verifyNoInteractions(mockHistoryService);
 	}
 
-	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+	private MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
+		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 
+		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));
 		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
 		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
 

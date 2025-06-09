@@ -167,11 +167,11 @@ class HistoryServiceTest {
 
 	@Test
 	void streamAttachmentTest() throws IOException {
-		var municipalityId = "2281";
-		var messageId = "someMessageId";
-		var historyEntity = createHistoryEntity();
-		var attachment = createAttachment();
-		var spy = Mockito.spy(historyService);
+		final var municipalityId = "2281";
+		final var messageId = "someMessageId";
+		final var historyEntity = createHistoryEntity();
+		final var attachment = createAttachment();
+		final var spy = Mockito.spy(historyService);
 		when(httpServletResponseMock.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
 		when(mockDbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(historyEntity);
 		doReturn(attachment).when(spy).findAttachmentByName(any(), any(), any());
@@ -188,19 +188,19 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void getUserMessagesTest() {
-		var municipalityId = "2281";
-		var userId = "someUserId";
-		var limit = 10;
-		var page = 1;
-		var userMessageList = List.of(createUserMessage(), createUserMessage());
-		var spy = Mockito.spy(historyService);
-		var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
-		Page<MessageIdProjection> messageIdPage = new PageImpl<>(List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
+	void getAllUserMessagesTest() {
+		final var municipalityId = "2281";
+		final var userId = "someUserId";
+		final var limit = 10;
+		final var page = 1;
+		final var userMessageList = List.of(createUserMessage(), createUserMessage());
+		final var spy = Mockito.spy(historyService);
+		final var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
+		final Page<MessageIdProjection> messageIdPage = new PageImpl<>(List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
 		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(userId), any(LocalDateTime.class), any(PageRequest.class))).thenReturn(messageIdPage);
 		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
 
-		var result = spy.getUserMessages(municipalityId, userId, page, limit);
+		final var result = spy.getUserMessages(municipalityId, userId, null, page, limit);
 
 		assertThat(result).isNotNull().satisfies(userMessages -> {
 			assertThat(userMessages.messages()).isEqualTo(userMessageList);
@@ -211,39 +211,69 @@ class HistoryServiceTest {
 			assertThat(userMessages.metaData().getTotalPages()).isEqualTo(1);
 		});
 		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(userId), any(LocalDateTime.class), pageRequestCaptor.capture());
-		var pageRequest = pageRequestCaptor.getValue();
+		final var pageRequest = pageRequestCaptor.getValue();
+		assertThat(pageRequest.getPageNumber()).isZero();
+		assertThat(pageRequest.getPageSize()).isEqualTo(limit);
+	}
+
+	@Test
+	void getBatchUserMessagesTest() {
+		final var municipalityId = "2281";
+		final var batchId = "someBatchId";
+		final var userId = "someUserId";
+		final var limit = 10;
+		final var page = 1;
+		final var userMessageList = List.of(createUserMessage());
+		final var spy = Mockito.spy(historyService);
+		final var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
+		final Page<MessageIdProjection> messageIdPage = new PageImpl<>(List.of(messageIdProjectionMock, messageIdProjectionMock));
+		when(mockDbIntegration.getUniqueMessageIds(eq(municipalityId), eq(batchId), eq(userId), any(LocalDateTime.class), any(PageRequest.class))).thenReturn(messageIdPage);
+		doReturn(userMessageList).when(spy).createUserMessages(municipalityId, messageIdPage.getContent());
+
+		final var result = spy.getUserMessages(municipalityId, userId, batchId, page, limit);
+
+		assertThat(result).isNotNull().satisfies(userMessages -> {
+			assertThat(userMessages.messages()).isEqualTo(userMessageList);
+			assertThat(userMessages.metaData().getPage()).isEqualTo(1);
+			assertThat(userMessages.metaData().getLimit()).isEqualTo(2);
+			assertThat(userMessages.metaData().getCount()).isEqualTo(2);
+			assertThat(userMessages.metaData().getTotalRecords()).isEqualTo(2);
+			assertThat(userMessages.metaData().getTotalPages()).isEqualTo(1);
+		});
+		verify(mockDbIntegration).getUniqueMessageIds(eq(municipalityId), eq(batchId), eq(userId), any(LocalDateTime.class), pageRequestCaptor.capture());
+		final var pageRequest = pageRequestCaptor.getValue();
 		assertThat(pageRequest.getPageNumber()).isZero();
 		assertThat(pageRequest.getPageSize()).isEqualTo(limit);
 	}
 
 	@Test
 	void createUserMessagesTest() {
-		var municipalityId = "2281";
-		var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
-		var spy = Mockito.spy(historyService);
+		final var municipalityId = "2281";
+		final var messageIdProjectionMock = Mockito.mock(MessageIdProjection.class);
+		final var spy = Mockito.spy(historyService);
 		when(messageIdProjectionMock.getMessageId()).thenReturn("1");
 		doReturn(createUserMessage()).when(spy).createUserMessage(eq(municipalityId), any());
 
-		var result = spy.createUserMessages(municipalityId, List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
+		final var result = spy.createUserMessages(municipalityId, List.of(messageIdProjectionMock, messageIdProjectionMock, messageIdProjectionMock));
 
 		assertThat(result).isNotNull().hasSize(3);
 	}
 
 	@Test
 	void createUserMessageTest() {
-		var municipalityId = "2281";
-		var messageId = "someMessageId";
-		var histories = List.of(createHistoryEntity());
-		var spy = Mockito.spy(historyService);
+		final var municipalityId = "2281";
+		final var messageId = "someMessageId";
+		final var histories = List.of(createHistoryEntity());
+		final var spy = Mockito.spy(historyService);
 		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(histories);
-		var subject = "someSubject";
+		final var subject = "someSubject";
 		doReturn(subject).when(spy).extractSubject(histories.getFirst());
-		var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
+		final var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
 		doReturn(recipients).when(spy).createRecipients(municipalityId, histories);
-		var attachments = List.of(UserMessage.MessageAttachment.builder().withContentType("application/pdf").withFileName("someFileName").build());
+		final var attachments = List.of(UserMessage.MessageAttachment.builder().withContentType("application/pdf").withFileName("someFileName").build());
 		doReturn(attachments).when(spy).extractAttachment(histories.getFirst());
 
-		var result = spy.createUserMessage(municipalityId, messageId);
+		final var result = spy.createUserMessage(municipalityId, messageId);
 
 		assertThat(result).isNotNull().satisfies(userMessage -> {
 			assertThat(userMessage.messageId()).isEqualTo(messageId);
@@ -263,13 +293,13 @@ class HistoryServiceTest {
 
 	@Test
 	void findAttachmentByNameTest() {
-		var contentInputNode = mock(JsonNode.class);
-		var attachmentArrayNode = mock(JsonNode.class);
-		var attachmentNode = mock(JsonNode.class);
+		final var contentInputNode = mock(JsonNode.class);
+		final var attachmentArrayNode = mock(JsonNode.class);
+		final var attachmentNode = mock(JsonNode.class);
 
-		var fileNameNode = mock(JsonNode.class);
-		var contentTypeNode = mock(JsonNode.class);
-		var contentNode = mock(JsonNode.class);
+		final var fileNameNode = mock(JsonNode.class);
+		final var contentTypeNode = mock(JsonNode.class);
+		final var contentNode = mock(JsonNode.class);
 
 		when(contentInputNode.get("attachments")).thenReturn(attachmentArrayNode);
 		when(attachmentArrayNode.isArray()).thenReturn(true);
@@ -281,7 +311,7 @@ class HistoryServiceTest {
 		when(contentTypeNode.asText()).thenReturn("application/pdf");
 		when(contentNode.asText()).thenReturn("someContent");
 
-		var result = historyService.findAttachmentByName(contentInputNode, "name", "someFileName");
+		final var result = historyService.findAttachmentByName(contentInputNode, "name", "someFileName");
 
 		assertThat(result).isNotNull().satisfies(attachment -> {
 			assertThat(attachment.getName()).isEqualTo("someFileName");
@@ -292,8 +322,8 @@ class HistoryServiceTest {
 
 	@Test
 	void findAttachmentByNameTest_2() {
-		var contentInputNode = mock(JsonNode.class);
-		var attachmentArrayNode = mock(JsonNode.class);
+		final var contentInputNode = mock(JsonNode.class);
+		final var attachmentArrayNode = mock(JsonNode.class);
 
 		when(contentInputNode.get("attachments")).thenReturn(attachmentArrayNode);
 		when(attachmentArrayNode.isArray()).thenReturn(false);
@@ -305,13 +335,13 @@ class HistoryServiceTest {
 
 	@Test
 	void extractAttachmentTest() throws JsonProcessingException {
-		var history = createHistoryEntity();
+		final var history = createHistoryEntity();
 
-		var jsonNodeMock = mock(JsonNode.class);
-		var attachmentArrayNode = mock(JsonNode.class);
-		var attachmentNode = mock(JsonNode.class);
-		var fileNameNode = mock(JsonNode.class);
-		var contentTypeNode = mock(JsonNode.class);
+		final var jsonNodeMock = mock(JsonNode.class);
+		final var attachmentArrayNode = mock(JsonNode.class);
+		final var attachmentNode = mock(JsonNode.class);
+		final var fileNameNode = mock(JsonNode.class);
+		final var contentTypeNode = mock(JsonNode.class);
 
 		when(objectMapper.readTree(history.getContent())).thenReturn(jsonNodeMock);
 		when(jsonNodeMock.get("attachments")).thenReturn(attachmentArrayNode);
@@ -322,7 +352,7 @@ class HistoryServiceTest {
 		when(attachmentNode.get("filename")).thenReturn(fileNameNode);
 		when(fileNameNode.asText()).thenReturn("someFileName");
 
-		var result = historyService.extractAttachment(history);
+		final var result = historyService.extractAttachment(history);
 
 		assertThat(result).isNotNull().satisfies(attachments -> {
 			assertThat(attachments).hasSize(1);
@@ -333,17 +363,17 @@ class HistoryServiceTest {
 
 	@Test
 	void createRecipientTest() {
-		var municipalityId = "2281";
-		var history = HistoryEntity.builder()
+		final var municipalityId = "2281";
+		final var history = HistoryEntity.builder()
 			.withPartyId("partyId")
 			.withMessageType(MessageType.MESSAGE)
 			.withStatus(MessageStatus.SENT)
 			.build();
-		var histories = List.of(history);
-		var expectedLegalId = "123456-7890";
+		final var histories = List.of(history);
+		final var expectedLegalId = "123456-7890";
 		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId())).thenReturn(expectedLegalId);
 
-		var result = historyService.createRecipients(municipalityId, histories);
+		final var result = historyService.createRecipients(municipalityId, histories);
 
 		assertThat(result).isNotNull().satisfies(recipients -> {
 			assertThat(recipients).hasSize(1);
@@ -357,14 +387,14 @@ class HistoryServiceTest {
 
 	@Test
 	void createRecipientTest_nullPartyId() {
-		var municipalityId = "2281";
-		var history = HistoryEntity.builder()
+		final var municipalityId = "2281";
+		final var history = HistoryEntity.builder()
 			.withMessageType(MESSAGE)
 			.withStatus(MessageStatus.SENT)
 			.build();
-		var histories = List.of(history);
+		final var histories = List.of(history);
 
-		var result = historyService.createRecipients(municipalityId, histories);
+		final var result = historyService.createRecipients(municipalityId, histories);
 
 		assertThat(result).isNotNull().satisfies(recipients -> {
 			assertThat(recipients).hasSize(1);
@@ -378,17 +408,17 @@ class HistoryServiceTest {
 
 	@Test
 	void getUserMessageTest() throws JsonProcessingException {
-		var municipalityId = "2281";
-		var history = createHistoryEntity();
-		var messageId = history.getMessageId();
-		var issuer = history.getIssuer();
-		var jsonNodeMock = mock(JsonNode.class);
+		final var municipalityId = "2281";
+		final var history = createHistoryEntity();
+		final var messageId = history.getMessageId();
+		final var issuer = history.getIssuer();
+		final var jsonNodeMock = mock(JsonNode.class);
 
 		when(objectMapper.readTree(history.getContent())).thenReturn(jsonNodeMock);
 		when(mockDbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).thenReturn(true);
 		when(mockDbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(List.of(history));
 
-		var result = historyService.getUserMessage(municipalityId, issuer, messageId);
+		final var result = historyService.getUserMessage(municipalityId, issuer, messageId);
 
 		assertThat(result).isNotNull();
 		assertThat(result.messageId()).isEqualTo(messageId);
@@ -417,9 +447,9 @@ class HistoryServiceTest {
 
 	@Test
 	void getUserMessageTest_whenMessageIdNotFound() {
-		var municipalityId = "2281";
-		var messageId = "someMessageId";
-		var issuer = "someIssuer";
+		final var municipalityId = "2281";
+		final var messageId = "someMessageId";
+		final var issuer = "someIssuer";
 
 		when(mockDbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).thenReturn(false);
 

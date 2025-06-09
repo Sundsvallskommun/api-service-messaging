@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.service;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -68,21 +69,21 @@ public class HistoryService {
 	}
 
 	public void streamAttachment(final String municipalityId, final String messageId, final String fileName, final HttpServletResponse response) throws IOException {
-		var history = dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
-		var nameField = getFileNameField(history.getMessageType());
-		var content = objectMapper.readTree(history.getContent());
+		final var history = dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
+		final var nameField = getFileNameField(history.getMessageType());
+		final var content = objectMapper.readTree(history.getContent());
 
-		var attachment = findAttachmentByName(content, nameField, fileName);
+		final var attachment = findAttachmentByName(content, nameField, fileName);
 		setupResponse(response, attachment);
 	}
 
 	Attachment findAttachmentByName(final JsonNode content, final String nameField, final String fileName) {
-		var attachments = content.get("attachments");
+		final var attachments = content.get("attachments");
 		if (attachments == null || !attachments.isArray()) {
 			throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " not found");
 		}
-		for (var attachment : attachments) {
-			var name = attachment.get(nameField).asText();
+		for (final var attachment : attachments) {
+			final var name = attachment.get(nameField).asText();
 			if (fileName.equals(name)) {
 				return Attachment.builder()
 					.withName(name)
@@ -95,19 +96,21 @@ public class HistoryService {
 	}
 
 	private void setupResponse(final HttpServletResponse response, final Attachment attachment) throws IOException {
-		var decodedContent = Base64.decodeBase64(attachment.getContent());
+		final var decodedContent = Base64.decodeBase64(attachment.getContent());
 		response.addHeader(CONTENT_TYPE, attachment.getContentType());
 		response.addHeader(CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getName() + "\"");
 		response.addHeader(CONTENT_LENGTH, String.valueOf(decodedContent.length));
 		response.setContentLength(decodedContent.length);
 
-		var binaryStream = new BinaryStreamImpl(decodedContent);
+		final var binaryStream = new BinaryStreamImpl(decodedContent);
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
-	public UserMessages getUserMessages(final String municipalityId, final String userId, final Integer page, final Integer limit) {
-		var thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-		var messageIdPage = dbIntegration.getUniqueMessageIds(municipalityId, userId, thirtyDaysAgo, PageRequest.of(page - 1, limit));
+	public UserMessages getUserMessages(final String municipalityId, final String userId, String batchId, final Integer page, final Integer limit) {
+		final var thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+		final var pageRequest = PageRequest.of(page - 1, limit);
+		final var messageIdPage = isNull(batchId) ? dbIntegration.getUniqueMessageIds(municipalityId, userId, thirtyDaysAgo, pageRequest)
+			: dbIntegration.getUniqueMessageIds(municipalityId, batchId, userId, thirtyDaysAgo, pageRequest);
 
 		return UserMessages.builder()
 			.withMessages(createUserMessages(municipalityId, messageIdPage.getContent()))
@@ -128,13 +131,13 @@ public class HistoryService {
 	}
 
 	UserMessage createUserMessage(final String municipalityId, final String messageId) {
-		var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
-		var recipients = createRecipients(municipalityId, histories);
-		var history = histories.stream()
+		final var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
+		final var recipients = createRecipients(municipalityId, histories);
+		final var history = histories.stream()
 			.filter(history1 -> history1.getMessageType() == MessageType.DIGITAL_MAIL)
 			.findFirst().orElse(histories.getFirst());
-		var attachments = extractAttachment(history);
-		var subject = extractSubject(history);
+		final var attachments = extractAttachment(history);
+		final var subject = extractSubject(history);
 
 		return UserMessage.builder()
 			.withMessageId(messageId)
@@ -151,7 +154,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (JsonProcessingException ignored) {
+		} catch (final JsonProcessingException ignored) {
 			return "";
 		}
 		return Optional.ofNullable(content.get("subject")).map(JsonNode::asText).orElse("");
@@ -161,24 +164,24 @@ public class HistoryService {
 		if (StringUtils.isBlank(history.getContent())) {
 			return emptyList();
 		}
-		List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
-		var messageType = history.getMessageType();
+		final List<UserMessage.MessageAttachment> attachments = new ArrayList<>();
+		final var messageType = history.getMessageType();
 
 		JsonNode attachmentsNode;
 
 		try {
-			var jsonNode = objectMapper.readTree(history.getContent());
-			var attachmentsField = getAttachmentsField(messageType);
+			final var jsonNode = objectMapper.readTree(history.getContent());
+			final var attachmentsField = getAttachmentsField(messageType);
 			attachmentsNode = jsonNode.get(attachmentsField);
-		} catch (JsonProcessingException ignored) {
+		} catch (final JsonProcessingException ignored) {
 			return emptyList();
 		}
 
 		if (attachmentsNode != null && attachmentsNode.isArray()) {
-			var fileNameField = getFileNameField(messageType);
-			var contentTypeField = getContentTypeField(messageType);
+			final var fileNameField = getFileNameField(messageType);
+			final var contentTypeField = getContentTypeField(messageType);
 
-			for (var attachment : attachmentsNode) {
+			for (final var attachment : attachmentsNode) {
 				attachments.add(UserMessage.MessageAttachment.builder()
 					.withFileName(attachment.get(fileNameField).asText())
 					.withContentType(attachment.get(contentTypeField).asText())
@@ -190,12 +193,12 @@ public class HistoryService {
 
 	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
 		return histories.stream().map(history -> {
-			var legalId = Optional.ofNullable(history.getPartyId())
+			final var legalId = Optional.ofNullable(history.getPartyId())
 				.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
 				.orElse(null);
-			var messageType = history.getMessageType().toString();
-			var status = history.getStatus().name();
-			var address = history.getDestinationAddress();
+			final var messageType = history.getMessageType().toString();
+			final var status = history.getStatus().name();
+			final var address = history.getDestinationAddress();
 			return new UserMessage.Recipient(createAddress(address), legalId, messageType, status);
 		}).toList();
 	}
@@ -233,7 +236,7 @@ public class HistoryService {
 
 	/**
 	 * Get the attachments field name for the given message type.
-	 * 
+	 *
 	 * @param  messageType messageType to get the attachments field for
 	 * @return             the attachments field name
 	 */
@@ -247,7 +250,7 @@ public class HistoryService {
 
 	/**
 	 * Get the name field name for the given message type.
-	 * 
+	 *
 	 * @param  messageType messageType to get the name field for
 	 * @return             the name field name
 	 */
@@ -262,7 +265,7 @@ public class HistoryService {
 
 	/**
 	 * Get the content type field name for the given message type.
-	 * 
+	 *
 	 * @param  messageType messageType to get the content type field name for
 	 * @return             the content type field name
 	 */
