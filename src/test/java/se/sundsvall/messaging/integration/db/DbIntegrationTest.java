@@ -3,7 +3,6 @@ package se.sundsvall.messaging.integration.db;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -20,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -30,12 +31,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.zalando.problem.ThrowableProblem;
+
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -54,20 +55,24 @@ class DbIntegrationTest {
 	@InjectMocks
 	private DbIntegration dbIntegration;
 
+	@AfterEach
+	void verifyNoMoreMockInteractions() {
+		verifyNoMoreInteractions(mockMessageRepository, mockHistoryRepository, mockStatisticsRepository);
+	}
+
 	@Test
 	void getMessageByDeliveryId() {
-		when(mockMessageRepository.findByDeliveryId(any(String.class)))
-			.thenReturn(Optional.of(MessageEntity.builder().build()));
+		final var deliveryId = "deliveryId";
+		when(mockMessageRepository.findByDeliveryId(deliveryId)).thenReturn(Optional.of(MessageEntity.builder().build()));
 
-		assertThat(dbIntegration.getMessageByDeliveryId("someDeliveryId")).isPresent();
+		assertThat(dbIntegration.getMessageByDeliveryId(deliveryId)).isPresent();
 
-		verify(mockMessageRepository).findByDeliveryId("someDeliveryId");
+		verify(mockMessageRepository).findByDeliveryId(deliveryId);
 	}
 
 	@Test
 	void getLatestMessagesWithStatus() {
-		when(mockMessageRepository.findByStatusOrderByCreatedAtAsc(any(MessageStatus.class)))
-			.thenReturn(List.of(MessageEntity.builder().build(), MessageEntity.builder().build()));
+		when(mockMessageRepository.findByStatusOrderByCreatedAtAsc(PENDING)).thenReturn(List.of(MessageEntity.builder().build(), MessageEntity.builder().build()));
 
 		assertThat(dbIntegration.getLatestMessagesWithStatus(PENDING)).hasSize(2);
 
@@ -94,41 +99,44 @@ class DbIntegrationTest {
 
 	@Test
 	void deleteMessageByDeliveryId() {
-		doNothing().when(mockMessageRepository).deleteByDeliveryId(any(String.class));
+		final var deliveryId = "deliveryId";
 
-		dbIntegration.deleteMessageByDeliveryId("someDeliveryId");
+		dbIntegration.deleteMessageByDeliveryId(deliveryId);
 
-		verify(mockMessageRepository).deleteByDeliveryId("someDeliveryId");
+		verify(mockMessageRepository).deleteByDeliveryId(deliveryId);
 	}
 
 	@Test
 	void getHistoryByMessageId() {
-		when(mockHistoryRepository.findByMunicipalityIdAndMessageId(any(String.class), any(String.class)))
-			.thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
+		final var municipalityId = "municipalityId";
+		final var messageId = "messageId";
+		when(mockHistoryRepository.findByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
 
-		assertThat(dbIntegration.getHistoryByMunicipalityIdAndMessageId("someMunicipalityId", "someMessageId")).hasSize(2);
+		assertThat(dbIntegration.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId)).hasSize(2);
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndMessageId("someMunicipalityId", "someMessageId");
+		verify(mockHistoryRepository).findByMunicipalityIdAndMessageId(municipalityId, messageId);
 	}
 
 	@Test
 	void getHistoryByBatchId() {
-		when(mockHistoryRepository.findByMunicipalityIdAndBatchId(any(String.class), any(String.class)))
-			.thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
+		final var municipalityId = "municipalityId";
+		final var batchId = "batchId";
+		when(mockHistoryRepository.findByMunicipalityIdAndBatchId(municipalityId, batchId)).thenReturn(List.of(HistoryEntity.builder().build(), HistoryEntity.builder().build()));
 
-		assertThat(dbIntegration.getHistoryByMunicipalityIdAndBatchId("someMunicipalityId", "someBatchId")).hasSize(2);
+		assertThat(dbIntegration.getHistoryByMunicipalityIdAndBatchId(municipalityId, batchId)).hasSize(2);
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndBatchId("someMunicipalityId", "someBatchId");
+		verify(mockHistoryRepository).findByMunicipalityIdAndBatchId(municipalityId, batchId);
 	}
 
 	@Test
 	void getHistoryByDeliveryId() {
-		when(mockHistoryRepository.findByMunicipalityIdAndDeliveryId(any(String.class), any(String.class)))
-			.thenReturn(Optional.of(HistoryEntity.builder().build()));
+		final var municipalityId = "municipalityId";
+		final var deliveryId = "deliveryId";
+		when(mockHistoryRepository.findByMunicipalityIdAndDeliveryId(municipalityId, deliveryId)).thenReturn(Optional.of(HistoryEntity.builder().build()));
 
-		assertThat(dbIntegration.getHistoryByMunicipalityIdAndDeliveryId("someMunicipalityId", "somDeliveryId")).contains(History.builder().build());
+		assertThat(dbIntegration.getHistoryByMunicipalityIdAndDeliveryId(municipalityId, deliveryId)).contains(History.builder().build());
 
-		verify(mockHistoryRepository).findByMunicipalityIdAndDeliveryId("someMunicipalityId", "somDeliveryId");
+		verify(mockHistoryRepository).findByMunicipalityIdAndDeliveryId(municipalityId, deliveryId);
 	}
 
 	@Test
@@ -152,8 +160,7 @@ class DbIntegrationTest {
 
 		assertThat(dbIntegration.getHistory(municipalityId, partyId, from, to)).hasSize(2);
 
-		verify(mockHistoryRepository)
-			.findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
+		verify(mockHistoryRepository).findAll(ArgumentMatchers.<Specification<HistoryEntity>>any());
 	}
 
 	@Test
@@ -196,7 +203,6 @@ class DbIntegrationTest {
 		assertThat(dbIntegration.existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer)).isTrue();
 
 		verify(mockHistoryRepository).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
 
 	@Test
@@ -207,12 +213,11 @@ class DbIntegrationTest {
 		final var pageRequest = PageRequest.of(12, 34);
 		final Page<MessageIdProjection> result = Page.empty();
 
-		when(mockHistoryRepository.findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(any(), any(), any(), any())).thenReturn(result);
+		when(mockHistoryRepository.findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, date, pageRequest)).thenReturn(result);
 
 		assertThat(dbIntegration.getUniqueMessageIds(municipalityId, issuer, date, pageRequest)).isEqualTo(result);
 
 		verify(mockHistoryRepository).findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, date, pageRequest);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
 
 	@Test
@@ -224,12 +229,11 @@ class DbIntegrationTest {
 		final var pageRequest = PageRequest.of(12, 34);
 		final Page<MessageIdProjection> result = Page.empty();
 
-		when(mockHistoryRepository.findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(any(), any(), any(), any(), any())).thenReturn(result);
+		when(mockHistoryRepository.findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(municipalityId, batchId, issuer, date, pageRequest)).thenReturn(result);
 
 		assertThat(dbIntegration.getUniqueMessageIds(municipalityId, batchId, issuer, date, pageRequest)).isEqualTo(result);
 
 		verify(mockHistoryRepository).findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(municipalityId, batchId, issuer, date, pageRequest);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
 
 	@Test
@@ -240,12 +244,11 @@ class DbIntegrationTest {
 			HistoryEntity.builder().withId(123L).build(),
 			HistoryEntity.builder().withId(234L).build());
 
-		when(mockHistoryRepository.findByMunicipalityIdAndMessageId(any(), any())).thenReturn(response);
+		when(mockHistoryRepository.findByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(response);
 
 		assertThat(dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).isEqualTo(response);
 
 		verify(mockHistoryRepository).findByMunicipalityIdAndMessageId(municipalityId, messageId);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
 
 	@Test
@@ -254,12 +257,11 @@ class DbIntegrationTest {
 		final var messageId = "messageId";
 		final var historyEntity = HistoryEntity.builder().withId(556L).build();
 
-		when(mockHistoryRepository.findFirstByMunicipalityIdAndMessageId(any(), any())).thenReturn(Optional.of(historyEntity));
+		when(mockHistoryRepository.findFirstByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(Optional.of(historyEntity));
 
 		assertThat(dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).isEqualTo(historyEntity);
 
 		verify(mockHistoryRepository).findFirstByMunicipalityIdAndMessageId(municipalityId, messageId);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
 
 	@Test
