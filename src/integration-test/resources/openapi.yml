@@ -824,6 +824,66 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/users/{userId}/batches:
+    get:
+      tags:
+      - History Resources
+      summary: Get information regarding historical batches sent by a user
+      operationId: getUserBatches
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: userId
+        in: path
+        description: User id
+        required: true
+        schema:
+          type: string
+        example: joe01doe
+      - name: page
+        in: query
+        description: Which page to fetch
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+        example: 1
+      - name: limit
+        in: query
+        description: Sets the amount of entries per page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 15
+        example: 1
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserBatches"
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/status/messages/{messageId}:
     get:
       tags:
@@ -1524,12 +1584,6 @@ components:
     Problem:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
         instance:
           type: string
           format: uri
@@ -1549,11 +1603,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     DeliveryResult:
       type: object
       properties:
@@ -2370,8 +2424,6 @@ components:
           type: string
         message:
           type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -2379,6 +2431,8 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
         suppressed:
           type: array
           items:
@@ -2440,12 +2494,6 @@ components:
               nativeMethod:
                 type: boolean
         message:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
           type: string
         instance:
           type: string
@@ -2616,6 +2664,65 @@ components:
           items:
             $ref: "#/components/schemas/UserMessage"
       description: User messages model
+    Batch:
+      type: object
+      properties:
+        batchId:
+          type: string
+          description: The batch id
+          example: b971e0f8-2942-4b45-9fa3-bd2cc22ed76b
+        messageType:
+          type: string
+          description: The original message type
+          example: LETTER
+        subject:
+          type: string
+          description: Message subject if such exists for message(s) attached to the
+            batch
+          example: Important message
+        sent:
+          type: string
+          description: Timestamp when the batch was sent
+          format: date-time
+        attachmentCount:
+          type: integer
+          description: The amount of documents attached to message(s) in the batch
+          format: int32
+          example: 3
+        recipientCount:
+          type: integer
+          description: The amount of recipients included in the batch
+          format: int32
+          example: 15
+        status:
+          $ref: "#/components/schemas/Status"
+      description: Batch information model
+      readOnly: true
+    Status:
+      type: object
+      properties:
+        successful:
+          type: integer
+          description: Amount of successfully sent messages
+          format: int32
+          example: 13
+        unsuccessful:
+          type: integer
+          description: Amount of failed messages
+          format: int32
+          example: 2
+      description: Batch status model
+    UserBatches:
+      type: object
+      properties:
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+        batches:
+          type: array
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/Batch"
+      description: User batches model
     LetterStatistics:
       type: object
       properties:
