@@ -127,6 +127,10 @@ public class DbIntegration {
 		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, dateTime, pageRequest);
 	}
 
+	public Page<MessageIdProjection> getUniqueMessageIds(final String municipalityId, final String batchId, final String issuer, final LocalDateTime dateTime, final PageRequest pageRequest) {
+		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(municipalityId, batchId, issuer, dateTime, pageRequest);
+	}
+
 	public List<HistoryEntity> getHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
 		return historyRepository.findByMunicipalityIdAndMessageId(municipalityId, messageId);
 	}

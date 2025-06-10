@@ -128,7 +128,7 @@ class HistoryResourceTest {
 		when(mockHistoryService.getConversationHistory(any(), any(), any(), any())).thenReturn(emptyList());
 
 		// Act
-		var result = webTestClient.get()
+		final var result = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
@@ -345,18 +345,18 @@ class HistoryResourceTest {
 
 	@Test
 	void getUserMessages() {
-		var municipalityId = "2281";
-		var userId = "userId";
-		var page = 1;
-		var limit = 15;
+		final var municipalityId = "2281";
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
 
-		var userMessages = createUserMessages();
+		final var userMessages = createUserMessages();
 
-		when(mockHistoryService.getUserMessages(municipalityId, userId, page, limit)).thenReturn(userMessages);
+		when(mockHistoryService.getUserMessages(municipalityId, userId, null, page, limit)).thenReturn(userMessages);
 
 		webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(page, limit))
+				.queryParams(createParameterMap(null, page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
 			.exchange()
 			.expectStatus().isOk()
@@ -364,13 +364,40 @@ class HistoryResourceTest {
 			.expectBody(UserMessages.class)
 			.isEqualTo(userMessages);
 
-		verify(mockHistoryService).getUserMessages(municipalityId, userId, page, limit);
+		verify(mockHistoryService).getUserMessages(municipalityId, userId, null, page, limit);
 		verifyNoMoreInteractions(mockHistoryService);
 	}
 
-	private MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+	@Test
+	void getBatchUserMessages() {
+		final var municipalityId = "2281";
+		final var batchId = UUID.randomUUID().toString();
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
 
+		final var userMessages = createUserMessages();
+
+		when(mockHistoryService.getUserMessages(municipalityId, userId, batchId, page, limit)).thenReturn(userMessages);
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(batchId, page, limit))
+				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(APPLICATION_JSON)
+			.expectBody(UserMessages.class)
+			.isEqualTo(userMessages);
+
+		verify(mockHistoryService).getUserMessages(municipalityId, userId, batchId, page, limit);
+		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+	private MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
+		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+
+		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));
 		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
 		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
 
@@ -379,7 +406,7 @@ class HistoryResourceTest {
 
 	@Test
 	void getMessageMetadata() {
-		var messageId = UUID.randomUUID().toString();
+		final var messageId = UUID.randomUUID().toString();
 		final var history = History.builder()
 			.withBatchId("someBatchId")
 			.withMessageId(messageId)
@@ -403,7 +430,7 @@ class HistoryResourceTest {
 
 	@Test
 	void getMessageMetadataWhenNoHistoryExists() {
-		var messageId = UUID.randomUUID().toString();
+		final var messageId = UUID.randomUUID().toString();
 
 		when(mockHistoryService.getHistoryByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId)).thenReturn(emptyList());
 
@@ -420,8 +447,8 @@ class HistoryResourceTest {
 
 	@Test
 	void getUserMessage() {
-		var messageId = UUID.randomUUID().toString();
-		var userId = "someUser";
+		final var messageId = UUID.randomUUID().toString();
+		final var userId = "someUser";
 
 		when(mockHistoryService.getUserMessage(MUNICIPALITY_ID, userId, messageId)).thenReturn(UserMessage.builder().build());
 
@@ -435,8 +462,8 @@ class HistoryResourceTest {
 
 	@Test
 	void getUserMessageNoMessageExists() {
-		var messageId = UUID.randomUUID().toString();
-		var userId = "someUser";
+		final var messageId = UUID.randomUUID().toString();
+		final var userId = "someUser";
 
 		when(mockHistoryService.getUserMessage(MUNICIPALITY_ID, userId, messageId))
 			.thenThrow(Problem.valueOf(NOT_FOUND, "No message found for message id " + messageId + " and user id " + userId));

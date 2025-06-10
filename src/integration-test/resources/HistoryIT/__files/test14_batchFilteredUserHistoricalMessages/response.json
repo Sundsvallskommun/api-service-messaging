@@ -1,0 +1,52 @@
+{
+	"_meta": {
+		"page": 1,
+		"limit": 10,
+		"count": 1,
+		"totalRecords": 1,
+		"totalPages": 1
+	},
+	"messages": [
+		{
+			"messageId": "d4545198-3356-40a8-83a9-5950e74585a6",
+			"issuer": "issuer1",
+			"origin": "origin",
+			"sent": "2050-02-25T15:54:39.254123",
+			"subject": "",
+			"recipients": [
+				{
+					"address": {
+						"address": "Storgatan 1",
+						"city": "Sundsvall",
+						"country": "Sverige",
+						"firstName": "Kalle",
+						"lastName": "Anka",
+						"zipCode": "123 45"
+					},
+					"personId": "190101010159",
+					"messageType": "SNAIL_MAIL",
+					"status": "SENT"
+				},
+				{
+					"address": {
+						"address": "Storgatan 1",
+						"city": "Sundsvall",
+						"country": "Sverige",
+						"firstName": "Kalle",
+						"lastName": "Anka",
+						"zipCode": "123 45"
+					},
+					"personId": "190101010159",
+					"messageType": "SNAIL_MAIL",
+					"status": "SENT"
+				}
+			],
+			"attachments": [
+				{
+					"contentType": "application/pdf",
+					"fileName": "beslut.pdf"
+				}
+			]
+		}
+	]
+}
