@@ -186,4 +186,15 @@ class HistoryIT extends AbstractMessagingAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
+
+	@Test
+	void test15_userHistoricalMessagesWhenAllFailed() {
+		final var userId = "issuer2";
+		setupCall()
+			.withServicePath(USER_MESSAGES_PATH.formatted(userId) + "?page=1&limit=10")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 }

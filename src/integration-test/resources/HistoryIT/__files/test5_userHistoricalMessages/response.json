@@ -56,11 +56,6 @@
 			"subject": "Beslut från Sundsvalls kommun",
 			"recipients": [
 				{
-					"personId": "190101010159",
-					"messageType": "DIGITAL_MAIL",
-					"status": "FAILED"
-				},
-				{
 					"address": {
 						"address": "Storgatan 1",
 						"city": "Sundsvall",
