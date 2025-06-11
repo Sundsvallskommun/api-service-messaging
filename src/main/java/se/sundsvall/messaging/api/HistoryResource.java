@@ -12,6 +12,7 @@ import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PA
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
@@ -38,11 +39,13 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.api.model.ApiMapper;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.service.HistoryService;
@@ -182,6 +185,17 @@ class HistoryResource {
 			.toList();
 
 		return history.isEmpty() ? notFound().build() : ok(history);
+	}
+
+	@Operation(summary = "Get information regarding historical batches sent by a user")
+	@GetMapping(value = USER_BATCHES_PATH, produces = APPLICATION_JSON_VALUE)
+	ResponseEntity<UserBatches> getUserBatches(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
+		@Parameter(name = "userId", description = "User id", example = "joe01doe") @PathVariable final String userId,
+		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
+		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
+
+		return ok(UserBatches.builder().withMetaData(PagingMetaData.create()).build()); // TODO: Implement in later task
 	}
 
 	@Operation(summary = "Get historical messages sent by a user, optionally filtered by batch id")
