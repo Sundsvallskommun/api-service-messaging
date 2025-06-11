@@ -2,10 +2,12 @@ package se.sundsvall.messaging.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toCollection;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,6 +37,7 @@ import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
+import se.sundsvall.messaging.util.FilterUtils;
 
 @Service
 public class HistoryService {
@@ -123,8 +126,8 @@ public class HistoryService {
 			.build();
 	}
 
-	List<UserMessage> createUserMessages(final String municipalityId, final List<MessageIdProjection> messageIds) {
-		return messageIds.stream()
+	List<UserMessage> createUserMessages(final String municipalityId, final List<MessageIdProjection> messageIdProjections) {
+		return messageIdProjections.stream()
 			.map(MessageIdProjection::getMessageId)
 			.map(messageId -> createUserMessage(municipalityId, messageId))
 			.toList();
@@ -134,7 +137,7 @@ public class HistoryService {
 		final var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		final var recipients = createRecipients(municipalityId, histories);
 		final var history = histories.stream()
-			.filter(history1 -> history1.getMessageType() == MessageType.DIGITAL_MAIL)
+			.filter(h -> h.getMessageType() == MessageType.DIGITAL_MAIL)
 			.findFirst().orElse(histories.getFirst());
 		final var attachments = extractAttachment(history);
 		final var subject = extractSubject(history);
@@ -192,15 +195,29 @@ public class HistoryService {
 	}
 
 	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
-		return histories.stream().map(history -> {
-			final var legalId = Optional.ofNullable(history.getPartyId())
-				.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
-				.orElse(null);
-			final var messageType = history.getMessageType().toString();
-			final var status = history.getStatus().name();
-			final var address = history.getDestinationAddress();
-			return new UserMessage.Recipient(createAddress(address), legalId, messageType, status);
-		}).toList();
+		final var recipients = histories.stream()
+			.map(history -> createRecipient(municipalityId, history))
+			.collect(toCollection(ArrayList::new));
+
+		// Remove entries with messagetype DIGITAL_MAIL and status not equal to SENT if there exists an entry with same
+		// personId with messagetype SNAIL_MAIL and status SENT
+		recipients.removeAll(
+			recipients.stream()
+				.filter(FilterUtils::isDigitalMailAndUnsuccessful)
+				.filter(recipient -> isSnailMailSuccessful(recipient.personId(), recipients))
+				.toList());
+
+		return recipients;
+	}
+
+	UserMessage.Recipient createRecipient(final String municipalityId, HistoryEntity history) {
+		final var legalId = Optional.ofNullable(history.getPartyId())
+			.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
+			.orElse(null);
+		final var messageType = history.getMessageType().toString();
+		final var status = history.getStatus().name();
+		final var address = history.getDestinationAddress();
+		return new UserMessage.Recipient(createAddress(address), legalId, messageType, status);
 	}
 
 	UserMessage.Address createAddress(Address address) {

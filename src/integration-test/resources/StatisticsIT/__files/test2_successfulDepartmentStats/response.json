@@ -3,11 +3,11 @@
 		"DEPARTMENT_STATISTICS": [
 			{
 				"DIGITAL_MAIL": {
-					"failed": 1,
+					"failed": 2,
 					"sent": 0
 				},
 				"SNAIL_MAIL": {
-					"failed": 0,
+					"failed": 1,
 					"sent": 4
 				},
 				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"

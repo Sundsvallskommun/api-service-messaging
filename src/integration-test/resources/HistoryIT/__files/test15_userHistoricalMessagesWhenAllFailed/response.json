@@ -1,0 +1,44 @@
+{
+	"_meta": {
+		"page": 1,
+		"limit": 10,
+		"count": 1,
+		"totalRecords": 1,
+		"totalPages": 1
+	},
+	"messages": [
+		{
+			"messageId": "761ab503-178c-4b14-a23d-47fe025ec19b",
+			"issuer": "issuer2",
+			"origin": "origin",
+			"sent": "2050-02-25T15:54:39.254123",
+			"subject": "Beslut från Sundsvalls kommun",
+			"recipients": [
+				{
+					"personId": "190101010159",
+					"messageType": "DIGITAL_MAIL",
+					"status": "FAILED"
+				},
+				{
+					"address": {
+						"address": "Storgatan 1",
+						"city": "Sundsvall",
+						"country": "Sverige",
+						"firstName": "Kalle",
+						"lastName": "Anka",
+						"zipCode": "123 45"
+					},
+					"personId": "190101010159",
+					"messageType": "SNAIL_MAIL",
+					"status": "FAILED"
+				}
+			],
+			"attachments": [
+				{
+					"contentType": "application/pdf",
+					"fileName": "beslut.pdf"
+				}
+			]
+		}
+	]
+}
