@@ -39,7 +39,6 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
-import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.api.model.ApiMapper;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
@@ -195,7 +194,7 @@ class HistoryResource {
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
 		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
 
-		return ok(UserBatches.builder().withMetaData(PagingMetaData.create()).build()); // TODO: Implement in later task
+		return ok(historyService.getUserBatches(municipalityId, userId, page, limit));
 	}
 
 	@Operation(summary = "Get historical messages sent by a user, optionally filtered by batch id")
@@ -207,8 +206,7 @@ class HistoryResource {
 		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
 		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
 
-		final var result = historyService.getUserMessages(municipalityId, userId, batchId, page, limit);
-		return ok(result);
+		return ok(historyService.getUserMessages(municipalityId, userId, batchId, page, limit));
 	}
 
 	@Operation(summary = "Get a historical message sent by a user")
@@ -218,8 +216,7 @@ class HistoryResource {
 		@Parameter(name = "userId", description = "User id", example = "joe01doe") @PathVariable final String userId,
 		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId) {
 
-		final var result = historyService.getUserMessage(municipalityId, userId, messageId);
-		return ok(result);
+		return ok(historyService.getUserMessage(municipalityId, userId, messageId));
 	}
 
 	@Operation(summary = "Stream attachment by messageId and fileName")

@@ -2,16 +2,20 @@ package se.sundsvall.messaging.integration.db.mapper;
 
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.util.PagingUtil;
 
 class HistoryMapperTest {
 
@@ -22,7 +26,7 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryFromHistoryEntity() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -37,7 +41,7 @@ class HistoryMapperTest {
 			.withCreatedAt(LocalDateTime.now())
 			.build();
 
-		var history = HistoryMapper.mapToHistory(historyEntity);
+		final var history = HistoryMapper.mapToHistory(historyEntity);
 
 		assertThat(history).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(history.batchId()).isEqualTo(historyEntity.getBatchId());
@@ -57,9 +61,9 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntity() {
-		var statusDetail = "someStatusDetail";
-		var address = Address.builder().withAddress("someAddress").build();
-		var message = Message.builder()
+		final var statusDetail = "someStatusDetail";
+		final var address = Address.builder().withAddress("someAddress").build();
+		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -74,7 +78,7 @@ class HistoryMapperTest {
 			.withAddress(address)
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "destinationAddressJson");
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
@@ -96,8 +100,8 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntityNoDepartment() {
-		var statusDetail = "someStatusDetail";
-		var message = Message.builder()
+		final var statusDetail = "someStatusDetail";
+		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -109,7 +113,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -127,8 +131,8 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryEntityWhenContentIsNull() {
-		var statusDetail = "someStatusDetail";
-		var message = Message.builder()
+		final var statusDetail = "someStatusDetail";
+		final var message = Message.builder()
 			.withBatchId("someBatchId")
 			.withMessageId("someMessageId")
 			.withDeliveryId("someDeliveryId")
@@ -139,7 +143,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.build();
 
-		var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
+		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
 		assertThat(historyEntity.getBatchId()).isEqualTo(message.batchId());
 		assertThat(historyEntity.getMessageId()).isEqualTo(message.messageId());
@@ -155,4 +159,118 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 	}
 
+	@Test
+	void toBatch() {
+		final var batchId = "batchId";
+		final var sent = LocalDateTime.now();
+		final var messageType = "messageType";
+		final var subject = "subject";
+		final var attachmentCount = 123;
+		final var recipientCount = 456;
+		final var status = Batch.Status.builder().build();
+
+		final var bean = HistoryMapper.toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount, status);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.attachmentCount()).isEqualTo(attachmentCount);
+		assertThat(bean.batchId()).isEqualTo(batchId);
+		assertThat(bean.messageType()).isEqualTo(messageType);
+		assertThat(bean.recipientCount()).isEqualTo(recipientCount);
+		assertThat(bean.sent()).isEqualTo(sent);
+		assertThat(bean.status()).isEqualTo(status);
+		assertThat(bean.subject()).isEqualTo(subject);
+
+	}
+
+	@Test
+	void toStatus() {
+		final var successful = 45;
+		final var unsuccessful = 67;
+
+		final var bean = HistoryMapper.toStatus(successful, unsuccessful);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.successful()).isEqualTo(successful);
+		assertThat(bean.unsuccessful()).isEqualTo(unsuccessful);
+	}
+
+	@Test
+	void toUserBatchesPage1Limit1() {
+		final var firstBatch = Batch.builder().build();
+		final var secondBatch = Batch.builder().build();
+		final var batches = List.of(firstBatch, secondBatch);
+
+		final var page = PagingUtil.toPage(1, 1, batches);
+
+		final var bean = HistoryMapper.toUserBatches(page, 1);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.metaData().getCount()).isEqualTo(1);
+		assertThat(bean.metaData().getLimit()).isEqualTo(1);
+		assertThat(bean.metaData().getPage()).isEqualTo(1);
+		assertThat(bean.metaData().getTotalPages()).isEqualTo(2);
+		assertThat(bean.metaData().getTotalRecords()).isEqualTo(2);
+
+		assertThat(bean.batches()).asInstanceOf(LIST).hasSize(1).containsExactly(firstBatch);
+	}
+
+	@Test
+	void toUserBatchesPage2Limit1() {
+		final var firstBatch = Batch.builder().build();
+		final var secondBatch = Batch.builder().build();
+		final var batches = List.of(firstBatch, secondBatch);
+
+		final var page = PagingUtil.toPage(2, 1, batches);
+
+		final var bean = HistoryMapper.toUserBatches(page, 2);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.metaData().getCount()).isEqualTo(1);
+		assertThat(bean.metaData().getLimit()).isEqualTo(1);
+		assertThat(bean.metaData().getPage()).isEqualTo(2);
+		assertThat(bean.metaData().getTotalPages()).isEqualTo(2);
+		assertThat(bean.metaData().getTotalRecords()).isEqualTo(2);
+
+		assertThat(bean.batches()).asInstanceOf(LIST).hasSize(1).containsExactly(secondBatch);
+	}
+
+	@Test
+	void toUserBatchesPage1Limit2() {
+		final var firstBatch = Batch.builder().build();
+		final var secondBatch = Batch.builder().build();
+		final var batches = List.of(firstBatch, secondBatch);
+
+		final var page = PagingUtil.toPage(1, 2, batches);
+
+		final var bean = HistoryMapper.toUserBatches(page, 1);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.metaData().getCount()).isEqualTo(2);
+		assertThat(bean.metaData().getLimit()).isEqualTo(2);
+		assertThat(bean.metaData().getPage()).isEqualTo(1);
+		assertThat(bean.metaData().getTotalPages()).isEqualTo(1);
+		assertThat(bean.metaData().getTotalRecords()).isEqualTo(2);
+
+		assertThat(bean.batches()).asInstanceOf(LIST).hasSize(2).containsExactly(firstBatch, secondBatch);
+	}
+
+	@Test
+	void toUserBatchesPage2Limit2() {
+		final var firstBatch = Batch.builder().build();
+		final var secondBatch = Batch.builder().build();
+		final var batches = List.of(firstBatch, secondBatch);
+
+		final var page = PagingUtil.toPage(2, 2, batches);
+
+		final var bean = HistoryMapper.toUserBatches(page, 2);
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean.metaData().getCount()).isZero();
+		assertThat(bean.metaData().getLimit()).isEqualTo(2);
+		assertThat(bean.metaData().getPage()).isEqualTo(2);
+		assertThat(bean.metaData().getTotalPages()).isEqualTo(1);
+		assertThat(bean.metaData().getTotalRecords()).isEqualTo(2);
+
+		assertThat(bean.batches()).asInstanceOf(LIST).isEmpty();
+	}
 }

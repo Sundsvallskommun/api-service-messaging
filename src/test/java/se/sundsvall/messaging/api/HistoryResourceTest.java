@@ -41,6 +41,7 @@ import org.springframework.util.MultiValueMap;
 import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -351,10 +352,18 @@ class HistoryResourceTest {
 		final var municipalityId = "2281";
 		final var userId = "userId";
 		final var page = 1;
-		final var limit = 15;
+		final var limit = 1;
 
-		// TODO: Adjust when service layer is in place, but until then the resource will always return an empty result
-		final var userBatches = UserBatches.builder().withMetaData(PagingMetaData.create()).build();
+		final var userBatches = UserBatches.builder()
+			.withBatches(List.of(Batch.builder().build()))
+			.withMetaData(PagingMetaData.create()
+				.withCount(1).withLimit(limit)
+				.withPage(page)
+				.withTotalPages(15)
+				.withTotalRecords(15))
+			.build();
+
+		when(mockHistoryService.getUserBatches(MUNICIPALITY_ID, userId, page, limit)).thenReturn(userBatches);
 
 		webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
@@ -366,7 +375,7 @@ class HistoryResourceTest {
 			.expectBody(UserBatches.class)
 			.isEqualTo(userBatches);
 
-		// TODO: Add verifications when service layer is in place
+		verify(mockHistoryService).getUserBatches(MUNICIPALITY_ID, userId, page, limit);
 		verifyNoMoreInteractions(mockHistoryService);
 	}
 

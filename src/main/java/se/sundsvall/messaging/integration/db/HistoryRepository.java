@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
+import se.sundsvall.messaging.model.MessageType;
 
 @Repository
 @CircuitBreaker(name = "historyRepository")
@@ -23,6 +25,8 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 
 	List<HistoryEntity> findByMunicipalityIdAndBatchId(String municipalityId, String batchId);
 
+	List<BatchHistoryProjection> findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer, LocalDateTime createdAt);
+
 	Page<HistoryEntity> findByMunicipalityIdAndIssuer(String municipalityId, String issuer, Pageable pageable);
 
 	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer, LocalDateTime createdAt, Pageable pageable);
@@ -30,6 +34,8 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String batchId, String issuer, LocalDateTime createdAt, Pageable pageable);
 
 	Optional<HistoryEntity> findFirstByMunicipalityIdAndMessageId(String municipalityId, String messageId);
+
+	HistoryEntity findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(String municipalityId, String messageId, List<MessageType> messageTypes);
 
 	boolean existsByMunicipalityIdAndMessageIdAndIssuer(String municipalityId, String messageId, String issuer);
 }

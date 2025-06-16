@@ -25,6 +25,7 @@ import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.integration.db.mapper.HistoryMapper;
 import se.sundsvall.messaging.integration.db.mapper.MessageMapper;
+import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
@@ -123,6 +124,10 @@ public class DbIntegration {
 		return statisticsRepository.findAllByParameters(municipalityId, origin, department, messageTypes, from, to);
 	}
 
+	public List<BatchHistoryProjection> getBatchHistoryMessagesForUser(final String municipalityId, final String issuer, final LocalDateTime dateTime) {
+		return historyRepository.findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, dateTime);
+	}
+
 	public Page<MessageIdProjection> getUniqueMessageIds(final String municipalityId, final String issuer, final LocalDateTime dateTime, final PageRequest pageRequest) {
 		return historyRepository.findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, dateTime, pageRequest);
 	}
@@ -138,6 +143,10 @@ public class DbIntegration {
 	public HistoryEntity getFirstHistoryEntityByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
 		return historyRepository.findFirstByMunicipalityIdAndMessageId(municipalityId, messageId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No history found for message id " + messageId));
+	}
+
+	public HistoryEntity getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(final String municipalityId, final String messageId, final List<MessageType> types) {
+		return historyRepository.findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(municipalityId, messageId, types);
 	}
 
 	public boolean existsByMunicipalityIdAndMessageIdAndIssuer(String municipalityId, final String messageId, final String issuer) {

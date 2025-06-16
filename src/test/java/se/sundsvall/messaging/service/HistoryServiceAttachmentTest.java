@@ -30,7 +30,7 @@ import se.sundsvall.messaging.test.annotation.UnitTest;
 
 /**
  * Testing the extraction of attachment handling in the HistoryService.
- * 
+ *
  */
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +41,9 @@ class HistoryServiceAttachmentTest {
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
+
+	@Mock
+	private BatchExtractor batchExtractorMock;
 
 	private HistoryService historyService;
 
@@ -57,8 +60,8 @@ class HistoryServiceAttachmentTest {
 
 	@BeforeEach
 	void setUp() {
-		ObjectMapper objectMapper = new ObjectMapper();
-		historyService = new HistoryService(mockDbIntegration, partyIntegrationMock, objectMapper);
+		final var objectMapper = new ObjectMapper();
+		historyService = new HistoryService(mockDbIntegration, partyIntegrationMock, objectMapper, batchExtractorMock);
 	}
 
 	@AfterEach
@@ -68,7 +71,7 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForEmail() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(EMAIL)
 			.withContent("""
 				{
@@ -83,7 +86,7 @@ class HistoryServiceAttachmentTest {
 				""")
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
 		assertThat(messageAttachments.getFirst().fileName()).isEqualTo("test.pdf");
 		assertThat(messageAttachments.getFirst().contentType()).isEqualTo("application/pdf");
@@ -91,7 +94,7 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForWebMessage() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(WEB_MESSAGE)
 			.withContent("""
 				{
@@ -106,7 +109,7 @@ class HistoryServiceAttachmentTest {
 				""")
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
 		assertThat(messageAttachments.getFirst().fileName()).isEqualTo("test.pdf");
 		assertThat(messageAttachments.getFirst().contentType()).isEqualTo("application/pdf");
@@ -114,7 +117,7 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForDigitalMail() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(DIGITAL_MAIL)
 			.withContent("""
 				{
@@ -129,7 +132,7 @@ class HistoryServiceAttachmentTest {
 				""")
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
 		assertThat(messageAttachments.getFirst().fileName()).isEqualTo("test.pdf");
 		assertThat(messageAttachments.getFirst().contentType()).isEqualTo("application/pdf");
@@ -137,7 +140,7 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForDigitalInvoice() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(DIGITAL_INVOICE)
 			.withContent("""
 				{
@@ -152,7 +155,7 @@ class HistoryServiceAttachmentTest {
 				""")
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
 		assertThat(messageAttachments.getFirst().fileName()).isEqualTo("test.pdf");
 		assertThat(messageAttachments.getFirst().contentType()).isEqualTo("application/pdf");
@@ -160,7 +163,7 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForLetter() {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(LETTER)
 			.withContent("""
 				{
@@ -176,7 +179,7 @@ class HistoryServiceAttachmentTest {
 				""")
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
 		assertThat(messageAttachments.getFirst().fileName()).isEqualTo("test.pdf");
 		assertThat(messageAttachments.getFirst().contentType()).isEqualTo("application/pdf");
@@ -185,12 +188,12 @@ class HistoryServiceAttachmentTest {
 	@ParameterizedTest
 	@MethodSource("attachmentSource")
 	void testGetMissingOrEmptyAttachments_shouldReturnEmptyAttachments(MessageType messageType, String attachment) {
-		var historyEntity = HistoryEntity.builder()
+		final var historyEntity = HistoryEntity.builder()
 			.withMessageType(messageType)
 			.withContent(attachment)
 			.build();
 
-		var messageAttachments = historyService.extractAttachment(historyEntity);
+		final var messageAttachments = historyService.extractAttachment(historyEntity);
 
 		assertThat(messageAttachments).isEmpty();
 	}

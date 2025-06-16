@@ -22,6 +22,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,9 +34,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @UnitTest
@@ -187,6 +192,7 @@ class DbIntegrationTest {
 		final var result = dbIntegration.getStatsByParameters(municipalityId, department, origin, messageTypes, from, to);
 
 		assertThat(result).isNotEmpty().hasSize(1).allSatisfy(entry -> assertThat(entry).isEqualTo(statsProjection));
+
 		verify(mockStatisticsRepository).findAllByParameters(municipalityId, department, origin, messageTypes, from, to);
 	}
 
@@ -273,6 +279,74 @@ class DbIntegrationTest {
 		assertThat(e.getMessage()).isEqualTo("Not Found: No history found for message id messageId");
 
 		verify(mockHistoryRepository).findFirstByMunicipalityIdAndMessageId(municipalityId, messageId);
-		verifyNoMoreInteractions(mockHistoryRepository);
 	}
+
+	@Test
+	void getBatchHistoryMessagesForUser() {
+		final var municipalityId = "municipalityId";
+		final var issuer = "issuer";
+		final var timestamp = LocalDateTime.now();
+		final var projections = List.of(createBatchHistoryProjection(), createBatchHistoryProjection());
+
+		when(mockHistoryRepository.findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, timestamp)).thenReturn(projections);
+
+		final var matches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, timestamp);
+
+		assertThat(matches).isSameAs(projections);
+
+		verify(mockHistoryRepository).findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(municipalityId, issuer, timestamp);
+	}
+
+	@ParameterizedTest
+	@EnumSource(MessageType.class)
+	void getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(MessageType type) {
+		final var municipalityId = "municipalityId";
+		final var messageId = "messageId";
+		final var messageTypes = List.of(type);
+		final var entity = HistoryEntity.builder().build();
+
+		when(mockHistoryRepository.findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(municipalityId, messageId, messageTypes)).thenReturn(entity);
+
+		final var match = dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(municipalityId, messageId, messageTypes);
+
+		assertThat(match).isSameAs(entity);
+
+		verify(mockHistoryRepository).findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(municipalityId, messageId, messageTypes);
+	}
+
+	private static BatchHistoryProjection createBatchHistoryProjection() {
+		return new BatchHistoryProjection() {
+
+			@Override
+			public MessageStatus getStatus() {
+				return null;
+			}
+
+			@Override
+			public MessageType getOriginalMessageType() {
+				return null;
+			}
+
+			@Override
+			public MessageType getMessageType() {
+				return null;
+			}
+
+			@Override
+			public String getMessageId() {
+				return null;
+			}
+
+			@Override
+			public LocalDateTime getCreatedAt() {
+				return null;
+			}
+
+			@Override
+			public String getBatchId() {
+				return null;
+			}
+		};
+	}
+
 }
