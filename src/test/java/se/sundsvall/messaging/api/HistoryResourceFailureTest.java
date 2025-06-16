@@ -13,6 +13,7 @@ import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PA
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 
@@ -164,6 +165,31 @@ class HistoryResourceFailureTest {
 	}
 
 	@Test
+	void getUserBatches_invalid_municipalityId() {
+		final var municipalityId = "not-a-valid-municipalityId";
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("getUserBatches.municipalityId", "not a valid municipality ID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
 	void getUserMessages_invalid_municipalityId() {
 		final var municipalityId = "not-a-valid-municipalityId";
 		final var userId = "userId";
@@ -172,7 +198,7 @@ class HistoryResourceFailureTest {
 
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(null, page, limit))
+				.queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
 			.exchange()
 			.expectStatus().isBadRequest()
@@ -346,7 +372,11 @@ class HistoryResourceFailureTest {
 		verifyNoInteractions(mockHistoryService);
 	}
 
-	private MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
+	private static MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
+		return createParameterMap(null, page, limit);
+	}
+
+	private static MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
 		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 
 		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));

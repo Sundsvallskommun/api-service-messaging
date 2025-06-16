@@ -16,6 +16,7 @@ import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
@@ -38,11 +39,13 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.zalando.problem.Problem;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.History;
@@ -344,6 +347,30 @@ class HistoryResourceTest {
 	}
 
 	@Test
+	void getUserBatches() {
+		final var municipalityId = "2281";
+		final var userId = "userId";
+		final var page = 1;
+		final var limit = 15;
+
+		// TODO: Adjust when service layer is in place, but until then the resource will always return an empty result
+		final var userBatches = UserBatches.builder().withMetaData(PagingMetaData.create()).build();
+
+		webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(APPLICATION_JSON)
+			.expectBody(UserBatches.class)
+			.isEqualTo(userBatches);
+
+		// TODO: Add verifications when service layer is in place
+		verifyNoMoreInteractions(mockHistoryService);
+	}
+
+	@Test
 	void getUserMessages() {
 		final var municipalityId = "2281";
 		final var userId = "userId";
@@ -356,7 +383,7 @@ class HistoryResourceTest {
 
 		webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(null, page, limit))
+				.queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
 			.exchange()
 			.expectStatus().isOk()
@@ -394,7 +421,11 @@ class HistoryResourceTest {
 		verifyNoMoreInteractions(mockHistoryService);
 	}
 
-	private MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
+	private static MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
+		return createParameterMap(null, page, limit);
+	}
+
+	private static MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
 		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 
 		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));
