@@ -7,6 +7,7 @@ import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
 import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,6 +27,8 @@ import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.Batch;
+import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -406,6 +409,28 @@ public final class TestDataFactory {
 			.withParties(List.of(createValidEmailBatchRequestParty(), createValidEmailBatchRequestParty()))
 			.withHtmlMessage("someHtmlMessage")
 			.withSubject("someSubject")
+			.build();
+	}
+
+	public static Batch createBatch() {
+		return Batch.builder()
+			.withAttachmentCount(5)
+			.withBatchId("someBatchId")
+			.withMessageType(LETTER.toString())
+			.withRecipientCount(11)
+			.withSent(LocalDateTime.now())
+			.withStatus(Batch.Status.builder()
+				.withSuccessful(8)
+				.withUnsuccessful(3)
+				.build())
+			.withSubject(DEFAULT_EMAIL_ADDRESS)
+			.build();
+	}
+
+	public static UserBatches createUserBatches() {
+		return UserBatches.builder()
+			.withMetaData(createPagingMetaData())
+			.withBatches(List.of(createBatch(), createBatch()))
 			.build();
 	}
 
