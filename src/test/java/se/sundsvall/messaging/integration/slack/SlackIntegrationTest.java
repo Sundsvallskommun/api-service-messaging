@@ -17,9 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.ThrowableProblem;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 @ExtendWith(MockitoExtension.class)
 class SlackIntegrationTest {
 

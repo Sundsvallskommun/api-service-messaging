@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Party;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Sender;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class EmailBatchRequestTest {
 
 	private static final String ORIGIN = "origin";

@@ -9,9 +9,7 @@ import se.sundsvall.messaging.api.model.request.EmailRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.EmailRequest.Party;
 import se.sundsvall.messaging.api.model.request.EmailRequest.Sender;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class EmailRequestTest {
 
 	private static final Party PARTY = Party.builder().build();

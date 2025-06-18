@@ -6,9 +6,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Statistics.Letter;
 import se.sundsvall.messaging.model.Statistics.Message;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class StatisticsTest {
 
 	private static final int UNDERLIVERABLE = RandomUtils.secure().randomInt();

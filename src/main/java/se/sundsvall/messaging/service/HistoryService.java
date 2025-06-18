@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
@@ -127,11 +128,11 @@ public class HistoryService {
 		final var batches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, thirtyDaysAgo).stream() // Fetch batchprojections for all messages sent the 30 last day for issuer
 			.collect(groupingBy(BatchHistoryProjection::getBatchId)).entrySet().stream() // Group result by batch id and stream result (Map<batchId, List<BatchHistoryProjection>>)
 			.map(entry -> createBatch(municipalityId, entry)) // To map each entry to a Batch object
+			.filter(Objects::nonNull) // Just to be safe
 			.sorted((o1, o2) -> ofNullable(o2.sent()).orElse(LocalDateTime.MAX).compareTo(ofNullable(o1.sent()).orElse(LocalDateTime.MAX))) // Sort on sent descending to have latest batches first in list
 			.toList();
 
-		final var pagedBatches = toPage(page, limit, batches); // Create a paginated result with content matching requested page and limit
-		return toUserBatches(pagedBatches, page);
+		return toUserBatches(toPage(page, limit, batches), page); // Return a paginated result with content matching requested page and limit
 	}
 
 	Batch createBatch(String municipalityId, Entry<String, List<BatchHistoryProjection>> batchHistoryProjectionEntry) {

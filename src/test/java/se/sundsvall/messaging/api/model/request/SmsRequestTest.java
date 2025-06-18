@@ -6,9 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.SmsRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class SmsRequestTest {
 
 	private static final Party PARTY = Party.builder().build();

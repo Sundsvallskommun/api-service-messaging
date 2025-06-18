@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.zalando.problem.violations.ConstraintViolationProblem;
@@ -26,10 +27,9 @@ import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
-@UnitTest
+@ActiveProfiles("junit")
 class MessageResourceEmailFailureTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
@@ -57,9 +57,9 @@ class MessageResourceEmailFailureTest {
 		"", " ", "not-a-uuid"
 	})
 	void shouldFailWithInvalidPartyId(String partyId) {
-		var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
+		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -82,12 +82,12 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithInvalidExternalReferenceKey(String key) {
-		var externalReference = validRequest.party().externalReferences().getFirst();
+		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		var request = validRequest.withParty(validRequest.party()
+		final var request = validRequest.withParty(validRequest.party()
 			.withExternalReferences(List.of(externalReference.withKey(key))));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -110,12 +110,12 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithInvalidExternalReferenceValue(String value) {
-		var externalReference = validRequest.party().externalReferences().getFirst();
+		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		var request = validRequest.withParty(validRequest.party()
+		final var request = validRequest.withParty(validRequest.party()
 			.withExternalReferences(List.of(externalReference.withValue(value))));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -140,9 +140,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrInvalidEmailAddress(String value) {
-		var request = validRequest.withEmailAddress(value);
+		final var request = validRequest.withEmailAddress(value);
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -169,9 +169,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithNullOrBlankSubject(String value) {
-		var request = validRequest.withSubject(value);
+		final var request = validRequest.withSubject(value);
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -194,9 +194,9 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithBlankSenderName(String value) {
-		var request = validRequest.withSender(validRequest.sender().withName(value));
+		final var request = validRequest.withSender(validRequest.sender().withName(value));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -221,9 +221,9 @@ class MessageResourceEmailFailureTest {
 	})
 	@NullAndEmptySource
 	void shouldFailWithBlankOrInvalidSenderAddress(String value) {
-		var request = validRequest.withSender(validRequest.sender().withAddress(value));
+		final var request = validRequest.withSender(validRequest.sender().withAddress(value));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -246,9 +246,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidReplyToAddress() {
-		var request = validRequest.withSender(validRequest.sender().withReplyTo("not-a-valid-email-address"));
+		final var request = validRequest.withSender(validRequest.sender().withReplyTo("not-a-valid-email-address"));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -269,9 +269,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidHtmlMessage() {
-		var request = validRequest.withHtmlMessage("not-a-valid-base-64");
+		final var request = validRequest.withHtmlMessage("not-a-valid-base-64");
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -294,9 +294,9 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
 	void shouldFailWithMissingFileName(String fileName) {
-		var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
+		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -317,9 +317,9 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidFileContent() {
-		var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
+		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
 
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)
@@ -343,10 +343,10 @@ class MessageResourceEmailFailureTest {
 		"", " ", "abc", "<abc>", "b@c", "<a@b", "a@>"
 	})
 	void shouldFailWithInvalidHeaderValue(String value) {
-		var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID.getKey(), List.of(value)));
+		final var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID.getKey(), List.of(value)));
 
 		// Act
-		var response = webTestClient.post()
+		final var response = webTestClient.post()
 			.uri(URL)
 			.contentType(APPLICATION_JSON)
 			.bodyValue(request)

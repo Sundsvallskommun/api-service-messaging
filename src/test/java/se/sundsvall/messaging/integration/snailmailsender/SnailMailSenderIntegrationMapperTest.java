@@ -6,9 +6,7 @@ import static se.sundsvall.messaging.TestDataFactory.createAddress;
 import generated.se.sundsvall.snailmail.Attachment;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class SnailMailSenderIntegrationMapperTest {
 
 	private final SnailMailSenderIntegrationMapper mapper = new SnailMailSenderIntegrationMapper();

@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.messaging.Application;
@@ -33,10 +34,9 @@ import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
-@UnitTest
+@ActiveProfiles("junit")
 class MessageResourceWebMessageTest {
 
 	private static final String MUNICIPALITY_ID = "2281";

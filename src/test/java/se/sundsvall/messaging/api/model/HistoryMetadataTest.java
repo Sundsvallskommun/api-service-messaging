@@ -16,14 +16,13 @@ import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 /**
  * There's a couple of cases to cover for the metadata history, we test them all here.
  * Since it's messy to compare the sent in object {@link History} with the response object {@link HistoryResponse}
  * we use the method toHistoryResponse that doesn't remove the file attachment fields to compare the two objects.
  */
-@UnitTest
+
 class HistoryMetadataTest {
 
 	@Test

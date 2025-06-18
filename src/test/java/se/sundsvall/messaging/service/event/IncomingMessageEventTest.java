@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class IncomingMessageEventTest {
 
 	@Test

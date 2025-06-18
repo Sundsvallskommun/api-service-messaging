@@ -7,9 +7,7 @@ import static se.sundsvall.messaging.TestDataFactory.createPagingMetaData;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class UserBatchesTest {
 
 	private static final PagingMetaData PAGING_META_DATA = createPagingMetaData();

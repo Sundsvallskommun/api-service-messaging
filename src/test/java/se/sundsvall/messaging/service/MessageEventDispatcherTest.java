@@ -35,9 +35,7 @@ import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 @ExtendWith(MockitoExtension.class)
 class MessageEventDispatcherTest {
 

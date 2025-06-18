@@ -4,9 +4,7 @@ import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Count;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class DepartmentStatsTest {
 
 	@Test

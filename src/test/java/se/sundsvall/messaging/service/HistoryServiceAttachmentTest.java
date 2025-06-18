@@ -26,13 +26,12 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
 /**
  * Testing the extraction of attachment handling in the HistoryService.
  *
  */
-@UnitTest
+
 @ExtendWith(MockitoExtension.class)
 class HistoryServiceAttachmentTest {
 

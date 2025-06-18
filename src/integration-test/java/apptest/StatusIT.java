@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-@IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/StatusIT/", classes = Application.class)
 class StatusIT extends AbstractMessagingAppTest {
 

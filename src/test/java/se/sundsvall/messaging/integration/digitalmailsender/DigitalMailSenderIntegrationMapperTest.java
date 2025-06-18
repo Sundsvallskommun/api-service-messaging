@@ -11,9 +11,7 @@ import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class DigitalMailSenderIntegrationMapperTest {
 
 	private final DigitalMailSenderIntegrationMapper mapper = new DigitalMailSenderIntegrationMapper();

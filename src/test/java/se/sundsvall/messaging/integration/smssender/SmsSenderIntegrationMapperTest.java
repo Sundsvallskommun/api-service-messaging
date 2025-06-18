@@ -9,9 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import se.sundsvall.messaging.api.model.request.Priority;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class SmsSenderIntegrationMapperTest {
 
 	private final SmsSenderIntegrationMapper mapper = new SmsSenderIntegrationMapper();

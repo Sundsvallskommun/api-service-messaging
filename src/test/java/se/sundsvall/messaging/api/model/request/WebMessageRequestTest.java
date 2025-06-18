@@ -7,9 +7,7 @@ import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class WebMessageRequestTest {
 
 	private static final Party PARTY = Party.builder().build();

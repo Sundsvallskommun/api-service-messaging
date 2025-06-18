@@ -10,9 +10,7 @@ import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class MessageStatusTest {
 
 	@Test

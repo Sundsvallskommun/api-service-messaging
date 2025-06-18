@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class CountTest {
 
 	private static final int SENT = RandomUtils.secure().randomInt();

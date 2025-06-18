@@ -5,9 +5,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class DeliveryResultTest {
 
 	@Test

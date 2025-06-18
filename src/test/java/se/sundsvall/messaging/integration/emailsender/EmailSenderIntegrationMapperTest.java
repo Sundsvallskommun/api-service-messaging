@@ -6,9 +6,7 @@ import static se.sundsvall.messaging.TestDataFactory.createEmailDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 @ExtendWith(MockitoExtension.class)
 class EmailSenderIntegrationMapperTest {
 

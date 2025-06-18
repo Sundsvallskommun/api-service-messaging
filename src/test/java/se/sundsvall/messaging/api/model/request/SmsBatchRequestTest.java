@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest.Party;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class SmsBatchRequestTest {
 
 	private static final String SENDER = "sender";
