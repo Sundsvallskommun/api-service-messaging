@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.Min;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -191,8 +192,9 @@ class HistoryResource {
 	ResponseEntity<UserBatches> getUserBatches(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
 		@Parameter(name = "userId", description = "User id", example = "joe01doe") @PathVariable final String userId,
-		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
-		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
+		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") @Min(value = 1, message = "must be greater than or equal to 1 and less than or equal to 2147483647") final Integer page,
+		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") @Min(value = 1,
+			message = "must be greater than or equal to 1 and less than or equal to 2147483647") final Integer limit) {
 
 		return ok(historyService.getUserBatches(municipalityId, userId, page, limit));
 	}
@@ -203,8 +205,9 @@ class HistoryResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @PathVariable @ValidMunicipalityId final String municipalityId,
 		@Parameter(name = "userId", description = "User id", example = "joe01doe") @PathVariable final String userId,
 		@Parameter(name = "batchId", schema = @Schema(format = "uuid"), description = "Batch id", example = "118e05b3-4321-4f46-9a33-b9f43faa58a6") @RequestParam(required = false) @ValidUuid(nullable = true) final String batchId,
-		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") final Integer page,
-		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") final Integer limit) {
+		@Parameter(name = "page", description = "Which page to fetch", example = "1") @RequestParam(defaultValue = "1") @Min(value = 1, message = "must be greater than or equal to 1 and less than or equal to 2147483647") final Integer page,
+		@Parameter(name = "limit", description = "Sets the amount of entries per page", example = "1") @RequestParam(defaultValue = "15") @Min(value = 1,
+			message = "must be greater than or equal to 1 and less than or equal to 2147483647") final Integer limit) {
 
 		return ok(historyService.getUserMessages(municipalityId, userId, batchId, page, limit));
 	}

@@ -141,9 +141,9 @@ public class HistoryService {
 				final var batchMessages = entry.getValue();
 
 				final var sent = batchExtractor.extractSent(batchMessages);
-				final var attachmentCount = batchExtractor.extractAttchmentCount(municipalityId, batchMessages);
+				final var attachmentCount = batchExtractor.extractAttachmentCount(municipalityId, batchMessages);
 				final var recipientCount = batchExtractor.extractRecipientCount(batchMessages);
-				final var messageType = batchExtractor.extractOrignalMesageType(batchMessages);
+				final var messageType = batchExtractor.extractOriginalMesageType(batchMessages);
 				final var subject = batchExtractor.extractSubject(municipalityId, batchMessages);
 				final var status = toStatus(
 					batchExtractor.extractSuccessfulCount(batchMessages),

@@ -170,8 +170,8 @@ class BatchExtractorTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("extractAttchmentCountWhenCorrectTypeArgumentProvider")
-	void extractAttchmentCountWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType, int attachmentSize) {
+	@MethodSource("extractAttachmentCountWhenCorrectTypeArgumentProvider")
+	void extractAttachmentCountWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType, int attachmentSize) {
 		final var attachmentContent = ",{\"contentType\": \"application/pdf\"}".repeat(attachmentSize).substring(1);
 
 		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID), eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder()
@@ -179,10 +179,10 @@ class BatchExtractorTest {
 			.withContent("{\"attachments\": [%s] }".formatted(attachmentContent))
 			.build());
 
-		assertThat(extractor.extractAttchmentCount(MUNICIPALITY_ID, projections)).isEqualTo(attachmentSize);
+		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID, projections)).isEqualTo(attachmentSize);
 	}
 
-	private static Stream<Arguments> extractAttchmentCountWhenCorrectTypeArgumentProvider() {
+	private static Stream<Arguments> extractAttachmentCountWhenCorrectTypeArgumentProvider() {
 		return Stream.of(
 			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, EMAIL)), EMAIL, 1),
 			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, WEB_MESSAGE)), WEB_MESSAGE, 2),
@@ -192,12 +192,12 @@ class BatchExtractorTest {
 
 	@ParameterizedTest
 	@NullAndEmptySource
-	@MethodSource("extractAttchmentCountWhenIncorrectTypeArgumentProvider")
+	@MethodSource("extractAttachmentCountWhenIncorrectTypeArgumentProvider")
 	void extractAttchmentCountWhenIncorrectType(List<BatchHistoryProjection> projections) {
-		assertThat(extractor.extractAttchmentCount(MUNICIPALITY_ID, projections)).isZero();
+		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID, projections)).isZero();
 	}
 
-	private static Stream<Arguments> extractAttchmentCountWhenIncorrectTypeArgumentProvider() {
+	private static Stream<Arguments> extractAttachmentCountWhenIncorrectTypeArgumentProvider() {
 		return List.of(MessageType.values()).stream()
 			.filter(type -> ObjectUtils.notEqual(EMAIL, type))
 			.filter(type -> ObjectUtils.notEqual(WEB_MESSAGE, type))
@@ -214,16 +214,16 @@ class BatchExtractorTest {
 			.withMessageType(SMS)
 			.build());
 
-		assertThat(extractor.extractAttchmentCount(MUNICIPALITY_ID, List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isZero();
+		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID, List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isZero();
 	}
 
 	@ParameterizedTest
-	@MethodSource("extractOrignalMesageTypeArgumentProvider")
+	@MethodSource("extractOriginalMesageTypeArgumentProvider")
 	void extractOrignalMesageType(List<BatchHistoryProjection> projections, String expected) {
-		assertThat(extractor.extractOrignalMesageType(projections)).isEqualTo(expected);
+		assertThat(extractor.extractOriginalMesageType(projections)).isEqualTo(expected);
 	}
 
-	private static Stream<Arguments> extractOrignalMesageTypeArgumentProvider() {
+	private static Stream<Arguments> extractOriginalMesageTypeArgumentProvider() {
 		return Stream.of(
 			Arguments.of(null, null),
 			Arguments.of(emptyList(), null),

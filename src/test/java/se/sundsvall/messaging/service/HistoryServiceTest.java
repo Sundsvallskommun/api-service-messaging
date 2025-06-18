@@ -490,10 +490,10 @@ class HistoryServiceTest {
 		final var bean = historyService.getUserBatches(municipalityId, issuer, page, limit);
 
 		verify(dbIntegrationMock).getBatchHistoryMessagesForUser(municipalityId, issuer, date);
-		verify(batchExtractorMock).extractAttchmentCount(municipalityId, List.of(message1batch1, message2batch1));
-		verify(batchExtractorMock).extractAttchmentCount(municipalityId, List.of(message1batch2, message2batch2));
-		verify(batchExtractorMock).extractOrignalMesageType(List.of(message1batch1, message2batch1));
-		verify(batchExtractorMock).extractOrignalMesageType(List.of(message1batch2, message2batch2));
+		verify(batchExtractorMock).extractAttachmentCount(municipalityId, List.of(message1batch1, message2batch1));
+		verify(batchExtractorMock).extractAttachmentCount(municipalityId, List.of(message1batch2, message2batch2));
+		verify(batchExtractorMock).extractOriginalMesageType(List.of(message1batch1, message2batch1));
+		verify(batchExtractorMock).extractOriginalMesageType(List.of(message1batch2, message2batch2));
 		verify(batchExtractorMock).extractRecipientCount(List.of(message1batch1, message2batch1));
 		verify(batchExtractorMock).extractRecipientCount(List.of(message1batch2, message2batch2));
 		verify(batchExtractorMock).extractSent(List.of(message1batch1, message2batch1));
@@ -554,8 +554,8 @@ class HistoryServiceTest {
 		assertThat(bean.status().successful()).isZero();
 		assertThat(bean.status().unsuccessful()).isZero();
 
-		verify(batchExtractorMock).extractAttchmentCount(municipalityId, projections);
-		verify(batchExtractorMock).extractOrignalMesageType(projections);
+		verify(batchExtractorMock).extractAttachmentCount(municipalityId, projections);
+		verify(batchExtractorMock).extractOriginalMesageType(projections);
 		verify(batchExtractorMock).extractRecipientCount(projections);
 		verify(batchExtractorMock).extractSent(projections);
 		verify(batchExtractorMock).extractSubject(municipalityId, projections);

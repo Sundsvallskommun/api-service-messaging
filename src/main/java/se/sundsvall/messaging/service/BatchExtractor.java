@@ -116,7 +116,7 @@ public class BatchExtractor {
 	 * @return             The size of attached documents for the first member in list that matches criteria (all
 	 *                     members matching criteria has the same attachment size).
 	 */
-	public int extractAttchmentCount(String municipalityId, List<BatchHistoryProjection> projections) {
+	public int extractAttachmentCount(String municipalityId, List<BatchHistoryProjection> projections) {
 		final var amount = new AtomicInteger();
 
 		ofNullable(projections).orElse(emptyList()).stream()
@@ -143,7 +143,7 @@ public class BatchExtractor {
 	 * @return             Any non null original message type found in list (all members has the same original
 	 *                     message type) or null if no member has value for the attribute.
 	 */
-	public String extractOrignalMesageType(List<BatchHistoryProjection> projections) {
+	public String extractOriginalMesageType(List<BatchHistoryProjection> projections) {
 		return ofNullable(projections).orElse(emptyList()).stream()
 			.map(BatchHistoryProjection::getOriginalMessageType)
 			.filter(Objects::nonNull)
