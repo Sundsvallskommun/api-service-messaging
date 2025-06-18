@@ -190,6 +190,58 @@ class HistoryResourceFailureTest {
 	}
 
 	@Test
+	void getUserBatches_to_small_pageAndLimit() {
+		final var userId = "userId";
+		final var page = 0;
+		final var limit = 0;
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactlyInAnyOrder(
+				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
+				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserBatches_toBigPageAndLimit() {
+		final var userId = "userId";
+		final var page = Integer.MAX_VALUE + 1;
+		final var limit = Integer.MAX_VALUE + 1;
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactlyInAnyOrder(
+				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
+				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
 	void getUserMessages_invalid_municipalityId() {
 		final var municipalityId = "not-a-valid-municipalityId";
 		final var userId = "userId";
@@ -216,7 +268,6 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void getUserMessages_invalid_batchId() {
-		final var municipalityId = "2281";
 		final var batchId = "invalid-uuid";
 		final var userId = "userId";
 		final var page = 1;
@@ -225,7 +276,7 @@ class HistoryResourceFailureTest {
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
 				.queryParams(createParameterMap(batchId, page, limit))
-				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectBody(ConstraintViolationProblem.class)
@@ -236,6 +287,58 @@ class HistoryResourceFailureTest {
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
 			.containsExactly(tuple("getUserMessages.batchId", "not a valid UUID"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessages_to_small_pageAndLimit() {
+		final var userId = "userId";
+		final var page = 0;
+		final var limit = 0;
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactlyInAnyOrder(
+				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
+				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void getUserMessages_toBigPageAndLimit() {
+		final var userId = "userId";
+		final var page = Integer.MAX_VALUE + 1;
+		final var limit = Integer.MAX_VALUE + 1;
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
+				.queryParams(createParameterMap(page, limit))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactlyInAnyOrder(
+				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
+				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
 
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -264,13 +367,12 @@ class HistoryResourceFailureTest {
 
 	@Test
 	void readAttachment_invalid_messageId() {
-		final var municipalityId = "2281";
 		final var messageId = "not-a-valid-messageId";
 		final var fileName = "file.txt";
 
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
-				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId, "fileName", fileName)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectBody(ConstraintViolationProblem.class)

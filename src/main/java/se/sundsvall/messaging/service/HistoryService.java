@@ -2,12 +2,18 @@ package se.sundsvall.messaging.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
 import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
+import static se.sundsvall.messaging.util.PagingUtil.toPage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
@@ -27,10 +34,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.messaging.api.model.response.Batch;
+import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.Address;
@@ -48,10 +58,13 @@ public class HistoryService {
 
 	private final ObjectMapper objectMapper;
 
-	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration, final ObjectMapper objectMapper) {
+	private final BatchExtractor batchExtractor;
+
+	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration, final ObjectMapper objectMapper, BatchExtractor batchDecorator) {
 		this.dbIntegration = dbIntegration;
 		this.partyIntegration = partyIntegration;
 		this.objectMapper = objectMapper;
+		this.batchExtractor = batchDecorator;
 	}
 
 	public List<History> getHistoryByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
@@ -109,6 +122,38 @@ public class HistoryService {
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
+	public UserBatches getUserBatches(final String municipalityId, final String issuer, final Integer page, final Integer limit) {
+		final var thirtyDaysAgo = LocalDate.now().minusDays(30).atStartOfDay();
+		final var batches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, thirtyDaysAgo).stream() // Fetch batchprojections for all messages sent the 30 last day for issuer
+			.collect(groupingBy(BatchHistoryProjection::getBatchId)).entrySet().stream() // Group result by batch id and stream result (Map<batchId, List<BatchHistoryProjection>>)
+			.map(entry -> createBatch(municipalityId, entry)) // To map each entry to a Batch object
+			.sorted((o1, o2) -> ofNullable(o2.sent()).orElse(LocalDateTime.MAX).compareTo(ofNullable(o1.sent()).orElse(LocalDateTime.MAX))) // Sort on sent descending to have latest batches first in list
+			.toList();
+
+		final var pagedBatches = toPage(page, limit, batches); // Create a paginated result with content matching requested page and limit
+		return toUserBatches(pagedBatches, page);
+	}
+
+	Batch createBatch(String municipalityId, Entry<String, List<BatchHistoryProjection>> batchHistoryProjectionEntry) {
+		return ofNullable(batchHistoryProjectionEntry)
+			.map(entry -> {
+				final var batchId = entry.getKey();
+				final var batchMessages = entry.getValue();
+
+				final var sent = batchExtractor.extractSent(batchMessages);
+				final var attachmentCount = batchExtractor.extractAttachmentCount(municipalityId, batchMessages);
+				final var recipientCount = batchExtractor.extractRecipientCount(batchMessages);
+				final var messageType = batchExtractor.extractOriginalMesageType(batchMessages);
+				final var subject = batchExtractor.extractSubject(municipalityId, batchMessages);
+				final var status = toStatus(
+					batchExtractor.extractSuccessfulCount(batchMessages),
+					batchExtractor.extractUnsuccessfulCount(batchMessages));
+
+				return toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount, status);
+			})
+			.orElse(null);
+	}
+
 	public UserMessages getUserMessages(final String municipalityId, final String userId, String batchId, final Integer page, final Integer limit) {
 		final var thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 		final var pageRequest = PageRequest.of(page - 1, limit);
@@ -160,7 +205,7 @@ public class HistoryService {
 		} catch (final JsonProcessingException ignored) {
 			return "";
 		}
-		return Optional.ofNullable(content.get("subject")).map(JsonNode::asText).orElse("");
+		return ofNullable(content.get("subject")).map(JsonNode::asText).orElse("");
 	}
 
 	List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {
@@ -211,7 +256,7 @@ public class HistoryService {
 	}
 
 	UserMessage.Recipient createRecipient(final String municipalityId, HistoryEntity history) {
-		final var legalId = Optional.ofNullable(history.getPartyId())
+		final var legalId = ofNullable(history.getPartyId())
 			.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
 			.orElse(null);
 		final var messageType = history.getMessageType().toString();
@@ -221,7 +266,7 @@ public class HistoryService {
 	}
 
 	UserMessage.Address createAddress(Address address) {
-		return Optional.ofNullable(address)
+		return ofNullable(address)
 			.map(addr -> UserMessage.Address.builder()
 				.withAddress(addr.address())
 				.withCity(addr.city())
