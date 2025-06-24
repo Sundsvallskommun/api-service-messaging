@@ -17,9 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 @ExtendWith(MockitoExtension.class)
 class ContactSettingsIntegrationTest {
 

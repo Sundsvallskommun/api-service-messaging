@@ -1,100 +1,100 @@
 [
 	{
+		"ORIGIN": "origin",
 		"DEPARTMENT_STATISTICS": [
 			{
-				"DIGITAL_MAIL": {
-					"failed": 2,
-					"sent": 0
-				},
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
-					"failed": 1,
-					"sent": 4
+					"sent": 5,
+					"failed": 1
 				},
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+				"DIGITAL_MAIL": {
+					"sent": 1,
+					"failed": 5
+				}
 			}
-		],
-		"ORIGIN": "origin"
+		]
 	},
 	{
+		"ORIGIN": "origin2",
 		"DEPARTMENT_STATISTICS": [
 			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				},
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+					"sent": 1,
+					"failed": 0
+				}
 			}
-		],
-		"ORIGIN": "origin2"
+		]
 	},
 	{
+		"ORIGIN": "Other",
 		"DEPARTMENT_STATISTICS": [
 			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				},
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+					"sent": 1,
+					"failed": 0
+				}
 			},
 			{
+				"DEPARTMENT": "Ej kategoriserad",
 				"DIGITAL_MAIL": {
-					"failed": 1,
-					"sent": 0
-				},
-				"DEPARTMENT": "Ej kategoriserad"
+					"sent": 0,
+					"failed": 1
+				}
 			}
-		],
-		"ORIGIN": "Other"
+		]
 	},
 	{
+		"ORIGIN": "origin1",
 		"DEPARTMENT_STATISTICS": [
 			{
+				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)",
 				"SNAIL_MAIL": {
-					"failed": 1,
-					"sent": 1
-				},
-				"DEPARTMENT": "SBK(Gatuavdelningen, Trafiksektionen)"
+					"sent": 1,
+					"failed": 1
+				}
 			},
 			{
+				"DEPARTMENT": "Kommunstyrelsekontoret",
 				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				},
-				"DEPARTMENT": "Kommunstyrelsekontoret"
+					"sent": 1,
+					"failed": 0
+				}
 			},
 			{
+				"DEPARTMENT": "Kultur och fritid",
 				"SNAIL_MAIL": {
-					"failed": 1,
-					"sent": 0
-				},
-				"DEPARTMENT": "Kultur och fritid"
+					"sent": 0,
+					"failed": 1
+				}
 			},
 			{
+				"DEPARTMENT": "Stadsbyggnadskontoret",
 				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				},
-				"DEPARTMENT": "Stadsbyggnadskontoret"
+					"sent": 1,
+					"failed": 0
+				}
 			},
 			{
+				"DEPARTMENT": "BOU Förskola",
+				"SNAIL_MAIL": {
+					"sent": 1,
+					"failed": 0
+				},
 				"DIGITAL_MAIL": {
-					"failed": 1,
-					"sent": 0
-				},
-				"SNAIL_MAIL": {
-					"failed": 0,
-					"sent": 1
-				},
-				"DEPARTMENT": "BOU Förskola"
+					"sent": 0,
+					"failed": 1
+				}
 			},
 			{
+				"DEPARTMENT": "Ej kategoriserad",
 				"SNAIL_MAIL": {
-					"failed": 2,
-					"sent": 1
-				},
-				"DEPARTMENT": "Ej kategoriserad"
+					"sent": 1,
+					"failed": 2
+				}
 			}
-		],
-		"ORIGIN": "origin1"
+		]
 	}
 ]

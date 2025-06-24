@@ -9,9 +9,7 @@ import se.sundsvall.messaging.api.model.request.DigitalMailRequest.Party;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest.Sender;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest.Sender.SupportInfo;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class DigitalMailRequestTest {
 
 	private static final String SUBJECT = "subject";

@@ -23,9 +23,7 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 @ExtendWith(MockitoExtension.class)
 class ApiMapperTest {
 

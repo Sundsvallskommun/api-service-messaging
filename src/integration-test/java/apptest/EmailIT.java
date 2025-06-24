@@ -19,9 +19,7 @@ import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-@IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/EmailIT/", classes = Application.class)
 class EmailIT extends AbstractMessagingAppTest {
 

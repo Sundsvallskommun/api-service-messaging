@@ -11,9 +11,7 @@ import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Email;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Sms;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class MessageRequestTest {
 
 	private static final String ORIGIN = "origin";

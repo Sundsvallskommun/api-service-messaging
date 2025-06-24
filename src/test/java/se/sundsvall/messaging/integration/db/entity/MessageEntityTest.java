@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class MessageEntityTest {
 
 	@Test

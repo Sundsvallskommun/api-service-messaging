@@ -20,9 +20,7 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-@IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/EmailBatchIT/", classes = Application.class)
 class EmailBatchIT extends AbstractMessagingAppTest {
 

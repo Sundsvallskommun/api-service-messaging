@@ -3,9 +3,7 @@ package se.sundsvall.messaging.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class ExternalReferenceTest {
 
 	private static final String KEY = "key";

@@ -29,9 +29,7 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.test.annotation.IntegrationTest;
 
-@IntegrationTest
 @WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
 class LetterIT extends AbstractMessagingAppTest {
 
@@ -52,16 +50,16 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and no address
-	 *  - a single attachment with delivery type set to DIGITAL_MAIL
-	 *  - successful response from digital-mail-sender
+	 * - one partyId and no address
+	 * - a single attachment with delivery type set to DIGITAL_MAIL
+	 * - successful response from digital-mail-sender
 	 *
 	 * POST:
-	 *  - a single DIGITAL_MAIL delivery with status SENT
+	 * - a single DIGITAL_MAIL delivery with status SENT
 	 */
 	@Test
 	void test1_withPartyId_withoutAddress_DIGITAL_MAIL_attachment() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -75,9 +73,9 @@ class LetterIT extends AbstractMessagingAppTest {
 		assertThat(response.messages()).hasSize(1);
 		assertThat(response.messages().getFirst().deliveries()).hasSize(1);
 
-		var batchId = response.batchId();
-		var messageId = response.messages().getFirst().messageId();
-		var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
+		final var batchId = response.batchId();
+		final var messageId = response.messages().getFirst().messageId();
+		final var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
 
 		// Make sure we received batch, message and delivery id:s as proper UUID:s
 		assertValidUuid(batchId);
@@ -91,10 +89,10 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 				// We should have a single history entry
-				var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				assertThat(history).hasSize(1);
 
-				var historyEntry = history.getFirst();
+				final var historyEntry = history.getFirst();
 				assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 				assertThat(historyEntry.getDeliveryId()).isEqualTo(deliveryId);
@@ -110,17 +108,17 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and no address
-	 *  - a single attachment with delivery type set to SNAIL_MAIL
-	 *  - successful response from snail-mail-sender
-	 *  - successful response from citizen
+	 * - one partyId and no address
+	 * - a single attachment with delivery type set to SNAIL_MAIL
+	 * - successful response from snail-mail-sender
+	 * - successful response from citizen
 	 *
 	 * POST:
-	 *  - a single SNAIL_MAIL delivery with status SENT
+	 * - a single SNAIL_MAIL delivery with status SENT
 	 */
 	@Test
 	void test2_withPartyId_withoutAddress_SNAIL_MAIL_attachment() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -134,9 +132,9 @@ class LetterIT extends AbstractMessagingAppTest {
 		assertThat(response.messages()).hasSize(1);
 		assertThat(response.messages().getFirst().deliveries()).hasSize(1);
 
-		var batchId = response.batchId();
-		var messageId = response.messages().getFirst().messageId();
-		var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
+		final var batchId = response.batchId();
+		final var messageId = response.messages().getFirst().messageId();
+		final var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
 
 		// Make sure we received batch, message and delivery id:s as proper UUID:s
 		assertValidUuid(batchId);
@@ -150,10 +148,10 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 				// We should have a single history entry
-				var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				assertThat(history).hasSize(1);
 
-				var historyEntry = history.getFirst();
+				final var historyEntry = history.getFirst();
 				assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 				assertThat(historyEntry.getDeliveryId()).isEqualTo(deliveryId);
@@ -176,16 +174,16 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and no address
-	 *  - a single attachment with delivery type set to ANY
-	 *  - successful response from digital-mail-sender
+	 * - one partyId and no address
+	 * - a single attachment with delivery type set to ANY
+	 * - successful response from digital-mail-sender
 	 *
 	 * POST:
-	 *  - a single DIGITAL_MAIL delivery with status SENT
+	 * - a single DIGITAL_MAIL delivery with status SENT
 	 */
 	@Test
 	void test3_withPartyId_withoutAddress_ANY_attachment() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -199,9 +197,9 @@ class LetterIT extends AbstractMessagingAppTest {
 		assertThat(response.messages()).hasSize(1);
 		assertThat(response.messages().getFirst().deliveries()).hasSize(1);
 
-		var batchId = response.batchId();
-		var messageId = response.messages().getFirst().messageId();
-		var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
+		final var batchId = response.batchId();
+		final var messageId = response.messages().getFirst().messageId();
+		final var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
 
 		// Make sure we received batch, message and delivery id:s as proper UUID:s
 		assertValidUuid(batchId);
@@ -215,10 +213,10 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 				// We should have a single history entry
-				var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				assertThat(history).hasSize(1);
 
-				var historyEntry = history.getFirst();
+				final var historyEntry = history.getFirst();
 				assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 				assertThat(historyEntry.getDeliveryId()).isEqualTo(deliveryId);
@@ -234,19 +232,19 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and no address
-	 *  - a single attachment with delivery type set to SNAIL_MAIL
-	 *  - FAILURE response from citizen
+	 * - one partyId and no address
+	 * - a single attachment with delivery type set to SNAIL_MAIL
+	 * - FAILURE response from citizen
 	 *
 	 * POST:
-	 *  - a single LETTER delivery with status FAILED
+	 * - a single LETTER delivery with status FAILED
 	 *
 	 * NOTES:
-	 *  - delivery as LETTER, since we were unable to deliver as either DIGITAL_MAIL OR SNAIL_MAIL
+	 * - delivery as LETTER, since we were unable to deliver as either DIGITAL_MAIL OR SNAIL_MAIL
 	 */
 	@Test
 	void test4_withPartyId_withoutAddress_SNAIL_MAIL_attachment_and_failure_from_citizen() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -259,9 +257,9 @@ class LetterIT extends AbstractMessagingAppTest {
 		assertThat(response.messages()).hasSize(1);
 		assertThat(response.messages().getFirst().deliveries()).hasSize(1);
 
-		var batchId = response.batchId();
-		var messageId = response.messages().getFirst().messageId();
-		var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
+		final var batchId = response.batchId();
+		final var messageId = response.messages().getFirst().messageId();
+		final var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
 
 		// Make sure we received batch, message and delivery id:s as proper UUID:s
 		assertValidUuid(batchId);
@@ -275,10 +273,10 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 				// We should have a single history entry
-				var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				assertThat(history).hasSize(1);
 
-				var historyEntry = history.getFirst();
+				final var historyEntry = history.getFirst();
 				assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 				assertThat(historyEntry.getDeliveryId()).isEqualTo(deliveryId);
@@ -294,18 +292,19 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - no partyId and one address
-	 *  - a single attachment with delivery type set to DIGITAL_MAIL
+	 * - no partyId and one address
+	 * - a single attachment with delivery type set to DIGITAL_MAIL
 	 *
 	 * POST:
-	 *  - a single LETTER delivery with status FAILED
+	 * - a single LETTER delivery with status FAILED
 	 *
 	 * NOTES:
-	 *  - delivery as LETTER, since the input doesn't contain any combination of addressing and delivery mode that leads to any successful delivery
+	 * - delivery as LETTER, since the input doesn't contain any combination of addressing and delivery mode that leads to
+	 * any successful delivery
 	 */
 	@Test
 	void test5_withoutPartyId_withAddress_DIGITAL_MAIL_attachment() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -319,9 +318,9 @@ class LetterIT extends AbstractMessagingAppTest {
 		assertThat(response.messages()).hasSize(1);
 		assertThat(response.messages().getFirst().deliveries()).hasSize(1);
 
-		var batchId = response.batchId();
-		var messageId = response.messages().getFirst().messageId();
-		var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
+		final var batchId = response.batchId();
+		final var messageId = response.messages().getFirst().messageId();
+		final var deliveryId = response.messages().getFirst().deliveries().getFirst().deliveryId();
 
 		// Make sure we received batch, message and delivery id:s as proper UUID:s
 		assertValidUuid(batchId);
@@ -335,10 +334,10 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 				// We should have a single history entry
-				var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+				final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 				assertThat(history).hasSize(1);
 
-				var historyEntry = history.getFirst();
+				final var historyEntry = history.getFirst();
 				assertThat(historyEntry.getBatchId()).isEqualTo(batchId);
 				assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 				assertThat(historyEntry.getDeliveryId()).isEqualTo(deliveryId);
@@ -361,16 +360,16 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and one address
-	 *  - a single attachment with delivery type set to ANY
+	 * - one partyId and one address
+	 * - a single attachment with delivery type set to ANY
 	 *
 	 * POST:
-	 *  - one DIGITAL_MAIL delivery with status SENT
-	 *  - one SNAIL_MAIL delivery with status SENT
+	 * - one DIGITAL_MAIL delivery with status SENT
+	 * - one SNAIL_MAIL delivery with status SENT
 	 */
 	@Test
 	void test6_withPartyId_withAddress_ANY_attachment() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -382,7 +381,7 @@ class LetterIT extends AbstractMessagingAppTest {
 			.andReturnBody(MessageBatchResult.class);
 
 		// "Extract" the messages and deliveries as a map from message id to a list of entries holding message type and status
-		var messages = response.messages().stream()
+		final var messages = response.messages().stream()
 			.collect(toMap(MessageResult::messageId, messageResult -> messageResult.deliveries().stream()
 				.map(MessageTypeAndStatus::new).toList()));
 
@@ -393,20 +392,19 @@ class LetterIT extends AbstractMessagingAppTest {
 			assertThat(deliveries).hasSize(1);
 			assertThat(deliveries).containsAnyOf(
 				new MessageTypeAndStatus(DIGITAL_MAIL, SENT),
-				new MessageTypeAndStatus(SNAIL_MAIL, SENT)
-			);
+				new MessageTypeAndStatus(SNAIL_MAIL, SENT));
 		});
 
 		// Make sure that the batch id as a proper UUID
-		var batchId = response.batchId();
+		final var batchId = response.batchId();
 		assertValidUuid(batchId);
 
 		await()
 			.atMost(10, SECONDS)
 			.until(() -> {
-				for (var entry : messages.entrySet()) {
-					var messageId = entry.getKey();
-					var deliveries = entry.getValue();
+				for (final var entry : messages.entrySet()) {
+					final var messageId = entry.getKey();
+					final var deliveries = entry.getValue();
 
 					// Make sure we received message id as a proper UUID
 					assertValidUuid(messageId);
@@ -415,7 +413,7 @@ class LetterIT extends AbstractMessagingAppTest {
 					assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 					// There should be as many history entries as deliveries
-					var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+					final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 					assertThat(history).hasSameSizeAs(deliveries);
 					// Make sure that the history contains entries corresponding to the deliveries in the response
 					history.forEach(historyEntry -> {
@@ -431,17 +429,17 @@ class LetterIT extends AbstractMessagingAppTest {
 
 	/*
 	 * PRE:
-	 *  - one partyId and one address
-	 *  - a single attachment with delivery type set to ANY
-	 *  - FAILURE response from digital-mail-sender
+	 * - one partyId and one address
+	 * - a single attachment with delivery type set to ANY
+	 * - FAILURE response from digital-mail-sender
 	 *
 	 * POST:
-	 *  - one DIGITAL_MAIL delivery with status FAILED
-	 *  - two SNAIL_MAIL deliveries with status SENT
+	 * - one DIGITAL_MAIL delivery with status FAILED
+	 * - two SNAIL_MAIL deliveries with status SENT
 	 */
 	@Test
 	void test7_withPartyId_withAddress_ANY_attachment_and_failure_from_digital_mail() throws Exception {
-		var response = setupCall()
+		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
 			.withHeader(HEADER_SENDER, SENDER)
@@ -453,7 +451,7 @@ class LetterIT extends AbstractMessagingAppTest {
 			.andReturnBody(MessageBatchResult.class);
 
 		// "Extract" the messages and deliveries as a map from message id to a list of entries holding message type and status
-		var messages = response.messages().stream()
+		final var messages = response.messages().stream()
 			.collect(toMap(MessageResult::messageId, messageResult -> messageResult.deliveries().stream()
 				.map(MessageTypeAndStatus::new).toList()));
 
@@ -469,15 +467,15 @@ class LetterIT extends AbstractMessagingAppTest {
 		});
 
 		// Make sure that the batch id as a proper UUID
-		var batchId = response.batchId();
+		final var batchId = response.batchId();
 		assertValidUuid(batchId);
 
 		await()
 			.atMost(10, SECONDS)
 			.until(() -> {
-				for (var entry : messages.entrySet()) {
-					var messageId = entry.getKey();
-					var deliveries = entry.getValue();
+				for (final var entry : messages.entrySet()) {
+					final var messageId = entry.getKey();
+					final var deliveries = entry.getValue();
 
 					// Make sure we received message id as a proper UUID
 					assertValidUuid(messageId);
@@ -486,7 +484,7 @@ class LetterIT extends AbstractMessagingAppTest {
 					assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
 
 					// There should be as many history entries as deliveries
-					var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
+					final var history = historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId);
 					assertThat(history).hasSameSizeAs(deliveries);
 					// Make sure that the history contains entries corresponding to the deliveries in the response
 					history.forEach(historyEntry -> {

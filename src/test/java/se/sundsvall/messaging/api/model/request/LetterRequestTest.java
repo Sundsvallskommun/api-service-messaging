@@ -15,9 +15,7 @@ import se.sundsvall.messaging.api.model.request.LetterRequest.Sender;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Sender.SupportInfo;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class LetterRequestTest {
 
 	private static final Party PARTY = Party.builder().build();

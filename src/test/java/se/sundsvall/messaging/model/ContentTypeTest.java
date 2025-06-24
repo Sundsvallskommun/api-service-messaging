@@ -7,9 +7,7 @@ import static se.sundsvall.messaging.model.ContentType.TEXT_HTML;
 import static se.sundsvall.messaging.model.ContentType.TEXT_PLAIN;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class ContentTypeTest {
 
 	@Test

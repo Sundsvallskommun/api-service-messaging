@@ -5,9 +5,7 @@ import static se.sundsvall.messaging.model.AccountType.BANKGIRO;
 import static se.sundsvall.messaging.model.AccountType.PLUSGIRO;
 
 import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.test.annotation.UnitTest;
 
-@UnitTest
 class AccountTypeTest {
 
 	@Test

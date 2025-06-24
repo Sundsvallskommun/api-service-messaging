@@ -1,0 +1,35 @@
+{
+	"_meta": {
+		"page": 1,
+		"limit": 10,
+		"count": 2,
+		"totalRecords": 2,
+		"totalPages": 1
+	},
+	"batches": [
+		{
+			"batchId": "c8f52f2b-c99e-414f-bb1f-06b67a863a98",
+			"messageType": "LETTER",
+			"subject": "Beslut från Sundsvalls kommun",
+			"sent": "2050-02-25T15:54:39.254123",
+			"attachmentCount": 1,
+			"recipientCount": 3,
+			"status": {
+				"successful": 2,
+				"unsuccessful": 1
+			}
+		},
+		{
+			"batchId": "29ef44df-f55b-4201-bf60-e9000493d8b8",
+			"messageType": "SMS",
+			"subject": "",
+			"sent": "2050-02-25T15:54:39.254122",
+			"attachmentCount": 0,
+			"recipientCount": 2,
+			"status": {
+				"successful": 1,
+				"unsuccessful": 1
+			}
+		}
+	]
+}
