@@ -5,27 +5,25 @@ import static java.util.Optional.ofNullable;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
 
-public class MessageMapper {
+public final class MessageMapper {
 
 	private MessageMapper() {}
 
 	public static Message mapToMessage(final MessageEntity messageEntity) {
-		return ofNullable(messageEntity).map(actualMessageEntity -> {
-			return Message.builder()
-				.withBatchId(actualMessageEntity.getBatchId())
-				.withMessageId(actualMessageEntity.getMessageId())
-				.withDeliveryId(actualMessageEntity.getDeliveryId())
-				.withPartyId(actualMessageEntity.getPartyId())
-				.withMunicipalityId(actualMessageEntity.getMunicipalityId())
-				.withType(actualMessageEntity.getType())
-				.withOriginalType(actualMessageEntity.getOriginalMessageType())
-				.withStatus(actualMessageEntity.getStatus())
-				.withContent(actualMessageEntity.getContent())
-				.withOrigin(actualMessageEntity.getOrigin())
-				.withIssuer(actualMessageEntity.getIssuer())
-				.withAddress(messageEntity.getDestinationAddress())
-				.build();
-		}).orElse(null);
+		return ofNullable(messageEntity).map(actualMessageEntity -> Message.builder()
+			.withBatchId(actualMessageEntity.getBatchId())
+			.withMessageId(actualMessageEntity.getMessageId())
+			.withDeliveryId(actualMessageEntity.getDeliveryId())
+			.withPartyId(actualMessageEntity.getPartyId())
+			.withMunicipalityId(actualMessageEntity.getMunicipalityId())
+			.withType(actualMessageEntity.getType())
+			.withOriginalType(actualMessageEntity.getOriginalMessageType())
+			.withStatus(actualMessageEntity.getStatus())
+			.withContent(actualMessageEntity.getContent())
+			.withOrigin(actualMessageEntity.getOrigin())
+			.withIssuer(actualMessageEntity.getIssuer())
+			.withAddress(messageEntity.getDestinationAddress())
+			.build()).orElse(null);
 	}
 
 	public static MessageEntity mapToMessageEntity(final Message message) {

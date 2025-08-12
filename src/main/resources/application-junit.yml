@@ -10,7 +10,7 @@ spring:
   # Database
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:mariadb:10.6.14:///
+    url: jdbc:tc:mariadb:10.6:///
   jpa:
     show-sql: false
     properties:
