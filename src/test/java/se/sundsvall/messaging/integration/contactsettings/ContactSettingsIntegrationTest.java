@@ -10,12 +10,12 @@ import generated.se.sundsvall.contactsettings.ContactChannel;
 import generated.se.sundsvall.contactsettings.ContactMethod;
 import generated.se.sundsvall.contactsettings.ContactSetting;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +36,7 @@ class ContactSettingsIntegrationTest {
 				.disabled(false)));
 
 		when(mockClient.getSettings(any(String.class), any(String.class), any()))
-			.thenReturn(ResponseEntity.ok(List.of(contactSetting)));
+			.thenReturn(Optional.of(List.of(contactSetting)));
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
@@ -51,7 +51,7 @@ class ContactSettingsIntegrationTest {
 	@Test
 	void test_getSettings_whenSettingsAreNotFound() {
 		when(mockClient.getSettings(any(String.class), any(String.class), any()))
-			.thenReturn(ResponseEntity.notFound().build());
+			.thenReturn(Optional.empty());
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
@@ -66,7 +66,7 @@ class ContactSettingsIntegrationTest {
 			.contactChannels(List.of());
 
 		when(mockClient.getSettings(any(String.class), any(String.class), any()))
-			.thenReturn(ResponseEntity.ok(List.of(contactSetting)));
+			.thenReturn(Optional.of(List.of(contactSetting)));
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
