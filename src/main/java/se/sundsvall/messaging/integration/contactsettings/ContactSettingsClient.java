@@ -5,8 +5,8 @@ import static se.sundsvall.messaging.integration.contactsettings.ContactSettings
 import generated.se.sundsvall.contactsettings.ContactSetting;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 interface ContactSettingsClient {
 
 	@GetMapping("/{municipalityId}/settings")
-	ResponseEntity<List<ContactSetting>> getSettings(
+	Optional<List<ContactSetting>> getSettings(
 		@PathVariable final String municipalityId,
 		@RequestParam("partyId") final String partyId,
 		@RequestParam("query") final MultiValueMap<String, String> filters);
