@@ -44,3 +44,6 @@ resilience4j.circuitbreaker:
     Party:
       ignore-exceptions:
         - se.sundsvall.dept44.exception.ClientProblem
+    ContactSettings:
+      ignore-exceptions:
+        - se.sundsvall.dept44.exception.ClientProblem
