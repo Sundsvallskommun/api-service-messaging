@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.integration.contactsettings;
 
+import static java.util.Collections.emptyList;
+
 import generated.se.sundsvall.contactsettings.ContactSetting;
 import java.util.Collection;
 import java.util.List;
@@ -20,25 +22,21 @@ public class ContactSettingsIntegration {
 	}
 
 	public List<ContactDto> getContactSettings(final String municipalityId, final String partyId, final MultiValueMap<String, String> filters) {
-		final var response = client.getSettings(municipalityId, partyId, filters);
+		final var responseList = client.getSettings(municipalityId, partyId, filters).orElse(emptyList());
 
-		if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-			return response.getBody().stream()
-				.map(ContactSetting::getContactChannels)
-				.flatMap(Collection::stream)
-				.map(contactChannel -> ContactDto.builder()
-					.withContactMethod(switch (contactChannel.getContactMethod())
-					{
-						case SMS -> ContactDto.ContactMethod.SMS;
-						case EMAIL -> ContactDto.ContactMethod.EMAIL;
-					})
-					.withDestination(contactChannel.getDestination())
-					.withDisabled(contactChannel.getDisabled())
-					.build())
-				.toList();
-		}
-
-		return List.of();
+		return responseList.stream()
+			.map(ContactSetting::getContactChannels)
+			.flatMap(Collection::stream)
+			.map(contactChannel -> ContactDto.builder()
+				.withContactMethod(switch (contactChannel.getContactMethod())
+				{
+					case SMS -> ContactDto.ContactMethod.SMS;
+					case EMAIL -> ContactDto.ContactMethod.EMAIL;
+				})
+				.withDestination(contactChannel.getDestination())
+				.withDisabled(contactChannel.getDisabled())
+				.build())
+			.toList();
 	}
 
 }
