@@ -10,17 +10,23 @@
 		"bodyPatterns": [
 			{
 				"equalToJson": {
-					"partyId": "f427952b-247c-4d3b-b081-675a467b3619",
-					"sender": {
-						"userId": "someUserId"
+					"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+					"type": "INVOICE",
+					"subject": "Invoice #12345",
+					"reference": "12345",
+					"details": {
+						"amount": 12.5,
+						"dueDate": "2023-11-30",
+						"paymentReferenceType": "SE_OCR",
+						"paymentReference": "8719827398",
+						"accountType": "BANKGIRO",
+						"accountNumber": "1234567"
 					},
-					"message": "This is a test message",
-					"oepInstance": "internal",
-					"attachments": [
+					"files": [
 						{
-							"fileName": "someFile.txt",
-							"mimeType": "text/plain",
-							"base64Data": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+							"contentType": "application/pdf",
+							"body": "someContent",
+							"filename": "invoice_12345.pdf"
 						}
 					]
 				}
