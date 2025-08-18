@@ -6,7 +6,26 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/digital-mail-sender/2281/send-digital-invoice"
+		"urlPath": "/digital-mail-sender/2281/send-digital-invoice",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"partyId": "f427952b-247c-4d3b-b081-675a467b3619",
+					"sender": {
+						"userId": "someUserId"
+					},
+					"message": "This is a test message",
+					"oepInstance": "internal",
+					"attachments": [
+						{
+							"fileName": "someFile.txt",
+							"mimeType": "text/plain",
+							"base64Data": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+						}
+					]
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {

@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "POST",
-		"urlPath": "/slack/chat.postMessage"
+		"urlPath": "/slack/chat.postMessage",
+		"bodyPatterns": [
+			{
+				"equalTo": "channel=CTGM9CNAVXW&link_names=0&mrkdwn=1&blocks=%5B%7B%22type%22%3A%22section%22%2C%22text%22%3A%7B%22type%22%3A%22mrkdwn%22%2C%22text%22%3A%22Another%20test%20message%22%7D%7D%5D&unfurl_links=0&unfurl_media=0&reply_broadcast=0"
+			}
+		]
 	},
 	"response": {
 		"headers": {

@@ -6,7 +6,21 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/email-sender/2281/send/email"
+		"urlPath": "/email-sender/2281/send/email",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"emailAddress": "some.user@something.com",
+					"subject": "My subject",
+					"message": "My message",
+					"sender": {
+						"name": "SomeSender",
+						"address": "somesender@somehost.com"
+					},
+					"headers": {}
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {

@@ -6,7 +6,32 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/digital-mail-sender/2281/send-digital-invoice"
+		"urlPath": "/digital-mail-sender/2281/send-digital-invoice",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+					"type": "INVOICE",
+					"subject": "Invoice #12345",
+					"reference": "12345",
+					"details": {
+						"amount": 12.5,
+						"dueDate": "2023-11-30",
+						"paymentReferenceType": "SE_OCR",
+						"paymentReference": "8719827398",
+						"accountType": "BANKGIRO",
+						"accountNumber": "1234567"
+					},
+					"files": [
+						{
+							"contentType": "application/pdf",
+							"body": "someContent",
+							"filename": "invoice_12345.pdf"
+						}
+					]
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {
