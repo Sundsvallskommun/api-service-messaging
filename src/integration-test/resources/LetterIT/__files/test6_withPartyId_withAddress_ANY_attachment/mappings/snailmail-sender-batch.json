@@ -6,7 +6,7 @@
 			}
 		},
 		"method": "POST",
-		"urlPathPattern": "/snailmail-sender/2281/send/batch/.*"
+		"urlPathPattern": "/snailmail-sender/2281/send/batch/.+"
 	},
 	"response": {
 		"headers": {

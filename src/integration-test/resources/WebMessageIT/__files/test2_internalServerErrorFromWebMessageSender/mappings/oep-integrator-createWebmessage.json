@@ -6,7 +6,30 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/oep-integrator/2281/EXTERNAL/webmessages"
+		"urlPath": "/oep-integrator/2281/EXTERNAL/webmessages",
+		"multipartPatterns": [
+			{
+				"matchingType": "ANY",
+				"headers": {
+					"Content-Disposition": {
+						"contains": "name=\"request\""
+					},
+					"Content-Type": {
+						"contains": "application/json"
+					}
+				},
+				"bodyPatterns": [
+					{
+						"equalToJson": {
+							"sender": {
+								"partyId": "f427952b-247c-4d3b-b081-675a467b3619"
+							},
+							"message": "This is a test message"
+						}
+					}
+				]
+			}
+		]
 	},
 	"response": {
 		"headers": {

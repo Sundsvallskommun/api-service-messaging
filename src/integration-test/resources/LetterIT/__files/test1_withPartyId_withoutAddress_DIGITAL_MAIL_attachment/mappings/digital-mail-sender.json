@@ -6,7 +6,33 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/digital-mail-sender/2281/send-digital-mail"
+		"urlPath": "/digital-mail-sender/2281/send-digital-mail",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"partyId": "e4e37771-397b-45b5-bb89-f389f8525e53",
+					"municipalityId": "someMunicipalityId",
+					"headerSubject": "Some subject",
+					"supportInfo": {
+						"supportText": "someInfoText",
+						"contactInformationUrl": "someUrl",
+						"contactInformationPhoneNumber": "somePhoneNumber",
+						"contactInformationEmail": "someone@something.com"
+					},
+					"attachments": [
+						{
+							"contentType": "application/pdf",
+							"body": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK",
+							"filename": "someFile.txt"
+						}
+					],
+					"bodyInformation": {
+						"contentType": "text/plain",
+						"body": "This is the message contents"
+					}
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {

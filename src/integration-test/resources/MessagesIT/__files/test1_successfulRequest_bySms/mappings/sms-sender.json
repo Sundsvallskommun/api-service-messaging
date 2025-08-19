@@ -6,7 +6,19 @@
 			}
 		},
 		"method": "POST",
-		"urlPath": "/sms-sender/2281/send/sms"
+		"urlPath": "/sms-sender/2281/send/sms",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"sender": {
+						"name": "SomeSender"
+					},
+					"mobileNumber": "+46701234567",
+					"priority": "NORMAL",
+					"message": "My message"
+				}
+			}
+		]
 	},
 	"response": {
 		"headers": {
