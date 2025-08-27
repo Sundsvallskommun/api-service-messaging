@@ -20,21 +20,34 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 @ExtendWith(MockitoExtension.class)
 class ValidWebMessageRequestConstraintValidatorTest {
 
+	@InjectMocks
+	private final ValidWebMessageRequestConstraintValidator validator = new ValidWebMessageRequestConstraintValidator();
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private ConstraintValidatorContext mockContext;
-
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private ConstraintValidatorContext.ConstraintViolationBuilder mockConstraintViolationBuilder;
 
-	@InjectMocks
-	private final ValidWebMessageRequestConstraintValidator validator = new ValidWebMessageRequestConstraintValidator();
+	private static Stream<Arguments> invalidSendAsOwnerArgumentProvider() {
+		return Stream.of(
+			Arguments.of(true, "userId", "partyId"),
+			Arguments.of(true, null, null));
+	}
+
+	private static Stream<Arguments> validSendAsOwnerArgumentProvider() {
+		return Stream.of(
+			Arguments.of(true, "userId", null),
+			Arguments.of(true, null, "partyId"),
+			Arguments.of(false, "userId", null),
+			Arguments.of(false, null, "partyId"));
+
+	}
 
 	@ParameterizedTest
 	@MethodSource("invalidSendAsOwnerArgumentProvider")
-	void invalidSendAsOwnerRequest(Boolean sendAsOwner, String userId, String partyId) {
+	void invalidSendAsOwnerRequest(final Boolean sendAsOwner, final String userId, final String partyId) {
 		when(mockContext.buildConstraintViolationWithTemplate(anyString())).thenReturn(mockConstraintViolationBuilder);
 
-		var request = WebMessageRequest.builder()
+		final var request = WebMessageRequest.builder()
 			.withSendAsOwner(sendAsOwner)
 			.withSender(WebMessageRequest.Sender.builder().withUserId(userId).build())
 			.withParty(WebMessageRequest.Party.builder().withPartyId(partyId).build())
@@ -45,8 +58,8 @@ class ValidWebMessageRequestConstraintValidatorTest {
 
 	@ParameterizedTest
 	@MethodSource("validSendAsOwnerArgumentProvider")
-	void validSendAsOwnerRequest(Boolean sendAsOwner, String userId, String partyId) {
-		var request = WebMessageRequest.builder()
+	void validSendAsOwnerRequest(final Boolean sendAsOwner, final String userId, final String partyId) {
+		final var request = WebMessageRequest.builder()
 			.withSendAsOwner(sendAsOwner)
 			.withSender(WebMessageRequest.Sender.builder().withUserId(userId).build())
 			.withParty(WebMessageRequest.Party.builder().withPartyId(partyId).build())
@@ -57,28 +70,13 @@ class ValidWebMessageRequestConstraintValidatorTest {
 
 	@Test
 	void validSendAsAdministratorRequest() {
-		var request = WebMessageRequest.builder()
+		final var request = WebMessageRequest.builder()
 			.withSendAsOwner(false)
 			.withSender(WebMessageRequest.Sender.builder().withUserId("userId").build())
 			.withParty(WebMessageRequest.Party.builder().withPartyId("partyId").build())
 			.build();
 
 		assertThat(validator.isValid(request, mockContext)).isTrue();
-	}
-
-	private static Stream<Arguments> invalidSendAsOwnerArgumentProvider() {
-		return Stream.of(
-			Arguments.of(true, "userId", "partyId"),
-			Arguments.of(true, null, null),
-			Arguments.of(false, "userId", null),
-			Arguments.of(false, null, "partyId"));
-	}
-
-	private static Stream<Arguments> validSendAsOwnerArgumentProvider() {
-		return Stream.of(
-			Arguments.of(true, "userId", null),
-			Arguments.of(true, null, "partyId"));
-
 	}
 
 }
