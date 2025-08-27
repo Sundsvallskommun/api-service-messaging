@@ -10,8 +10,8 @@ public class ValidWebMessageRequestConstraintValidator implements ConstraintVali
 
 	@Override
 	public boolean isValid(final WebMessageRequest value, final ConstraintValidatorContext context) {
-		var partyId = Optional.ofNullable(value.party()).map(WebMessageRequest.Party::partyId).orElse(null);
-		var userId = Optional.ofNullable(value.sender()).map(WebMessageRequest.Sender::userId).orElse(null);
+		final var partyId = Optional.ofNullable(value.party()).map(WebMessageRequest.Party::partyId).orElse(null);
+		final var userId = Optional.ofNullable(value.sender()).map(WebMessageRequest.Sender::userId).orElse(null);
 
 		if (value.sendAsOwner()) { // One or the other must be set if sendAsOwner is true
 			if (partyId != null && userId != null) {
@@ -25,13 +25,8 @@ public class ValidWebMessageRequestConstraintValidator implements ConstraintVali
 				return false;
 			}
 			return true;
-		} else { // Both must be set if sendAsOwner is false
-			if (partyId != null && userId != null) {
-				return true;
-			}
-			context.buildConstraintViolationWithTemplate("Both partyId and userId must be set if sendAsOwner is false")
-				.addConstraintViolation();
-			return false;
+		} else {
+			return true;
 		}
 	}
 }
