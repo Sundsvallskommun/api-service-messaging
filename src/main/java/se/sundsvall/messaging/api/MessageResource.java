@@ -15,8 +15,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+import se.sundsvall.dept44.common.validators.annotation.ValidOrganizationNumber;
+import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.support.Identifier;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -39,6 +44,7 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.Mailbox;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
@@ -200,6 +206,20 @@ class MessageResource {
 			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest));
 		}
 		return toResponse(messageService.sendDigitalMail(decoratedRequest));
+	}
+
+	@Operation(summary = "Retrieve a list of digital mailboxes",
+		description = "Response contains a list of partyIds, supplier and if the digital mailbox is reachable for the given organization.",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		})
+	@PostMapping(value = "/{organizationNumber}/mailboxes", produces = APPLICATION_JSON_VALUE)
+	ResponseEntity<List<Mailbox>> getMailboxes(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "organizationNumber", description = "The organization number of the intended sending organization", example = "5561234567") @ValidOrganizationNumber @PathVariable final String organizationNumber,
+		@RequestBody @UniqueElements @NotEmpty final List<@ValidUuid String> partyIds) {
+
+		return ResponseEntity.ok().body(messageService.getMailboxes(municipalityId, organizationNumber, partyIds));
 	}
 
 	@Operation(summary = "Send a digital invoice", responses = {

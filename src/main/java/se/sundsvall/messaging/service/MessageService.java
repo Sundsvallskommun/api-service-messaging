@@ -44,6 +44,7 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.api.model.response.Mailbox;
 import se.sundsvall.messaging.integration.citizen.CitizenIntegration;
 import se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration;
 import se.sundsvall.messaging.integration.db.DbIntegration;
@@ -505,5 +506,9 @@ public class MessageService {
 				dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
 			}
 		});
+	}
+
+	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {
+		return digitalMailSenderIntegration.getMailboxes(municipalityId, organizationNumber, partyIds);
 	}
 }

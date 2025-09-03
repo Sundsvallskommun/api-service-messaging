@@ -7,8 +7,10 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
+import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.api.model.response.Mailbox;
 import se.sundsvall.messaging.model.MessageStatus;
 
 @Component
@@ -50,4 +52,9 @@ public class DigitalMailSenderIntegration {
 		return success ? SENT : NOT_SENT;
 	}
 
+	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {
+		var response = client.getMailboxes(municipalityId, organizationNumber, partyIds);
+
+		return mapper.toMailboxes(response);
+	}
 }

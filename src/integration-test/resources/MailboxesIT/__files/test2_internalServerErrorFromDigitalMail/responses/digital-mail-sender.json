@@ -1,0 +1,5 @@
+{
+	"title": "Error while getting digital mailboxes from skatteverket",
+	"status": 500,
+	"detail": "Mapping and getting mailbox settings failed"
+}

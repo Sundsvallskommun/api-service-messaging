@@ -3,8 +3,13 @@ package se.sundsvall.messaging.integration.digitalmailsender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -14,6 +19,8 @@ import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +30,12 @@ import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.messaging.api.model.response.Mailbox;
 
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTest {
+
+	private static final String MUNICIPALITY_ID = "2281";
 
 	@Mock
 	private DigitalMailSenderClient mockClient;
@@ -46,6 +56,11 @@ class DigitalMailSenderIntegrationTest {
 		integration = new DigitalMailSenderIntegration(mockClient, mockMapper);
 	}
 
+	@AfterEach
+	void tearDown() {
+		verifyNoMoreInteractions(mockClient, mockMapper, mockDigitalInvoiceResponseEntity, mockDigitalMailResponseEntity);
+	}
+
 	@Test
 	void test_sendDigitalMail() {
 		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
@@ -56,7 +71,7 @@ class DigitalMailSenderIntegrationTest {
 		when(mockClient.sendDigitalMail(any(String.class), any(DigitalMailRequest.class)))
 			.thenReturn(mockDigitalMailResponseEntity);
 
-		final var response = integration.sendDigitalMail("2281", createDigitalMailDto());
+		final var response = integration.sendDigitalMail(MUNICIPALITY_ID, createDigitalMailDto());
 		assertThat(response).isEqualTo(SENT);
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
@@ -75,7 +90,7 @@ class DigitalMailSenderIntegrationTest {
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> integration.sendDigitalMail("2281", createDigitalMailDto()))
+			.isThrownBy(() -> integration.sendDigitalMail(MUNICIPALITY_ID, createDigitalMailDto()))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
 				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
@@ -95,7 +110,7 @@ class DigitalMailSenderIntegrationTest {
 		when(mockClient.sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class)))
 			.thenReturn(mockDigitalInvoiceResponseEntity);
 
-		final var response = integration.sendDigitalInvoice("2281", createDigitalInvoiceDto());
+		final var response = integration.sendDigitalInvoice(MUNICIPALITY_ID, createDigitalInvoiceDto());
 		assertThat(response).isEqualTo(SENT);
 
 		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
@@ -114,7 +129,7 @@ class DigitalMailSenderIntegrationTest {
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> integration.sendDigitalInvoice("2281", createDigitalInvoiceDto()))
+			.isThrownBy(() -> integration.sendDigitalInvoice(MUNICIPALITY_ID, createDigitalInvoiceDto()))
 			.satisfies(problem -> {
 				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
 				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
@@ -122,6 +137,22 @@ class DigitalMailSenderIntegrationTest {
 
 		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
 		verify(mockClient, times(1)).sendDigitalInvoice(any(String.class), any(DigitalInvoiceRequest.class));
+	}
+
+	@Test
+	void test_getMailboxes() {
+		final var mailbox = new generated.se.sundsvall.digitalmailsender.Mailbox();
+		final var responseMailbox = new Mailbox("someParty", "someSupplier", true);
+
+		when(mockClient.getMailboxes(eq(MUNICIPALITY_ID), anyString(), anyList())).thenReturn(List.of(mailbox, mailbox));
+		when(mockMapper.toMailboxes(anyList())).thenReturn(List.of(responseMailbox, responseMailbox));
+
+		final var response = integration.getMailboxes(MUNICIPALITY_ID, "organizationNumber", List.of("somePartyId"));
+
+		assertThat(response).hasSize(2);
+		verify(mockClient).getMailboxes(MUNICIPALITY_ID, "organizationNumber", List.of("somePartyId"));
+		verify(mockMapper).toMailboxes(anyList());
+		verifyNoInteractions(mockDigitalMailResponseEntity, mockDigitalInvoiceResponseEntity);
 	}
 
 	private DigitalMailDto createDigitalMailDto() {

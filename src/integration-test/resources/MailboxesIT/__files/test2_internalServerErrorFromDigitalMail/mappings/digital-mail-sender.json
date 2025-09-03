@@ -1,0 +1,26 @@
+{
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "POST",
+		"urlPath": "/digital-mail-sender/2281/2120002411/mailboxes",
+		"bodyPatterns": [
+			{
+				"equalToJson": [
+					"84f9c52b-8545-486a-9510-9743237bd547",
+					"f10545c1-d05d-41f2-b2bc-9dd22241ebc6"
+				]
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/problem+json"
+		},
+		"bodyFileName": "test2_internalServerErrorFromDigitalMail/responses/digital-mail-sender.json",
+		"status": 500
+	}
+}
