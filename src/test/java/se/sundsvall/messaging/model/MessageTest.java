@@ -17,11 +17,12 @@ class MessageTest {
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER = "issuer";
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final Address ADDRESS = createAddress();
 
 	@Test
 	void testConstructor() {
-		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS, CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID);
+		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS, CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
 
 		assertBean(bean);
 	}
@@ -41,6 +42,7 @@ class MessageTest {
 			.withStatus(STATUS)
 			.withType(TYPE)
 			.withAddress(ADDRESS)
+			.withOrganizationNumber(ORGANIZATION_NUMBER)
 			.build();
 
 		assertBean(bean);
@@ -60,6 +62,7 @@ class MessageTest {
 		assertThat(bean.partyId()).isEqualTo(PARTY_ID);
 		assertThat(bean.status()).isEqualTo(STATUS);
 		assertThat(bean.type()).isEqualTo(TYPE);
+		assertThat(bean.organizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
 	}
 
 	@Test

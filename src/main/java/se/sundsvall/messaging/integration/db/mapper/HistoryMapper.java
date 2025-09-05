@@ -34,6 +34,7 @@ public final class HistoryMapper {
 			.withOrigin(historyEntity.getOrigin())
 			.withIssuer(historyEntity.getIssuer())
 			.withMunicipalityId(historyEntity.getMunicipalityId())
+			.withOrganizationNumber(historyEntity.getOrganizationNumber())
 			.build()).orElse(null);
 	}
 
@@ -54,6 +55,7 @@ public final class HistoryMapper {
 			.withCreatedAt(LocalDateTime.now())
 			.withMunicipalityId(actualMessage.municipalityId())
 			.withDestinationAddress(actualMessage.address())
+			.withOrganizationNumber(actualMessage.organizationNumber())
 			.build()).orElse(null);
 	}
 

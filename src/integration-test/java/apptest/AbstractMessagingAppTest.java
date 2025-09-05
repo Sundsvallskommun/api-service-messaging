@@ -8,11 +8,12 @@ import se.sundsvall.dept44.test.AbstractAppTest;
 abstract class AbstractMessagingAppTest extends AbstractAppTest {
 
 	protected static final String HEADER_ORIGIN = "x-origin";
-	protected static final String HEADER_SENDER = "X-Sent-By";
+	protected static final String X_SENT_BY_HEADER = "X-Sent-By";
 	protected static final String ORIGIN = "Test-origin";
-	protected static final String SENDER = "type=adAccount; joe01doe";
-	protected static final String SENDER_VALUE = "joe01doe";
+	protected static final String X_SENT_BY_HEADER_VALUE = "type=adAccount; joe01doe";
+	protected static final String X_SENT_BY_HEADER_USER_NAME = "joe01doe";
 	protected static final String MUNICIPALITY_ID = "2281";
+	protected static final String ORGANIZATION_NUMBER = "2120002411";
 	protected static final String REQUEST_FILE = "request.json";
 	protected static final String RESPONSE_FILE = "response.json";
 

@@ -120,10 +120,10 @@ public class MessageEventDispatcher {
 		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request) {
+	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request, String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId, organizationNumber));
 
 		final var deliveries = messages.stream()
 			.map(this::publishMessageEvent)
@@ -139,10 +139,10 @@ public class MessageEventDispatcher {
 		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request) {
+	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request, final String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = messageMapper.toMessages(request, batchId);
+		final var messages = messageMapper.toMessages(request, batchId, organizationNumber);
 		final var addressMessages = messageMapper.mapAddressesToMessages(request, batchId);
 
 		final var allMessages = Stream.concat(messages.stream(), addressMessages.stream()).toList();

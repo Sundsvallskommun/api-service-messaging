@@ -2,6 +2,7 @@ package se.sundsvall.messaging.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -16,7 +17,6 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -39,14 +39,13 @@ import se.sundsvall.messaging.service.MessageService;
 class MessageResourceDigitalMailTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-mail";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
+	private static final String URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/digital-mail";
 	private static final String ORIGIN_HEADER = "x-origin";
-	private static final String ORIGIN = "origin";
-	private static final String ISSUER_HEADER = "x-issuer";
-	private static final String ISSUER = "issuer";
+	private static final String ORIGIN_VALUE = "origin";
 	private static final String X_SENT_BY_HEADER = "X-Sent-By";
-	private static final String X_SENT_BY = "type=adAccount; joe01doe";
-	private static final String X_SENT_BY_VALUE = "joe01doe";
+	private static final String X_SENT_BY_VALUE = "type=adAccount; joe01doe";
+	private static final String X_SENT_BY_USER_NAME = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -75,9 +74,10 @@ class MessageResourceDigitalMailTest {
 	@MethodSource("argumentsProvider")
 	void sendSynchronous(boolean hasSender, boolean includeOptionalHeaders) {
 		// Arrange
-		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
+		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null).withIssuer(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendDigitalMail(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		when(mockMessageService.sendDigitalMail(any(), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -104,7 +104,10 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendDigitalMail(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		if (includeOptionalHeaders)
+			verify(mockMessageService).sendDigitalMail(addHeaderValues(decoratedRequest), ORGANIZATION_NUMBER);
+		else
+			verify(mockMessageService).sendDigitalMail(decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -115,7 +118,7 @@ class MessageResourceDigitalMailTest {
 		// Arrange
 		final var request = hasSender ? createValidDigitalMailRequest() : createValidDigitalMailRequest().withSender(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockEventDispatcher.handleDigitalMailRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleDigitalMailRequest(any(), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -142,46 +145,9 @@ class MessageResourceDigitalMailTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleDigitalMailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verify(mockEventDispatcher).handleDigitalMailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeadersShouldBePreserved() {
-		// Arrange
-		final var request = createValidDigitalMailRequest();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendDigitalMail(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
-			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_MAIL);
-			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
-		});
-
-		verify(mockMessageService).sendDigitalMail(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	private static Stream<Arguments> argumentsProvider() {
@@ -195,22 +161,14 @@ class MessageResourceDigitalMailTest {
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
-				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
-				httpHeaders.add(ISSUER_HEADER, ISSUER);
-				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
+				httpHeaders.add(ORIGIN_HEADER, ORIGIN_VALUE);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_VALUE);
 			}
 		};
 	}
 
-	private static Consumer<HttpHeaders> oldHeaders() {
-		return httpHeaders -> {
-			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
-			httpHeaders.add(ISSUER_HEADER, ISSUER);
-		};
-	}
-
 	private static DigitalMailRequest addHeaderValues(DigitalMailRequest request) {
-		return request.withOrigin(ORIGIN)
-			.withIssuer(X_SENT_BY_VALUE);
+		return request.withIssuer(X_SENT_BY_USER_NAME)
+			.withOrigin(ORIGIN_VALUE);
 	}
 }

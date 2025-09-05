@@ -29,8 +29,8 @@ public class DigitalMailSenderIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendDigitalMail(final String municipalityId, final DigitalMailDto dto) {
-		final var response = client.sendDigitalMail(municipalityId, mapper.toDigitalMailRequest(dto));
+	public MessageStatus sendDigitalMail(final String municipalityId, final String organizationNumber, final DigitalMailDto dto) {
+		final var response = client.sendDigitalMail(municipalityId, organizationNumber, mapper.toDigitalMailRequest(dto));
 
 		final var success = response.getStatusCode().is2xxSuccessful() &&
 			ofNullable(response.getBody())

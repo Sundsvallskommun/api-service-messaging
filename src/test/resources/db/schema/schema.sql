@@ -1,6 +1,7 @@
 create table history (
      created_at datetime(6),
      id bigint not null auto_increment,
+     organization_number varchar(12),
      batch_id varchar(36),
      delivery_id varchar(36),
      message_id varchar(36) not null,
@@ -21,6 +22,7 @@ create table history (
 create table messages (
       created_at datetime(6),
       id bigint not null auto_increment,
+      organization_number varchar(12),
       batch_id varchar(255),
       content LONGTEXT NOT NULL,
       delivery_id varchar(255),

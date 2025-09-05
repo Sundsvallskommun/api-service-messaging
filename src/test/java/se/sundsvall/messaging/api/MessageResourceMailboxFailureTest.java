@@ -30,7 +30,7 @@ import se.sundsvall.messaging.service.MessageService;
 class MessageResourceMailboxFailureTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "1234567890";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final String URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/mailboxes";
 
 	@MockitoBean

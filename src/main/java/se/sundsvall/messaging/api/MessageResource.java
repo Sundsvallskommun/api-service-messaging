@@ -63,6 +63,8 @@ import se.sundsvall.messaging.service.MessageService;
 @ApiResponse(responseCode = "502", description = "Bad Gateway", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class MessageResource {
 
+	private static final String SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER = "2120002411";
+
 	private final MessageService messageService;
 
 	private final MessageEventDispatcher eventDispatcher;
@@ -187,8 +189,30 @@ class MessageResource {
 	@Operation(summary = "Send a single digital mail to one or more parties", responses = {
 		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
 	})
-	@PostMapping("/digital-mail")
+	@PostMapping("/{organizationNumber}/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMail(
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
+		@RequestBody @Valid final DigitalMailRequest request,
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "organizationNumber", description = "The organization number of the sending organization", example = "5561234567") @ValidOrganizationNumber @PathVariable final String organizationNumber,
+		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
+
+		final var decoratedRequest = request
+			.withMunicipalityId(municipalityId)
+			.withIssuer(resolveSentBy(null))
+			.withOrigin(origin);
+
+		if (async) {
+			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest, organizationNumber));
+		}
+		return toResponse(messageService.sendDigitalMail(decoratedRequest, organizationNumber));
+	}
+
+	@Operation(summary = "Send a single digital mail to one or more parties", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
+	@PostMapping("/digital-mail")
+	ResponseEntity<MessageBatchResult> sendDigitalMailDeprecated(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
 		@Deprecated(since = "2025-05-22", forRemoval = true) @Parameter(name = X_ISSUER_HEADER_KEY,
 			deprecated = true,
@@ -202,10 +226,12 @@ class MessageResource {
 			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
+		// To keep backwards compatibility we default to Sundsvall municipalitys organization number since the new
+		// api in digital mail sender requires an organization number
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest));
+			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 		}
-		return toResponse(messageService.sendDigitalMail(decoratedRequest));
+		return toResponse(messageService.sendDigitalMail(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 	}
 
 	@Operation(summary = "Retrieve a list of digital mailboxes",
@@ -288,10 +314,12 @@ class MessageResource {
 			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
 			.withOrigin(origin);
 
+		// To keep backwards compatibility we default to Sundsvall municipalitys organization number since the new
+		// api in digital mail sender requires an organization number
 		if (async) {
-			return toResponse(eventDispatcher.handleLetterRequest(decoratedRequest));
+			return toResponse(eventDispatcher.handleLetterRequest(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 		}
-		return toResponse(messageService.sendLetter(decoratedRequest));
+		return toResponse(messageService.sendLetter(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 	}
 
 	@Operation(summary = "Send a single Slack message", responses = {
@@ -323,7 +351,6 @@ class MessageResource {
 	private String resolveSentBy(final String issuer) {
 		return Optional.ofNullable(Identifier.get())
 			.map(Identifier::getValue)
-			.filter(StringUtils::isNotBlank)
 			.orElseGet(() -> StringUtils.isNotBlank(issuer) ? issuer : null);
 	}
 }

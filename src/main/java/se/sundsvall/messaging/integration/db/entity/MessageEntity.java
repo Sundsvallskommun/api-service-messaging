@@ -90,10 +90,13 @@ public class MessageEntity {
 	@Column(name = "destination_address")
 	private String destinationAddressJson;
 
+	@Column(name = "organizationNumber", length = 12)
+	private String organizationNumber;
+
 	@Builder(setterPrefix = "with")
 	private MessageEntity(final Long id, final String messageId, final String batchId, final String deliveryId, final String partyId, final MessageType type, final MessageType originalMessageType, final MessageStatus status, final String content,
 		final String origin, final String issuer, final LocalDateTime createdAt,
-		final String municipalityId, final Address destinationAddress) {
+		final String municipalityId, final Address destinationAddress, final String organizationNumber) {
 		this.id = id;
 		this.messageId = messageId;
 		this.batchId = batchId;
@@ -108,6 +111,7 @@ public class MessageEntity {
 		this.createdAt = createdAt;
 		this.municipalityId = municipalityId;
 		this.destinationAddress = destinationAddress;
+		this.organizationNumber = organizationNumber;
 	}
 
 	String getDestinationAddressJson() {

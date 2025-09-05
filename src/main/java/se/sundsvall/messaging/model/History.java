@@ -17,6 +17,7 @@ public record History(
 	String origin,
 	String issuer,
 	LocalDateTime createdAt,
-	String municipalityId) {
+	String municipalityId,
+	String organizationNumber) {
 
 }

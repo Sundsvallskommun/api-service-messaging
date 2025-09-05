@@ -2,6 +2,7 @@ package se.sundsvall.messaging.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -39,6 +40,7 @@ import se.sundsvall.messaging.service.MessageService;
 class MessageResourceLetterTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final String URL = "/" + MUNICIPALITY_ID + "/letter";
 	private static final String ORIGIN_HEADER = "x-origin";
 	private static final String ORIGIN = "origin";
@@ -77,7 +79,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendLetter(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -104,7 +106,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -115,7 +117,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -142,7 +144,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -152,7 +154,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = createValidLetterRequest();
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendLetter(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -179,7 +181,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verify(mockMessageService).sendLetter(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER), ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}

@@ -37,7 +37,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -63,7 +63,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 								assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 								assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 								assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-								assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+								assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 							});
 					});
 
@@ -76,7 +76,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -102,7 +102,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 								assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 								assertThat(historyEntry.getStatus()).isEqualTo(FAILED);
 								assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-								assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+								assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 							});
 					});
 

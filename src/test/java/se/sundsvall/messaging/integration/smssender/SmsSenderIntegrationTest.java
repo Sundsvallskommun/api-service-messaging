@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.smssender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,19 +39,19 @@ class SmsSenderIntegrationTest {
 	@Test
 	void test_sendSms() {
 		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-		when(mockClient.sendSms(any(String.class), any(SendSmsRequest.class)))
+		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class)))
 			.thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
 
 		integration.sendSms("2281", SmsDto.builder().build());
 
 		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
-		verify(mockClient, times(1)).sendSms(any(String.class), any(SendSmsRequest.class));
+		verify(mockClient, times(1)).sendSms(anyString(), any(SendSmsRequest.class));
 	}
 
 	@Test
 	void test_sendSms_whenExceptionIsThrownByClient() {
 		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-		when(mockClient.sendSms(any(String.class), any(SendSmsRequest.class)))
+		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class)))
 			.thenThrow(Problem.builder()
 				.withStatus(Status.BAD_GATEWAY)
 				.withCause(Problem.builder()
@@ -67,7 +68,7 @@ class SmsSenderIntegrationTest {
 			});
 
 		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
-		verify(mockClient, times(1)).sendSms(any(String.class), any(SendSmsRequest.class));
+		verify(mockClient, times(1)).sendSms(anyString(), any(SendSmsRequest.class));
 	}
 
 }

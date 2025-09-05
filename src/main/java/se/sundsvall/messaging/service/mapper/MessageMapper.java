@@ -108,7 +108,7 @@ public class MessageMapper {
 			.build();
 	}
 
-	public List<Message> toMessages(final DigitalMailRequest request, final String batchId) {
+	public List<Message> toMessages(final DigitalMailRequest request, final String batchId, String organizationNumber) {
 		final var messageId = UUID.randomUUID().toString();
 
 		return request.party().partyIds().stream()
@@ -124,6 +124,7 @@ public class MessageMapper {
 				.withOrigin(request.origin())
 				.withIssuer(request.issuer())
 				.withMunicipalityId(request.municipalityId())
+				.withOrganizationNumber(organizationNumber)
 				.build())
 			.toList();
 	}
@@ -145,7 +146,7 @@ public class MessageMapper {
 			.build();
 	}
 
-	public List<Message> toMessages(final LetterRequest request, final String batchId) {
+	public List<Message> toMessages(final LetterRequest request, final String batchId, final String organizationNumber) {
 		return ofNullable(request.party()).map(LetterRequest.Party::partyIds).orElse(emptyList()).stream()
 			.map(partyId -> Message.builder()
 				.withBatchId(batchId)
@@ -159,6 +160,7 @@ public class MessageMapper {
 				.withOrigin(request.origin())
 				.withIssuer(request.issuer())
 				.withMunicipalityId(request.municipalityId())
+				.withOrganizationNumber(organizationNumber)
 				.build())
 			.toList();
 	}

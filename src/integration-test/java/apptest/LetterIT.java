@@ -62,7 +62,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -100,7 +100,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getMessageType()).isEqualTo(DIGITAL_MAIL);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-				assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+				assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 				assertThat(historyEntry.getDestinationAddress()).isNull();
 				return true;
 			});
@@ -121,7 +121,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -159,7 +159,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getMessageType()).isEqualTo(SNAIL_MAIL);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-				assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+				assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 				assertThat(historyEntry.getDestinationAddress()).isNotNull().satisfies(destinationAddress -> {
 					assertThat(destinationAddress.firstName()).isEqualTo(FIRST_NAME);
 					assertThat(destinationAddress.lastName()).isEqualTo(LAST_NAME);
@@ -186,7 +186,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -224,7 +224,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getMessageType()).isEqualTo(DIGITAL_MAIL);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-				assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+				assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 				assertThat(historyEntry.getDestinationAddress()).isNull();
 				return true;
 			});
@@ -247,7 +247,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -284,7 +284,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-				assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+				assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 				assertThat(historyEntry.getDestinationAddress()).isNull();
 				return true;
 			});
@@ -307,7 +307,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -345,7 +345,7 @@ class LetterIT extends AbstractMessagingAppTest {
 				assertThat(historyEntry.getOriginalMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getMessageType()).isEqualTo(LETTER);
 				assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-				assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+				assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 				assertThat(historyEntry.getDestinationAddress()).isNotNull().satisfies(destinationAddress -> {
 					assertThat(destinationAddress.firstName()).isEqualTo(FIRST_NAME);
 					assertThat(destinationAddress.lastName()).isEqualTo(LAST_NAME);
@@ -372,7 +372,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -442,7 +442,7 @@ class LetterIT extends AbstractMessagingAppTest {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)

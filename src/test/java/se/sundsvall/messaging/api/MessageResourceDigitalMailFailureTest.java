@@ -31,8 +31,8 @@ import se.sundsvall.messaging.service.MessageService;
 class MessageResourceDigitalMailFailureTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
-
-	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-mail";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
+	private static final String URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/digital-mail";
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -390,6 +390,29 @@ class MessageResourceDigitalMailFailureTest {
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
 			.containsExactly(tuple("attachments[0].filename", "must not be blank"));
+
+		verifyNoInteractions(mockMessageService, mockEventDispatcher);
+	}
+
+	@Test
+	void shouldFailWithFaultyOrganizationNumber() {
+		// Act
+		final var response = webTestClient.post()
+			.uri(URL.replace(ORGANIZATION_NUMBER, "invalid"))
+			.contentType(APPLICATION_JSON)
+			.bodyValue(validRequest)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("sendDigitalMail.organizationNumber", "must match the regular expression ^([1235789][\\d][2-9]\\d{7})$"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}

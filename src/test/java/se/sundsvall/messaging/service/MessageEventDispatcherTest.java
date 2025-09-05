@@ -40,6 +40,7 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 class MessageEventDispatcherTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 
 	@Mock
 	private ApplicationEventPublisher mockEventPublisher;
@@ -108,13 +109,13 @@ class MessageEventDispatcherTest {
 		final var smsBatchRequest = SmsBatchRequest.builder().withParties(List.of(party)).build();
 
 		when(mockRequestMapper.toSmsRequest(any(SmsBatchRequest.class), any(SmsBatchRequest.Party.class))).thenReturn(smsRequest);
-		when(mockMessageMapper.toMessage(any(SmsRequest.class), any(String.class))).thenReturn(message);
+		when(mockMessageMapper.toMessage(any(SmsRequest.class), anyString())).thenReturn(message);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
 
 		assertThat(messageEventDispatcher.handleSmsBatchRequest(smsBatchRequest).batchId()).isNotEmpty();
 
 		verify(mockRequestMapper).toSmsRequest(smsBatchRequest, party);
-		verify(mockMessageMapper).toMessage(eq(smsRequest), any(String.class));
+		verify(mockMessageMapper).toMessage(eq(smsRequest), anyString());
 		verify(mockDbIntegration).saveMessage(message);
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 
@@ -141,9 +142,9 @@ class MessageEventDispatcherTest {
 			.withParty(DigitalMailRequest.Party.builder()
 				.withPartyIds(List.of("somePartyId"))
 				.build())
-			.build());
+			.build(), ORGANIZATION_NUMBER);
 
-		verify(mockMessageMapper).toMessages(any(DigitalMailRequest.class), any(String.class));
+		verify(mockMessageMapper).toMessages(any(DigitalMailRequest.class), anyString(), anyString());
 		verify(mockDbIntegration).saveMessages(anyList());
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
@@ -162,7 +163,7 @@ class MessageEventDispatcherTest {
 
 	@Test
 	void handleLetterRequest() {
-		when(mockMessageMapper.toMessages(any(LetterRequest.class), any(String.class)))
+		when(mockMessageMapper.toMessages(any(LetterRequest.class), anyString(), anyString()))
 			.thenReturn(List.of(Message.builder().build()));
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(List.of(Message.builder().build()));
 
@@ -170,9 +171,9 @@ class MessageEventDispatcherTest {
 			.withParty(LetterRequest.Party.builder()
 				.withPartyIds(List.of("somePartyId"))
 				.build())
-			.build());
+			.build(), ORGANIZATION_NUMBER);
 
-		verify(mockMessageMapper).toMessages(any(LetterRequest.class), any(String.class));
+		verify(mockMessageMapper).toMessages(any(LetterRequest.class), anyString(), eq(ORGANIZATION_NUMBER));
 		verify(mockDbIntegration).saveMessages(anyList());
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
