@@ -104,7 +104,7 @@ class MessageMapperTest {
 	void test_toMessages_withDigitalMailRequest() {
 		final var request = createValidDigitalMailRequest();
 
-		final var messages = messageMapper.toMessages(request, "someBatchId");
+		final var messages = messageMapper.toMessages(request, "someBatchId", "orgNumber");
 
 		assertThat(messages).hasSize(1);
 

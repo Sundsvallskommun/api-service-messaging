@@ -23,6 +23,7 @@ public final class MessageMapper {
 			.withOrigin(actualMessageEntity.getOrigin())
 			.withIssuer(actualMessageEntity.getIssuer())
 			.withAddress(messageEntity.getDestinationAddress())
+			.withOrganizationNumber(actualMessageEntity.getOrganizationNumber())
 			.build()).orElse(null);
 	}
 
@@ -40,6 +41,7 @@ public final class MessageMapper {
 			.withOrigin(actualMessage.origin())
 			.withIssuer(actualMessage.issuer())
 			.withDestinationAddress(actualMessage.address())
+			.withOrganizationNumber(actualMessage.organizationNumber())
 			.build()).orElse(null);
 	}
 }

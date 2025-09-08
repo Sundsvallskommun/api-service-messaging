@@ -18,7 +18,7 @@ class MailboxesIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(OK)
@@ -30,7 +30,7 @@ class MailboxesIT extends AbstractMessagingAppTest {
 	void test2_internalServerErrorFromDigitalMail() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)

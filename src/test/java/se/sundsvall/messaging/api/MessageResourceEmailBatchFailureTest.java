@@ -5,6 +5,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.zalando.problem.Status.BAD_REQUEST;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createEmailBatchRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
@@ -32,8 +33,6 @@ import se.sundsvall.messaging.service.MessageService;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceEmailBatchFailureTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	private static final String URL = "/" + MUNICIPALITY_ID + "/email/batch";
 

@@ -126,10 +126,10 @@ public class MessageService {
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
 	}
 
-	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request) {
+	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request, String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
-		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId));
+		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId, organizationNumber));
 		// Deliver them
 		final var deliveryResults = deliveries.stream()
 			.map(this::deliver)
@@ -175,10 +175,10 @@ public class MessageService {
 		}
 	}
 
-	public InternalDeliveryBatchResult sendLetter(final LetterRequest request) {
+	public InternalDeliveryBatchResult sendLetter(final LetterRequest request, final String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messagesWithPartyId = messageMapper.toMessages(request, batchId);
+		final var messagesWithPartyId = messageMapper.toMessages(request, batchId, organizationNumber);
 		final var messagesWithAddress = messageMapper.mapAddressesToMessages(request, batchId);
 		final var allMessages = Stream.concat(messagesWithPartyId.stream(), messagesWithAddress.stream()).toList();
 		dbIntegration.saveMessages(allMessages);
@@ -457,7 +457,7 @@ public class MessageService {
 		final Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
 			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
 			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
-			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
+			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
 			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
 			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request), ((WebMessageRequest) request).attachments());
 			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId(), delivery.address()));

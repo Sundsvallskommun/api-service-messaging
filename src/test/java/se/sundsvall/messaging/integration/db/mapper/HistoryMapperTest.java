@@ -39,6 +39,7 @@ class HistoryMapperTest {
 			.withIssuer("someIssuer")
 			.withOriginalMessageType(DIGITAL_MAIL)
 			.withCreatedAt(LocalDateTime.now())
+			.withOrganizationNumber("1234567890")
 			.build();
 
 		final var history = HistoryMapper.mapToHistory(historyEntity);
@@ -52,6 +53,10 @@ class HistoryMapperTest {
 		assertThat(history.content()).isEqualTo(historyEntity.getContent());
 		assertThat(history.createdAt()).isEqualTo(historyEntity.getCreatedAt());
 		assertThat(history.municipalityId()).isEqualTo(historyEntity.getMunicipalityId());
+		assertThat(history.origin()).isEqualTo(historyEntity.getOrigin());
+		assertThat(history.issuer()).isEqualTo(historyEntity.getIssuer());
+		assertThat(history.originalMessageType()).isEqualTo(historyEntity.getOriginalMessageType());
+		assertThat(history.organizationNumber()).isEqualTo(historyEntity.getOrganizationNumber());
 	}
 
 	@Test
@@ -76,6 +81,7 @@ class HistoryMapperTest {
 			.withIssuer("someIssuer")
 			.withMunicipalityId("someMunicipalityId")
 			.withAddress(address)
+			.withOrganizationNumber("1234567890")
 			.build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
@@ -96,6 +102,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getCreatedAt()).isNotNull().isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 		assertThat(historyEntity.getDestinationAddress()).isEqualTo(address);
+		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
 	}
 
 	@Test
@@ -111,6 +118,7 @@ class HistoryMapperTest {
 			.withContent("{\"no-department\":\"someValue\"}")
 			.withOrigin("someOrigin")
 			.withMunicipalityId("someMunicipalityId")
+			.withOrganizationNumber("1234567890")
 			.build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
@@ -127,6 +135,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
+		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
 	}
 
 	@Test

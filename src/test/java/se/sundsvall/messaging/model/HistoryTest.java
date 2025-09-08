@@ -16,12 +16,13 @@ class HistoryTest {
 	private static final String CONTENT = "content";
 	private static final LocalDateTime CREATED_AT = LocalDateTime.now();
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final String ORIGIN = "origin";
 	private static final String ISSUER = "issuer";
 
 	@Test
 	void testConstructor() {
-		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS, CONTENT, ORIGIN, ISSUER, CREATED_AT, MUNICIPALITY_ID);
+		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS, CONTENT, ORIGIN, ISSUER, CREATED_AT, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
 
 		assertBean(bean);
 	}
@@ -40,6 +41,7 @@ class HistoryTest {
 			.withOrigin(ORIGIN)
 			.withOriginalMessageType(ORIGINAL_MESSAGE_TYPE)
 			.withStatus(STATUS)
+			.withOrganizationNumber(ORGANIZATION_NUMBER)
 			.build();
 
 		assertBean(bean);
@@ -58,6 +60,7 @@ class HistoryTest {
 		assertThat(bean.origin()).isEqualTo(ORIGIN);
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(bean.organizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
 	}
 
 	@Test

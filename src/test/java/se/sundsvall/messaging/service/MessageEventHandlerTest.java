@@ -2,6 +2,7 @@ package se.sundsvall.messaging.service;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -41,12 +42,12 @@ class MessageEventHandlerTest {
 	@ParameterizedTest
 	@EnumSource(MessageType.class)
 	void test_handleIncomingMessageEvent(final MessageType messageType) {
-		when(mockDbIntegration.getMessageByDeliveryId(any(String.class)))
+		when(mockDbIntegration.getMessageByDeliveryId(anyString()))
 			.thenReturn(Optional.of(Message.builder().withType(messageType).build()));
 
 		messageEventHandler.handleIncomingMessageEvent(event);
 
-		verify(mockDbIntegration).getMessageByDeliveryId(any(String.class));
+		verify(mockDbIntegration).getMessageByDeliveryId(anyString());
 
 		if (messageType == MESSAGE) {
 			verify(mockMessageService).sendMessage(any(Message.class));
@@ -60,13 +61,13 @@ class MessageEventHandlerTest {
 
 	@Test
 	void test_handleIncomingMessageEventWhenMessageIsNotFound() {
-		when(mockDbIntegration.getMessageByDeliveryId(any(String.class))).thenReturn(Optional.empty());
+		when(mockDbIntegration.getMessageByDeliveryId(anyString())).thenReturn(Optional.empty());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> messageEventHandler.handleIncomingMessageEvent(event))
 			.withMessageStartingWith("Internal Server Error: Unable to send");
 
-		verify(mockDbIntegration).getMessageByDeliveryId(any(String.class));
+		verify(mockDbIntegration).getMessageByDeliveryId(anyString());
 		verifyNoInteractions(mockMessageService);
 	}
 

@@ -7,6 +7,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,6 @@ import se.sundsvall.messaging.service.StatisticsService;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class StatisticsResourceFailureTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	@MockitoBean
 	private StatisticsService mockStatisticsService;

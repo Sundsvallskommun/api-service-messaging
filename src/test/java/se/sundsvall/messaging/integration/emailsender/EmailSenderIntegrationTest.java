@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.emailsender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,18 +37,18 @@ class EmailSenderIntegrationTest {
 	void test_sendEmail() {
 		var emailDto = createEmailDto();
 
-		when(mockClient.sendEmail(any(String.class), any(SendEmailRequest.class)))
+		when(mockClient.sendEmail(anyString(), any(SendEmailRequest.class)))
 			.thenReturn(ResponseEntity.ok().build());
 
 		integration.sendEmail("2281", emailDto);
 
-		verify(mockClient, times(1)).sendEmail(any(String.class), any(SendEmailRequest.class));
+		verify(mockClient, times(1)).sendEmail(anyString(), any(SendEmailRequest.class));
 	}
 
 	@Test
 	void test_sendEmail_whenExceptionIsThrownByClient() {
 		var emailDto = createEmailDto();
-		when(mockClient.sendEmail(any(String.class), any(SendEmailRequest.class)))
+		when(mockClient.sendEmail(anyString(), any(SendEmailRequest.class)))
 			.thenThrow(Problem.builder()
 				.withStatus(Status.BAD_GATEWAY)
 				.withCause(Problem.builder()
@@ -62,7 +63,7 @@ class EmailSenderIntegrationTest {
 				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
 			});
 
-		verify(mockClient, times(1)).sendEmail(any(String.class), any(SendEmailRequest.class));
+		verify(mockClient, times(1)).sendEmail(anyString(), any(SendEmailRequest.class));
 	}
 
 }

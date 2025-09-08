@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doReturn;
@@ -103,74 +104,74 @@ class HistoryServiceTest {
 
 	@Test
 	void test_getHistoryByMunicipalityIdAndMessageId() {
-		when(dbIntegrationMock.getHistoryByMunicipalityIdAndMessageId(any(String.class), any(String.class)))
+		when(dbIntegrationMock.getHistoryByMunicipalityIdAndMessageId(anyString(), anyString()))
 			.thenReturn(List.of(History.builder().build()));
 
 		final var result = historyService.getHistoryByMunicipalityIdAndMessageId("2281", "someMessageId");
 
 		assertThat(result).isNotEmpty();
 
-		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndMessageId(any(String.class), any(String.class));
+		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndMessageId(anyString(), anyString());
 	}
 
 	@Test
 	void test_getHistoryByMunicipalityIdAndMessageId_whenNoEntityExists() {
-		when(dbIntegrationMock.getHistoryByMunicipalityIdAndMessageId(any(String.class), any(String.class)))
+		when(dbIntegrationMock.getHistoryByMunicipalityIdAndMessageId(anyString(), anyString()))
 			.thenReturn(List.of());
 
 		final var result = historyService.getHistoryByMunicipalityIdAndMessageId("2281", "someMessageId");
 
 		assertThat(result).isEmpty();
 
-		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndMessageId(any(String.class), any(String.class));
+		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndMessageId(anyString(), anyString());
 	}
 
 	@Test
 	void test_getHistoryByBatchId() {
-		when(dbIntegrationMock.getHistoryByMunicipalityIdAndBatchId(any(String.class), any(String.class)))
+		when(dbIntegrationMock.getHistoryByMunicipalityIdAndBatchId(anyString(), anyString()))
 			.thenReturn(List.of(History.builder().build()));
 
 		final var result = historyService.getHistoryByMunicipalityIdAndBatchId("2281", "someBatchId");
 
 		assertThat(result).hasSize(1);
 
-		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndBatchId(any(String.class), any(String.class));
+		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndBatchId(anyString(), anyString());
 	}
 
 	@Test
 	void test_getHistoryByMunicipalityIdAndDeliveryId() {
-		when(dbIntegrationMock.getHistoryByMunicipalityIdAndDeliveryId(any(String.class), any(String.class)))
+		when(dbIntegrationMock.getHistoryByMunicipalityIdAndDeliveryId(anyString(), anyString()))
 			.thenReturn(Optional.of(History.builder().build()));
 
 		final var result = historyService.getHistoryByMunicipalityIdAndDeliveryId("2281", "someBatchId");
 
 		assertThat(result).isPresent();
 
-		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndDeliveryId(any(String.class), any(String.class));
+		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndDeliveryId(anyString(), anyString());
 	}
 
 	@Test
 	void test_getHistoryByMunicipalityIdAndDeliveryId_whenNoEntityExists() {
-		when(dbIntegrationMock.getHistoryByMunicipalityIdAndDeliveryId(any(String.class), any(String.class)))
+		when(dbIntegrationMock.getHistoryByMunicipalityIdAndDeliveryId(anyString(), anyString()))
 			.thenReturn(Optional.empty());
 
 		final var result = historyService.getHistoryByMunicipalityIdAndDeliveryId("2281", "someBatchId");
 
 		assertThat(result).isEmpty();
 
-		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndDeliveryId(any(String.class), any(String.class));
+		verify(dbIntegrationMock).getHistoryByMunicipalityIdAndDeliveryId(anyString(), anyString());
 	}
 
 	@Test
 	void test_getConversationHistory() {
-		when(dbIntegrationMock.getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class)))
+		when(dbIntegrationMock.getHistory(anyString(), anyString(), nullable(LocalDate.class), nullable(LocalDate.class)))
 			.thenReturn(List.of(History.builder().build()));
 
 		final var result = historyService.getConversationHistory("2281", "somePartyId", null, null);
 
 		assertThat(result).hasSize(1);
 
-		verify(dbIntegrationMock).getHistory(any(String.class), any(String.class), nullable(LocalDate.class), nullable(LocalDate.class));
+		verify(dbIntegrationMock).getHistory(anyString(), anyString(), nullable(LocalDate.class), nullable(LocalDate.class));
 	}
 
 	@Test

@@ -3,6 +3,7 @@ package se.sundsvall.messaging.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
@@ -32,8 +33,6 @@ import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
 class StatisticsMapperTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	@Test
 	void test_toDepartmentStats() {

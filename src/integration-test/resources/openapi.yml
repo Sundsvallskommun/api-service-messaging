@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.4"
 servers:
-  - url: http://127.0.0.1:8080
+  - url: http://localhost:8080
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -50,6 +50,76 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Mailbox"
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad Gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/{organizationNumber}/digital-mail:
+    post:
+      tags:
+        - Sending Resources
+      summary: Send a single digital mail to one or more parties
+      operationId: sendDigitalMail
+      parameters:
+        - name: x-origin
+          in: header
+          description: Origin of the request
+          required: false
+          schema:
+            type: string
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: organizationNumber
+          in: path
+          description: The organization number of the sending organization
+          required: true
+          schema:
+            type: string
+          example: 5561234567
+        - name: async
+          in: query
+          description: If the message should be sent asynchronously or not
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DigitalMailRequest"
+        required: true
+      responses:
+        "201":
+          description: Successful Operation
+          headers:
+            Location:
+              style: simple
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageBatchResult"
         "400":
           description: Bad Request
           content:
@@ -627,7 +697,7 @@ paths:
       tags:
         - Sending Resources
       summary: Send a single digital mail to one or more parties
-      operationId: sendDigitalMail
+      operationId: sendDigitalMailDeprecated
       parameters:
         - name: x-origin
           in: header
@@ -1600,6 +1670,108 @@ components:
           type: boolean
           description: If it's possible to send messages to this mailbox
       description: Response model for a mailbox
+    DigitalMailAttachment:
+      required:
+        - content
+        - filename
+      type: object
+      properties:
+        contentType:
+          type: string
+          description: Content type
+          enum:
+            - application/pdf
+        content:
+          minLength: 1
+          type: string
+          description: Content (BASE64-encoded)
+        filename:
+          minLength: 1
+          type: string
+          description: Filename
+      description: Attachment
+    DigitalMailParty:
+      required:
+        - partyIds
+      type: object
+      properties:
+        partyIds:
+          minItems: 1
+          type: array
+          items:
+            type: string
+            description: The message party ids
+            format: uuid
+        externalReferences:
+          type: array
+          description: External references
+          items:
+            $ref: "#/components/schemas/ExternalReference"
+      description: Party
+    DigitalMailRequest:
+      required:
+        - body
+        - contentType
+        - party
+      type: object
+      properties:
+        party:
+          $ref: "#/components/schemas/DigitalMailParty"
+        sender:
+          $ref: "#/components/schemas/DigitalMailSender"
+        subject:
+          type: string
+          description: Subject
+          nullable: true
+        department:
+          type: string
+          description: Department and unit that should be billed for the message
+          nullable: true
+          example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        contentType:
+          minLength: 1
+          type: string
+          description: Content type
+          enum:
+            - text/plain
+            - text/html
+        body:
+          minLength: 1
+          type: string
+          description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
+            \ if contentType is set to 'application/html')"
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: "#/components/schemas/DigitalMailAttachment"
+    DigitalMailSender:
+      required:
+        - supportInfo
+      type: object
+      properties:
+        supportInfo:
+          $ref: "#/components/schemas/DigitalMailSenderSupportInfo"
+      description: Sender
+    DigitalMailSenderSupportInfo:
+      required:
+        - text
+      type: object
+      properties:
+        text:
+          minLength: 1
+          type: string
+          description: Text
+        emailAddress:
+          type: string
+          description: E-mail address
+        phoneNumber:
+          type: string
+          description: Phone number
+        url:
+          type: string
+          description: URL
+      description: Support info
     ExternalReference:
       required:
         - key
@@ -1617,6 +1789,68 @@ components:
           description: The external reference value
           example: 356t4r34f
       description: External references
+    DeliveryResult:
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          description: The delivery id
+          format: uuid
+        messageType:
+          $ref: "#/components/schemas/MessageType"
+        status:
+          $ref: "#/components/schemas/MessageStatus"
+      description: Delivery result
+    MessageBatchResult:
+      type: object
+      properties:
+        batchId:
+          type: string
+          description: The batch id
+          format: uuid
+        messages:
+          type: array
+          description: The individual message results
+          items:
+            $ref: "#/components/schemas/MessageResult"
+      description: Message batch result
+    MessageResult:
+      type: object
+      properties:
+        messageId:
+          type: string
+          description: The message id
+          format: uuid
+        deliveries:
+          type: array
+          description: The message deliveries
+          items:
+            $ref: "#/components/schemas/DeliveryResult"
+      description: Message result
+    MessageStatus:
+      type: string
+      description: Status
+      enum:
+        - PENDING
+        - AWAITING_FEEDBACK
+        - SENT
+        - NOT_SENT
+        - FAILED
+        - NO_CONTACT_SETTINGS_FOUND
+        - NO_CONTACT_WANTED
+    MessageType:
+      type: string
+      description: Message type
+      enum:
+        - MESSAGE
+        - EMAIL
+        - SMS
+        - WEB_MESSAGE
+        - DIGITAL_MAIL
+        - DIGITAL_INVOICE
+        - SNAIL_MAIL
+        - LETTER
+        - SLACK
     WebMessageAttachment:
       type: object
       properties:
@@ -1683,55 +1917,6 @@ components:
           description: The user ID of the sender. I.e. employee ID
           example: joe01doe
       description: Sender
-    DeliveryResult:
-      type: object
-      properties:
-        deliveryId:
-          type: string
-          description: The delivery id
-          format: uuid
-        messageType:
-          $ref: "#/components/schemas/MessageType"
-        status:
-          $ref: "#/components/schemas/MessageStatus"
-      description: Delivery result
-    MessageResult:
-      type: object
-      properties:
-        messageId:
-          type: string
-          description: The message id
-          format: uuid
-        deliveries:
-          type: array
-          description: The message deliveries
-          items:
-            $ref: "#/components/schemas/DeliveryResult"
-      description: Message result
-    MessageStatus:
-      type: string
-      description: Status
-      enum:
-        - PENDING
-        - AWAITING_FEEDBACK
-        - SENT
-        - NOT_SENT
-        - FAILED
-        - NO_CONTACT_SETTINGS_FOUND
-        - NO_CONTACT_WANTED
-    MessageType:
-      type: string
-      description: Message type
-      enum:
-        - MESSAGE
-        - EMAIL
-        - SMS
-        - WEB_MESSAGE
-        - DIGITAL_MAIL
-        - DIGITAL_INVOICE
-        - SNAIL_MAIL
-        - LETTER
-        - SLACK
     SmsRequest:
       required:
         - message
@@ -1823,19 +2008,6 @@ components:
           type: string
           description: "Mobile number, which should start with +467x"
       description: Parties to send the sms message to
-    MessageBatchResult:
-      type: object
-      properties:
-        batchId:
-          type: string
-          description: The batch id
-          format: uuid
-        messages:
-          type: array
-          description: The individual message results
-          items:
-            $ref: "#/components/schemas/MessageResult"
-      description: Message batch result
     SlackRequest:
       required:
         - channel
@@ -2248,108 +2420,6 @@ components:
           type: string
           description: Recipient e-mail address
           example: someone@somewhere.com
-    DigitalMailAttachment:
-      required:
-        - content
-        - filename
-      type: object
-      properties:
-        contentType:
-          type: string
-          description: Content type
-          enum:
-            - application/pdf
-        content:
-          minLength: 1
-          type: string
-          description: Content (BASE64-encoded)
-        filename:
-          minLength: 1
-          type: string
-          description: Filename
-      description: Attachment
-    DigitalMailParty:
-      required:
-        - partyIds
-      type: object
-      properties:
-        partyIds:
-          minItems: 1
-          type: array
-          items:
-            type: string
-            description: The message party ids
-            format: uuid
-        externalReferences:
-          type: array
-          description: External references
-          items:
-            $ref: "#/components/schemas/ExternalReference"
-      description: Party
-    DigitalMailRequest:
-      required:
-        - body
-        - contentType
-        - party
-      type: object
-      properties:
-        party:
-          $ref: "#/components/schemas/DigitalMailParty"
-        sender:
-          $ref: "#/components/schemas/DigitalMailSender"
-        subject:
-          type: string
-          description: Subject
-          nullable: true
-        department:
-          type: string
-          description: Department and unit that should be billed for the message
-          nullable: true
-          example: "SBK(Gatuavdelningen, Trafiksektionen)"
-        contentType:
-          minLength: 1
-          type: string
-          description: Content type
-          enum:
-            - text/plain
-            - text/html
-        body:
-          minLength: 1
-          type: string
-          description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
-            \ if contentType is set to 'application/html')"
-        attachments:
-          type: array
-          description: Attachments
-          items:
-            $ref: "#/components/schemas/DigitalMailAttachment"
-    DigitalMailSender:
-      required:
-        - supportInfo
-      type: object
-      properties:
-        supportInfo:
-          $ref: "#/components/schemas/DigitalMailSenderSupportInfo"
-      description: Sender
-    DigitalMailSenderSupportInfo:
-      required:
-        - text
-      type: object
-      properties:
-        text:
-          minLength: 1
-          type: string
-          description: Text
-        emailAddress:
-          type: string
-          description: E-mail address
-        phoneNumber:
-          type: string
-          description: Phone number
-        url:
-          type: string
-          description: URL
-      description: Support info
     Details:
       required:
         - accountNumber

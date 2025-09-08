@@ -2,6 +2,7 @@ package se.sundsvall.messaging.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -9,6 +10,15 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
+import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_USER_NAME;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
@@ -38,15 +48,7 @@ import se.sundsvall.messaging.service.MessageService;
 @ActiveProfiles("junit")
 class MessageResourceLetterTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
 	private static final String URL = "/" + MUNICIPALITY_ID + "/letter";
-	private static final String ORIGIN_HEADER = "x-origin";
-	private static final String ORIGIN = "origin";
-	private static final String ISSUER_HEADER = "x-issuer";
-	private static final String ISSUER = "issuer";
-	private static final String X_SENT_BY_HEADER = "X-Sent-By";
-	private static final String X_SENT_BY = "type=adAccount; joe01doe";
-	private static final String X_SENT_BY_VALUE = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -77,7 +79,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendLetter(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -104,7 +106,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verify(mockMessageService).sendLetter(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -115,7 +117,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = hasSender ? createValidLetterRequest() : createValidLetterRequest().withSender(null);
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockEventDispatcher.handleLetterRequest(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -142,7 +144,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verify(mockEventDispatcher).handleLetterRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockMessageService);
 	}
@@ -152,7 +154,7 @@ class MessageResourceLetterTest {
 		// Arrange
 		final var request = createValidLetterRequest();
 		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendLetter(any(LetterRequest.class))).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendLetter(any(LetterRequest.class), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		// Act
 		final var response = webTestClient.post()
@@ -179,7 +181,7 @@ class MessageResourceLetterTest {
 			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
 		});
 
-		verify(mockMessageService).sendLetter(decoratedRequest.withOrigin(ORIGIN).withIssuer(ISSUER));
+		verify(mockMessageService).sendLetter(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE), ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
 	}
@@ -195,22 +197,22 @@ class MessageResourceLetterTest {
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
-				httpHeaders.add(ORIGIN_HEADER, ORIGIN);
-				httpHeaders.add(ISSUER_HEADER, ISSUER);
-				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
+				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
+				httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
 			}
 		};
 	}
 
 	private static Consumer<HttpHeaders> oldHeaders() {
 		return httpHeaders -> {
-			httpHeaders.add(ORIGIN_HEADER, ORIGIN);
-			httpHeaders.add(ISSUER_HEADER, ISSUER);
+			httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
+			httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
 		};
 	}
 
 	private static LetterRequest addHeaderValues(LetterRequest request) {
-		return request.withOrigin(ORIGIN)
-			.withIssuer(X_SENT_BY_VALUE);
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
+			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
 	}
 }

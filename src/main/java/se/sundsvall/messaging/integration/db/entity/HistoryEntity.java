@@ -31,7 +31,8 @@ import se.sundsvall.messaging.model.MessageType;
 	@Index(name = "idx_history_origin", columnList = "origin"),
 	@Index(name = "idx_history_issuer", columnList = "issuer"),
 	@Index(name = "idx_history_department", columnList = "department"),
-	@Index(name = "idx_history_municipality_id", columnList = "municipality_id")
+	@Index(name = "idx_history_municipality_id", columnList = "municipality_id"),
+	@Index(name = "idx_history_organization_number", columnList = "organization_number")
 })
 @Getter
 @NoArgsConstructor
@@ -93,11 +94,14 @@ public class HistoryEntity {
 	@Column(name = "destination_address")
 	private String destinationAddressJson;
 
+	@Column(name = "organization_number", length = 12)
+	private String organizationNumber;
+
 	@Builder(setterPrefix = "with")
 	private HistoryEntity(final Long id, final String batchId, final String messageId, final String deliveryId, final String partyId,
 		final MessageType messageType, final MessageType originalMessageType, final MessageStatus status, final String statusDetail,
 		final String content, final String origin, final String issuer, final String department, final LocalDateTime createdAt,
-		final String municipalityId, final Address destinationAddress) {
+		final String municipalityId, final Address destinationAddress, final String organizationNumber) {
 		this.id = id;
 		this.batchId = batchId;
 		this.messageId = messageId;
@@ -114,6 +118,7 @@ public class HistoryEntity {
 		this.createdAt = createdAt;
 		this.municipalityId = municipalityId;
 		this.destinationAddress = destinationAddress;
+		this.organizationNumber = organizationNumber;
 	}
 
 	String getDestinationAddressJson() {

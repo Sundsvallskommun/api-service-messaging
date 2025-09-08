@@ -16,6 +16,7 @@ import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 import java.util.Map;
 import java.util.UUID;
@@ -35,8 +36,6 @@ import se.sundsvall.messaging.service.HistoryService;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class HistoryResourceFailureTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	@MockitoBean
 	private HistoryService mockHistoryService;

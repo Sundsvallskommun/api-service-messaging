@@ -28,6 +28,7 @@ class MessageEntityTest {
 		var createdAt = LocalDateTime.now();
 		var municipalityId = "municipalityId";
 		var destinationAddress = Address.builder().withAddress("someAddress").build();
+		var organizationNumber = "1234567890";
 
 		var bean = MessageEntity.builder()
 			.withBatchId(batchId)
@@ -44,6 +45,7 @@ class MessageEntityTest {
 			.withPartyId(partyId)
 			.withStatus(status)
 			.withDestinationAddress(destinationAddress)
+			.withOrganizationNumber(organizationNumber)
 			.build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
@@ -61,6 +63,7 @@ class MessageEntityTest {
 		assertThat(bean.getPartyId()).isEqualTo(partyId);
 		assertThat(bean.getStatus()).isEqualTo(status);
 		assertThat(bean.getDestinationAddress()).isEqualTo(destinationAddress);
+		assertThat(bean.getOrganizationNumber()).isEqualTo(organizationNumber);
 	}
 
 	@Test

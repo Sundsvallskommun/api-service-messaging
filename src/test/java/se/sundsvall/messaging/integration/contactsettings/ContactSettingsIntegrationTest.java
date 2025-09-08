@@ -2,6 +2,7 @@ package se.sundsvall.messaging.integration.contactsettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ class ContactSettingsIntegrationTest {
 				.destination("someone@something.com")
 				.disabled(false)));
 
-		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+		when(mockClient.getSettings(anyString(), anyString(), any()))
 			.thenReturn(Optional.of(List.of(contactSetting)));
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
@@ -45,19 +46,19 @@ class ContactSettingsIntegrationTest {
 		assertThat(contactDtos.getFirst().destination()).isEqualTo("someone@something.com");
 		assertThat(contactDtos.getFirst().disabled()).isFalse();
 
-		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+		verify(mockClient, times(1)).getSettings(anyString(), anyString(), any());
 	}
 
 	@Test
 	void test_getSettings_whenSettingsAreNotFound() {
-		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+		when(mockClient.getSettings(anyString(), anyString(), any()))
 			.thenReturn(Optional.empty());
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
 		assertThat(contactDtos).isEmpty();
 
-		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+		verify(mockClient, times(1)).getSettings(anyString(), anyString(), any());
 	}
 
 	@Test
@@ -65,14 +66,14 @@ class ContactSettingsIntegrationTest {
 		final var contactSetting = new ContactSetting()
 			.contactChannels(List.of());
 
-		when(mockClient.getSettings(any(String.class), any(String.class), any()))
+		when(mockClient.getSettings(anyString(), anyString(), any()))
 			.thenReturn(Optional.of(List.of(contactSetting)));
 
 		final var contactDtos = integration.getContactSettings("someMunicipalityId", "somePartyId", new LinkedMultiValueMap<>());
 
 		assertThat(contactDtos).isEmpty();
 
-		verify(mockClient, times(1)).getSettings(any(String.class), any(String.class), any());
+		verify(mockClient, times(1)).getSettings(anyString(), anyString(), any());
 	}
 
 }

@@ -35,8 +35,8 @@ class EmailIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -61,8 +61,8 @@ class EmailIT extends AbstractMessagingAppTest {
 					.allSatisfy(historyEntry -> {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
+						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 					});
 
 				return true;

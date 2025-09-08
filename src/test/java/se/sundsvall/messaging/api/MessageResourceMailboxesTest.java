@@ -8,6 +8,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,11 +32,7 @@ import se.sundsvall.messaging.service.MessageService;
 @ActiveProfiles("junit")
 class MessageResourceMailboxesTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "1234567890";
 	private static final String MAILBOXES_URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/mailboxes";
-	private static final String X_SENT_BY_HEADER = "X-Sent-By";
-	private static final String X_SENT_BY = "type=adAccount; joe01doe";
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -47,10 +47,9 @@ class MessageResourceMailboxesTest {
 	void testGetMailboxes() {
 		final var uuid = UUID.randomUUID().toString();
 		final var uuid2 = UUID.randomUUID().toString();
-		final var organizationNumber = "1234567890";
 		final var partyIds = List.of(uuid, uuid2);
 
-		when(mockMessageService.getMailboxes(MUNICIPALITY_ID, organizationNumber, partyIds))
+		when(mockMessageService.getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds))
 			.thenReturn(List.of(new Mailbox(uuid, "Kivra", true), new Mailbox(uuid2, "Kivra", false)));
 
 		final var response = webTestClient.post()
@@ -70,12 +69,12 @@ class MessageResourceMailboxesTest {
 				tuple(uuid, "Kivra", true),
 				tuple(uuid2, "Kivra", false));
 
-		verify(mockMessageService).getMailboxes(MUNICIPALITY_ID, organizationNumber, partyIds);
+		verify(mockMessageService).getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds);
 		verifyNoMoreInteractions(mockMessageService);
 		verifyNoInteractions(mockEventDispatcher);
 	}
 
 	private static Consumer<HttpHeaders> xSentByHeader() {
-		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
+		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
 	}
 }

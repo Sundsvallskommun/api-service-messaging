@@ -30,6 +30,7 @@ class HistoryEntityTest {
 		var createdAt = LocalDateTime.now();
 		var municipalityId = "municipalityId";
 		var destinationAddress = Address.builder().withAddress("someStreet").build();
+		var organizationNumber = "1234567890";
 
 		var bean = HistoryEntity.builder()
 			.withBatchId(batchId)
@@ -48,6 +49,7 @@ class HistoryEntityTest {
 			.withStatus(status)
 			.withStatusDetail(statusDetail)
 			.withDestinationAddress(destinationAddress)
+			.withOrganizationNumber(organizationNumber)
 			.build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
@@ -67,6 +69,7 @@ class HistoryEntityTest {
 		assertThat(bean.getStatus()).isEqualTo(status);
 		assertThat(bean.getStatusDetail()).isEqualTo(statusDetail);
 		assertThat(bean.getDestinationAddress()).isEqualTo(destinationAddress);
+		assertThat(bean.getOrganizationNumber()).isEqualTo(organizationNumber);
 	}
 
 	@Test

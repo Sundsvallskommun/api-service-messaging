@@ -10,10 +10,8 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -23,7 +21,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 @WireMockAppTestSuite(files = "classpath:/DigitalMailIT/", classes = Application.class)
 class DigitalMailIT extends AbstractMessagingAppTest {
 
-	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/digital-mail";
+	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/digital-mail";
 
 	@Autowired
 	private MessageRepository messageRepository;
@@ -35,8 +33,8 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ORIGIN, ORIGIN)
-			.withHeader(HEADER_SENDER, SENDER)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -65,8 +63,9 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 					.allSatisfy(historyEntry -> {
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
-						assertThat(historyEntry.getIssuer()).isEqualTo(SENDER_VALUE);
+						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
+						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
+						assertThat(historyEntry.getOrganizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
 					});
 
 				return true;
@@ -82,5 +81,4 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();
 	}
-
 }

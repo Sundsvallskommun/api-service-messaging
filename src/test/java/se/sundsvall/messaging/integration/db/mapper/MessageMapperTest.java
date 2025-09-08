@@ -25,6 +25,7 @@ class MessageMapperTest {
 	private static final String ORIGIN = "someOrigin";
 	private static final String ISSUER = "someIssuer";
 	private static final String MUNICIPALITY_ID = "someMunicipalityId";
+	private static final String ORGANIZATION_NUMBER = "2120002411";
 
 	@Test
 	void mapToMessageWhenMessageEntityIsNull() {
@@ -45,6 +46,7 @@ class MessageMapperTest {
 			.withOrigin(ORIGIN)
 			.withIssuer(ISSUER)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withOrganizationNumber(ORGANIZATION_NUMBER)
 			.build();
 
 		var message = MessageMapper.mapToMessage(messageEntity);
@@ -61,6 +63,7 @@ class MessageMapperTest {
 		assertThat(message.origin()).isEqualTo(ORIGIN);
 		assertThat(message.issuer()).isEqualTo(ISSUER);
 		assertThat(message.municipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(message.organizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
 	}
 
 	@Test
@@ -84,6 +87,7 @@ class MessageMapperTest {
 			.withIssuer(ISSUER)
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.withAddress(address)
+			.withOrganizationNumber(ORGANIZATION_NUMBER)
 			.build();
 
 		var messageEntity = MessageMapper.mapToMessageEntity(message);
@@ -101,5 +105,6 @@ class MessageMapperTest {
 		assertThat(messageEntity.getIssuer()).isEqualTo(ISSUER);
 		assertThat(messageEntity.getMunicipalityId()).isEqualTo(MUNICIPALITY_ID);
 		assertThat(messageEntity.getDestinationAddress()).isEqualTo(address);
+		assertThat(messageEntity.getOrganizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
 	}
 }
