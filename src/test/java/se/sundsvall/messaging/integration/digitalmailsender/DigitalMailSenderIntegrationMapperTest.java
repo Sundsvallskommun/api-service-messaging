@@ -1,12 +1,19 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import generated.se.sundsvall.digitalmailsender.Details;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
+import generated.se.sundsvall.digitalmailsender.Mailbox;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InvoiceType;
@@ -108,6 +115,37 @@ class DigitalMailSenderIntegrationMapperTest {
 			assertThat(file.getContentType()).isEqualTo(ContentType.APPLICATION_PDF.getValue());
 			assertThat(file.getBody()).isEqualTo("someContent");
 		});
+	}
+
+	@Test
+	void test_toMailboxes() {
+		var mailbox1 = new Mailbox().partyId("somePartyId").supplier("someSupplier").reachable(true);
+		var mailbox2 = new Mailbox().partyId("anotherPartyId").supplier("anotherSupplier").reachable(false);
+
+		var result = mapper.toMailboxes(List.of(mailbox1, mailbox2));
+
+		assertThat(result)
+			.hasSize(2)
+			.extracting(
+				se.sundsvall.messaging.api.model.response.Mailbox::partyId,
+				se.sundsvall.messaging.api.model.response.Mailbox::supplier,
+				se.sundsvall.messaging.api.model.response.Mailbox::reachable)
+			.containsExactlyInAnyOrder(
+				tuple("somePartyId", "someSupplier", true),
+				tuple("anotherPartyId", "anotherSupplier", false));
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("emptyMailboxProvider")
+	void test_toMailboxesEmptyOrNull(String testName, List<Mailbox> input) {
+		final var result = mapper.toMailboxes(input);
+		assertThat(result).isEmpty();
+	}
+
+	public static Stream<Arguments> emptyMailboxProvider() {
+		return Stream.of(
+			arguments("null list", null),
+			arguments("empty list", List.of()));
 	}
 
 }

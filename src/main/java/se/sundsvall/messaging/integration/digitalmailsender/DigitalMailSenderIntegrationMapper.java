@@ -10,7 +10,11 @@ import generated.se.sundsvall.digitalmailsender.Details.PaymentReferenceTypeEnum
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.SupportInfo;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
+import se.sundsvall.messaging.api.model.response.Mailbox;
 
 @Component
 class DigitalMailSenderIntegrationMapper {
@@ -64,5 +68,22 @@ class DigitalMailSenderIntegrationMapper {
 					.contentType(file.contentType())
 					.body(file.content()))
 				.toList());
+	}
+
+	public List<Mailbox> toMailboxes(final List<generated.se.sundsvall.digitalmailsender.Mailbox> mailboxes) {
+		return Optional.ofNullable(mailboxes)
+			.orElse(List.of())
+			.stream()
+			.filter(Objects::nonNull)
+			.map(this::toMailbox)
+			.toList();
+	}
+
+	private Mailbox toMailbox(final generated.se.sundsvall.digitalmailsender.Mailbox mailbox) {
+		return Mailbox.builder()
+			.withPartyId(mailbox.getPartyId())
+			.withSupplier(mailbox.getSupplier())
+			.withReachable(Boolean.TRUE.equals(mailbox.getReachable()))
+			.build();
 	}
 }
