@@ -8,6 +8,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,11 +32,7 @@ import se.sundsvall.messaging.service.MessageService;
 @ActiveProfiles("junit")
 class MessageResourceMailboxesTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final String MAILBOXES_URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/mailboxes";
-	private static final String X_SENT_BY_HEADER = "X-Sent-By";
-	private static final String X_SENT_BY = "type=adAccount; joe01doe";
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -75,6 +75,6 @@ class MessageResourceMailboxesTest {
 	}
 
 	private static Consumer<HttpHeaders> xSentByHeader() {
-		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY);
+		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
 	}
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsBatchRequest;
 
 import java.util.List;
@@ -30,8 +31,6 @@ import se.sundsvall.messaging.service.MessageService;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSmsBatchFailureTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	private static final String URL = "/" + MUNICIPALITY_ID + "/sms/batch";
 

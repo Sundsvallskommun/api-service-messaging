@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.service.MessageServiceTest.ORGANIZATION_NUMBER;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -38,9 +40,6 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 
 @ExtendWith(MockitoExtension.class)
 class MessageEventDispatcherTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "2120002411";
 
 	@Mock
 	private ApplicationEventPublisher mockEventPublisher;

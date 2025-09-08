@@ -48,18 +48,24 @@ import se.sundsvall.messaging.service.model.Attachment;
 public final class TestDataFactory {
 
 	public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
-
 	public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
-
 	public static final String DEFAULT_SENDER_NAME = "someSender";
-
 	public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";
-
 	public static final String DEFAULT_SENDER_REPLY_TO = "replyTo@someone.com";
-
 	public static final String HEADER_VALUE = "<test@test>";
 
 	public static final String MUNICIPALITY_ID = "2281";
+	public static final String ORGANIZATION_NUMBER = "2120002411";
+
+	public static final String X_ORIGIN_HEADER = "x-origin";
+	public static final String X_ORIGIN_HEADER_VALUE = "origin";
+
+	public static final String X_ISSUER_HEADER = "x-issuer";
+	public static final String X_ISSUER_HEADER_VALUE = "issuer";
+
+	public static final String X_SENT_BY_HEADER = "X-Sent-By";
+	public static final String X_SENT_BY_HEADER_VALUE = "type=adAccount; joe01doe";
+	public static final String X_SENT_BY_HEADER_USER_NAME = "joe01doe";
 
 	private TestDataFactory() {}
 

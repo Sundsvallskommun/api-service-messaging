@@ -38,7 +38,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test1_successfulRequest_bySms() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
@@ -72,7 +72,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
 						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 					});
 
@@ -173,7 +173,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test4_noContactWanted() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
@@ -205,7 +205,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(NO_CONTACT_WANTED);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
 						assertThat(historyEntry.getIssuer()).isNull();
 					});
 
@@ -217,7 +217,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 	void test5_successfulRequest_byBothSmsAndEmail() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH)
-			.withHeader(HEADER_ORIGIN, ORIGIN)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
 			.withHttpMethod(POST)
@@ -254,7 +254,7 @@ class MessagesIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getBatchId()).as(BATCH_ID).isEqualTo(batchId);
 						assertThat(historyEntry.getMessageId()).as(MESSAGE_ID).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
-						assertThat(historyEntry.getOrigin()).isEqualTo(ORIGIN);
+						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
 						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 					});
 

@@ -12,6 +12,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
@@ -34,9 +36,6 @@ import se.sundsvall.messaging.api.model.response.Mailbox;
 
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "2120002411";
 
 	@Mock
 	private DigitalMailSenderClient mockClient;

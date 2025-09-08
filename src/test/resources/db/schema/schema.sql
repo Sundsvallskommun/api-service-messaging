@@ -58,3 +58,6 @@ create index idx_history_department
 
 create index idx_history_municipality_id
     on history (municipality_id);
+
+create index idx_history_organization_number
+    on history (organization_number);

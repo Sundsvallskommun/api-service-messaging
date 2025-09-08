@@ -9,6 +9,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_DEPARTMENTS_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
 import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,8 +32,6 @@ import se.sundsvall.messaging.service.StatisticsService;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class StatisticsResourceTest {
-
-	private static final String MUNICIPALITY_ID = "2281";
 
 	@MockitoBean
 	private StatisticsService mockStatisticsService;

@@ -10,6 +10,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_USER_NAME;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -38,14 +45,7 @@ import se.sundsvall.messaging.service.MessageService;
 @ActiveProfiles("junit")
 class MessageResourceDigitalMailTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final String URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/digital-mail";
-	private static final String ORIGIN_HEADER = "x-origin";
-	private static final String ORIGIN_VALUE = "origin";
-	private static final String X_SENT_BY_HEADER = "X-Sent-By";
-	private static final String X_SENT_BY_VALUE = "type=adAccount; joe01doe";
-	private static final String X_SENT_BY_USER_NAME = "joe01doe";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
 		.withMessageId("someMessageId")
@@ -161,14 +161,14 @@ class MessageResourceDigitalMailTest {
 	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
-				httpHeaders.add(ORIGIN_HEADER, ORIGIN_VALUE);
-				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_VALUE);
+				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
 			}
 		};
 	}
 
 	private static DigitalMailRequest addHeaderValues(DigitalMailRequest request) {
-		return request.withIssuer(X_SENT_BY_USER_NAME)
-			.withOrigin(ORIGIN_VALUE);
+		return request.withIssuer(X_SENT_BY_HEADER_USER_NAME)
+			.withOrigin(X_ORIGIN_HEADER_VALUE);
 	}
 }
