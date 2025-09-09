@@ -78,24 +78,24 @@ class MessageEventDispatcherTest {
 
 	@Test
 	void handleEmailRequest() {
-		when(mockMessageMapper.toMessage(any(EmailRequest.class))).thenReturn(Message.builder().build());
+		when(mockMessageMapper.toMessage(any(EmailRequest.class), anyString())).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleEmailRequest(EmailRequest.builder().build());
 
-		verify(mockMessageMapper).toMessage(any(EmailRequest.class));
+		verify(mockMessageMapper).toMessage(any(EmailRequest.class), anyString());
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
 
 	@Test
 	void handleSmsRequest() {
-		when(mockMessageMapper.toMessage(any(SmsRequest.class))).thenReturn(Message.builder().build());
+		when(mockMessageMapper.toMessage(any(SmsRequest.class), anyString())).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleSmsRequest(SmsRequest.builder().build());
 
-		verify(mockMessageMapper).toMessage(any(SmsRequest.class));
+		verify(mockMessageMapper).toMessage(any(SmsRequest.class), anyString());
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
@@ -123,12 +123,12 @@ class MessageEventDispatcherTest {
 
 	@Test
 	void handleWebMessageRequest() {
-		when(mockMessageMapper.toMessage(any(WebMessageRequest.class))).thenReturn(Message.builder().build());
+		when(mockMessageMapper.toMessage(any(WebMessageRequest.class), anyString())).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleWebMessageRequest(WebMessageRequest.builder().build());
 
-		verify(mockMessageMapper).toMessage(any(WebMessageRequest.class));
+		verify(mockMessageMapper).toMessage(any(WebMessageRequest.class), anyString());
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
@@ -150,12 +150,12 @@ class MessageEventDispatcherTest {
 
 	@Test
 	void handleDigitalInvoiceRequest() {
-		when(mockMessageMapper.toMessage(any(DigitalInvoiceRequest.class))).thenReturn(Message.builder().build());
+		when(mockMessageMapper.toMessage(any(DigitalInvoiceRequest.class), anyString())).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleDigitalInvoiceRequest(DigitalInvoiceRequest.builder().build());
 
-		verify(mockMessageMapper).toMessage(any(DigitalInvoiceRequest.class));
+		verify(mockMessageMapper).toMessage(any(DigitalInvoiceRequest.class), anyString());
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}
@@ -180,12 +180,12 @@ class MessageEventDispatcherTest {
 	@Test
 	void handleSlackRequest() {
 
-		when(mockMessageMapper.toMessage(any(SlackRequest.class))).thenReturn(Message.builder().build());
+		when(mockMessageMapper.toMessage(any(SlackRequest.class), anyString())).thenReturn(Message.builder().build());
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(Message.builder().build());
 
 		messageEventDispatcher.handleSlackRequest(SlackRequest.builder().build());
 
-		verify(mockMessageMapper).toMessage(any(SlackRequest.class));
+		verify(mockMessageMapper).toMessage(any(SlackRequest.class), anyString());
 		verify(mockDbIntegration).saveMessage(any(Message.class));
 		verify(mockEventPublisher).publishEvent(any(IncomingMessageEvent.class));
 	}

@@ -67,6 +67,7 @@ class SmsIT extends AbstractMessagingAppTest {
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
+						assertValidUuid(historyEntry.getBatchId());
 						assertThat(historyEntry.getMessageId()).isEqualTo(response.messageId());
 						assertThat(historyEntry.getMessageType()).isEqualTo(SMS);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);

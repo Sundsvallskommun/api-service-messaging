@@ -28,10 +28,11 @@ class MessageMapperTest {
 	@Test
 	void test_toMessage_withEmailRequest() {
 		final var request = createValidEmailRequest();
+		final var batchId = UUID.randomUUID().toString();
 
-		final var message = messageMapper.toMessage(request);
+		final var message = messageMapper.toMessage(request, batchId);
 
-		assertThat(message.batchId()).isNull();
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
 		assertThat(message.deliveryId()).isNotNull();
 		assertThat(message.type()).isEqualTo(EMAIL);
@@ -43,10 +44,11 @@ class MessageMapperTest {
 	@Test
 	void test_toMessage_withSnailMailRequest() {
 		final var request = createValidSnailMailRequest();
+		final var batchId = UUID.randomUUID().toString();
 
-		final var message = messageMapper.toMessage(request);
+		final var message = messageMapper.toMessage(request, batchId);
 
-		assertThat(message.batchId()).isNull();
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
 		assertThat(message.deliveryId()).isNotNull();
 		assertThat(message.type()).isEqualTo(SNAIL_MAIL);
@@ -58,12 +60,13 @@ class MessageMapperTest {
 	@Test
 	void test_toMessage_withSmsRequest() {
 		final var request = createValidSmsRequest();
+		final var batchId = UUID.randomUUID().toString();
 
-		final var message = messageMapper.toMessage(request);
+		final var message = messageMapper.toMessage(request, batchId);
 
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
 		assertThat(message.deliveryId()).isNotNull();
-		assertThat(message.batchId()).isNull();
 		assertThat(message.type()).isEqualTo(SMS);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
@@ -77,9 +80,9 @@ class MessageMapperTest {
 
 		final var message = messageMapper.toMessage(request, batchId);
 
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
 		assertThat(message.deliveryId()).isNotNull();
-		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.type()).isEqualTo(SMS);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
@@ -89,11 +92,13 @@ class MessageMapperTest {
 	@Test
 	void test_toMessage_withWebMessageRequest() {
 		final var request = createValidWebMessageRequest();
+		final var batchId = UUID.randomUUID().toString();
 
-		final var message = messageMapper.toMessage(request);
+		final var message = messageMapper.toMessage(request, batchId);
 
-		assertThat(message.batchId()).isNull();
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
+		assertThat(message.deliveryId()).isNotNull();
 		assertThat(message.type()).isEqualTo(WEB_MESSAGE);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
@@ -103,19 +108,23 @@ class MessageMapperTest {
 	@Test
 	void test_toMessages_withDigitalMailRequest() {
 		final var request = createValidDigitalMailRequest();
+		final var batchId = UUID.randomUUID().toString();
+		final var organizationNumber = "organizationNumber";
 
-		final var messages = messageMapper.toMessages(request, "someBatchId", "orgNumber");
+		final var messages = messageMapper.toMessages(request, batchId, organizationNumber);
 
 		assertThat(messages).hasSize(1);
 
 		final var message = messages.getFirst();
 
-		assertThat(message.batchId()).isEqualTo("someBatchId");
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
+		assertThat(message.deliveryId()).isNotNull();
 		assertThat(message.type()).isEqualTo(DIGITAL_MAIL);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
 		assertThat(message.origin()).isEqualTo(request.origin());
+		assertThat(message.organizationNumber()).isEqualTo(organizationNumber);
 	}
 
 	@Test
@@ -131,6 +140,7 @@ class MessageMapperTest {
 
 		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
+		assertThat(message.deliveryId()).isNotNull();
 		assertThat(message.type()).isEqualTo(MESSAGE);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
@@ -141,12 +151,13 @@ class MessageMapperTest {
 	@Test
 	void test_toMessage_withSlackRequest() {
 		final var request = createValidSlackRequest();
+		final var batchId = UUID.randomUUID().toString();
 
-		final var message = messageMapper.toMessage(request);
+		final var message = messageMapper.toMessage(request, batchId);
 
+		assertThat(message.batchId()).isEqualTo(batchId);
 		assertThat(message.messageId()).isNotNull();
 		assertThat(message.deliveryId()).isNotNull();
-		assertThat(message.batchId()).isNull();
 		assertThat(message.type()).isEqualTo(SLACK);
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
