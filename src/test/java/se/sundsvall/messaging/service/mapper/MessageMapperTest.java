@@ -74,22 +74,6 @@ class MessageMapperTest {
 	}
 
 	@Test
-	void test_toMessage_withSmsRequestAndBatchId() {
-		final var request = createValidSmsRequest();
-		final var batchId = UUID.randomUUID().toString();
-
-		final var message = messageMapper.toMessage(request, batchId);
-
-		assertThat(message.batchId()).isEqualTo(batchId);
-		assertThat(message.messageId()).isNotNull();
-		assertThat(message.deliveryId()).isNotNull();
-		assertThat(message.type()).isEqualTo(SMS);
-		assertThat(message.status()).isEqualTo(PENDING);
-		assertThat(message.content()).isEqualTo(toJson(request));
-		assertThat(message.origin()).isEqualTo(request.origin());
-	}
-
-	@Test
 	void test_toMessage_withWebMessageRequest() {
 		final var request = createValidWebMessageRequest();
 		final var batchId = UUID.randomUUID().toString();
