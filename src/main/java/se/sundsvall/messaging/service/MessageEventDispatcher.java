@@ -49,7 +49,6 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
-
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = request.messages().stream()
@@ -65,7 +64,8 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
@@ -107,15 +107,15 @@ public class MessageEventDispatcher {
 
 	public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
-
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest));
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest, batchId));
 
 		return publishMessageEvent(message);
 	}
 
 	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
-
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
@@ -133,8 +133,8 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
-
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
@@ -156,8 +156,8 @@ public class MessageEventDispatcher {
 	}
 
 	public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
-
-		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request));
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}

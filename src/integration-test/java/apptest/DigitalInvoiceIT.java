@@ -59,6 +59,7 @@ class DigitalInvoiceIT extends AbstractMessagingAppTest {
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
+						assertValidUuid(historyEntry.getBatchId());
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);

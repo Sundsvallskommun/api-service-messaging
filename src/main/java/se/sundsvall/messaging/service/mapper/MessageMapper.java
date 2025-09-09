@@ -31,18 +31,9 @@ import se.sundsvall.messaging.model.Message;
 @Component
 public class MessageMapper {
 
-	public Message toMessage(final EmailRequest request, String batchId) {
-		return toMessage(request)
-			.withBatchId(batchId);
-	}
-
-	public Message toMessage(final SmsRequest request, String batchId) {
-		return toMessage(request)
-			.withBatchId(batchId);
-	}
-
-	public Message toMessage(final EmailRequest request) {
+	public Message toMessage(final EmailRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
@@ -58,8 +49,9 @@ public class MessageMapper {
 			.build();
 	}
 
-	public Message toMessage(final SmsRequest request) {
+	public Message toMessage(final SmsRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
@@ -75,8 +67,9 @@ public class MessageMapper {
 			.build();
 	}
 
-	public Message toMessage(final SnailMailRequest request) {
+	public Message toMessage(final SnailMailRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
@@ -91,8 +84,9 @@ public class MessageMapper {
 			.build();
 	}
 
-	public Message toMessage(final WebMessageRequest request) {
+	public Message toMessage(final WebMessageRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
@@ -109,12 +103,10 @@ public class MessageMapper {
 	}
 
 	public List<Message> toMessages(final DigitalMailRequest request, final String batchId, String organizationNumber) {
-		final var messageId = UUID.randomUUID().toString();
-
 		return request.party().partyIds().stream()
 			.map(partyId -> Message.builder()
 				.withBatchId(batchId)
-				.withMessageId(messageId)
+				.withMessageId(UUID.randomUUID().toString())
 				.withDeliveryId(UUID.randomUUID().toString())
 				.withPartyId(partyId)
 				.withType(DIGITAL_MAIL)
@@ -129,8 +121,9 @@ public class MessageMapper {
 			.toList();
 	}
 
-	public Message toMessage(final DigitalInvoiceRequest request) {
+	public Message toMessage(final DigitalInvoiceRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
@@ -204,8 +197,9 @@ public class MessageMapper {
 			.build();
 	}
 
-	public Message toMessage(final SlackRequest request) {
+	public Message toMessage(final SlackRequest request, final String batchId) {
 		return Message.builder()
+			.withBatchId(batchId)
 			.withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withType(SLACK)

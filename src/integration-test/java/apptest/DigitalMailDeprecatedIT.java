@@ -10,8 +10,10 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -61,6 +63,7 @@ class DigitalMailDeprecatedIT extends AbstractMessagingAppTest {
 					.isNotNull()
 					.isNotEmpty()
 					.allSatisfy(historyEntry -> {
+						assertValidUuid(historyEntry.getBatchId());
 						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
 						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
 						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);

@@ -111,19 +111,28 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
+		// Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString();
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
+
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest, batchId)));
 	}
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {
+		// Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString();
+
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
 	}
 
 	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
+		// Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString();
+
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
 	}
 
 	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request, String organizationNumber) {
@@ -139,8 +148,11 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
+		// Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString();
+
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
 	}
 
 	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
@@ -215,8 +227,11 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendToSlack(final SlackRequest request) {
+		// Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString();
+
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
 	}
 
 	List<InternalDeliveryResult> sendMessage(final Message message) {
@@ -367,15 +382,14 @@ public class MessageService {
 				// No attachments intended for digital mail
 				LOG.info("No attachment(s) for DIGITAL_MAIL - switching over to snail-mail");
 			}
-		} else {
-			// We're about to switch to snail-mail delivery - make sure that there exists some attachment(s) for that
-			if (request.attachments().stream().noneMatch(LetterRequest.Attachment::isIntendedForSnailMail)) {
-				// "Route" the failed message back to a LETTER
-				final var failedMessage = message.withType(LETTER).withStatus(FAILED);
-				archiveMessage(failedMessage, "Only DIGITAL_MAIL delivery allowed and party id unset/address set");
+		}
+		// We're about to switch to snail-mail delivery - make sure that there exists some attachment(s) for that
+		else if (request.attachments().stream().noneMatch(LetterRequest.Attachment::isIntendedForSnailMail)) {
+			// "Route" the failed message back to a LETTER
+			final var failedMessage = message.withType(LETTER).withStatus(FAILED);
+			archiveMessage(failedMessage, "Only DIGITAL_MAIL delivery allowed and party id unset/address set");
 
-				return List.of(new InternalDeliveryResult(failedMessage));
-			}
+			return List.of(new InternalDeliveryResult(failedMessage));
 		}
 
 		// Re-map the request as a snail-mail request
