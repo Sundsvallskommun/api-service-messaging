@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.4"
+  version: "7.5"
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -697,6 +697,8 @@ paths:
       tags:
         - Sending Resources
       summary: Send a single digital mail to one or more parties
+      description: "This endpoint is deprecated in favor of /{organizationNumber}/digital-mail\
+        \ and will be removed in a future version."
       operationId: sendDigitalMailDeprecated
       parameters:
         - name: x-origin
@@ -763,6 +765,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      deprecated: true
   /{municipalityId}/digital-invoice:
     post:
       tags:
@@ -1652,11 +1655,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     Mailbox:
       type: object
       properties:

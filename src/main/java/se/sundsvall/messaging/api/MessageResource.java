@@ -208,9 +208,17 @@ class MessageResource {
 		return toResponse(messageService.sendDigitalMail(decoratedRequest, organizationNumber));
 	}
 
-	@Operation(summary = "Send a single digital mail to one or more parties", responses = {
-		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
-	})
+	/**
+	 * @deprecated since 2025-09-15, will be removed in a future version.
+	 *             Use {@link #sendDigitalMail(String, DigitalMailRequest, String, String, boolean)} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "2025-09-15")
+	@Operation(summary = "Send a single digital mail to one or more parties",
+		deprecated = true,
+		description = "This endpoint is deprecated in favor of /{organizationNumber}/digital-mail and will be removed in a future version.",
+		responses = {
+			@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+		})
 	@PostMapping("/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMailDeprecated(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
