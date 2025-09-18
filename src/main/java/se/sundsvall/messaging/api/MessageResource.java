@@ -3,6 +3,7 @@ package se.sundsvall.messaging.api;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.ok;
 import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
 import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
 import static se.sundsvall.messaging.api.model.ApiMapper.toResponse;
@@ -43,6 +44,7 @@ import se.sundsvall.messaging.api.model.request.MessageRequest;
 import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsBatchRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.response.Mailbox;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -209,8 +211,8 @@ class MessageResource {
 	}
 
 	/**
-	 * @deprecated since 2025-09-15, will be removed in a future version.
-	 *             Use {@link #sendDigitalMail(String, DigitalMailRequest, String, String, boolean)} instead.
+	 * @deprecated since 2025-09-15, will be removed in a future version. Use
+	 *             {@link #sendDigitalMail(String, DigitalMailRequest, String, String, boolean)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "2025-09-15")
 	@Operation(summary = "Send a single digital mail to one or more parties",
@@ -253,7 +255,7 @@ class MessageResource {
 		@Parameter(name = "organizationNumber", description = "The organization number of the intended sending organization", example = "5561234567") @ValidOrganizationNumber @PathVariable final String organizationNumber,
 		@RequestBody @UniqueElements @NotEmpty final List<@ValidUuid String> partyIds) {
 
-		return ResponseEntity.ok().body(messageService.getMailboxes(municipalityId, organizationNumber, partyIds));
+		return ok().body(messageService.getMailboxes(municipalityId, organizationNumber, partyIds));
 	}
 
 	@Operation(summary = "Send a digital invoice", responses = {
@@ -352,6 +354,34 @@ class MessageResource {
 			return toResponse(eventDispatcher.handleSlackRequest(decoratedRequest));
 		}
 		return toResponse(messageService.sendToSlack(decoratedRequest));
+	}
+
+	@Operation(summary = "Add snail-mail to a batch", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
+	@PostMapping("/snail-mail")
+	ResponseEntity<MessageResult> addSnailMailToBatch(
+		@RequestBody @Valid final SnailMailRequest request,
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @RequestParam(name = "batchId") @ValidUuid final String batchId) {
+
+		var sentBy = Optional.ofNullable(Identifier.get()).map(Identifier::getValue).orElse(null);
+		final var decoratedRequest = request
+			.withMunicipalityId(municipalityId)
+			.withIssuer(sentBy);
+
+		return toResponse(messageService.sendSnailMail(decoratedRequest, batchId));
+	}
+
+	@Operation(summary = "Trigger processing of a snail-mail batch", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
+	@PostMapping("/snail-mail/batch/{batchId}")
+	ResponseEntity<Void> triggerSnailMailBatchProcessing(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @ValidUuid @PathVariable final String batchId) {
+
+		return ResponseEntity.status(501).build();
 	}
 
 	// Determine the value of the "sentBy" header, if present use it, otherwise try to get the value from the
