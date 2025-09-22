@@ -13,12 +13,10 @@ import static se.sundsvall.messaging.model.MessageType.SMS;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.MethodMode;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -28,6 +26,7 @@ import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
 @WireMockAppTestSuite(files = "classpath:/SmsIT/", classes = Application.class)
+@DirtiesContext
 class SmsIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/sms";

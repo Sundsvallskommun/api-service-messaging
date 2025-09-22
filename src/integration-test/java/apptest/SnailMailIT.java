@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import se.sundsvall.dept44.support.Identifier;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
@@ -21,6 +22,7 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 
 @WireMockAppTestSuite(files = "classpath:/SnailMailIT/", classes = Application.class)
+@DirtiesContext
 class SnailMailIT extends AbstractMessagingAppTest {
 
 	@Autowired

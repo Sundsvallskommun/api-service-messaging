@@ -5,11 +5,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import org.junit.jupiter.api.Test;
-
+import org.springframework.test.annotation.DirtiesContext;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 
 @WireMockAppTestSuite(files = "classpath:/StatusIT/", classes = Application.class)
+@DirtiesContext
 class StatusIT extends AbstractMessagingAppTest {
 
 	private static final String BATCH_STATUS_PATH = "/" + MUNICIPALITY_ID + "/status/batch/";

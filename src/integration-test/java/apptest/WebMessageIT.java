@@ -10,10 +10,9 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.test.annotation.DirtiesContext;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageResult;
@@ -21,6 +20,7 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 
 @WireMockAppTestSuite(files = "classpath:/WebMessageIT/", classes = Application.class)
+@DirtiesContext
 class WebMessageIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/webmessage";
