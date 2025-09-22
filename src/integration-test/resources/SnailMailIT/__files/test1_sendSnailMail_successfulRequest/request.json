@@ -1,0 +1,27 @@
+{
+	"attachments": [
+		{
+			"filename": "someFile.txt",
+			"deliveryMode": "SNAIL_MAIL",
+			"contentType": "application/pdf",
+			"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK"
+		}
+	],
+	"subject": "Some subject",
+	"body": "This is the message contents",
+	"department": "Some department",
+	"contentType": "text/plain",
+	"party": {
+		"partyIds": [
+			"e4e37771-397b-45b5-bb89-f389f8525e53"
+		]
+	},
+	"address": {
+		"firstName": "Bob",
+		"lastName": "Something",
+		"address": "Some Street 19",
+		"zipCode": "123 45",
+		"city": "The City",
+		"country": "The Country"
+	}
+}

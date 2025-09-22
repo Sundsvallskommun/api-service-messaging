@@ -42,7 +42,7 @@ class MessageResourceSnailMailTest {
 	}
 
 	@Test
-	void shouldReturnCreated() {
+	void sendSnailMail_shouldReturnCreated() {
 		var validRequest = createValidSnailMailRequest();
 
 		when(mockMessageService.sendSnailMail(any(), any()))
@@ -71,6 +71,17 @@ class MessageResourceSnailMailTest {
 			assertThat(delivery.status()).isEqualTo(MessageStatus.SENT);
 		});
 		verify(mockMessageService).sendSnailMail(any(), any());
+	}
+
+	@Test
+	void triggerSnailMailBatch_shouldReturnOK() {
+		webTestClient.post()
+			.uri("/2281/snail-mail/batch/f427952b-247c-4d3b-b081-675a467b3619")
+			.contentType(MediaType.APPLICATION_JSON)
+			.exchange()
+			.expectStatus().isOk();
+
+		verify(mockMessageService).sendSnailMailBatch("2281", "f427952b-247c-4d3b-b081-675a467b3619");
 	}
 
 }

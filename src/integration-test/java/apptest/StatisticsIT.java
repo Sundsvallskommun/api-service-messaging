@@ -4,11 +4,12 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 
 import org.junit.jupiter.api.Test;
-
+import org.springframework.test.annotation.DirtiesContext;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 
 @WireMockAppTestSuite(files = "classpath:/StatisticsIT/", classes = Application.class)
+@DirtiesContext
 class StatisticsIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/statistics";

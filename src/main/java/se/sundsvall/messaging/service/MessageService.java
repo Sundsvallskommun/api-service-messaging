@@ -114,6 +114,10 @@ public class MessageService {
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
 	}
 
+	public void sendSnailMailBatch(final String municipalityId, final String batchId) {
+		snailMailSenderIntegration.sendBatch(municipalityId, batchId);
+	}
+
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
 		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();

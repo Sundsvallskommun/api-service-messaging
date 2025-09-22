@@ -361,6 +361,7 @@ class MessageResource {
 	})
 	@PostMapping("/snail-mail")
 	ResponseEntity<MessageResult> addSnailMailToBatch(
+		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
 		@RequestBody @Valid final SnailMailRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @RequestParam(name = "batchId") @ValidUuid final String batchId) {
@@ -368,6 +369,7 @@ class MessageResource {
 		var sentBy = Optional.ofNullable(Identifier.get()).map(Identifier::getValue).orElse(null);
 		final var decoratedRequest = request
 			.withMunicipalityId(municipalityId)
+			.withOrigin(origin)
 			.withIssuer(sentBy);
 
 		return toResponse(messageService.sendSnailMail(decoratedRequest, batchId));
@@ -381,7 +383,8 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @ValidUuid @PathVariable final String batchId) {
 
-		return ResponseEntity.status(501).build();
+		messageService.sendSnailMailBatch(municipalityId, batchId);
+		return ok().build();
 	}
 
 	// Determine the value of the "sentBy" header, if present use it, otherwise try to get the value from the

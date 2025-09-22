@@ -1,7 +1,10 @@
 package se.sundsvall.messaging.api;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,13 +26,20 @@ class MessageResourceSnailMailBatchTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	@AfterEach
+	void ensureNoUnexpectedInteractions() {
+		verifyNoMoreInteractions(mockMessageService);
+	}
+
 	@Test
 	void shouldReturnOK() {
 		webTestClient.post()
 			.uri("/2281/snail-mail/batch/f427952b-247c-4d3b-b081-675a467b3619")
 			.contentType(MediaType.APPLICATION_JSON)
 			.exchange()
-			.expectStatus().isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+			.expectStatus().isEqualTo(HttpStatus.OK);
+
+		verify(mockMessageService).sendSnailMailBatch("2281", "f427952b-247c-4d3b-b081-675a467b3619");
 	}
 
 }

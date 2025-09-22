@@ -1,0 +1,40 @@
+{
+	"request": {
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer 0000000000000000AAAAAAAAAAAAAAAA"
+			}
+		},
+		"method": "POST",
+		"urlPath": "/snailmail-sender/2281/send/snailmail",
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"department": "Some department",
+					"batchId": "ebaa0101-b68d-4736-9bdb-a99d74c27a71",
+					"attachments": [
+						{
+							"content": "bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK",
+							"name": "someFile.txt",
+							"contentType": "application/pdf"
+						}
+					],
+					"address": {
+						"firstName": "Bob",
+						"lastName": "Something",
+						"address": "Some Street 19",
+						"zipCode": "123 45",
+						"city": "The City",
+						"country": "The Country"
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"status": 200
+	}
+}
