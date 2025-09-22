@@ -94,29 +94,40 @@ class MessageServiceTest {
 
 	@Mock
 	private TransactionTemplate mockTransactionTemplate;
+
 	@Mock
 	private DbIntegration mockDbIntegration;
+
 	@Mock
 	private CitizenIntegration mockCitizenIntegration;
+
 	@Mock
 	private ContactSettingsIntegration mockContactSettingsIntegration;
+
 	@Mock
 	private SmsSenderIntegration mockSmsSenderIntegration;
+
 	@Mock
 	private EmailSenderIntegration mockEmailSenderIntegration;
+
 	@Mock
 	private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
+
 	@Mock
 	private SnailMailSenderIntegration mockSnailMailSenderIntegration;
+
 	@Mock
 	private SlackIntegration mockSlackIntegration;
+
 	@Mock
 	private OepIntegratorIntegration mockOepIntegratorIntegration;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private MessageMapper mockMessageMapper;
+
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private RequestMapper mockRequestMapper;
+
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private DtoMapper mockDtoMapper;
 
@@ -161,6 +172,8 @@ class MessageServiceTest {
 		var result = spy.sendSnailMail(snailmailRequest, batchId);
 
 		assertThat(result).isNotNull().isEqualTo(deliveryResult);
+		verify(mockMessageMapper, times(2)).toMessage(snailmailRequest, batchId);
+		verify(mockDbIntegration).saveMessage(any());
 	}
 
 	@Test
