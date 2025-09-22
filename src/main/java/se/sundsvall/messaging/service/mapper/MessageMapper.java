@@ -15,6 +15,7 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -83,16 +84,17 @@ public class MessageMapper {
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
 			.withMunicipalityId(request.municipalityId())
-			.withAddress(Address.builder()
-				.withFirstName(request.address().firstName())
-				.withLastName(request.address().lastName())
-				.withApartmentNumber(request.address().apartmentNumber())
-				.withAddress(request.address().address())
-				.withZipCode(request.address().zipCode())
-				.withCity(request.address().city())
-				.withCountry(request.address().country())
-				.withCareOf(request.address().careOf())
+			.withAddress(Optional.ofNullable(request.address()).map(address -> Address.builder()
+				.withFirstName(address.firstName())
+				.withLastName(address.lastName())
+				.withApartmentNumber(address.apartmentNumber())
+				.withAddress(address.address())
+				.withZipCode(address.zipCode())
+				.withCity(address.city())
+				.withCountry(address.country())
+				.withCareOf(address.careOf())
 				.build())
+				.orElse(null))
 			.build();
 	}
 
