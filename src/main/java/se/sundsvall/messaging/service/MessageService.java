@@ -110,8 +110,12 @@ public class MessageService {
 		this.dtoMapper = dtoMapper;
 	}
 
+	public InternalDeliveryResult sendSnailMail(final SnailMailRequest request, final String batchId) {
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
+	}
+
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
-		// Create batchId as history resource depends on it being instansiated
+		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 
@@ -120,7 +124,7 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {
-		// Create batchId as history resource depends on it being instansiated
+		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();
 
 		// Save the message and (try to) deliver it
@@ -128,7 +132,7 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
-		// Create batchId as history resource depends on it being instansiated
+		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();
 
 		// Save the message and (try to) deliver it
@@ -148,7 +152,7 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendDigitalInvoice(final DigitalInvoiceRequest request) {
-		// Create batchId as history resource depends on it being instansiated
+		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();
 
 		// Save the message and (try to) deliver it
@@ -227,7 +231,7 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendToSlack(final SlackRequest request) {
-		// Create batchId as history resource depends on it being instansiated
+		// Create batchId as history resource depends on it being instantiated
 		final var batchId = UUID.randomUUID().toString();
 
 		// Save the message and (try to) deliver it

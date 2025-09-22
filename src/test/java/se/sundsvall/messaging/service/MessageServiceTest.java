@@ -20,6 +20,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidLetterRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidSlackRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidSnailMailRequest;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
@@ -79,6 +80,8 @@ import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
@@ -91,29 +94,40 @@ class MessageServiceTest {
 
 	@Mock
 	private TransactionTemplate mockTransactionTemplate;
+
 	@Mock
 	private DbIntegration mockDbIntegration;
+
 	@Mock
 	private CitizenIntegration mockCitizenIntegration;
+
 	@Mock
 	private ContactSettingsIntegration mockContactSettingsIntegration;
+
 	@Mock
 	private SmsSenderIntegration mockSmsSenderIntegration;
+
 	@Mock
 	private EmailSenderIntegration mockEmailSenderIntegration;
+
 	@Mock
 	private DigitalMailSenderIntegration mockDigitalMailSenderIntegration;
+
 	@Mock
 	private SnailMailSenderIntegration mockSnailMailSenderIntegration;
+
 	@Mock
 	private SlackIntegration mockSlackIntegration;
+
 	@Mock
 	private OepIntegratorIntegration mockOepIntegratorIntegration;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private MessageMapper mockMessageMapper;
+
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private RequestMapper mockRequestMapper;
+
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private DtoMapper mockDtoMapper;
 
@@ -140,6 +154,26 @@ class MessageServiceTest {
 
 				return arg.doInTransaction(new SimpleTransactionStatus());
 			});
+	}
+
+	@Test
+	void sendSnailMail() {
+		var spy = Mockito.spy(messageService);
+		var snailmailRequest = createValidSnailMailRequest();
+		var batchId = UUID.randomUUID().toString();
+		var message = mockMessageMapper.toMessage(snailmailRequest, batchId);
+
+		var deliveryResult = new InternalDeliveryResult("messageId", "deliveryId", MessageType.SNAIL_MAIL,
+			MessageStatus.SENT, MUNICIPALITY_ID);
+
+		when(mockDbIntegration.saveMessage(any())).thenReturn(message);
+		when(spy.deliver(message)).thenReturn(deliveryResult);
+
+		var result = spy.sendSnailMail(snailmailRequest, batchId);
+
+		assertThat(result).isNotNull().isEqualTo(deliveryResult);
+		verify(mockMessageMapper, times(2)).toMessage(snailmailRequest, batchId);
+		verify(mockDbIntegration).saveMessage(any());
 	}
 
 	@Test

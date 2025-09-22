@@ -2,6 +2,7 @@ package se.sundsvall.messaging.api.model.request;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -31,7 +32,9 @@ public record SnailMailRequest(
 
 	@Schema(description = "Issuer of request", example = "user123", hidden = true) String issuer,
 
-	@ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1) List<@Valid Attachment> attachments) {
+	@ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1) List<@Valid Attachment> attachments,
+
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")

@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.api.model.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 import java.util.List;
@@ -28,7 +29,7 @@ class SnailMailRequestTest {
 	// SnailMailRequest
 	@Test
 	void testSnailMailRequestConstructor() {
-		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS);
+		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertSnailMailRequest(bean);
 	}
@@ -43,6 +44,7 @@ class SnailMailRequestTest {
 			.withOrigin(ORIGIN)
 			.withParty(PARTY)
 			.withAddress(ADDRESS)
+			.withMunicipalityId(MUNICIPALITY_ID)
 			.build();
 
 		assertSnailMailRequest(bean);
@@ -57,6 +59,7 @@ class SnailMailRequestTest {
 		assertThat(bean.issuer()).isEqualTo(ISSUER);
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
 		assertThat(bean.address()).isEqualTo(ADDRESS);
+		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 	}
 
 	// SnailMailRequest.Attachment
