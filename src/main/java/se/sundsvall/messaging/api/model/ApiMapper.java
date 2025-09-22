@@ -107,7 +107,7 @@ public class ApiMapper {
 
 	/**
 	 * Creates a HistoryResponse from a History object, but removes the file content from the attachment.
-	 * 
+	 *
 	 * @param  history the history to convert
 	 * @return         the HistoryResponse without attachments
 	 */
@@ -135,11 +135,11 @@ public class ApiMapper {
 	}
 
 	/**
-	 * Removes the file content from the attachments.
-	 * Base64 content is not stored in the same manner for all requests
-	 * so we need to check for both "content" and"base64Data" fields (defined in ATTACHMENT_CONTENT_FIELDS).
-	 * If we cannot parse the content, we return the original content.
-	 * 
+	 * Removes the file content from the attachments. Base64 content is not stored in the same manner for all requests so we
+	 * need to check for both "content" and"base64Data" fields (defined in ATTACHMENT_CONTENT_FIELDS). If we cannot parse
+	 * the content, we
+	 * return the original content.
+	 *
 	 * @param  content the attachments from the history to remove file content from
 	 * @return         the attachments without file content
 	 */
@@ -163,7 +163,7 @@ public class ApiMapper {
 
 	/**
 	 * Remove the "content" and "base64Data" fields from the attachments
-	 * 
+	 *
 	 * @param root the "node" to process
 	 */
 	private static void removeAttachmentFileContents(JsonNode root) {

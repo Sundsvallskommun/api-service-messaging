@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.6"
 servers:
-  - url: http://localhost:50207
+  - url: http://localhost:55754
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -216,6 +216,12 @@ paths:
       summary: Add snail-mail to a batch
       operationId: addSnailMailToBatch
       parameters:
+        - name: x-origin
+          in: header
+          description: Origin of the request
+          required: false
+          schema:
+            type: string
         - name: municipalityId
           in: path
           description: Municipality id

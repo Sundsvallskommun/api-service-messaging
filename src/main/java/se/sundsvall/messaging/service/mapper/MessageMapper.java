@@ -26,6 +26,7 @@ import se.sundsvall.messaging.api.model.request.SlackRequest;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
+import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.Message;
 
 @Component
@@ -81,6 +82,17 @@ public class MessageMapper {
 			.withContent(toJson(request))
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
+			.withAddress(Address.builder()
+				.withFirstName(request.address().firstName())
+				.withLastName(request.address().lastName())
+				.withApartmentNumber(request.address().apartmentNumber())
+				.withAddress(request.address().address())
+				.withZipCode(request.address().zipCode())
+				.withCity(request.address().city())
+				.withCountry(request.address().country())
+				.withCareOf(request.address().careOf())
+				.build())
 			.build();
 	}
 

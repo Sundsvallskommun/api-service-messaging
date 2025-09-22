@@ -55,6 +55,16 @@ class MessageMapperTest {
 		assertThat(message.status()).isEqualTo(PENDING);
 		assertThat(message.content()).isEqualTo(toJson(request));
 		assertThat(message.origin()).isEqualTo(request.origin());
+		assertThat(message.municipalityId()).isEqualTo(request.municipalityId());
+		assertThat(message.address()).satisfies(address -> {
+			assertThat(address.firstName()).isEqualTo(request.address().firstName());
+			assertThat(address.lastName()).isEqualTo(request.address().lastName());
+			assertThat(address.address()).isEqualTo(request.address().address());
+			assertThat(address.city()).isEqualTo(request.address().city());
+			assertThat(address.zipCode()).isEqualTo(request.address().zipCode());
+			assertThat(address.country()).isEqualTo(request.address().country());
+			assertThat(address.careOf()).isEqualTo(request.address().careOf());
+		});
 	}
 
 	@Test
