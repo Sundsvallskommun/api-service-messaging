@@ -185,18 +185,37 @@ public class HistoryService {
 		final var history = histories.stream()
 			.filter(h -> h.getMessageType() == MessageType.DIGITAL_MAIL)
 			.findFirst().orElse(histories.getFirst());
-		final var attachments = extractAttachment(history);
-		final var subject = extractSubject(history);
 
 		return UserMessage.builder()
 			.withMessageId(messageId)
 			.withIssuer(history.getIssuer())
 			.withOrigin(history.getOrigin())
 			.withSent(history.getCreatedAt())
-			.withSubject(subject)
 			.withRecipients(recipients)
-			.withAttachments(attachments)
+			.withSubject(extractSubject(history))
+			.withAttachments(extractAttachment(history))
+			.withBody(extractMessage(history))
 			.build();
+	}
+
+	private String extractMessage(final HistoryEntity history) {
+		JsonNode content;
+		try {
+			content = objectMapper.readTree(history.getContent());
+		} catch (final JsonProcessingException ignored) {
+			return "";
+		}
+		return ofNullable(content.get("message")).map(JsonNode::asText).orElse("");
+	}
+
+	private String extractMobileNumber(final HistoryEntity history) {
+		JsonNode content;
+		try {
+			content = objectMapper.readTree(history.getContent());
+		} catch (final JsonProcessingException ignored) {
+			return null;
+		}
+		return ofNullable(content.get("mobileNumber")).map(JsonNode::asText).orElse(null);
 	}
 
 	String extractSubject(final HistoryEntity history) {
@@ -256,17 +275,21 @@ public class HistoryService {
 		return recipients;
 	}
 
-	UserMessage.Recipient createRecipient(final String municipalityId, HistoryEntity history) {
+	UserMessage.Recipient createRecipient(final String municipalityId, final HistoryEntity history) {
 		final var legalId = ofNullable(history.getPartyId())
 			.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
 			.orElse(null);
-		final var messageType = history.getMessageType().toString();
-		final var status = history.getStatus().name();
-		final var address = history.getDestinationAddress();
-		return new UserMessage.Recipient(createAddress(address), legalId, messageType, status);
+
+		return UserMessage.Recipient.builder()
+			.withStatus(history.getStatus().name())
+			.withMessageType(history.getMessageType().toString())
+			.withAddress(createAddress(history.getDestinationAddress()))
+			.withMobileNumber(extractMobileNumber(history))
+			.withPersonId(legalId)
+			.build();
 	}
 
-	UserMessage.Address createAddress(Address address) {
+	UserMessage.Address createAddress(final Address address) {
 		return ofNullable(address)
 			.map(addr -> UserMessage.Address.builder()
 				.withAddress(addr.address())

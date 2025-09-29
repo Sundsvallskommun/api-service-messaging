@@ -28,5 +28,5 @@ interface DigitalMailSenderClient {
 	ResponseEntity<DigitalInvoiceResponse> sendDigitalInvoice(@PathVariable final String municipalityId, final DigitalInvoiceRequest request);
 
 	@PostMapping("/{municipalityId}/{organizationNumber}/mailboxes")
-	List<Mailbox> getMailboxes(@PathVariable final String municipalityId, @PathVariable final String organizationNumber, final List<String> partyIds);
+	ResponseEntity<List<Mailbox>> getMailboxes(@PathVariable final String municipalityId, @PathVariable final String organizationNumber, final List<String> partyIds);
 }

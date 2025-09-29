@@ -1,0 +1,17 @@
+{
+	"messageId": "f0466e56-72f2-4bc0-9181-2e56921621fc",
+	"issuer": "issuer4",
+	"origin": "origin",
+	"sent": "2050-02-25T15:54:39.254123",
+	"subject": "",
+	"body": "Testar",
+	"recipients": [
+		{
+			"personId": "190101010159",
+			"messageType": "SMS",
+			"mobileNumber": "+4612345678",
+			"status": "SENT"
+		}
+	],
+	"attachments": []
+}

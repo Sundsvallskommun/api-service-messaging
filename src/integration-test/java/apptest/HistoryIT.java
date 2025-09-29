@@ -7,9 +7,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 
@@ -213,6 +211,19 @@ class HistoryIT extends AbstractMessagingAppTest {
 		final var userId = "nonExistingUser";
 		setupCall()
 			.withServicePath(USER_BATCHES_PATH.formatted(userId) + "?page=1&limit=10")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test18_userHistoricalSms() {
+		final var userId = "issuer4";
+		final var messageId = "f0466e56-72f2-4bc0-9181-2e56921621fc";
+		
+		setupCall()
+			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)
