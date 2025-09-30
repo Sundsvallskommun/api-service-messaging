@@ -205,7 +205,7 @@ public class HistoryService {
 		} catch (final JsonProcessingException ignored) {
 			return "";
 		}
-		return ofNullable(content.get("message")).map(JsonNode::asText).orElse("");
+		return ofNullable(content.get("message")).map(JsonNode::asText).orElse(null);
 	}
 
 	private String extractMobileNumber(final HistoryEntity history) {
@@ -225,7 +225,7 @@ public class HistoryService {
 		} catch (final JsonProcessingException ignored) {
 			return "";
 		}
-		return ofNullable(content.get("subject")).map(JsonNode::asText).orElse("");
+		return ofNullable(content.get("subject")).map(JsonNode::asText).orElse(null);
 	}
 
 	List<UserMessage.MessageAttachment> extractAttachment(final HistoryEntity history) {

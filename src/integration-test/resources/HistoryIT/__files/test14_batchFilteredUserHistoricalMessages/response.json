@@ -12,8 +12,6 @@
 			"issuer": "issuer1",
 			"origin": "origin",
 			"sent": "2050-02-25T15:54:39.254123",
-			"subject": "",
-			"body": "",
 			"recipients": [
 				{
 					"address": {
