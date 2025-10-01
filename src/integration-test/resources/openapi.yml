@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.6"
+  version: "7.7"
 servers:
-  - url: http://localhost:55754
+  - url: http://localhost:55634
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1753,9 +1753,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -2816,9 +2816,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         suppressed:
           type: array
@@ -2921,6 +2921,10 @@ components:
           type: string
           description: The message type
           example: SNAIL_MAIL
+        mobileNumber:
+          type: string
+          description: The recipient mobile number
+          example: "+46123456789"
         status:
           type: string
           description: The message status
@@ -2950,6 +2954,10 @@ components:
           type: string
           description: The message subject
           example: Important message
+        body:
+          type: string
+          description: The message body
+          example: This is a message
         recipients:
           type: array
           readOnly: true

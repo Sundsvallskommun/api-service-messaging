@@ -23,6 +23,8 @@ public record UserMessage(
 
 	@Schema(description = "The message subject", example = "Important message") String subject,
 
+	@Schema(description = "The message body", example = "This is a message") String body,
+
 	@ArraySchema(schema = @Schema(implementation = Recipient.class, accessMode = READ_ONLY)) List<Recipient> recipients,
 
 	@ArraySchema(schema = @Schema(implementation = MessageAttachment.class, accessMode = READ_ONLY)) List<MessageAttachment> attachments) {
@@ -37,6 +39,8 @@ public record UserMessage(
 		@Schema(description = "The person identifier", example = "199001011234") String personId,
 
 		@Schema(description = "The message type", example = "SNAIL_MAIL") String messageType,
+
+		@Schema(description = "The recipient mobile number", example = "+46123456789") String mobileNumber,
 
 		@Schema(description = "The message status", example = "SENT") String status) {
 	}
@@ -61,6 +65,7 @@ public record UserMessage(
 		@Schema(description = "The first name", example = "Kalle") String firstName,
 		@Schema(description = "The last name", example = "Kula") String lastName,
 		@Schema(description = "The care of", example = "c/o Name Namesson") String careOf,
-		@Schema(description = "The zip code", example = "123 45") String zipCode) {}
+		@Schema(description = "The zip code", example = "123 45") String zipCode) {
+	}
 
 }

@@ -55,6 +55,6 @@ public class DigitalMailSenderIntegration {
 	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {
 		var response = client.getMailboxes(municipalityId, organizationNumber, partyIds);
 
-		return mapper.toMailboxes(response);
+		return mapper.toMailboxes(response.getBody());
 	}
 }

@@ -22,6 +22,7 @@ import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,7 +145,7 @@ class DigitalMailSenderIntegrationTest {
 		final var mailbox = new generated.se.sundsvall.digitalmailsender.Mailbox();
 		final var responseMailbox = new Mailbox("someParty", "someSupplier", true);
 
-		when(mockClient.getMailboxes(eq(MUNICIPALITY_ID), anyString(), anyList())).thenReturn(List.of(mailbox, mailbox));
+		when(mockClient.getMailboxes(eq(MUNICIPALITY_ID), anyString(), anyList())).thenReturn(ResponseEntity.of(Optional.of(List.of(mailbox, mailbox))));
 		when(mockMapper.toMailboxes(anyList())).thenReturn(List.of(responseMailbox, responseMailbox));
 
 		final var response = integration.getMailboxes(MUNICIPALITY_ID, "organizationNumber", List.of("somePartyId"));

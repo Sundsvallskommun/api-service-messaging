@@ -270,18 +270,26 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void createUserMessageTest() {
+	void createUserMessageTest() throws JsonProcessingException {
 		final var municipalityId = "2281";
 		final var messageId = "someMessageId";
-		final var histories = List.of(createHistoryEntity());
+		final var history = createHistoryEntity();
+		final var histories = List.of(history);
 		final var spy = Mockito.spy(historyService);
 		when(dbIntegrationMock.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId)).thenReturn(histories);
-		final var subject = "someSubject";
-		doReturn(subject).when(spy).extractSubject(histories.getFirst());
-		final var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890"));
+		final var recipients = List.of(UserMessage.Recipient.builder().withMessageType("SNAIL_MAIL").withPersonId("123456-7890").build());
 		doReturn(recipients).when(spy).createRecipients(municipalityId, histories);
 		final var attachments = List.of(UserMessage.MessageAttachment.builder().withContentType("application/pdf").withFileName("someFileName").build());
 		doReturn(attachments).when(spy).extractAttachment(histories.getFirst());
+
+		final var expectedSubject = "someSubject";
+		final var expectedMessage = "someMessage";
+		final var jsonNodeMock = mock(JsonNode.class);
+		when(objectMapperMock.readTree(history.getContent())).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("message")).thenReturn(mock(JsonNode.class));
+		when(jsonNodeMock.get("message").asText()).thenReturn(expectedMessage);
+		when(jsonNodeMock.get("subject")).thenReturn(mock(JsonNode.class));
+		when(jsonNodeMock.get("subject").asText()).thenReturn(expectedSubject);
 
 		final var result = spy.createUserMessage(municipalityId, messageId);
 
@@ -292,12 +300,16 @@ class HistoryServiceTest {
 			assertThat(userMessage.issuer()).isEqualTo(histories.getFirst().getIssuer());
 			assertThat(userMessage.origin()).isEqualTo(histories.getFirst().getOrigin());
 			assertThat(userMessage.sent()).isEqualTo(histories.getFirst().getCreatedAt());
+			assertThat(userMessage.subject()).isEqualTo(expectedSubject);
+			assertThat(userMessage.body()).isEqualTo(expectedMessage);
 		});
 
 		verify(dbIntegrationMock).getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		verify(spy).createRecipients(municipalityId, histories);
 		verify(spy).extractAttachment(histories.getFirst());
 		verify(spy).createUserMessage(municipalityId, messageId);
+		verify(spy).extractSubject(histories.getFirst());
+		verify(objectMapperMock, times(2)).readTree(history.getContent());
 		verifyNoMoreInteractions(spy);
 	}
 
@@ -372,7 +384,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void createRecipientTest() {
+	void createRecipientTest() throws JsonProcessingException {
 		final var municipalityId = "2281";
 		final var history = HistoryEntity.builder()
 			.withPartyId("partyId")
@@ -380,7 +392,14 @@ class HistoryServiceTest {
 			.withStatus(MessageStatus.SENT)
 			.build();
 		final var histories = List.of(history);
+		final var expectedMobileNumber = "+461234567890";
 		final var expectedLegalId = "123456-7890";
+
+		final var jsonNodeMock = mock(JsonNode.class);
+		when(objectMapperMock.readTree(history.getContent())).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("mobileNumber")).thenReturn(mock(JsonNode.class));
+		when(jsonNodeMock.get("mobileNumber").asText()).thenReturn(expectedMobileNumber);
+
 		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId())).thenReturn(expectedLegalId);
 
 		final var result = historyService.createRecipients(municipalityId, histories);
@@ -389,19 +408,25 @@ class HistoryServiceTest {
 			assertThat(recipients).hasSize(1);
 			assertThat(recipients.getFirst().personId()).isEqualTo(expectedLegalId);
 			assertThat(recipients.getFirst().messageType()).isEqualTo(histories.getFirst().getMessageType().name());
+			assertThat(recipients.getFirst().mobileNumber()).isEqualTo(expectedMobileNumber);
 		});
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, histories.getFirst().getPartyId());
 	}
 
 	@Test
-	void createRecipientTest_nullPartyId() {
+	void createRecipientTest_nullPartyId() throws JsonProcessingException {
 		final var municipalityId = "2281";
 		final var history = HistoryEntity.builder()
 			.withMessageType(MESSAGE)
 			.withStatus(MessageStatus.SENT)
 			.build();
 		final var histories = List.of(history);
+		final var expectedMobileNumber = "+461234567890";
+		final var jsonNodeMock = mock(JsonNode.class);
+		when(objectMapperMock.readTree(history.getContent())).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("mobileNumber")).thenReturn(mock(JsonNode.class));
+		when(jsonNodeMock.get("mobileNumber").asText()).thenReturn(expectedMobileNumber);
 
 		final var result = historyService.createRecipients(municipalityId, histories);
 
@@ -409,6 +434,7 @@ class HistoryServiceTest {
 			assertThat(recipients).hasSize(1);
 			assertThat(recipients.getFirst().personId()).isNull();
 			assertThat(recipients.getFirst().messageType()).isEqualTo(histories.getFirst().getMessageType().name());
+			assertThat(recipients.getFirst().mobileNumber()).isEqualTo(expectedMobileNumber);
 		});
 
 		verify(partyIntegrationMock, never()).getLegalIdByPartyId(eq(municipalityId), any());
@@ -445,7 +471,7 @@ class HistoryServiceTest {
 			assertThat(recipients.getFirst().address().zipCode()).isEqualTo("12345");
 		});
 
-		verify(objectMapperMock, times(2)).readTree(history.getContent());
+		verify(objectMapperMock, times(4)).readTree(history.getContent());
 		verify(dbIntegrationMock).existsByMunicipalityIdAndMessageIdAndIssuer(municipalityId, messageId, issuer);
 		verify(dbIntegrationMock).getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, history.getPartyId());
