@@ -47,7 +47,7 @@ import se.sundsvall.messaging.service.model.Attachment;
 
 public final class TestDataFactory {
 
-	public static final String DEFAULT_MOBILE_NUMBER = "+46701234567";
+	public static final String DEFAULT_MOBILE_NUMBER = "+46701740605";
 	public static final String DEFAULT_EMAIL_ADDRESS = "someone@somehost.com";
 	public static final String DEFAULT_SENDER_NAME = "someSender";
 	public static final String DEFAULT_SENDER_EMAIL_ADDRESS = "noreply@somehost.com";

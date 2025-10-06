@@ -671,7 +671,7 @@ paths:
           required: true
           schema:
             type: string
-          example: "0701234567"
+          example: "0701740605"
       responses:
         "200":
           description: Successful operation
@@ -834,7 +834,7 @@ components:
         destination:
           type: string
           description: Point of destination
-          example: "+46701234567"
+          example: "+46701740605"
         disabled:
           type: boolean
           description: Signal if channel should be used or not when sending message
