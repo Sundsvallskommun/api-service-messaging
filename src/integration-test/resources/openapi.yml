@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.7"
 servers:
-  - url: http://localhost:55634
+  - url: http://localhost:52937
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1741,6 +1741,12 @@ components:
     Problem:
       type: object
       properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1751,20 +1757,14 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
-        detail:
-          type: string
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     Mailbox:
       type: object
       properties:
@@ -1873,6 +1873,7 @@ components:
         emailAddress:
           type: string
           description: E-mail address
+          format: email
         phoneNumber:
           type: string
           description: Phone number
@@ -2241,10 +2242,12 @@ components:
           minLength: 1
           type: string
           description: Sender e-mail address
+          format: email
           example: sender@sender.se
         replyTo:
           type: string
           description: Reply-to e-mail address
+          format: email
           example: sender@sender.se
     Message:
       required:
@@ -2436,6 +2439,7 @@ components:
         emailAddress:
           type: string
           description: E-mail address
+          format: email
         phoneNumber:
           type: string
           description: Phone number
@@ -2475,6 +2479,7 @@ components:
           minLength: 1
           type: string
           description: Recipient e-mail address
+          format: email
         subject:
           minLength: 1
           type: string
@@ -2527,10 +2532,12 @@ components:
           minLength: 1
           type: string
           description: Sender e-mail address
+          format: email
           example: sender@sender.se
         replyTo:
           type: string
           description: Reply-to e-mail address
+          format: email
           example: sender@sender.se
       description: Sender
     EmailBatchRequest:
@@ -2583,6 +2590,7 @@ components:
           minLength: 1
           type: string
           description: Recipient e-mail address
+          format: email
           example: someone@somewhere.com
     Details:
       required:
@@ -2733,6 +2741,8 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -2740,8 +2750,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         suppressed:
           type: array
           items:
@@ -2804,6 +2812,12 @@ components:
                 type: boolean
         message:
           type: string
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -2814,12 +2828,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
-        detail:
-          type: string
         suppressed:
           type: array
           items:
