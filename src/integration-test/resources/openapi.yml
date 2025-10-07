@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.7"
+  version: "7.8"
 servers:
-  - url: http://localhost:52937
+  - url: http://localhost:61952
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1741,12 +1741,6 @@ components:
     Problem:
       type: object
       properties:
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1757,14 +1751,20 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     Mailbox:
       type: object
       properties:
@@ -2118,6 +2118,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SnailmailAttachment"
+        folderName:
+          type: string
+          description: Used by snailmail-sender to set the name of the organization
+            folder
+          example: Sundsvalls Kommun
     SmsRequest:
       required:
         - message
@@ -2741,8 +2746,6 @@ components:
           type: string
         message:
           type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -2750,6 +2753,8 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
         suppressed:
           type: array
           items:
@@ -2812,12 +2817,6 @@ components:
                 type: boolean
         message:
           type: string
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -2828,6 +2827,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         suppressed:
           type: array
           items:

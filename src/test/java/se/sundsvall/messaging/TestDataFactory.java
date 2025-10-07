@@ -185,6 +185,7 @@ public final class TestDataFactory {
 			.withAddress(createAddress())
 			.withIssuer("someIssuer")
 			.withOrigin("someOrigin")
+			.withFolderName("someFolderName")
 			.build();
 	}
 

@@ -193,6 +193,7 @@ class DtoMapperTest {
 		assertThat(snailMailDto.sentBy()).isEqualTo(snailMailRequest.issuer());
 		assertThat(snailMailDto.origin()).isEqualTo(snailMailRequest.origin());
 		assertThat(snailMailDto.attachments()).hasSize(snailMailRequest.attachments().size());
+		assertThat(snailMailDto.folderName()).isEqualTo(snailMailRequest.folderName());
 
 		// Verify that each attachment is there and mapped correctly
 		assertThat(snailMailDto.attachments())
