@@ -1,13 +1,13 @@
 openapi: 3.0.1
 info:
   title: SnailMailSender
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.1"
+  version: "3.2"
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:59141
     description: Generated server url
 tags:
   - name: SnailMailSender
@@ -197,6 +197,10 @@ components:
           type: string
           description: DepartmentEntity and unit that should be billed
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
+        folderName:
+          type: string
+          description: Used to set the name of the organization folder in the share
+          example: Sundsvalls Kommun
         deviation:
           type: string
           description: If the letter to send deviates from the standard
@@ -237,12 +241,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
           type: string
+        title:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -372,12 +376,12 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
           type: string
+        title:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
@@ -418,4 +422,4 @@ components:
           type: string
         message:
           type: string
-  securitySchemes: {}
+  securitySchemes: { }

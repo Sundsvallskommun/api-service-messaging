@@ -11,6 +11,7 @@
 	"body": "This is the message contents",
 	"department": "Some department",
 	"contentType": "text/plain",
+	"folderName": "Some folder",
 	"party": {
 		"partyIds": [
 			"e4e37771-397b-45b5-bb89-f389f8525e53"
