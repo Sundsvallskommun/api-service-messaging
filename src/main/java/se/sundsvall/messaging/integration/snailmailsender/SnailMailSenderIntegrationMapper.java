@@ -10,16 +10,13 @@ import se.sundsvall.messaging.model.Address;
 class SnailMailSenderIntegrationMapper {
 
 	SendSnailMailRequest toSendSnailmailRequest(final SnailMailDto dto) {
-		if (dto == null) {
-			return null;
-		}
-
-		return new SendSnailMailRequest()
+		return Optional.ofNullable(dto).map(present -> new SendSnailMailRequest()
 			.address(toAddress(dto.address()))
 			.batchId(dto.batchId())
 			.address(toAddress(dto.address()))
 			.department(dto.department())
 			.deviation(dto.deviation())
+			.folderName(dto.folderName())
 			.attachments(Optional.ofNullable(dto.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> new Attachment()
@@ -27,7 +24,8 @@ class SnailMailSenderIntegrationMapper {
 						.contentType(Attachment.ContentTypeEnum.fromValue(attachment.contentType()))
 						.content(attachment.content()))
 					.toList())
-				.orElse(null));
+				.orElse(null)))
+			.orElse(null);
 	}
 
 	generated.se.sundsvall.snailmail.Address toAddress(final Address address) {

@@ -13,6 +13,7 @@ public record SnailMailDto(
 	String deviation,
 	String sentBy,
 	String origin,
+	String folderName,
 	List<Attachment> attachments) {
 
 	@Builder(setterPrefix = "with")

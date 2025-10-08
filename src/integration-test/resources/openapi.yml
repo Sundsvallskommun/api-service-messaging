@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.7"
+  version: "7.8"
 servers:
-  - url: http://localhost:55634
+  - url: http://localhost:61952
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1753,9 +1753,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
@@ -1873,6 +1873,7 @@ components:
         emailAddress:
           type: string
           description: E-mail address
+          format: email
         phoneNumber:
           type: string
           description: Phone number
@@ -2117,6 +2118,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SnailmailAttachment"
+        folderName:
+          type: string
+          description: Used by snailmail-sender to set the name of the organization
+            folder
+          example: Sundsvalls Kommun
     SmsRequest:
       required:
         - message
@@ -2241,10 +2247,12 @@ components:
           minLength: 1
           type: string
           description: Sender e-mail address
+          format: email
           example: sender@sender.se
         replyTo:
           type: string
           description: Reply-to e-mail address
+          format: email
           example: sender@sender.se
     Message:
       required:
@@ -2436,6 +2444,7 @@ components:
         emailAddress:
           type: string
           description: E-mail address
+          format: email
         phoneNumber:
           type: string
           description: Phone number
@@ -2475,6 +2484,7 @@ components:
           minLength: 1
           type: string
           description: Recipient e-mail address
+          format: email
         subject:
           minLength: 1
           type: string
@@ -2527,10 +2537,12 @@ components:
           minLength: 1
           type: string
           description: Sender e-mail address
+          format: email
           example: sender@sender.se
         replyTo:
           type: string
           description: Reply-to e-mail address
+          format: email
           example: sender@sender.se
       description: Sender
     EmailBatchRequest:
@@ -2583,6 +2595,7 @@ components:
           minLength: 1
           type: string
           description: Recipient e-mail address
+          format: email
           example: someone@somewhere.com
     Details:
       required:
@@ -2816,9 +2829,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         suppressed:
           type: array

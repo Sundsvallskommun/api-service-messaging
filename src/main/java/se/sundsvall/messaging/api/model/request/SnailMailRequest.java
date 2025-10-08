@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.api.model.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,6 +13,7 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidFolderName;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
 
@@ -34,7 +36,9 @@ public record SnailMailRequest(
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1) List<@Valid Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId,
+
+	@ValidFolderName(nullable = true) @Schema(description = "Used by snailmail-sender to set the name of the organization folder", example = "Sundsvalls Kommun", requiredMode = NOT_REQUIRED) String folderName) {
 
 	@With
 	@Builder(setterPrefix = "with")

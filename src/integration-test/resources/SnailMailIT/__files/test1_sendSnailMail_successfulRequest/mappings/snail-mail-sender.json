@@ -11,6 +11,7 @@
 			{
 				"equalToJson": {
 					"department": "Some department",
+					"folderName": "Some folder",
 					"batchId": "ebaa0101-b68d-4736-9bdb-a99d74c27a71",
 					"attachments": [
 						{

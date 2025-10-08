@@ -99,4 +99,26 @@ class MessageResourceSnailMailFailureTest {
 			.containsExactly(tuple("department", "must not be blank"));
 	}
 
+	@Test
+	void shouldFailWithInvalidFolderName() {
+		var invalidRequest = createValidSnailMailRequest()
+			.withFolderName("questionMarkIsInvalid_?");
+
+		var response = webTestClient.post()
+			.uri("/2281/snail-mail?batchId=f427952b-247c-4d3b-b081-675a467b3619")
+			.contentType(MediaType.APPLICATION_JSON)
+			.bodyValue(invalidRequest)
+			.exchange()
+			.expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("folderName", "not a valid folder name"));
+	}
+
 }

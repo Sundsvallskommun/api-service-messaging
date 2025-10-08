@@ -25,11 +25,12 @@ class SnailMailRequestTest {
 	private static final String PARTY_ID = "partyId";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
 	private static final Address ADDRESS = createAddress();
+	private static final String FOLDER_NAME = "folderName";
 
 	// SnailMailRequest
 	@Test
 	void testSnailMailRequestConstructor() {
-		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID, FOLDER_NAME);
 
 		assertSnailMailRequest(bean);
 	}
@@ -45,6 +46,7 @@ class SnailMailRequestTest {
 			.withParty(PARTY)
 			.withAddress(ADDRESS)
 			.withMunicipalityId(MUNICIPALITY_ID)
+			.withFolderName(FOLDER_NAME)
 			.build();
 
 		assertSnailMailRequest(bean);
@@ -60,6 +62,7 @@ class SnailMailRequestTest {
 		assertThat(bean.attachments()).isEqualTo(ATTACHMENTS);
 		assertThat(bean.address()).isEqualTo(ADDRESS);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
+		assertThat(bean.folderName()).isEqualTo(FOLDER_NAME);
 	}
 
 	// SnailMailRequest.Attachment

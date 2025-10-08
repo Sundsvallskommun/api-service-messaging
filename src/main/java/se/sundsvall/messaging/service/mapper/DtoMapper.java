@@ -172,7 +172,7 @@ public class DtoMapper {
 			.build();
 	}
 
-	public SnailMailDto toSnailMailDto(final SnailMailRequest request, String batchId, Address address) {
+	public SnailMailDto toSnailMailDto(final SnailMailRequest request, final String batchId, final Address address) {
 		return SnailMailDto.builder()
 			.withPartyId(request.party().partyId())
 			.withAddress(address)
@@ -181,6 +181,7 @@ public class DtoMapper {
 			.withDeviation(request.deviation())
 			.withSentBy(request.issuer())
 			.withOrigin(request.origin())
+			.withFolderName(request.folderName())
 			.withAttachments(ofNullable(request.attachments())
 				.map(attachments -> attachments.stream()
 					.map(attachment -> SnailMailDto.Attachment.builder()
