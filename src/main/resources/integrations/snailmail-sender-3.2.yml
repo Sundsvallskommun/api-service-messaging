@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "3.2"
 servers:
-  - url: https://snailmail-sender-af-snailmailsender.apps.ocp201.sundsvall.se
+  - url: http://localhost:59141
     description: Generated server url
 tags:
   - name: SnailMailSender
@@ -231,10 +231,6 @@ components:
     Problem:
       type: object
       properties:
-        title:
-          type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -245,6 +241,10 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
+        title:
+          type: string
         status:
           $ref: "#/components/schemas/StatusType"
     StatusType:
@@ -295,8 +295,6 @@ components:
           type: string
         message:
           type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -304,6 +302,8 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
         suppressed:
           type: array
           items:
@@ -366,10 +366,6 @@ components:
                 type: boolean
         message:
           type: string
-        title:
-          type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -380,6 +376,10 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
+        title:
+          type: string
         status:
           $ref: "#/components/schemas/StatusType"
         suppressed:

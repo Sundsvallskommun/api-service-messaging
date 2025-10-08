@@ -7,7 +7,7 @@ info:
     url: 'https://opensource.org/licenses/MIT'
   version: '2.0'
 servers:
-  - url: 'https://email-sender-af-emailsender.apps.ocp201.sundsvall.se'
+  - url: http://localhost:59141
     description: Generated server url
 tags:
   - name: Email resources
