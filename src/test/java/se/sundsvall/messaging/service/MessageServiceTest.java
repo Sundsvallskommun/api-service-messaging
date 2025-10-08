@@ -546,7 +546,7 @@ class MessageServiceTest {
 			.thenReturn(List.of(
 				ContactDto.builder()
 					.withContactMethod(ContactDto.ContactMethod.SMS)
-					.withDestination("+46701234567")
+					.withDestination("+46701740605")
 					.withDisabled(false)
 					.build(),
 				ContactDto.builder()
