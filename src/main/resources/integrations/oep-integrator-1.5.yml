@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.0"
+  version: "1.5"
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:53893
     description: Generated server url
 tags:
   - name: Instances
@@ -668,7 +668,7 @@ paths:
           example: INTERNAL
         - name: flowInstanceId
           in: path
-          description: Flow instance id
+          description: MetadataFlow instance id
           required: true
           schema:
             type: string
@@ -770,6 +770,68 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+  /{municipalityId}/{instanceType}/cases/{flowInstanceId}:
+    get:
+      tags:
+        - Cases
+      summary: Get case
+      description: Get case by flow instance ID
+      operationId: getCaseByFlowInstanceId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: flowInstanceId
+          in: path
+          description: flow-instance ID
+          required: true
+          schema:
+            type: string
+          example: 112233
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Case"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/{instanceType}/cases/{flowInstanceId}/queries/{queryId}/files/{fileId}:
     get:
       tags:
@@ -928,7 +990,7 @@ paths:
           required: true
           schema:
             type: string
-          example: 123
+          example: 5d68eb00-d8da-49a0-a6b5-8d395be34a5e
         - name: fromDate
           in: query
           description: Filter cases on fromDate
@@ -952,6 +1014,13 @@ paths:
           schema:
             type: string
           example: Preliminär
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
       responses:
         "200":
           description: Successful operation
@@ -1083,6 +1152,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -1093,12 +1168,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
     StatusType:
       type: object
       properties:
@@ -1139,6 +1208,7 @@ components:
           description: The name
           example: John Doe
         userId:
+          minLength: 1
           type: string
           description: The user id
           example: joh12doe
@@ -1183,6 +1253,8 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -1190,8 +1262,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         suppressed:
           type: array
           items:
@@ -1254,6 +1324,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -1264,12 +1340,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
         suppressed:
           type: array
           items:
@@ -1352,12 +1422,12 @@ components:
     WebmessageRequest:
       required:
         - message
-        - sender
       type: object
       properties:
         sender:
           $ref: "#/components/schemas/Sender"
         message:
+          minLength: 1
           type: string
           description: The message
           example: This is a message
@@ -1373,6 +1443,7 @@ components:
       type: object
       properties:
         caseId:
+          minLength: 1
           type: string
           description: The case id in the system that delivered the case. From Open-E
             Platforms perspective this is the 'external case id
@@ -1386,6 +1457,7 @@ components:
           description: Any log message
           example: The case was delivered successfully
         system:
+          minLength: 1
           type: string
           description: The system that delivered the case
           example: ByggR
@@ -1536,6 +1608,43 @@ components:
           example: text/plain
       description: Webmessage attachment model
       example: "attachment1, attachment2"
+    Case:
+      type: object
+      properties:
+        flowInstanceId:
+          type: string
+          description: The flowInstanceId (caseId)
+          example: "109581"
+        familyId:
+          type: string
+          description: The familyId
+          example: "832"
+        version:
+          type: integer
+          description: Version of the case
+          format: int32
+          example: 4
+        flowId:
+          type: string
+          description: The flowId
+          example: "2411"
+        title:
+          type: string
+          description: The title of the case
+          example: Anmälan om sjukfrånvaro
+        status:
+          $ref: "#/components/schemas/CaseStatus"
+        created:
+          type: string
+          description: The case create date
+          format: date-time
+        payload:
+          type: string
+          description: The payload of the case in xml
+          example: "<Values><sickNotePercentRow2><QueryID>66909</QueryID><Name><![CDATA[Omfattning\
+            \ p* sjukfrånvaro enligt läkarintyg]]></Name><Value>50%</Value></sickNotePercentRow2><sickNotePeriodRow2><QueryID>66910</QueryID><Name><![CDATA[Sjukskrivningsperioden\
+            \ from tom]]></Name><Datum_fran><![CDATA[2024-12-09]]></Datum_fran><Datum_till><![CDATA[2024-12-20]]></Datum_till></sickNotePeriodRow2></Values>"
+      description: Case model
     CaseStatus:
       type: object
       properties:
@@ -1548,6 +1657,22 @@ components:
           type: string
           description: The status name
           example: Inskickat
+        newExternalMessagesDisallowed:
+          type: boolean
+          description: Whether new external messages are disallowed
+        addExternalMessage:
+          type: boolean
+          description: Whether to add external message
+        addInternalMessage:
+          type: boolean
+          description: Whether to add internal message
+        isRestrictedAdminDeletable:
+          type: boolean
+          description: Whether restricted admin can delete
+        status:
+          type: string
+          description: The status
+          example: ARCHIVED
       description: Case status model
     CaseEnvelope:
       type: object
@@ -1564,5 +1689,11 @@ components:
           type: string
           description: The case status change date
           format: date-time
+        displayName:
+          type: string
+          description: The display name for the family the case belongs to
+          example: Kompiskortet
+        status:
+          $ref: "#/components/schemas/CaseStatus"
       description: Case envelope model
   securitySchemes: { }

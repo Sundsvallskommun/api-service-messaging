@@ -152,7 +152,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/integrations/oep-integrator-1.0.yml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/oep-integrator-1.5.yml</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.oepintegrator</modelPackage>
 							</configOptions>
