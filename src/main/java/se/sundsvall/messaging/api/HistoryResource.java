@@ -10,6 +10,7 @@ import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_BY_REQUEST_PARAMETER_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
 import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
@@ -222,12 +223,24 @@ class HistoryResource {
 		return ok(historyService.getUserMessage(municipalityId, userId, messageId));
 	}
 
+	@Deprecated(since = "2025-10-23", forRemoval = true)
 	@Operation(summary = "Stream attachment by messageId and fileName")
 	@GetMapping(value = MESSAGES_ATTACHMENT_PATH, produces = ALL_VALUE)
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId,
 		@Parameter(name = "fileName", example = "some-filename.txt") @PathVariable final String fileName,
+		final HttpServletResponse response) throws IOException {
+
+		historyService.streamAttachment(municipalityId, messageId, fileName, response);
+	}
+
+	@Operation(summary = "Stream attachment by messageId and fileName")
+	@GetMapping(value = MESSAGES_ATTACHMENT_BY_REQUEST_PARAMETER_PATH, produces = ALL_VALUE)
+	void readAttachmentByRequestParameter(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId,
+		@Parameter(name = "fileName", example = "some-filename.txt") @RequestParam final String fileName,
 		final HttpServletResponse response) throws IOException {
 
 		historyService.streamAttachment(municipalityId, messageId, fileName, response);

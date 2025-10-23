@@ -28,6 +28,8 @@ public final class Constants {
 
 	public static final String MESSAGES_ATTACHMENT_PATH = "/{municipalityId}/messages/{messageId}/attachments/{fileName}";
 
+	public static final String MESSAGES_ATTACHMENT_BY_REQUEST_PARAMETER_PATH = "/{municipalityId}/messages/{messageId}/attachments";
+
 	public static final String X_ISSUER_HEADER_KEY = "x-issuer";
 
 	public static final String X_ORIGIN_HEADER_KEY = "x-origin";

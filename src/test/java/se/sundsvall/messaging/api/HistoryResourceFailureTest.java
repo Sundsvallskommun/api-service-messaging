@@ -386,6 +386,50 @@ class HistoryResourceFailureTest {
 	}
 
 	@Test
+	void readAttachment_by_request_parameter_invalid_municipalityId() {
+		final var messageId = UUID.randomUUID().toString();
+		final var fileName = "file.txt";
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
+				.queryParam("fileName", fileName)
+				.build(Map.of("municipalityId", "invalid-municipalityId", "messageId", messageId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("readAttachmentByRequestParameter.municipalityId", "not a valid municipality ID"));
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void readAttachment_by_request_parameter_invalid_messageId() {
+		final var messageId = "not-a-valid-messageId";
+		final var fileName = "file.txt";
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
+				.queryParam("fileName", fileName)
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::getField, Violation::getMessage)
+			.containsExactly(tuple("readAttachmentByRequestParameter.messageId", "not a valid UUID"));
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
 	void getMessageMetadata_shouldFailWithInvalidMessageId() {
 		final var messageId = "not-valid";
 
