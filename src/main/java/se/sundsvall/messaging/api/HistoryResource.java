@@ -223,6 +223,10 @@ class HistoryResource {
 		return ok(historyService.getUserMessage(municipalityId, userId, messageId));
 	}
 
+	/**
+	 * @deprecated since 2025-010-23, will be removed in a future version. Use
+	 *             {@link #readAttachmentByRequestParameter(String, String, String, HttpServletResponse)} instead.
+	 */
 	@Deprecated(since = "2025-10-23", forRemoval = true)
 	@Operation(summary = "Stream attachment by messageId and fileName")
 	@GetMapping(value = MESSAGES_ATTACHMENT_PATH, produces = ALL_VALUE)
