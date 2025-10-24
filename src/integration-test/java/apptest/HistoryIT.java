@@ -221,11 +221,37 @@ class HistoryIT extends AbstractMessagingAppTest {
 	void test18_userHistoricalSms() {
 		final var userId = "issuer4";
 		final var messageId = "f0466e56-72f2-4bc0-9181-2e56921621fc";
-		
+
 		setupCall()
 			.withServicePath(USER_MESSAGE_PATH.formatted(userId, messageId))
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test19_readAttachmentByRequestParameter() throws IOException {
+		final var messageId = "0c803a34-9418-48a8-a058-10e8394116b8";
+		final var fileName = "smiley.jpg";
+
+		setupCall()
+			.withServicePath("/%s/messages/%s/attachments?fileName=smiley.jpg".formatted(MUNICIPALITY_ID, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader(CONTENT_TYPE, List.of("image/jpeg"))
+			.withExpectedBinaryResponse(fileName)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test20_readAttachmentByRequestParameterNotFound() {
+		final var messageId = "67db7260-5829-40f4-ab3d-0ff55d117fb0";
+
+		setupCall()
+			.withServicePath("/%s/messages/%s/attachments?fileName=doesNotExist.jpg".formatted(MUNICIPALITY_ID, messageId))
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}

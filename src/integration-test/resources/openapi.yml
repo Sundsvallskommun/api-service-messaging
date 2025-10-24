@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.8"
+  version: "7.9"
 servers:
-  - url: http://localhost:61952
+  - url: http://localhost:53686
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1618,11 +1618,59 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/messages/{messageId}/attachments:
+    get:
+      tags:
+        - History Resources
+      summary: Stream attachment by messageId and fileName
+      operationId: readAttachmentByRequestParameter
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: d1e07d2c-2e75-44e0-b978-de7e19d7edad
+        - name: fileName
+          in: query
+          required: true
+          schema:
+            minLength: 1
+            type: string
+          example: some-filename.txt
+      responses:
+        "200":
+          description: Successful Operation
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/messages/{messageId}/attachments/{fileName}:
     get:
       tags:
         - History Resources
       summary: Stream attachment by messageId and fileName
+      description: |
+        This endpoint is deprecated and will be removed in a future version."
+        Use /{municipalityId}/messages/{messageId}/attachments and provide the filename using request parameter fileName.
       operationId: readAttachment
       parameters:
         - name: municipalityId
@@ -1662,6 +1710,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      deprecated: true
   /{municipalityId}/conversation-history/{partyId}:
     get:
       tags:
@@ -1741,6 +1790,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         instance:
           type: string
           format: uri
@@ -1751,12 +1806,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
     StatusType:
       type: object
       properties:
@@ -2746,6 +2795,8 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -2753,8 +2804,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         suppressed:
           type: array
           items:
@@ -2817,6 +2866,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         instance:
           type: string
           format: uri
@@ -2827,12 +2882,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        status:
-          $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
-        title:
-          type: string
         suppressed:
           type: array
           items:
