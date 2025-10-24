@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -228,7 +229,12 @@ class HistoryResource {
 	 *             {@link #readAttachmentByRequestParameter(String, String, String, HttpServletResponse)} instead.
 	 */
 	@Deprecated(since = "2025-10-23", forRemoval = true)
-	@Operation(summary = "Stream attachment by messageId and fileName")
+	@Operation(summary = "Stream attachment by messageId and fileName",
+		deprecated = true,
+		description = """
+			This endpoint is deprecated and will be removed in a future version."
+			Use /{municipalityId}/messages/{messageId}/attachments and provide the filename using request parameter fileName.
+			""")
 	@GetMapping(value = MESSAGES_ATTACHMENT_PATH, produces = ALL_VALUE)
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -244,7 +250,7 @@ class HistoryResource {
 	void readAttachmentByRequestParameter(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId,
-		@Parameter(name = "fileName", example = "some-filename.txt") @RequestParam final String fileName,
+		@Parameter(name = "fileName", example = "some-filename.txt") @RequestParam @NotBlank final String fileName,
 		final HttpServletResponse response) throws IOException {
 
 		historyService.streamAttachment(municipalityId, messageId, fileName, response);

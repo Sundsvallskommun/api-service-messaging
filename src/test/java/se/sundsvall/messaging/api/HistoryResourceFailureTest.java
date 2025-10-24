@@ -28,6 +28,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import org.zalando.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
@@ -426,6 +427,26 @@ class HistoryResourceFailureTest {
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
 			.containsExactly(tuple("readAttachmentByRequestParameter.messageId", "not a valid UUID"));
+		verifyNoInteractions(mockHistoryService);
+	}
+
+	@Test
+	void readAttachment_by_request_parameter_missing_fileName() {
+		final var messageId = UUID.randomUUID().toString();
+
+		final var response = webTestClient.get()
+			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(Problem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull()
+			.returns("Bad Request", Problem::getTitle)
+			.returns("Required request parameter 'fileName' for method parameter type String is not present",
+				Problem::getDetail);
 		verifyNoInteractions(mockHistoryService);
 	}
 

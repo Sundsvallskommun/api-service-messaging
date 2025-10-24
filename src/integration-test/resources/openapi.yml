@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.9"
 servers:
-  - url: http://localhost:52411
+  - url: http://localhost:53686
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1643,6 +1643,7 @@ paths:
           in: query
           required: true
           schema:
+            minLength: 1
             type: string
           example: some-filename.txt
       responses:
@@ -1667,6 +1668,9 @@ paths:
       tags:
         - History Resources
       summary: Stream attachment by messageId and fileName
+      description: |
+        This endpoint is deprecated and will be removed in a future version."
+        Use /{municipalityId}/messages/{messageId}/attachments and provide the filename using request parameter fileName.
       operationId: readAttachment
       parameters:
         - name: municipalityId
@@ -1786,6 +1790,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         instance:
           type: string
           format: uri
@@ -1796,12 +1806,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -2791,6 +2795,8 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -2798,8 +2804,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         suppressed:
           type: array
           items:
@@ -2862,6 +2866,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         instance:
           type: string
           format: uri
@@ -2872,12 +2882,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
