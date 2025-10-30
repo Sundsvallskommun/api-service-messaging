@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface DigitalMailSenderClient {
 
-	@PostMapping("/{municipalityId}/send-digital-mail")
-	ResponseEntity<DigitalMailResponse> sendDigitalMail(@PathVariable final String municipalityId, final DigitalMailRequest request);
+	@PostMapping("/{municipalityId}/{organizationNumber}/send-digital-mail")
+	ResponseEntity<DigitalMailResponse> sendDigitalMail(@PathVariable final String municipalityId, @PathVariable final String organizationNumber, final DigitalMailRequest request);
 
 	@PostMapping("/{municipalityId}/send-digital-invoice")
 	ResponseEntity<DigitalInvoiceResponse> sendDigitalInvoice(@PathVariable final String municipalityId, final DigitalInvoiceRequest request);
