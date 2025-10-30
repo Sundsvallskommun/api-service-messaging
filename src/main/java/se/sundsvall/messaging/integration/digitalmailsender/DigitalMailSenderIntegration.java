@@ -16,6 +16,7 @@ import se.sundsvall.messaging.model.MessageStatus;
 public class DigitalMailSenderIntegration {
 
 	static final String INTEGRATION_NAME = "DigitalMailSender";
+	private static final String ORGANIZATION_NUMBER = "2120002411"; // We can only send digital mail as Sundsvall Kommun from this version of messaging
 
 	private final DigitalMailSenderClient client;
 
@@ -28,7 +29,7 @@ public class DigitalMailSenderIntegration {
 	}
 
 	public MessageStatus sendDigitalMail(final String municipalityId, final DigitalMailDto dto) {
-		final var response = client.sendDigitalMail(municipalityId, mapper.toDigitalMailRequest(dto));
+		final var response = client.sendDigitalMail(municipalityId, ORGANIZATION_NUMBER, mapper.toDigitalMailRequest(dto));
 
 		final var success = response.getStatusCode().is2xxSuccessful() &&
 			ofNullable(response.getBody())

@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.digitalmailsender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,20 +56,20 @@ class DigitalMailSenderIntegrationTest {
 		when(mockDigitalMailResponseEntity.getStatusCode()).thenReturn(OK);
 		when(mockDigitalMailResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
 			.deliveryStatus(new DeliveryStatus().delivered(true)));
-		when(mockClient.sendDigitalMail(any(String.class), any(DigitalMailRequest.class)))
+		when(mockClient.sendDigitalMail(any(String.class), anyString(), any(DigitalMailRequest.class)))
 			.thenReturn(mockDigitalMailResponseEntity);
 
 		final var response = integration.sendDigitalMail("2281", createDigitalMailDto());
 		assertThat(response).isEqualTo(SENT);
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-		verify(mockClient, times(1)).sendDigitalMail(any(String.class), any(DigitalMailRequest.class));
+		verify(mockClient, times(1)).sendDigitalMail(any(String.class), anyString(), any(DigitalMailRequest.class));
 	}
 
 	@Test
 	void test_sendDigitalMail_whenExceptionIsThrownByClient() {
 		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class))).thenReturn(new DigitalMailRequest());
-		when(mockClient.sendDigitalMail(any(String.class), any(DigitalMailRequest.class)))
+		when(mockClient.sendDigitalMail(any(String.class), anyString(), any(DigitalMailRequest.class)))
 			.thenThrow(Problem.builder()
 				.withStatus(Status.BAD_GATEWAY)
 				.withCause(Problem.builder()
@@ -84,7 +85,7 @@ class DigitalMailSenderIntegrationTest {
 			});
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
-		verify(mockClient, times(1)).sendDigitalMail(any(String.class), any(DigitalMailRequest.class));
+		verify(mockClient, times(1)).sendDigitalMail(any(String.class), anyString(), any(DigitalMailRequest.class));
 	}
 
 	@Test
