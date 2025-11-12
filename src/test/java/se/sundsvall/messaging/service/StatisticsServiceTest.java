@@ -27,6 +27,7 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.Count;
 import se.sundsvall.messaging.model.DepartmentLetter;
 import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageType;
 
 @ExtendWith(MockitoExtension.class)
 class StatisticsServiceTest {
@@ -111,4 +112,21 @@ class StatisticsServiceTest {
 		verifyNoMoreInteractions(mockDbIntegration);
 	}
 
+	@Test
+	void getStatisticsWithMissingMessageType() {
+		final List<MessageType> messageTypes = List.of();
+		final var now = LocalDate.now();
+		final var municipalityId = "2281";
+		final var statsProjection = createStatisticsEntity(SMS, SMS, SENT, null, null, municipalityId);
+
+		when(mockDbIntegration.getStatsByParameters(municipalityId, null, null, messageTypes, now, now.plusMonths(1)))
+			.thenReturn(List.of(statsProjection));
+
+		final var result = statisticsService.getStatistics(null, now, now.plusMonths(1), municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.sms()).extracting(Count::sent).isEqualTo(1);
+
+		verify(mockDbIntegration).getStatsByParameters(municipalityId, null, null, messageTypes, now, now.plusMonths(1));
+	}
 }
