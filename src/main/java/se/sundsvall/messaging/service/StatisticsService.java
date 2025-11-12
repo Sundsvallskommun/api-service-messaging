@@ -25,7 +25,10 @@ public class StatisticsService {
 	}
 
 	public Statistics getStatistics(final MessageType messageType, final LocalDate from, final LocalDate to, final String municipalityId) {
-		return toStatistics(dbIntegration.getStatsByParameters(municipalityId, null, null, List.of(messageType), from, to));
+		// If no MessageType is provided, we want to fetch statistics for all types
+		final List<MessageType> messageTypes = messageType == null ? List.of() : List.of(messageType);
+
+		return toStatistics(dbIntegration.getStatsByParameters(municipalityId, null, null, messageTypes, from, to));
 	}
 
 	public List<DepartmentStatistics> getDepartmentLetterStatistics(final String origin, final String department, final LocalDate from, final LocalDate to, final String municipalityId) {

@@ -76,7 +76,7 @@ class StatisticsResource {
 	}, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<DepartmentStatistics>> getDepartmentStatistics(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable(name = "department", required = false) @Parameter(description = "Department name") @ValidNullOrNotEmpty final String department,
+		@PathVariable(required = false) @Parameter(description = "Department name") @ValidNullOrNotEmpty final String department,
 		@RequestParam(name = "origin", required = false) @Parameter(description = "Origin name") final String origin,
 		@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "From-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate from,
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
