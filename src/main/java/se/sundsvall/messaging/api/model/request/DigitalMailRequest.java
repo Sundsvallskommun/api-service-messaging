@@ -30,9 +30,9 @@ public record DigitalMailRequest(
 
 	@Schema(description = "Department and unit that should be billed for the message", nullable = true, example = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
-	@OneOf( {
+	@OneOf(value = {
 		"text/plain", "text/html"
-	}) @Schema(description = "Content type", allowableValues = {
+	}, nullable = true) @Schema(description = "Content type", allowableValues = {
 		"text/plain", "text/html"
 	}) String contentType,
 
