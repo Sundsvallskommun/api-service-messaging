@@ -25,13 +25,27 @@ import se.sundsvall.messaging.model.MessageType;
 
 @Entity
 @Table(name = "history", indexes = {
-	@Index(name = "idx_history_batch_id", columnList = "batch_id"),
-	@Index(name = "idx_history_message_id", columnList = "message_id"),
-	@Index(name = "idx_history_delivery_id", columnList = "delivery_id"),
+	// Index for query: findByMunicipalityIdAndIssuerAndCreatedAtIsAfter and
+	// findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter
+	@Index(name = "idx_history_municipality_issuer_created", columnList = "municipality_id, issuer, created_at"),
+	// Index for query: getHistory(municipalityId, partyId, from, to)
+	@Index(name = "idx_history_municipality_party_created", columnList = "municipality_id, party_id, created_at"),
+	// Index for query: findByMunicipalityIdAndMessageId
+	@Index(name = "idx_history_municipality_message", columnList = "municipality_id, message_id"),
+	// Index for query: findByMunicipalityIdAndBatchId
+	@Index(name = "idx_history_municipality_batch", columnList = "municipality_id, batch_id"),
+	// Index for query: findByMunicipalityIdAndDeliveryId
+	@Index(name = "idx_history_municipality_delivery", columnList = "municipality_id, delivery_id"),
+	// Index for query: findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter
+	@Index(name = "idx_history_municipality_batch_issuer_created", columnList = "municipality_id, batch_id, issuer, created_at"),
+	// Index for query: findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn
+	@Index(name = "idx_history_municipality_message_type", columnList = "municipality_id, message_id, message_type"),
+	// Index for query: existsByMunicipalityIdAndMessageIdAndIssuer
+	@Index(name = "idx_history_municipality_message_issuer", columnList = "municipality_id, message_id, issuer"),
+	// Additional indexes
+	@Index(name = "idx_history_created_at", columnList = "created_at"),
 	@Index(name = "idx_history_origin", columnList = "origin"),
-	@Index(name = "idx_history_issuer", columnList = "issuer"),
 	@Index(name = "idx_history_department", columnList = "department"),
-	@Index(name = "idx_history_municipality_id", columnList = "municipality_id"),
 	@Index(name = "idx_history_organization_number", columnList = "organization_number")
 })
 @Getter
