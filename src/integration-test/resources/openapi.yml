@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.9"
 servers:
-  - url: http://localhost:56944
+  - url: http://localhost:57766
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1808,11 +1808,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     Mailbox:
       type: object
       description: Response model for a mailbox
@@ -1890,20 +1890,16 @@ components:
           enum:
             - text/plain
             - text/html
-          minLength: 1
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
             \ if contentType is set to 'application/html')"
-          minLength: 1
         attachments:
           type: array
           description: Attachments
           items:
             $ref: "#/components/schemas/DigitalMailAttachment"
       required:
-        - body
-        - contentType
         - party
     DigitalMailSender:
       type: object

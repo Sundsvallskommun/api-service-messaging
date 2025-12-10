@@ -6,7 +6,7 @@ _The service is used to send different type of messages, such as emails, text me
 
 ### Prerequisites
 
-- **Java 21 or higher**
+- **Java 25 or higher**
 - **Maven**
 - **MariaDB**
 - **Git**
@@ -30,7 +30,8 @@ cd api-service-messaging
 
 3. **Ensure dependent services are running:**
 
-   If this microservice depends on other services, make sure they are up and accessible. See [Dependencies](#dependencies) for more details.
+   If this microservice depends on other services, make sure they are up and accessible.
+   See [Dependencies](#dependencies) for more details.
 
 4. **Build and run the application:**
 
@@ -46,31 +47,38 @@ This microservice depends on the following services:
   - **Purpose:** Retrieve the metadata for invoices.
 - **Contact Settings**
   - **Purpose:** Fetch contact settings for citizens.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-contactsettings](https://github.com/Sundsvallskommun/api-service-contactsettings.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-contactsettings](https://github.com/Sundsvallskommun/api-service-contactsettings.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **Digital Mail Sender**
   - **Purpose:** Is used to send digital mail using Skatteverkets _Mina Meddelanden_.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-digital-mail-sender](https://github.com/Sundsvallskommun/api-service-digital-mail-sender.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-digital-mail-sender](https://github.com/Sundsvallskommun/api-service-digital-mail-sender.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **Email Sender**
   - **Purpose:** Is used to send emails.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-email-sender](https://github.com/Sundsvallskommun/api-service-email-sender.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-email-sender](https://github.com/Sundsvallskommun/api-service-email-sender.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **Party**
   - **Purpose:** Is used to translate citizens personal number to partyIds.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-party](https://github.com/Sundsvallskommun/api-service-party.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-party](https://github.com/Sundsvallskommun/api-service-party.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **SMS Sender**
   - **Purpose:** Is used to send text messages.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-sms-sender](https://github.com/Sundsvallskommun/api-service-sms-sender.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-sms-sender](https://github.com/Sundsvallskommun/api-service-sms-sender.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **Snail Mail Sender**
   - **Purpose:** Is used to send letters.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-snail-mail-sender](https://github.com/Sundsvallskommun/api-service-snail-mail-sender.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-snail-mail-sender](https://github.com/Sundsvallskommun/api-service-snail-mail-sender.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 - **Web Message Sender**
   - **Purpose:** Is used to send web messages.
-  - **Repository:** [https://github.com/Sundsvallskommun/api-service-web-message-sender](https://github.com/Sundsvallskommun/api-service-web-message-sender.git)
+  - **Repository:
+    ** [https://github.com/Sundsvallskommun/api-service-web-message-sender](https://github.com/Sundsvallskommun/api-service-web-message-sender.git)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
 
 Ensure that these services are running and properly configured before starting this microservice.
@@ -105,7 +113,8 @@ curl -X 'POST' \
 
 ## Configuration
 
-Configuration is crucial for the application to run successfully. Ensure all necessary settings are configured in `application.yml`.
+Configuration is crucial for the application to run successfully. Ensure all necessary settings are configured in
+`application.yml`.
 
 ### Key Configuration Parameters
 
@@ -196,7 +205,8 @@ server:
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](https://github.com/Sundsvallskommun/.github/blob/main/.github/CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please
+see [CONTRIBUTING.md](https://github.com/Sundsvallskommun/.github/blob/main/.github/CONTRIBUTING.md) for guidelines.
 
 ## License
 
