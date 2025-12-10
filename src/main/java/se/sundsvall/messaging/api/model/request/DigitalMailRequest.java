@@ -26,9 +26,13 @@ public record DigitalMailRequest(
 
 	@Valid @Schema(description = "Sender") Sender sender,
 
-	@Schema(description = "Subject", nullable = true) String subject,
+	@Schema(description = "Subject", types = {
+		"string", "null"
+	}) String subject,
 
-	@Schema(description = "Department and unit that should be billed for the message", nullable = true, example = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
+	@Schema(description = "Department and unit that should be billed for the message", types = {
+		"string", "null"
+	}, examples = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
 	@OneOf(value = {
 		"text/plain", "text/html"
@@ -38,9 +42,9 @@ public record DigitalMailRequest(
 
 	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')") String body,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Attachments") List<@Valid Attachment> attachments,
 

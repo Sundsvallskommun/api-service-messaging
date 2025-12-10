@@ -20,19 +20,19 @@ public record SmsRequest(
 
 	@Valid @Schema(description = "Party") Party party,
 
-	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively", maxLength = 11, minLength = 3, example = "sender") @Size(max = 11, min = 3) String sender,
+	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively", maxLength = 11, minLength = 3, examples = "sender") @Size(max = 11, min = 3) String sender,
 
 	@ValidMSISDN @Schema(description = "Mobile number. Should start with +467x", requiredMode = REQUIRED) String mobileNumber,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@NotBlank @Schema(description = "Message", requiredMode = REQUIRED) String message,
 
 	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
 
-	@Schema(description = "Department", example = "API-Team") String department,
+	@Schema(description = "Department", examples = "API-Team") String department,
 
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
@@ -41,7 +41,7 @@ public record SmsRequest(
 	@Schema(name = "SmsRequestParty")
 	public record Party(
 
-		@ValidUuid(nullable = true) @Schema(description = "The message party id", example = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
+		@ValidUuid(nullable = true) @Schema(description = "The message party id", examples = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
 
 		@Schema(description = "External references") List<@Valid ExternalReference> externalReferences) {
 	}

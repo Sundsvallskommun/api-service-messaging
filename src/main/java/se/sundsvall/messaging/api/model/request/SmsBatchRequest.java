@@ -18,17 +18,17 @@ import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 @Builder(setterPrefix = "with")
 public record SmsBatchRequest(
 
-	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively", maxLength = 11, minLength = 3, example = "sender") @Size(max = 11, min = 3) String sender,
+	@Schema(description = "The sender of the SMS, swedish letters(å,ä,ö) will be replaced by (a,a,o) respectively", maxLength = 11, minLength = 3, examples = "sender") @Size(max = 11, min = 3) String sender,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@NotBlank @Schema(description = "Message to send as sms", requiredMode = REQUIRED) String message,
 
 	@Schema(description = "Priority (optional, will be defaulted to NORMAL if not present)") Priority priority,
 
-	@Schema(description = "Department", example = "API-Team") String department,
+	@Schema(description = "Department", examples = "API-Team") String department,
 
 	@NotEmpty @Schema(description = "Parties to send the sms message to", requiredMode = REQUIRED) List<@Valid Party> parties,
 
@@ -39,7 +39,7 @@ public record SmsBatchRequest(
 	@Schema(name = "SmsBatchRequestParty")
 	public record Party(
 
-		@ValidUuid(nullable = true) @Schema(description = "The message party id (optional)", example = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
+		@ValidUuid(nullable = true) @Schema(description = "The message party id (optional)", examples = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
 
 		@ValidMSISDN @Schema(description = "Mobile number, which should start with +467x", requiredMode = REQUIRED) String mobileNumber) {
 	}

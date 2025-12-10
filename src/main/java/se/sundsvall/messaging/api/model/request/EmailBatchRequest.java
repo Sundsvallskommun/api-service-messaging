@@ -31,9 +31,9 @@ public record EmailBatchRequest(
 
 	@Valid @Schema(description = "Sender") Sender sender,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class)) List<@Valid Attachment> attachments,
 
@@ -45,9 +45,9 @@ public record EmailBatchRequest(
 	@Builder(setterPrefix = "with")
 	public record Party(
 
-		@ValidUuid(nullable = true) @Schema(description = "The message parties id", format = "uuid", example = "e8660aab-6df9-4ed5-86d1-d9b90a5f7e87") String partyId,
+		@ValidUuid(nullable = true) @Schema(description = "The message parties id", format = "uuid", examples = "e8660aab-6df9-4ed5-86d1-d9b90a5f7e87") String partyId,
 
-		@Email @NotBlank @Schema(description = "Recipient e-mail address", requiredMode = REQUIRED, example = "someone@somewhere.com") String emailAddress) {
+		@Email @NotBlank @Schema(description = "Recipient e-mail address", requiredMode = REQUIRED, examples = "someone@somewhere.com") String emailAddress) {
 	}
 
 	@With
@@ -57,9 +57,9 @@ public record EmailBatchRequest(
 
 		@NotBlank @Schema(description = "The sender of the e-mail") String name,
 
-		@Email @NotBlank @Schema(description = "Sender e-mail address", example = "sender@sender.se") String address,
+		@Email @NotBlank @Schema(description = "Sender e-mail address", examples = "sender@sender.se") String address,
 
-		@Email @Schema(description = "Reply-to e-mail address", example = "sender@sender.se") String replyTo) {
+		@Email @Schema(description = "Reply-to e-mail address", examples = "sender@sender.se") String replyTo) {
 	}
 
 	@With
@@ -67,11 +67,11 @@ public record EmailBatchRequest(
 	@Schema(name = "EmailAttachment", description = "Attachment")
 	public record Attachment(
 
-		@NotBlank @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED) String name,
+		@NotBlank @Schema(description = "The attachment filename", examples = "test.txt", requiredMode = REQUIRED) String name,
 
-		@Schema(description = "The attachment content type", example = "text/plain") String contentType,
+		@Schema(description = "The attachment content type", examples = "text/plain") String contentType,
 
-		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
+		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", examples = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
 	}
 
 }
