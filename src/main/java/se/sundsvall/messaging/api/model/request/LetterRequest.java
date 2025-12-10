@@ -35,13 +35,13 @@ public record LetterRequest(
 
 	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'text/html')") String body,
 
-	@NotBlank @Schema(description = "Department and unit that should be billed in case of snailmail", example = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
+	@NotBlank @Schema(description = "Department and unit that should be billed in case of snailmail", examples = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
-	@Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning") String deviation,
+	@Schema(description = "If the letter to send deviates from the standard", examples = "A3 Ritning") String deviation,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) String issuer,
 
 	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments,
 

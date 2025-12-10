@@ -34,9 +34,9 @@ public record EmailRequest(
 
 	@Valid @Schema(description = "Sender") Sender sender,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class)) List<@Valid Attachment> attachments,
 
@@ -61,9 +61,9 @@ public record EmailRequest(
 
 		@NotBlank @Schema(description = "The sender of the e-mail") String name,
 
-		@Email @NotBlank @Schema(description = "Sender e-mail address", example = "sender@sender.se") String address,
+		@Email @NotBlank @Schema(description = "Sender e-mail address", examples = "sender@sender.se") String address,
 
-		@Email @Schema(description = "Reply-to e-mail address", example = "sender@sender.se") String replyTo) {
+		@Email @Schema(description = "Reply-to e-mail address", examples = "sender@sender.se") String replyTo) {
 	}
 
 	@With
@@ -71,10 +71,10 @@ public record EmailRequest(
 	@Schema(name = "EmailAttachment", description = "Attachment")
 	public record Attachment(
 
-		@NotBlank @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED) String name,
+		@NotBlank @Schema(description = "The attachment filename", examples = "test.txt", requiredMode = REQUIRED) String name,
 
-		@Schema(description = "The attachment content type", example = "text/plain") String contentType,
+		@Schema(description = "The attachment content type", examples = "text/plain") String contentType,
 
-		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
+		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", examples = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
 	}
 }

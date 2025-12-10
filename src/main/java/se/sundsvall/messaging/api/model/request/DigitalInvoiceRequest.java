@@ -29,21 +29,23 @@ public record DigitalInvoiceRequest(
 
 	@NotNull @Schema(description = "Invoice type", requiredMode = REQUIRED) InvoiceType type,
 
-	@Schema(description = "Subject", nullable = true) String subject,
+	@Schema(description = "Subject", types = {
+		"string", "null"
+	}) String subject,
 
-	@Schema(description = "Invoice reference", example = "Faktura #12345") String reference,
+	@Schema(description = "Invoice reference", examples = "Faktura #12345") String reference,
 
 	@Schema(description = "Whether the invoice is payable", defaultValue = "true") Boolean payable,
 
 	@NotNull @Valid @Schema(requiredMode = REQUIRED) Details details,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Files") List<@Valid File> files,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
 
 	@With
 	@Builder(setterPrefix = "with")
@@ -60,17 +62,17 @@ public record DigitalInvoiceRequest(
 	@Schema(description = "Invoice details")
 	public record Details(
 
-		@NotNull @Positive @Schema(description = "The invoice amount", example = "123.45", requiredMode = REQUIRED) Float amount,
+		@NotNull @Positive @Schema(description = "The invoice amount", examples = "123.45", requiredMode = REQUIRED) Float amount,
 
-		@NotNull @Schema(description = "The invoice due date", example = "2023-10-09", requiredMode = REQUIRED) LocalDate dueDate,
+		@NotNull @Schema(description = "The invoice due date", examples = "2023-10-09", requiredMode = REQUIRED) LocalDate dueDate,
 
 		@NotNull @Schema(requiredMode = REQUIRED) ReferenceType paymentReferenceType,
 
-		@NotBlank @Schema(description = "The payment reference number", maxLength = 25, example = "426523791", requiredMode = REQUIRED) String paymentReference,
+		@NotBlank @Schema(description = "The payment reference number", maxLength = 25, examples = "426523791", requiredMode = REQUIRED) String paymentReference,
 
 		@NotNull @Schema(requiredMode = REQUIRED) AccountType accountType,
 
-		@NotBlank @Schema(description = "The receiving account (a valid BANKGIRO or PLUSGIRO number)", example = "12345", requiredMode = REQUIRED) String accountNumber) {
+		@NotBlank @Schema(description = "The receiving account (a valid BANKGIRO or PLUSGIRO number)", examples = "12345", requiredMode = REQUIRED) String accountNumber) {
 	}
 
 	@With

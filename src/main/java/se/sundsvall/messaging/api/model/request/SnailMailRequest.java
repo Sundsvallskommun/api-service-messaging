@@ -26,26 +26,26 @@ public record SnailMailRequest(
 
 	@Schema(description = "Address") Address address,
 
-	@NotBlank @Schema(description = "Department and unit that should be billed", example = "SBK(Gatuavdelningen, Trafiksektionen)", requiredMode = REQUIRED) String department,
+	@NotBlank @Schema(description = "Department and unit that should be billed", examples = "SBK(Gatuavdelningen, Trafiksektionen)", requiredMode = REQUIRED) String department,
 
-	@Schema(description = "If the letter to send deviates from the standard", example = "A3 Ritning") String deviation,
+	@Schema(description = "If the letter to send deviates from the standard", examples = "A3 Ritning") String deviation,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) String issuer,
 
 	@ArraySchema(schema = @Schema(implementation = Attachment.class), minItems = 1) List<@Valid Attachment> attachments,
 
 	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId,
 
-	@ValidFolderName(nullable = true) @Schema(description = "Used by snailmail-sender to set the name of the organization folder", example = "Sundsvalls Kommun", requiredMode = NOT_REQUIRED) String folderName) {
+	@ValidFolderName(nullable = true) @Schema(description = "Used by snailmail-sender to set the name of the organization folder", examples = "Sundsvalls Kommun", requiredMode = NOT_REQUIRED) String folderName) {
 
 	@With
 	@Builder(setterPrefix = "with")
 	@Schema(name = "SnailmailParty")
 	public record Party(
 
-		@ValidUuid(nullable = true) @Schema(description = "The message party id", example = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
+		@ValidUuid(nullable = true) @Schema(description = "The message party id", examples = "f427952b-247c-4d3b-b081-675a467b3619") String partyId,
 
 		@Schema(description = "External references") List<@Valid ExternalReference> externalReferences) {
 	}
@@ -55,10 +55,10 @@ public record SnailMailRequest(
 	@Schema(name = "SnailmailAttachment", description = "Attachment")
 	public record Attachment(
 
-		@NotBlank @Schema(description = "The attachment filename", example = "test.txt", requiredMode = REQUIRED) String filename,
+		@NotBlank @Schema(description = "The attachment filename", examples = "test.txt", requiredMode = REQUIRED) String filename,
 
-		@Schema(description = "The attachment content type", example = "text/plain") String contentType,
+		@Schema(description = "The attachment content type", examples = "text/plain") String contentType,
 
-		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", example = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
+		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", examples = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
 	}
 }

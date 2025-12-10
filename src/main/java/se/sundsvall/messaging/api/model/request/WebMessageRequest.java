@@ -33,13 +33,13 @@ public record WebMessageRequest(
 
 	@Schema(description = "Send as owner", requiredMode = NOT_REQUIRED, defaultValue = "false") boolean sendAsOwner,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Determines if the message should be added to the internal or external OeP instance", allowableValues = {
 		OEP_INSTANCE_INTERNAL, OEP_INSTANCE_EXTERNAL
-	}, example = OEP_INSTANCE_INTERNAL) @ValidInstance(nullable = true) String oepInstance,
+	}, examples = OEP_INSTANCE_INTERNAL) @ValidInstance(nullable = true) String oepInstance,
 
 	// The attachment object is a record and no restrictions are placed on the fields means that empty attachments are
 	// allowed.
@@ -77,6 +77,6 @@ public record WebMessageRequest(
 	@Schema(name = "WebMessageSender", description = "Sender", requiredMode = NOT_REQUIRED)
 	public record Sender(
 
-		@Schema(description = "The user ID of the sender. I.e. employee ID", example = "joe01doe") String userId) {
+		@Schema(description = "The user ID of the sender. I.e. employee ID", examples = "joe01doe") String userId) {
 	}
 }

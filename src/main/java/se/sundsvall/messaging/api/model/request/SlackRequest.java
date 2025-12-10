@@ -16,9 +16,9 @@ public record SlackRequest(
 
 	@NotBlank @Schema(description = "Channel name/id", requiredMode = REQUIRED) String channel,
 
-	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
+	@Schema(description = "Origin of request", examples = "web", hidden = true) @JsonIgnore String origin,
 
-	@Schema(description = "Issuer of request", example = "user123", hidden = true) @JsonIgnore String issuer,
+	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@NotBlank @Schema(description = "Message (supports Slack markdown formatting)", requiredMode = REQUIRED) String message,
 

@@ -9,19 +9,19 @@ import lombok.With;
 @Schema(name = "Address")
 public record Address(
 
-	@Schema(description = "The first name of the recipient", example = "John") String firstName,
+	@Schema(description = "The first name of the recipient", examples = "John") String firstName,
 
-	@Schema(description = "The last name of the recipient", example = "Doe") String lastName,
+	@Schema(description = "The last name of the recipient", examples = "Doe") String lastName,
 
-	@Schema(description = "The address", example = "Main Street 1") String address,
+	@Schema(description = "The address", examples = "Main Street 1") String address,
 
-	@Schema(description = "The apartment number", example = "1101") String apartmentNumber,
+	@Schema(description = "The apartment number", examples = "1101") String apartmentNumber,
 
-	@Schema(description = "The care of", example = "c/o John Doe") String careOf,
+	@Schema(description = "The care of", examples = "c/o John Doe") String careOf,
 
-	@Schema(description = "The zip code", example = "12345") String zipCode,
+	@Schema(description = "The zip code", examples = "12345") String zipCode,
 
-	@Schema(description = "The city", example = "Main Street") String city,
+	@Schema(description = "The city", examples = "Main Street") String city,
 
-	@Schema(description = "The country", example = "Sweden") String country) {
+	@Schema(description = "The country", examples = "Sweden") String country) {
 }
