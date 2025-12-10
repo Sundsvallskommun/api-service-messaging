@@ -14,10 +14,12 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidDigitalMailRequest;
 import se.sundsvall.messaging.model.ExternalReference;
 
 @With
 @Builder(setterPrefix = "with")
+@ValidDigitalMailRequest
 public record DigitalMailRequest(
 
 	@Valid @NotNull @Schema(description = "Party", requiredMode = REQUIRED) Party party,
@@ -28,13 +30,13 @@ public record DigitalMailRequest(
 
 	@Schema(description = "Department and unit that should be billed for the message", nullable = true, example = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
-	@NotBlank @OneOf( {
+	@OneOf(value = {
 		"text/plain", "text/html"
-	}) @Schema(description = "Content type", allowableValues = {
+	}, nullable = true) @Schema(description = "Content type", allowableValues = {
 		"text/plain", "text/html"
 	}) String contentType,
 
-	@NotBlank @Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')") String body,
+	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')") String body,
 
 	@Schema(description = "Origin of request", example = "web", hidden = true) @JsonIgnore String origin,
 

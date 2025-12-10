@@ -249,9 +249,8 @@ class MessageResourceDigitalMailFailureTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		" ", "not-valid-content-type"
+		"not-valid-content-type"
 	})
-	@NullAndEmptySource
 	void shouldFailWithInvalidContentType(final String contentType) {
 		// Arrange
 		final var request = validRequest.withContentType(contentType);
@@ -272,19 +271,15 @@ class MessageResourceDigitalMailFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsAnyOf(
-				tuple("contentType", "must not be blank"),
-				tuple("contentType", "must be one of: [text/plain, text/html]"));
+			.containsExactly(tuple("contentType", "must be one of: [text/plain, text/html]"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = " ")
-	@NullAndEmptySource
-	void shouldFailWithMissingBody(String body) {
+	@Test
+	void shouldFailWithBodyButNoContentType() {
 		// Arrange
-		final var request = validRequest.withBody(body);
+		final var request = validRequest.withBody("someBody").withContentType(null);
 
 		// Act
 		final var response = webTestClient.post()
@@ -302,10 +297,9 @@ class MessageResourceDigitalMailFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("body", "must not be blank"));
+			.contains(tuple("contentType", "contentType must be set when body is provided"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
-
 	}
 
 	@ParameterizedTest

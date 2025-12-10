@@ -1867,8 +1867,6 @@ components:
       description: Party
     DigitalMailRequest:
       required:
-        - body
-        - contentType
         - party
       type: object
       properties:
@@ -1886,14 +1884,12 @@ components:
           nullable: true
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
         contentType:
-          minLength: 1
           type: string
           description: Content type
           enum:
             - text/plain
             - text/html
         body:
-          minLength: 1
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
             \ if contentType is set to 'application/html')"
