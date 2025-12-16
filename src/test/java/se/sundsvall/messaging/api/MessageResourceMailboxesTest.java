@@ -50,7 +50,7 @@ class MessageResourceMailboxesTest {
 		final var partyIds = List.of(uuid, uuid2);
 
 		when(mockMessageService.getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds))
-			.thenReturn(List.of(new Mailbox(uuid, "Kivra", true), new Mailbox(uuid2, "Kivra", false)));
+			.thenReturn(List.of(new Mailbox(uuid, null, "Kivra", true), new Mailbox(uuid2, "someReason", "Kivra", false)));
 
 		final var response = webTestClient.post()
 			.uri(MAILBOXES_URL)
@@ -64,10 +64,10 @@ class MessageResourceMailboxesTest {
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response).extracting(Mailbox::partyId, Mailbox::supplier, Mailbox::reachable)
+		assertThat(response).extracting(Mailbox::partyId, Mailbox::supplier, Mailbox::reachable, Mailbox::reason)
 			.containsExactlyInAnyOrder(
-				tuple(uuid, "Kivra", true),
-				tuple(uuid2, "Kivra", false));
+				tuple(uuid, "Kivra", true, null),
+				tuple(uuid2, "Kivra", false, "someReason"));
 
 		verify(mockMessageService).getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds);
 		verifyNoMoreInteractions(mockMessageService);

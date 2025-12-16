@@ -9,6 +9,9 @@ public record Mailbox(
 
 	@Schema(description = "partyId for the person the mailbox belongs to") String partyId,
 
+	@Schema(description = "If not reachable, the reason why") String reason,
+
 	@Schema(description = "Name of the mailbox, e.g. Kivra") String supplier,
 
-	@Schema(description = "If it's possible to send messages to this mailbox") boolean reachable) {}
+	@Schema(description = "If it's possible to send messages to this mailbox") boolean reachable) {
+}
