@@ -143,7 +143,7 @@ class DigitalMailSenderIntegrationTest {
 	@Test
 	void test_getMailboxes() {
 		final var mailbox = new generated.se.sundsvall.digitalmailsender.Mailbox();
-		final var responseMailbox = new Mailbox("someParty", "someSupplier", true);
+		final var responseMailbox = new Mailbox("someParty", null, "someSupplier", true);
 
 		when(mockClient.getMailboxes(eq(MUNICIPALITY_ID), anyString(), anyList())).thenReturn(ResponseEntity.of(Optional.of(List.of(mailbox, mailbox))));
 		when(mockMapper.toMailboxes(anyList())).thenReturn(List.of(responseMailbox, responseMailbox));
