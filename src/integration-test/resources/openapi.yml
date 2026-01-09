@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.9"
+  version: "7.10"
 servers:
-  - url: http://localhost:57766
+  - url: http://localhost:51787
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1790,12 +1790,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1804,15 +1804,15 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     Mailbox:
       type: object
       description: Response model for a mailbox
@@ -1820,6 +1820,9 @@ components:
         partyId:
           type: string
           description: partyId for the person the mailbox belongs to
+        reason:
+          type: string
+          description: "If not reachable, the reason why"
         supplier:
           type: string
           description: "Name of the mailbox, e.g. Kivra"
@@ -2834,7 +2837,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -2871,7 +2874,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause: { }
+        cause: {}
         stackTrace:
           type: array
           items:
@@ -2896,12 +2899,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -2910,7 +2913,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -3236,8 +3239,8 @@ components:
           $ref: "#/components/schemas/MessageType"
         status:
           $ref: "#/components/schemas/MessageStatus"
-        content: { }
+        content: {}
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

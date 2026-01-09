@@ -119,8 +119,8 @@ class DigitalMailSenderIntegrationMapperTest {
 
 	@Test
 	void test_toMailboxes() {
-		var mailbox1 = new Mailbox().partyId("somePartyId").supplier("someSupplier").reachable(true);
-		var mailbox2 = new Mailbox().partyId("anotherPartyId").supplier("anotherSupplier").reachable(false);
+		var mailbox1 = new Mailbox().partyId("somePartyId").supplier("someSupplier").reachable(true).reason(null);
+		var mailbox2 = new Mailbox().partyId("anotherPartyId").supplier("anotherSupplier").reachable(false).reason("someReason");
 
 		var result = mapper.toMailboxes(List.of(mailbox1, mailbox2));
 
@@ -129,10 +129,11 @@ class DigitalMailSenderIntegrationMapperTest {
 			.extracting(
 				se.sundsvall.messaging.api.model.response.Mailbox::partyId,
 				se.sundsvall.messaging.api.model.response.Mailbox::supplier,
-				se.sundsvall.messaging.api.model.response.Mailbox::reachable)
+				se.sundsvall.messaging.api.model.response.Mailbox::reachable,
+				se.sundsvall.messaging.api.model.response.Mailbox::reason)
 			.containsExactlyInAnyOrder(
-				tuple("somePartyId", "someSupplier", true),
-				tuple("anotherPartyId", "anotherSupplier", false));
+				tuple("somePartyId", "someSupplier", true, null),
+				tuple("anotherPartyId", "anotherSupplier", false, "someReason"));
 	}
 
 	@ParameterizedTest(name = "{0}")

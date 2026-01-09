@@ -84,6 +84,7 @@ class DigitalMailSenderIntegrationMapper {
 			.withPartyId(mailbox.getPartyId())
 			.withSupplier(mailbox.getSupplier())
 			.withReachable(Boolean.TRUE.equals(mailbox.getReachable()))
+			.withReason(mailbox.getReason())
 			.build();
 	}
 }
