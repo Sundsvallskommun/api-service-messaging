@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.api;
 
 import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
@@ -378,7 +379,7 @@ class MessageResource {
 	@Operation(summary = "Trigger processing of a snail-mail batch", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
-	@PostMapping("/snail-mail/batch/{batchId}")
+	@PostMapping(value = "/snail-mail/batch/{batchId}", consumes = ALL_VALUE)
 	ResponseEntity<Void> triggerSnailMailBatchProcessing(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @ValidUuid @PathVariable final String batchId) {
@@ -387,7 +388,7 @@ class MessageResource {
 		return ok().build();
 	}
 
-	// Determine the value of the "sentBy" header, if present use it, otherwise try to get the value from the
+	// Determine the value of the "sentBy" header, if present uses it, otherwise try to get the value from the
 	// x-issuer-header
 	private String resolveSentBy(final String issuer) {
 		return Optional.ofNullable(Identifier.get())
