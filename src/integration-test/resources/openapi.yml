@@ -1,13 +1,13 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: Messaging
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "6.1"
 servers:
-  - url: http://localhost:65095
+  - url: http://localhost:61547
     description: Generated server url
 paths:
   /{municipalityId}/webmessage:
@@ -73,8 +73,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -82,8 +82,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -154,8 +154,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -163,8 +163,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -228,8 +228,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -237,8 +237,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -309,8 +309,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -318,8 +318,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -390,8 +390,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -399,8 +399,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -471,8 +471,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -480,8 +480,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -552,8 +552,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -561,8 +561,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -626,8 +626,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -635,8 +635,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -707,8 +707,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -716,8 +716,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -788,8 +788,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -797,8 +797,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
+        "502":
+          description: Bad Gateway
           content:
             application/json:
               schema:
@@ -1486,22 +1486,24 @@ paths:
 components:
   schemas:
     ExternalReference:
-      required:
-        - key
-        - value
       type: object
       properties:
         key:
           type: string
           description: The external reference key
           example: flowInstanceId
+          minLength: 1
         value:
           type: string
           description: The external reference value
           example: 356t4r34f
-      description: External references
+          minLength: 1
+      required:
+        - key
+        - value
     WebMessageAttachment:
       type: object
+      description: Attachment
       properties:
         fileName:
           type: string
@@ -1512,58 +1514,64 @@ components:
         base64Data:
           type: string
           description: "BASE64-encoded file, max size 50 MB"
-      description: Attachment
     WebMessageParty:
       type: object
       properties:
         partyId:
           type: string
-          description: The message party id
           format: uuid
+          description: The message party id
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
     WebMessageRequest:
-      required:
-        - message
-        - party
       type: object
       properties:
         party:
           $ref: "#/components/schemas/WebMessageParty"
+          description: Party
         message:
           type: string
           description: Message
+          minLength: 1
         sender:
           $ref: "#/components/schemas/WebMessageSender"
+          description: The sender
         oepInstance:
           type: string
           description: Determines if the message should be added to the internal or
             external OeP instance
-          example: internal
           enum:
             - internal
             - external
+          example: internal
         attachments:
-          maxItems: 10
-          minItems: 0
           type: array
           items:
             $ref: "#/components/schemas/WebMessageAttachment"
+            maxItems: 10
+          maxItems: 10
+          minItems: 0
+      required:
+        - message
+        - party
     WebMessageSender:
       type: object
+      description: Sender
       properties:
         userId:
           type: string
           description: The user ID of the sender. I.e. employee ID
           example: joe01doe
-      description: Sender
     Problem:
       type: object
       properties:
+        title:
+          type: string
+        detail:
+          type: string
         status:
           $ref: "#/components/schemas/StatusType"
         instance:
@@ -1574,48 +1582,44 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        title:
-          type: string
-        detail:
-          type: string
+          additionalProperties: {}
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     DeliveryResult:
       type: object
+      description: Delivery result
       properties:
         deliveryId:
           type: string
-          description: The delivery id
           format: uuid
+          description: The delivery id
         messageType:
           $ref: "#/components/schemas/MessageType"
+          description: Message type
         status:
           $ref: "#/components/schemas/MessageStatus"
-      description: Delivery result
+          description: Status
     MessageResult:
       type: object
+      description: Message result
       properties:
         messageId:
           type: string
-          description: The message id
           format: uuid
+          description: The message id
         deliveries:
           type: array
           description: The message deliveries
           items:
             $ref: "#/components/schemas/DeliveryResult"
-      description: Message result
     MessageStatus:
       type: string
-      description: Status
       enum:
         - PENDING
         - AWAITING_FEEDBACK
@@ -1626,7 +1630,6 @@ components:
         - NO_CONTACT_WANTED
     MessageType:
       type: string
-      description: Message type
       enum:
         - MESSAGE
         - EMAIL
@@ -1638,32 +1641,34 @@ components:
         - LETTER
         - SLACK
     SmsRequest:
-      required:
-        - message
-        - mobileNumber
       type: object
       properties:
         party:
           $ref: "#/components/schemas/SmsRequestParty"
+          description: Party
         sender:
-          maxLength: 11
-          minLength: 3
           type: string
           description: "The sender of the SMS, swedish letters(å,ä,ö) will be replaced\
             \ by (a,a,o) respectively"
           example: sender
+          maxLength: 11
+          minLength: 3
         mobileNumber:
           type: string
           description: Mobile number. Should start with +467x
         message:
           type: string
           description: Message
+          minLength: 1
         priority:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
           enum:
             - HIGH
             - NORMAL
+      required:
+        - message
+        - mobileNumber
     SmsRequestParty:
       type: object
       properties:
@@ -1676,23 +1681,20 @@ components:
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
     SmsBatchRequest:
-      required:
-        - message
-        - parties
       type: object
       properties:
         sender:
-          maxLength: 11
-          minLength: 3
           type: string
           description: "The sender of the SMS, swedish letters(å,ä,ö) will be replaced\
             \ by (a,a,o) respectively"
           example: sender
+          maxLength: 11
+          minLength: 3
         message:
           type: string
           description: Message to send as sms
+          minLength: 1
         priority:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
@@ -1704,9 +1706,11 @@ components:
           description: Parties to send the sms message to
           items:
             $ref: "#/components/schemas/SmsBatchRequestParty"
-    SmsBatchRequestParty:
+          minItems: 1
       required:
-        - mobileNumber
+        - message
+        - parties
+    SmsBatchRequestParty:
       type: object
       properties:
         partyId:
@@ -1716,107 +1720,108 @@ components:
         mobileNumber:
           type: string
           description: "Mobile number, which should start with +467x"
-      description: Parties to send the sms message to
+      required:
+        - mobileNumber
     MessageBatchResult:
       type: object
+      description: Message batch result
       properties:
         batchId:
           type: string
-          description: The batch id
           format: uuid
+          description: The batch id
         messages:
           type: array
           description: The individual message results
           items:
             $ref: "#/components/schemas/MessageResult"
-      description: Message batch result
     SlackRequest:
-      required:
-        - channel
-        - message
-        - token
       type: object
       properties:
         token:
           type: string
           description: App/bot token
+          minLength: 1
         channel:
           type: string
           description: Channel name/id
+          minLength: 1
         message:
           type: string
           description: Message (supports Slack markdown formatting)
-    Email:
+          minLength: 1
       required:
-        - address
-        - name
+        - channel
+        - message
+        - token
+    Email:
       type: object
       properties:
         name:
           type: string
           description: The sender of the e-mail
+          minLength: 1
         address:
           type: string
+          format: email
           description: Sender e-mail address
           example: sender@sender.se
+          minLength: 1
         replyTo:
           type: string
+          format: email
           description: Reply-to e-mail address
           example: sender@sender.se
-    Message:
       required:
-        - message
-        - party
+        - address
+        - name
+    Message:
       type: object
       properties:
         party:
           $ref: "#/components/schemas/MessageParty"
+          description: Party
         filters:
           type: object
           additionalProperties:
             type: array
-            description: Filters
-            example:
-              someAttributeName:
-                - someAttributeValue
             items:
               type: string
-              description: Filters
-              example: "{\"someAttributeName\":[\"someAttributeValue\"]}"
           description: Filters
           example:
             someAttributeName:
               - someAttributeValue
         sender:
           $ref: "#/components/schemas/MessageSender"
+          description: Sender
         subject:
           type: string
           description: The message subject (for E-mails)
         message:
           type: string
           description: Plain-text message text
+          minLength: 1
         htmlMessage:
           type: string
           description: "HTML message text, for e-mails (BASE64-encoded)"
-      description: The messages to be sent
-    MessageParty:
       required:
-        - partyId
+        - message
+        - party
+    MessageParty:
       type: object
       properties:
         partyId:
           type: string
-          description: The message party id
           format: uuid
+          description: The message party id
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
-    MessageRequest:
       required:
-        - messages
+        - partyId
+    MessageRequest:
       type: object
       properties:
         messages:
@@ -1824,6 +1829,9 @@ components:
           description: The messages to be sent
           items:
             $ref: "#/components/schemas/Message"
+          minItems: 1
+      required:
+        - messages
     MessageSender:
       type: object
       properties:
@@ -1831,18 +1839,17 @@ components:
           $ref: "#/components/schemas/Email"
         sms:
           $ref: "#/components/schemas/Sms"
-      description: Sender
     Sms:
-      required:
-        - name
       type: object
       properties:
         name:
-          maxLength: 11
-          minLength: 0
           type: string
           description: The sender of the SMS
           example: sender
+          maxLength: 11
+          minLength: 0
+      required:
+        - name
     Address:
       type: object
       properties:
@@ -1861,7 +1868,7 @@ components:
         apartmentNumber:
           type: string
           description: The apartment number
-          example: "1101"
+          example: 1101
         careOf:
           type: string
           description: The care of
@@ -1869,7 +1876,7 @@ components:
         zipCode:
           type: string
           description: The zip code
-          example: "12345"
+          example: 12345
         city:
           type: string
           description: The city
@@ -1878,19 +1885,13 @@ components:
           type: string
           description: The country
           example: Sweden
-      description: Addresses that gets a letter copy
     LetterAttachment:
-      required:
-        - content
-        - deliveryMode
-        - filename
       type: object
+      description: Attachment
       properties:
         deliveryMode:
           type: string
-          description: |
-            Delivery mode, to indicate whether an attachment is intended/allowed to be used for
-            digital mail, snail-mail or any of them
+          description: Delivery mode
           enum:
             - ANY
             - DIGITAL_MAIL
@@ -1898,6 +1899,7 @@ components:
         filename:
           type: string
           description: Filename
+          minLength: 1
         contentType:
           type: string
           description: Content type
@@ -1906,7 +1908,11 @@ components:
         content:
           type: string
           description: Content (BASE64-encoded)
-      description: Attachment
+          minLength: 1
+      required:
+        - content
+        - deliveryMode
+        - filename
     LetterParty:
       type: object
       properties:
@@ -1914,33 +1920,30 @@ components:
           type: array
           items:
             type: string
-            description: The message party ids
             format: uuid
+            description: The message party ids
         addresses:
           type: array
           items:
             $ref: "#/components/schemas/Address"
+            description: Addresses that gets a letter copy
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
     LetterRequest:
-      required:
-        - attachments
-        - department
-        - party
-        - subject
       type: object
       properties:
         party:
           $ref: "#/components/schemas/LetterParty"
+          description: Party
         subject:
           type: string
           description: Subject
         sender:
           $ref: "#/components/schemas/LetterSender"
+          description: Sender
         contentType:
           type: string
           description: Content type
@@ -1955,33 +1958,40 @@ components:
           type: string
           description: Department and unit that should be billed in case of snailmail
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
+          minLength: 1
         deviation:
           type: string
           description: If the letter to send deviates from the standard
           example: A3 Ritning
         attachments:
-          minItems: 1
           type: array
           items:
             $ref: "#/components/schemas/LetterAttachment"
-    LetterSender:
+            description: Attachments
+          minItems: 1
       required:
-        - supportInfo
+        - attachments
+        - department
+        - party
+        - subject
+    LetterSender:
       type: object
       properties:
         supportInfo:
           $ref: "#/components/schemas/LetterSenderSupportInfo"
-      description: Sender
-    LetterSenderSupportInfo:
       required:
-        - text
+        - supportInfo
+    LetterSenderSupportInfo:
       type: object
+      description: Support info
       properties:
         text:
           type: string
           description: Text
+          minLength: 1
         emailAddress:
           type: string
+          format: email
           description: E-mail address
         phoneNumber:
           type: string
@@ -1989,17 +1999,17 @@ components:
         url:
           type: string
           description: URL
-      description: Support info
-    EmailAttachment:
       required:
-        - content
-        - name
+        - text
+    EmailAttachment:
       type: object
+      description: Attachment
       properties:
         name:
           type: string
           description: The attachment filename
           example: test.txt
+          minLength: 1
         contentType:
           type: string
           description: The attachment content type
@@ -2008,21 +2018,24 @@ components:
           type: string
           description: The attachment (file) content as a BASE64-encoded string
           example: aGVsbG8gd29ybGQK
-      description: Attachment
-    EmailRequest:
       required:
-        - emailAddress
-        - subject
+        - content
+        - name
+    EmailRequest:
       type: object
       properties:
         party:
           $ref: "#/components/schemas/EmailRequestParty"
+          description: Party
         emailAddress:
           type: string
+          format: email
           description: Recipient e-mail address
+          minLength: 1
         subject:
           type: string
           description: E-mail subject
+          minLength: 1
         message:
           type: string
           description: E-mail plain-text body
@@ -2031,6 +2044,7 @@ components:
           description: E-mail HTML body (BASE64-encoded)
         sender:
           $ref: "#/components/schemas/EmailSender"
+          description: Sender
         attachments:
           type: array
           items:
@@ -2039,55 +2053,58 @@ components:
           type: object
           additionalProperties:
             type: array
-            description: Headers
             items:
               type: string
-              description: Headers
           description: Headers
+      required:
+        - emailAddress
+        - subject
     EmailRequestParty:
       type: object
       properties:
         partyId:
           type: string
-          description: The message party id
           format: uuid
+          description: The message party id
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
     EmailSender:
-      required:
-        - address
-        - name
       type: object
+      description: Sender
       properties:
         name:
           type: string
           description: The sender of the e-mail
+          minLength: 1
         address:
           type: string
+          format: email
           description: Sender e-mail address
           example: sender@sender.se
+          minLength: 1
         replyTo:
           type: string
+          format: email
           description: Reply-to e-mail address
           example: sender@sender.se
-      description: Sender
-    EmailBatchRequest:
       required:
-        - parties
-        - subject
+        - address
+        - name
+    EmailBatchRequest:
       type: object
       properties:
         parties:
           type: array
           items:
             $ref: "#/components/schemas/Party"
+          minItems: 1
         subject:
           type: string
           description: E-mail subject
+          minLength: 1
         message:
           type: string
           description: E-mail plain-text body
@@ -2096,6 +2113,7 @@ components:
           description: E-mail HTML body (BASE64-encoded)
         sender:
           $ref: "#/components/schemas/EmailSender"
+          description: Sender
         attachments:
           type: array
           items:
@@ -2104,30 +2122,31 @@ components:
           type: object
           additionalProperties:
             type: array
-            description: Headers
             items:
               type: string
-              description: Headers
           description: Headers
-    Party:
       required:
-        - emailAddress
+        - parties
+        - subject
+    Party:
       type: object
       properties:
         partyId:
           type: string
-          description: The message parties id
           format: uuid
+          description: The message parties id
           example: e8660aab-6df9-4ed5-86d1-d9b90a5f7e87
         emailAddress:
           type: string
+          format: email
           description: Recipient e-mail address
           example: someone@somewhere.com
-    DigitalMailAttachment:
+          minLength: 1
       required:
-        - content
-        - filename
+        - emailAddress
+    DigitalMailAttachment:
       type: object
+      description: Attachment
       properties:
         contentType:
           type: string
@@ -2137,47 +2156,46 @@ components:
         content:
           type: string
           description: Content (BASE64-encoded)
+          minLength: 1
         filename:
           type: string
           description: Filename
-      description: Attachment
-    DigitalMailParty:
+          minLength: 1
       required:
-        - partyIds
+        - content
+        - filename
+    DigitalMailParty:
       type: object
       properties:
         partyIds:
-          minItems: 1
           type: array
           items:
             type: string
-            description: The message party ids
             format: uuid
+            description: The message party ids
+          minItems: 1
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
-    DigitalMailRequest:
       required:
-        - body
-        - contentType
-        - party
+        - partyIds
+    DigitalMailRequest:
       type: object
       properties:
         party:
           $ref: "#/components/schemas/DigitalMailParty"
+          description: Party
         sender:
           $ref: "#/components/schemas/DigitalMailSender"
+          description: Sender
         subject:
           type: string
           description: Subject
-          nullable: true
         department:
           type: string
           description: Department and unit that should be billed for the message
-          nullable: true
           example: "SBK(Gatuavdelningen, Trafiksektionen)"
         contentType:
           type: string
@@ -2185,33 +2203,39 @@ components:
           enum:
             - text/plain
             - text/html
+          minLength: 1
         body:
           type: string
           description: "Body (plain text if contentType is set to 'text/plain', BASE64-encoded\
             \ if contentType is set to 'application/html')"
+          minLength: 1
         attachments:
           type: array
           description: Attachments
           items:
             $ref: "#/components/schemas/DigitalMailAttachment"
-    DigitalMailSender:
       required:
-        - supportInfo
+        - body
+        - contentType
+        - party
+    DigitalMailSender:
       type: object
       properties:
         supportInfo:
           $ref: "#/components/schemas/DigitalMailSenderSupportInfo"
-      description: Sender
-    DigitalMailSenderSupportInfo:
       required:
-        - text
+        - supportInfo
+    DigitalMailSenderSupportInfo:
       type: object
+      description: Support info
       properties:
         text:
           type: string
           description: Text
+          minLength: 1
         emailAddress:
           type: string
+          format: email
           description: E-mail address
         phoneNumber:
           type: string
@@ -2219,26 +2243,21 @@ components:
         url:
           type: string
           description: URL
-      description: Support info
-    Details:
       required:
-        - accountNumber
-        - accountType
-        - amount
-        - dueDate
-        - paymentReference
-        - paymentReferenceType
+        - text
+    Details:
       type: object
+      description: Invoice details
       properties:
         amount:
           type: number
-          description: The invoice amount
           format: float
+          description: The invoice amount
           example: 123.45
         dueDate:
           type: string
-          description: The invoice due date
           format: date
+          description: The invoice due date
           example: 2023-10-09
         paymentReferenceType:
           type: string
@@ -2246,10 +2265,11 @@ components:
             - SE_OCR
             - TENANT_REF
         paymentReference:
-          maxLength: 25
           type: string
           description: The payment reference number
-          example: "426523791"
+          example: 426523791
+          maxLength: 25
+          minLength: 1
         accountType:
           type: string
           enum:
@@ -2258,13 +2278,16 @@ components:
         accountNumber:
           type: string
           description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
-          example: "12345"
-      description: Invoice details
-    DigitalInvoiceFile:
+          example: 12345
+          minLength: 1
       required:
-        - content
-        - contentType
-        - filename
+        - accountNumber
+        - accountType
+        - amount
+        - dueDate
+        - paymentReference
+        - paymentReferenceType
+    DigitalInvoiceFile:
       type: object
       properties:
         contentType:
@@ -2278,29 +2301,29 @@ components:
         filename:
           type: string
           description: Filename
-      description: Files
+          minLength: 1
+      required:
+        - content
+        - contentType
+        - filename
     DigitalInvoiceParty:
       type: object
       properties:
         partyId:
           type: string
-          description: The recipient party id
           format: uuid
+          description: The recipient party id
         externalReferences:
           type: array
           description: External references
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Party
     DigitalInvoiceRequest:
-      required:
-        - details
-        - party
-        - type
       type: object
       properties:
         party:
           $ref: "#/components/schemas/DigitalInvoiceParty"
+          description: Party
         type:
           type: string
           description: Invoice type
@@ -2310,15 +2333,14 @@ components:
         subject:
           type: string
           description: Subject
-          nullable: true
         reference:
           type: string
           description: Invoice reference
           example: "Faktura #12345"
         payable:
           type: boolean
-          description: Whether the invoice is payable
           default: true
+          description: Whether the invoice is payable
         details:
           $ref: "#/components/schemas/Details"
         files:
@@ -2326,6 +2348,10 @@ components:
           description: Files
           items:
             $ref: "#/components/schemas/DigitalInvoiceFile"
+      required:
+        - details
+        - party
+        - type
     ConstraintViolationProblem:
       type: object
       properties:
@@ -2366,15 +2392,14 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        detail:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -2411,8 +2436,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
+        cause: {}
         stackTrace:
           type: array
           items:
@@ -2437,6 +2461,10 @@ components:
                 type: boolean
         message:
           type: string
+        title:
+          type: string
+        detail:
+          type: string
         status:
           $ref: "#/components/schemas/StatusType"
         instance:
@@ -2447,12 +2475,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
-        title:
-          type: string
-        detail:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -2495,6 +2518,7 @@ components:
           type: string
     MessageAttachment:
       type: object
+      description: Message attachment model
       properties:
         contentType:
           type: string
@@ -2504,50 +2528,48 @@ components:
           type: string
           description: The attachment file name
           example: attachment.pdf
-      description: Message attachment model
-      readOnly: true
     PagingMetaData:
       type: object
+      description: PagingMetaData model
       properties:
         page:
           type: integer
-          description: Current page
           format: int32
-          readOnly: true
+          description: Current page
           example: 5
+          readOnly: true
         limit:
           type: integer
-          description: Displayed objects per page
           format: int32
-          readOnly: true
+          description: Displayed objects per page
           example: 20
+          readOnly: true
         count:
           type: integer
-          description: Displayed objects on current page
           format: int32
-          readOnly: true
+          description: Displayed objects on current page
           example: 13
+          readOnly: true
         totalRecords:
           type: integer
-          description: Total amount of hits based on provided search parameters
           format: int64
-          readOnly: true
+          description: Total amount of hits based on provided search parameters
           example: 98
+          readOnly: true
         totalPages:
           type: integer
-          description: Total amount of pages based on provided search parameters
           format: int32
-          readOnly: true
+          description: Total amount of pages based on provided search parameters
           example: 23
-      description: PagingMetaData model
-      readOnly: true
+          readOnly: true
     Recipient:
       type: object
+      description: Recipient model
       properties:
         personId:
           type: string
           description: The person identifier
-          example: "199001011234"
+          example: 199001011234
         messageType:
           type: string
           description: The message type
@@ -2556,10 +2578,9 @@ components:
           type: string
           description: The message status
           example: SENT
-      description: Recipient model
-      readOnly: true
     UserMessage:
       type: object
+      description: User message model
       properties:
         messageId:
           type: string
@@ -2575,35 +2596,38 @@ components:
           example: CASEDATA
         sent:
           type: string
-          description: When the message was sent
           format: date-time
+          description: When the message was sent
+          example: 2021-01-01T12:00:00
         subject:
           type: string
           description: The message subject
           example: Important message
         recipients:
           type: array
-          readOnly: true
           items:
             $ref: "#/components/schemas/Recipient"
+            readOnly: true
+          readOnly: true
         attachments:
           type: array
-          readOnly: true
           items:
             $ref: "#/components/schemas/MessageAttachment"
-      description: User message model
-      readOnly: true
+            readOnly: true
+          readOnly: true
     UserMessages:
       type: object
+      description: User messages model
       properties:
         _meta:
           $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
         messages:
           type: array
-          readOnly: true
           items:
             $ref: "#/components/schemas/UserMessage"
-      description: User messages model
+            readOnly: true
+          readOnly: true
     LetterStatistics:
       type: object
       properties:
@@ -2669,30 +2693,11 @@ components:
       type: object
       properties:
         messageType:
-          type: string
-          enum:
-            - MESSAGE
-            - EMAIL
-            - SMS
-            - WEB_MESSAGE
-            - DIGITAL_MAIL
-            - DIGITAL_INVOICE
-            - SNAIL_MAIL
-            - LETTER
-            - SLACK
+          $ref: "#/components/schemas/MessageType"
         status:
-          type: string
-          enum:
-            - PENDING
-            - AWAITING_FEEDBACK
-            - SENT
-            - NOT_SENT
-            - FAILED
-            - NO_CONTACT_SETTINGS_FOUND
-            - NO_CONTACT_WANTED
-        content:
-          type: object
+          $ref: "#/components/schemas/MessageStatus"
+        content: {}
         timestamp:
           type: string
           format: date-time
-  securitySchemes: { }
+  securitySchemes: {}

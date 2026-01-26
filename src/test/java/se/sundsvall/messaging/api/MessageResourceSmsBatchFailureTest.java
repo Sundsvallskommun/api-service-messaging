@@ -39,6 +39,7 @@ class MessageResourceSmsBatchFailureTest {
 	private MessageService mockMessageService;
 
 	@MockitoBean
+
 	private MessageEventDispatcher mockEventDispatcher;
 
 	@Autowired
@@ -155,7 +156,7 @@ class MessageResourceSmsBatchFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("parties[0].mobileNumber", "must be a valid MSISDN (example: +46701234567). Regular expression: ^\\+[1-9][\\d]{3,14}$"));
+			.containsExactly(tuple("parties[0].mobileNumber", "must be a valid MSISDN (example: +46701740605). Regular expression: ^\\+[1-9][\\d]{3,14}$"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
