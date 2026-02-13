@@ -16,9 +16,9 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -188,7 +188,7 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get batch status");
+			throw Problem.valueOf(HttpStatus.NOT_FOUND, "Unable to get batch status");
 		}
 
 		// Grab the first (and only) "root" entry
@@ -216,7 +216,7 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get message status");
+			throw Problem.valueOf(HttpStatus.NOT_FOUND, "Unable to get message status");
 		}
 
 		// Grab the first (and only) "root" entry

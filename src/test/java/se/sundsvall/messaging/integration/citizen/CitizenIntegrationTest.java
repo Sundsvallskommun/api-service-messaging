@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
 import static se.sundsvall.messaging.integration.citizen.CitizenIntegration.POPULATION_REGISTRATION_ADDRESS;
 
@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 @ExtendWith(MockitoExtension.class)
 class CitizenIntegrationTest {

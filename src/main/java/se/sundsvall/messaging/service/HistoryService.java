@@ -8,7 +8,7 @@ import static java.util.stream.Collectors.toCollection;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,12 +30,11 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
-import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
@@ -119,8 +119,8 @@ public class HistoryService {
 		response.addHeader(CONTENT_LENGTH, String.valueOf(decodedContent.length));
 		response.setContentLength(decodedContent.length);
 
-		final var binaryStream = new BinaryStreamImpl(decodedContent);
-		StreamUtils.copy(binaryStream, response.getOutputStream());
+		final var inputStream = new ByteArrayInputStream(decodedContent);
+		StreamUtils.copy(inputStream, response.getOutputStream());
 	}
 
 	public UserBatches getUserBatches(final String municipalityId, final String issuer, final Integer page, final Integer limit) {

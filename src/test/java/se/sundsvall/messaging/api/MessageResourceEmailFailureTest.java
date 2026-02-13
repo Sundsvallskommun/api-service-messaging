@@ -18,11 +18,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Header;
@@ -30,6 +31,7 @@ import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceEmailFailureTest {
 
@@ -71,7 +73,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -99,7 +101,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -127,7 +129,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -154,7 +156,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsAnyOf(
 				tuple("emailAddress", "must not be blank"),
 				tuple("emailAddress", "must be a well-formed email address"));
@@ -183,7 +185,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("subject", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -208,7 +210,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.name", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -235,7 +237,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsAnyOf(
 				tuple("sender.address", "must not be blank"),
 				tuple("sender.address", "must be a well-formed email address"));
@@ -260,7 +262,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.replyTo", "must be a well-formed email address"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -283,7 +285,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("htmlMessage", "not a valid BASE64-encoded string"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -308,7 +310,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].name", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -331,7 +333,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].content", "not a valid BASE64-encoded string"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -358,7 +360,7 @@ class MessageResourceEmailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("headers.Message-ID", "must start with '<', contain '@' and end with '>'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);

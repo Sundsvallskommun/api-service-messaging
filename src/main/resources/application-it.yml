@@ -12,6 +12,8 @@ spring:
       data-locations: classpath:db/scripts/truncate.sql, classpath:db/scripts/testdata-it.sql
       encoding: utf-8
       mode: always
+  #flyway:
+    #locations: classpath:db/migration,classpath:db/testdata-it
 
 # Defaults
 messaging:

@@ -11,18 +11,20 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceSnailMailFailureTest {
 
@@ -53,7 +55,7 @@ class MessageResourceSnailMailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("addSnailMailToBatch.municipalityId", "not a valid municipality ID"));
 
 	}
@@ -74,7 +76,7 @@ class MessageResourceSnailMailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("addSnailMailToBatch.batchId", "not a valid UUID"));
 
 	}
@@ -95,7 +97,7 @@ class MessageResourceSnailMailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("department", "must not be blank"));
 	}
 
@@ -117,7 +119,7 @@ class MessageResourceSnailMailFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("folderName", "not a valid folder name"));
 	}
 

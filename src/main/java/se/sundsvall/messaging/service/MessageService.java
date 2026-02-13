@@ -27,14 +27,14 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.LinkedMultiValueMap;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -502,7 +502,7 @@ public class MessageService {
 			if (e instanceof final ThrowableProblem eAsThrowableProblem) {
 				throwableProblem = eAsThrowableProblem;
 			} else {
-				throwableProblem = Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
+				throwableProblem = Problem.valueOf(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
 			}
 
 			// Archive the message with FAILED status

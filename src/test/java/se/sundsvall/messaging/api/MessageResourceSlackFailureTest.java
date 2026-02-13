@@ -14,16 +14,18 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceSlackFailureTest {
 
@@ -60,7 +62,7 @@ class MessageResourceSlackFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("token", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -88,7 +90,7 @@ class MessageResourceSlackFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("channel", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -116,7 +118,7 @@ class MessageResourceSlackFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);

@@ -18,10 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 @ExtendWith(MockitoExtension.class)
 class SnailMailSenderIntegrationTest {
@@ -55,17 +55,17 @@ class SnailMailSenderIntegrationTest {
 		when(mockMapper.toSendSnailmailRequest(any(SnailMailDto.class))).thenReturn(new SendSnailMailRequest());
 		when(mockClient.sendSnailmail(eq(X_SENT_BY_HEADER_USER_NAME), eq(X_SENT_BY_HEADER_USER_NAME), eq(X_ORIGIN_HEADER_VALUE), eq(MUNICIPALITY_ID), any(SendSnailMailRequest.class)))
 			.thenThrow(Problem.builder()
-				.withStatus(Status.BAD_GATEWAY)
+				.withStatus(HttpStatus.BAD_GATEWAY)
 				.withCause(Problem.builder()
-					.withStatus(Status.BAD_REQUEST)
+					.withStatus(HttpStatus.BAD_REQUEST)
 					.build())
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> integration.sendSnailMail(MUNICIPALITY_ID, snailmailDto))
 			.satisfies(problem -> {
-				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
+				assertThat(problem.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY);
+				assertThat(problem.getCauseAsProblem()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toSendSnailmailRequest(any(SnailMailDto.class));

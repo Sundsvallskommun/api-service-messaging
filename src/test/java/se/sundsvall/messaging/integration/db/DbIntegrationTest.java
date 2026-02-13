@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.integration.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;

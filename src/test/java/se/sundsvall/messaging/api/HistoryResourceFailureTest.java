@@ -23,19 +23,21 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.HistoryService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
+@AutoConfigureWebTestClient
 class HistoryResourceFailureTest {
 
 	@MockitoBean
@@ -62,7 +64,7 @@ class HistoryResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getConversationHistory.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -86,7 +88,7 @@ class HistoryResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getBatchStatus.batchId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -110,7 +112,7 @@ class HistoryResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageStatus.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -134,7 +136,7 @@ class HistoryResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getDeliveryStatus.deliveryId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -158,7 +160,7 @@ class HistoryResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessage.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -183,7 +185,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserBatches.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -207,7 +209,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactlyInAnyOrder(
 				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
 				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
@@ -233,7 +235,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactlyInAnyOrder(
 				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
 				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
@@ -260,7 +262,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessages.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -285,7 +287,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessages.batchId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -309,7 +311,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactlyInAnyOrder(
 				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
 				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
@@ -335,7 +337,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactlyInAnyOrder(
 				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
 				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
@@ -360,7 +362,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachment.municipalityId", "not a valid municipality ID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -381,7 +383,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachment.messageId", "not a valid UUID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -403,7 +405,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachmentByRequestParameter.municipalityId", "not a valid municipality ID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -425,7 +427,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachmentByRequestParameter.messageId", "not a valid UUID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -445,7 +447,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull()
 			.returns("Bad Request", Problem::getTitle)
-			.returns("Required request parameter 'fileName' for method parameter type String is not present",
+			.returns("Required parameter 'fileName' is not present.",
 				Problem::getDetail);
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -465,7 +467,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageMetadata.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -487,7 +489,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageMetadata.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -509,7 +511,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessage.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -532,7 +534,7 @@ class HistoryResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessage.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);

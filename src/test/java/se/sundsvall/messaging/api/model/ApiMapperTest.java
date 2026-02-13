@@ -16,8 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import org.springframework.http.HttpStatus;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
@@ -180,7 +180,7 @@ class ApiMapperTest {
 		final var e = assertThrows(ThrowableProblem.class, () -> ApiMapper.toMessageResult(history));
 
 		// Assert and verify
-		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
+		assertThat(e.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get message status");
 	}
 
@@ -242,7 +242,7 @@ class ApiMapperTest {
 		final var e = assertThrows(ThrowableProblem.class, () -> ApiMapper.toMessageBatchResult(history));
 
 		// Assert and verify
-		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
+		assertThat(e.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get batch status");
 	}
 }

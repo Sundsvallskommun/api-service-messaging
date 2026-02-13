@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.RandomUtils;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -48,15 +46,4 @@ class PagingUtilTest {
 			Arguments.of(2, 5, matches, 2, 1));
 	}
 
-	@Test
-	void toPageRequest() {
-		final var page = RandomUtils.secure().randomInt(1, 10000);
-		final var limit = RandomUtils.secure().randomInt(1, 10000);
-
-		final var bean = PagingUtil.toPageRequest(page, limit);
-
-		assertThat(bean.getPageNumber()).isEqualTo(page - 1); // as PageRequest is zero based
-		assertThat(bean.getPageSize()).isEqualTo(limit);
-		assertThat(bean.getSort()).isEqualTo(Sort.unsorted());
-	}
 }

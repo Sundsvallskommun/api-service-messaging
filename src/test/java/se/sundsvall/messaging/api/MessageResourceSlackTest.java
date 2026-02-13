@@ -27,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -39,6 +40,7 @@ import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceSlackTest {
 

@@ -1,6 +1,6 @@
 package se.sundsvall.messaging.integration.db;
 
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistory;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.mapToHistoryEntity;
 import static se.sundsvall.messaging.integration.db.mapper.MessageMapper.mapToMessage;
@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.integration.db.entity.StatisticEntity;

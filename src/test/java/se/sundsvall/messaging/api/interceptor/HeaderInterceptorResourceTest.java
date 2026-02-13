@@ -19,6 +19,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -32,6 +33,7 @@ import se.sundsvall.messaging.service.MessageService;
  * Verify that the HeaderInterceptor works and only that.
  */
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class HeaderInterceptorResourceTest {
 
@@ -64,7 +66,7 @@ class HeaderInterceptorResourceTest {
 		final var request = createValidDigitalMailRequest();
 		final var decoratedRequest = request.withIssuer(X_ISSUER_HEADER_VALUE).withMunicipalityId(MUNICIPALITY_ID);
 
-		when(mockMessageService.sendLetter(any(), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
+		when(mockMessageService.sendDigitalMail(any(), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
 		webTestClient.post()
 			.uri(DIGITAL_MAIL_URL)

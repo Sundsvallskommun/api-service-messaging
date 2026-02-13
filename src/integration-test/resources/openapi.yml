@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.10"
 servers:
-  - url: http://localhost:51787
+  - url: http://localhost:49494
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1644,7 +1644,6 @@ paths:
           required: true
           schema:
             type: string
-            minLength: 1
           example: some-filename.txt
       responses:
         "200":
@@ -1790,8 +1789,6 @@ components:
     Problem:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -1802,15 +1799,7 @@ components:
         type:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties: {}
-    StatusType:
-      type: object
-      properties:
-        reasonPhrase:
-          type: string
-        statusCode:
+        status:
           type: integer
           format: int32
     Mailbox:
@@ -1918,7 +1907,6 @@ components:
         text:
           type: string
           description: Text
-          minLength: 1
         emailAddress:
           type: string
           format: email
@@ -2045,7 +2033,6 @@ components:
         message:
           type: string
           description: Message
-          minLength: 1
         sender:
           $ref: "#/components/schemas/WebMessageSender"
           description: The sender
@@ -2134,7 +2121,6 @@ components:
           description: The attachment filename
           examples:
             - test.txt
-          minLength: 1
         contentType:
           type: string
           description: The attachment content type
@@ -2175,7 +2161,6 @@ components:
           description: Department and unit that should be billed
           examples:
             - "SBK(Gatuavdelningen, Trafiksektionen)"
-          minLength: 1
         deviation:
           type: string
           description: If the letter to send deviates from the standard
@@ -2215,7 +2200,6 @@ components:
         message:
           type: string
           description: Message
-          minLength: 1
         priority:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
@@ -2257,7 +2241,6 @@ components:
         message:
           type: string
           description: Message to send as sms
-          minLength: 1
         priority:
           type: string
           description: "Priority (optional, will be defaulted to NORMAL if not present)"
@@ -2274,7 +2257,6 @@ components:
           description: Parties to send the sms message to
           items:
             $ref: "#/components/schemas/SmsBatchRequestParty"
-          minItems: 1
       required:
         - message
         - parties
@@ -2297,15 +2279,12 @@ components:
         token:
           type: string
           description: App/bot token
-          minLength: 1
         channel:
           type: string
           description: Channel name/id
-          minLength: 1
         message:
           type: string
           description: Message (supports Slack markdown formatting)
-          minLength: 1
       required:
         - channel
         - message
@@ -2357,7 +2336,6 @@ components:
         message:
           type: string
           description: Plain-text message text
-          minLength: 1
         htmlMessage:
           type: string
           description: "HTML message text, for e-mails (BASE64-encoded)"
@@ -2386,7 +2364,6 @@ components:
           description: The messages to be sent
           items:
             $ref: "#/components/schemas/Message"
-          minItems: 1
       required:
         - messages
     MessageSender:
@@ -2513,7 +2490,6 @@ components:
         text:
           type: string
           description: Text
-          minLength: 1
         emailAddress:
           type: string
           format: email
@@ -2535,7 +2511,6 @@ components:
           description: The attachment filename
           examples:
             - test.txt
-          minLength: 1
         contentType:
           type: string
           description: The attachment content type
@@ -2559,11 +2534,9 @@ components:
           type: string
           format: email
           description: Recipient e-mail address
-          minLength: 1
         subject:
           type: string
           description: E-mail subject
-          minLength: 1
         message:
           type: string
           description: E-mail plain-text body
@@ -2634,7 +2607,6 @@ components:
         subject:
           type: string
           description: E-mail subject
-          minLength: 1
         message:
           type: string
           description: E-mail plain-text body
@@ -2673,7 +2645,6 @@ components:
           description: Recipient e-mail address
           examples:
             - someone@somewhere.com
-          minLength: 1
       required:
         - emailAddress
     Details:
@@ -2703,7 +2674,6 @@ components:
           examples:
             - "426523791"
           maxLength: 25
-          minLength: 1
         accountType:
           type: string
           enum:
@@ -2714,7 +2684,6 @@ components:
           description: The receiving account (a valid BANKGIRO or PLUSGIRO number)
           examples:
             - "12345"
-          minLength: 1
       required:
         - accountNumber
         - accountType
@@ -2736,7 +2705,6 @@ components:
         filename:
           type: string
           description: Filename
-          minLength: 1
       required:
         - content
         - contentType
@@ -2793,160 +2761,42 @@ components:
     ConstraintViolationProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
         type:
           type: string
           format: uri
         status:
-          $ref: "#/components/schemas/StatusType"
+          type: integer
+          format: int32
         violations:
           type: array
           items:
             $ref: "#/components/schemas/Violation"
         title:
           type: string
-        message:
-          type: string
+        causeAsProblem:
+          $ref: "#/components/schemas/ThrowableProblem"
         detail:
           type: string
         instance:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties: {}
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
-          type: string
     ThrowableProblem:
       type: object
       properties:
-        cause: {}
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
-        message:
+        type:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
+          format: uri
         title:
           type: string
+        status:
+          type: integer
+          format: int32
         detail:
           type: string
         instance:
           type: string
           format: uri
-        type:
-          type: string
-          format: uri
-        parameters:
-          type: object
-          additionalProperties: {}
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
-          type: string
+        causeAsProblem: {}
     Violation:
       type: object
       properties:
@@ -2976,31 +2826,36 @@ components:
           type: integer
           format: int32
           description: Current page
-          example: 5
+          examples:
+            - "5"
           readOnly: true
         limit:
           type: integer
           format: int32
           description: Displayed objects per page
-          example: 20
+          examples:
+            - "20"
           readOnly: true
         count:
           type: integer
           format: int32
           description: Displayed objects on current page
-          example: 13
+          examples:
+            - "13"
           readOnly: true
         totalRecords:
           type: integer
           format: int64
           description: Total amount of hits based on provided search parameters
-          example: 98
+          examples:
+            - "98"
           readOnly: true
         totalPages:
           type: integer
           format: int32
           description: Total amount of pages based on provided search parameters
-          example: 23
+          examples:
+            - "23"
           readOnly: true
     Recipient:
       type: object
@@ -3069,13 +2924,11 @@ components:
           items:
             $ref: "#/components/schemas/Recipient"
             readOnly: true
-          readOnly: true
         attachments:
           type: array
           items:
             $ref: "#/components/schemas/MessageAttachment"
             readOnly: true
-          readOnly: true
     UserMessages:
       type: object
       description: User messages model
@@ -3088,7 +2941,6 @@ components:
           items:
             $ref: "#/components/schemas/UserMessage"
             readOnly: true
-          readOnly: true
     Batch:
       type: object
       description: Batch information model
@@ -3157,7 +3009,6 @@ components:
           items:
             $ref: "#/components/schemas/Batch"
             readOnly: true
-          readOnly: true
     LetterStatistics:
       type: object
       properties:

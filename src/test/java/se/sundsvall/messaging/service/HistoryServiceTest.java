@@ -62,7 +62,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;

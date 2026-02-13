@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>7.0.0</version>
+		<version>7.0.1-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
@@ -13,10 +13,11 @@
 	<name>api-service-messaging</name>
 	<properties>
 		<slack-api-client.version>1.47.0</slack-api-client.version>
-		<hypersistence-utils.version>3.9.4</hypersistence-utils.version>
+		<hypersistence-utils.version>3.15.1</hypersistence-utils.version>
 		<archunit.version>1.4.1</archunit.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
+		<hibernate-processor.version>7.2.4.Final</hibernate-processor.version>
 	</properties>
 	<dependencies>
 		<!-- Test -->
@@ -28,6 +29,11 @@
 		<dependency>
 			<groupId>se.sundsvall.dept44</groupId>
 			<artifactId>dept44-models</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-webtestclient</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,17 +67,22 @@
 		</dependency>
 		<dependency>
 			<groupId>io.hypersistence</groupId>
-			<artifactId>hypersistence-utils-hibernate-60</artifactId>
+			<artifactId>hypersistence-utils-hibernate-70</artifactId>
 			<version>${hypersistence-utils.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
-			<artifactId>hibernate-jpamodelgen</artifactId>
+			<artifactId>hibernate-processor</artifactId>
+			<version>${hibernate-processor.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

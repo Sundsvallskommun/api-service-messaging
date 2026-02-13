@@ -18,17 +18,19 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceDigitalMailFailureTest {
 
@@ -70,7 +72,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -99,7 +101,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyIds[0]", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -129,7 +131,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -159,7 +161,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -185,7 +187,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.supportInfo", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -214,7 +216,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.supportInfo.text", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -241,7 +243,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.supportInfo.emailAddress", "must be a well-formed email address"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -270,7 +272,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("contentType", "must be one of: [text/plain, text/html]"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -296,7 +298,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.contains(tuple("contentType", "contentType must be set when body is provided"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -326,7 +328,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].contentType", "must be one of: [application/pdf]"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -354,7 +356,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].content", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -382,7 +384,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].filename", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -405,7 +407,7 @@ class MessageResourceDigitalMailFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sendDigitalMail.organizationNumber", "must match the regular expression ^([1235789][\\d][2-9]\\d{7})$"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);

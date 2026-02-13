@@ -1,7 +1,7 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import feign.Request;
 import java.util.List;
@@ -28,7 +28,7 @@ class DigitalMailSenderIntegrationConfiguration {
 		return FeignMultiCustomizer.create()
 			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
 			.withRequestOptions(requestOptions())
-			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.getStatusCode())))
+			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.value())))
 			.composeCustomizersToOne();
 	}
 

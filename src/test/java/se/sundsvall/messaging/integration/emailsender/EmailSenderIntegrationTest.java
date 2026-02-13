@@ -16,10 +16,10 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 @ExtendWith(MockitoExtension.class)
 class EmailSenderIntegrationTest {
@@ -50,17 +50,17 @@ class EmailSenderIntegrationTest {
 		var emailDto = createEmailDto();
 		when(mockClient.sendEmail(anyString(), any(SendEmailRequest.class)))
 			.thenThrow(Problem.builder()
-				.withStatus(Status.BAD_GATEWAY)
+				.withStatus(HttpStatus.BAD_GATEWAY)
 				.withCause(Problem.builder()
-					.withStatus(Status.BAD_REQUEST)
+					.withStatus(HttpStatus.BAD_REQUEST)
 					.build())
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> integration.sendEmail("2281", emailDto))
 			.satisfies(problem -> {
-				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
+				assertThat(problem.getStatus()).isEqualTo(HttpStatus.BAD_GATEWAY);
+				assertThat(problem.getCauseAsProblem()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
 			});
 
 		verify(mockClient, times(1)).sendEmail(anyString(), any(SendEmailRequest.class));

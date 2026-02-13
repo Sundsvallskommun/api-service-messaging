@@ -17,17 +17,19 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceSmsFailureTest {
 
@@ -72,7 +74,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -103,7 +105,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -134,7 +136,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -164,7 +166,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("mobileNumber", "must be a valid MSISDN (example: +46701740605). Regular expression: ^\\+[1-9][\\d]{3,14}$"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -192,7 +194,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -222,7 +224,7 @@ class MessageResourceSmsFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender", "size must be between 3 and 11"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);

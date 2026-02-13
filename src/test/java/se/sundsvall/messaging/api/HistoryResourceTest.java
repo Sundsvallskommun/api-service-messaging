@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
 import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
 import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
@@ -35,13 +35,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
@@ -57,6 +58,7 @@ import se.sundsvall.messaging.service.HistoryService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
+@AutoConfigureWebTestClient
 class HistoryResourceTest {
 
 	@MockitoBean

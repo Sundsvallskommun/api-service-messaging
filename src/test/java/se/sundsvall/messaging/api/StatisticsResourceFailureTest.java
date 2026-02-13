@@ -15,17 +15,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.StatisticsService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
+@AutoConfigureWebTestClient
 class StatisticsResourceFailureTest {
 
 	@MockitoBean
@@ -51,11 +53,7 @@ class StatisticsResourceFailureTest {
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getDetail()).isEqualTo("""
-			Method parameter 'messageType': \
-			Failed to convert value of type 'java.lang.String' to required type 'se.sundsvall.messaging.model.MessageType'; \
-			Failed to convert from type [java.lang.String] to type [@org.springframework.web.bind.annotation.RequestParam \
-			@io.swagger.v3.oas.annotations.Parameter se.sundsvall.messaging.model.MessageType] for value [not-valid-type]""");
+		assertThat(response.getDetail()).isEqualTo("Failed to convert 'messageType' with value: 'not-valid-type'");
 
 		verifyNoInteractions(mockStatisticsService);
 	}
@@ -80,7 +78,7 @@ class StatisticsResourceFailureTest {
 		// Assert and verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getDepartmentStatistics.department", "text is not null or not empty or has starting or trailing spaces"));
 
 		verifyNoInteractions(mockStatisticsService);

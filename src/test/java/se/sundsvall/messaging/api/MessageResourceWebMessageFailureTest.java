@@ -19,11 +19,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
@@ -31,6 +32,7 @@ import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceWebMessageFailureTest {
 
@@ -72,7 +74,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -102,7 +104,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -132,7 +134,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -162,7 +164,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -191,7 +193,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("oepInstance", "instance must be 'INTERNAL' or 'EXTERNAL'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -219,7 +221,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -245,7 +247,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -271,7 +273,7 @@ class MessageResourceWebMessageFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);

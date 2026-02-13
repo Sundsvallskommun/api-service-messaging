@@ -17,17 +17,19 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
 @ActiveProfiles("junit")
 class MessageResourceDigitalInvoiceFailureTest {
 
@@ -69,7 +71,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -98,7 +100,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -128,7 +130,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -158,7 +160,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -184,7 +186,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("type", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -210,7 +212,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -236,7 +238,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.amount", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -265,7 +267,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.amount", "must be greater than 0"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -291,7 +293,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.dueDate", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -317,7 +319,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.paymentReferenceType", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -345,7 +347,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.paymentReference", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -371,7 +373,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.accountType", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -399,7 +401,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("details.accountNumber", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -429,7 +431,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("files[0].contentType", "must be one of: [application/pdf]"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -457,7 +459,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("files[0].content", "not a valid BASE64-encoded string"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -485,7 +487,7 @@ class MessageResourceDigitalInvoiceFailureTest {
 		// Assert & verify
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+			.extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("files[0].filename", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
