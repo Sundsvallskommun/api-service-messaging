@@ -1,3 +1,4 @@
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE table history;
+TRUNCATE table messages;
 SET FOREIGN_KEY_CHECKS = 1;

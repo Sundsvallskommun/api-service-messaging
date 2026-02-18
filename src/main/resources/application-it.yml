@@ -32,6 +32,13 @@ messaging:
         phone-number: somePhoneNumber
         url: someUrl
 
+# Disable circuit breakers for integration tests to prevent cross-test interference
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      minimumNumberOfCalls: 100
+      slidingWindowSize: 100
+
 integration:
   # SmsSender integration
   sms-sender:
