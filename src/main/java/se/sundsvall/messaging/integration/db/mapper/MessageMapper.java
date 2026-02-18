@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
-import static java.util.Optional.ofNullable;
-
 import se.sundsvall.messaging.integration.db.entity.MessageEntity;
 import se.sundsvall.messaging.model.Message;
+
+import static java.util.Optional.ofNullable;
 
 public final class MessageMapper {
 

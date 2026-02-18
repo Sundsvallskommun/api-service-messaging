@@ -1,9 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-
 import generated.se.sundsvall.digitalmailsender.Details;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import generated.se.sundsvall.digitalmailsender.Mailbox;
@@ -18,6 +14,10 @@ import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class DigitalMailSenderIntegrationMapperTest {
 

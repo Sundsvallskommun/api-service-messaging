@@ -1,11 +1,5 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.TestDataFactory.createAddress;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
-import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Attachment;
@@ -15,6 +9,12 @@ import se.sundsvall.messaging.api.model.request.LetterRequest.Sender;
 import se.sundsvall.messaging.api.model.request.LetterRequest.Sender.SupportInfo;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.ANY;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.DIGITAL_MAIL;
+import static se.sundsvall.messaging.api.model.request.LetterRequest.Attachment.DeliveryMode.SNAIL_MAIL;
 
 class LetterRequestTest {
 

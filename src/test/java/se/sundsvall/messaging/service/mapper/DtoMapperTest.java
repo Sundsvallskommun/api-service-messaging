@@ -1,5 +1,17 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.UUID;
+import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import se.sundsvall.messaging.api.model.request.Priority;
+import se.sundsvall.messaging.configuration.Defaults;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
+import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
+import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
+import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
+import se.sundsvall.messaging.model.ContentType;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
@@ -15,18 +27,6 @@ import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageReques
 import static se.sundsvall.messaging.api.model.request.Header.IN_REPLY_TO;
 import static se.sundsvall.messaging.api.model.request.Header.MESSAGE_ID;
 import static se.sundsvall.messaging.api.model.request.Header.REFERENCES;
-
-import java.util.UUID;
-import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import se.sundsvall.messaging.api.model.request.Priority;
-import se.sundsvall.messaging.configuration.Defaults;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalInvoiceDto;
-import se.sundsvall.messaging.integration.digitalmailsender.DigitalMailDto;
-import se.sundsvall.messaging.integration.oepintegrator.WebMessageDto;
-import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
-import se.sundsvall.messaging.model.ContentType;
 
 class DtoMapperTest {
 

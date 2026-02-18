@@ -1,10 +1,10 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.response.Batch.Status;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BatchTest {
 

@@ -1,12 +1,12 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.TestDataFactory.createBatch;
-import static se.sundsvall.messaging.TestDataFactory.createPagingMetaData;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.createBatch;
+import static se.sundsvall.messaging.TestDataFactory.createPagingMetaData;
 
 class UserBatchesTest {
 

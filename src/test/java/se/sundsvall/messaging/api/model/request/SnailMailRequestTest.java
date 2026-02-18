@@ -1,15 +1,15 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-import static se.sundsvall.messaging.TestDataFactory.createAddress;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.SnailMailRequest.Party;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.createAddress;
 
 class SnailMailRequestTest {
 

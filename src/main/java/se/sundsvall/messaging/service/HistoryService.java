@@ -1,20 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toCollection;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
-import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
-import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
-import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
-import static se.sundsvall.messaging.util.PagingUtil.toPage;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +34,21 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
 import se.sundsvall.messaging.util.FilterUtils;
+
+import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toCollection;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
+import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
+import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
+import static se.sundsvall.messaging.util.PagingUtil.toPage;
 
 @Service
 public class HistoryService {

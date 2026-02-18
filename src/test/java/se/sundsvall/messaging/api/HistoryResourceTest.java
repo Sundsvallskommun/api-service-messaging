@@ -1,30 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
-import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
-import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +29,31 @@ import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.HistoryService;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
+import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.createUserMessages;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.SMS;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")

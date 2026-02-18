@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
-import static java.util.Optional.ofNullable;
-
 import com.google.gson.JsonParser;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -12,6 +10,8 @@ import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.Message;
+
+import static java.util.Optional.ofNullable;
 
 public final class HistoryMapper {
 

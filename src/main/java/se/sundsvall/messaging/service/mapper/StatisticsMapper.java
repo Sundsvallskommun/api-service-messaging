@@ -1,5 +1,18 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import se.sundsvall.messaging.api.model.response.DepartmentStats;
+import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
+import se.sundsvall.messaging.model.Count;
+import se.sundsvall.messaging.model.DepartmentLetter;
+import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+import se.sundsvall.messaging.model.Statistics;
+
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
@@ -14,19 +27,6 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import se.sundsvall.messaging.api.model.response.DepartmentStats;
-import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
-import se.sundsvall.messaging.model.Count;
-import se.sundsvall.messaging.model.DepartmentLetter;
-import se.sundsvall.messaging.model.DepartmentStatistics;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
-import se.sundsvall.messaging.model.Statistics;
 
 public class StatisticsMapper {
 

@@ -1,26 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpHeaders.LOCATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER;
-import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER_VALUE;
-import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER;
-import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER_VALUE;
-import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
-import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_USER_NAME;
-import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
-import static se.sundsvall.messaging.TestDataFactory.createValidSmsBatchRequest;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -42,6 +21,27 @@ import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_USER_NAME;
+import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
+import static se.sundsvall.messaging.TestDataFactory.createValidSmsBatchRequest;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.SMS;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")

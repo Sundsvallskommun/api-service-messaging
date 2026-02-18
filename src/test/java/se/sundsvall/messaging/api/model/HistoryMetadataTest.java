@@ -1,9 +1,5 @@
 package se.sundsvall.messaging.api.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
@@ -16,6 +12,10 @@ import se.sundsvall.messaging.api.model.response.HistoryResponse;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 /**
  * There's a couple of cases to cover for the metadata history, we test them all here.

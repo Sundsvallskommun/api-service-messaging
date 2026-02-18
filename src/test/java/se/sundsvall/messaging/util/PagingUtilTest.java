@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomUtils;
@@ -11,6 +9,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.data.domain.Sort;
 import se.sundsvall.messaging.api.model.response.Batch;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PagingUtilTest {
 

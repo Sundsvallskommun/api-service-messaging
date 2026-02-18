@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.integration.db.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class StatisticEntityTest {
 

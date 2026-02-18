@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.api.validation.impl;
 
-import static java.util.Objects.isNull;
-import static org.springdoc.core.utils.SpringDocUtils.isValidPath;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import se.sundsvall.messaging.api.validation.ValidFolderName;
+
+import static java.util.Objects.isNull;
+import static org.springdoc.core.utils.SpringDocUtils.isValidPath;
 
 public class ValidFolderNameValidator implements ConstraintValidator<ValidFolderName, String> {
 

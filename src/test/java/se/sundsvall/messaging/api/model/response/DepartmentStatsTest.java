@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.api.model.response;
 
-import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Count;
+
+import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
 
 class DepartmentStatsTest {
 

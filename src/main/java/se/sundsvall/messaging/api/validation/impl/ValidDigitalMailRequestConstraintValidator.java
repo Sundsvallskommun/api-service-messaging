@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.api.validation.impl;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.validation.ValidDigitalMailRequest;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class ValidDigitalMailRequestConstraintValidator implements ConstraintValidator<ValidDigitalMailRequest, DigitalMailRequest> {
 

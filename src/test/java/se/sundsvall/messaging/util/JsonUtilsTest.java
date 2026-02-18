@@ -1,10 +1,10 @@
 package se.sundsvall.messaging.util;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
 
 class JsonUtilsTest {
 

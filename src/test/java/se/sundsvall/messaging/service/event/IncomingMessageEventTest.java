@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.service.event;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageType.SMS;
-
-import org.junit.jupiter.api.Test;
 
 class IncomingMessageEventTest {
 

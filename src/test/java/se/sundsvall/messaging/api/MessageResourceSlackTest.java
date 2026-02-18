@@ -1,5 +1,22 @@
 package se.sundsvall.messaging.api;
 
+import java.util.function.Consumer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.request.SlackRequest;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.service.MessageEventDispatcher;
+import se.sundsvall.messaging.service.MessageService;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -20,23 +37,6 @@ import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 import static se.sundsvall.messaging.TestDataFactory.createValidSlackRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SLACK;
-
-import java.util.function.Consumer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.request.SlackRequest;
-import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.service.MessageEventDispatcher;
-import se.sundsvall.messaging.service.MessageService;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")

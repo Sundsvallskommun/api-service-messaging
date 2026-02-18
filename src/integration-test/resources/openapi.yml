@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: Messaging
-  contact: {}
+  contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "7.10"
 servers:
-  - url: http://localhost:51787
+  - url: http://localhost:53596
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1804,15 +1804,15 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: {}
+          additionalProperties: { }
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     Mailbox:
       type: object
       description: Response model for a mailbox
@@ -2837,7 +2837,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: {}
+          additionalProperties: { }
         suppressed:
           type: array
           items:
@@ -2874,7 +2874,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause: {}
+        cause: { }
         stackTrace:
           type: array
           items:
@@ -2913,7 +2913,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: {}
+          additionalProperties: { }
         suppressed:
           type: array
           items:
@@ -2976,31 +2976,36 @@ components:
           type: integer
           format: int32
           description: Current page
-          example: 5
+          examples:
+            - "5"
           readOnly: true
         limit:
           type: integer
           format: int32
           description: Displayed objects per page
-          example: 20
+          examples:
+            - "20"
           readOnly: true
         count:
           type: integer
           format: int32
           description: Displayed objects on current page
-          example: 13
+          examples:
+            - "13"
           readOnly: true
         totalRecords:
           type: integer
           format: int64
           description: Total amount of hits based on provided search parameters
-          example: 98
+          examples:
+            - "98"
           readOnly: true
         totalPages:
           type: integer
           format: int32
           description: Total amount of pages based on provided search parameters
-          example: 23
+          examples:
+            - "23"
           readOnly: true
     Recipient:
       type: object
@@ -3239,8 +3244,8 @@ components:
           $ref: "#/components/schemas/MessageType"
         status:
           $ref: "#/components/schemas/MessageStatus"
-        content: {}
+        content: { }
         timestamp:
           type: string
           format: date-time
-  securitySchemes: {}
+  securitySchemes: { }

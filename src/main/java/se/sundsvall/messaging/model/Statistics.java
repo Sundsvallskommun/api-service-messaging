@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.model;
 
-import static java.util.Optional.ofNullable;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+
+import static java.util.Optional.ofNullable;
 
 @Builder(setterPrefix = "with")
 public record Statistics(

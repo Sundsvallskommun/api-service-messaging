@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.model;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageStatus.AWAITING_FEEDBACK;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
@@ -8,8 +10,6 @@ import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_SETTINGS_FOU
 import static se.sundsvall.messaging.model.MessageStatus.NO_CONTACT_WANTED;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
-import org.junit.jupiter.api.Test;
 
 class MessageStatusTest {
 

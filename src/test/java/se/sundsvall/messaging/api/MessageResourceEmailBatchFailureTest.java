@@ -1,16 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.zalando.problem.Status.BAD_REQUEST;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-import static se.sundsvall.messaging.TestDataFactory.createEmailBatchRequest;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
-import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -29,6 +18,17 @@ import se.sundsvall.messaging.api.model.request.EmailBatchRequest;
 import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.zalando.problem.Status.BAD_REQUEST;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.createEmailBatchRequest;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestAttachment;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestParty;
+import static se.sundsvall.messaging.TestDataFactory.createValidEmailBatchRequestSender;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")

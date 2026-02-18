@@ -1,14 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static org.springframework.http.HttpHeaders.LOCATION;
-import static org.springframework.http.MediaType.ALL_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.ok;
-import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
-import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
-import static se.sundsvall.messaging.api.model.ApiMapper.toResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -52,6 +43,15 @@ import se.sundsvall.messaging.api.model.response.MessageBatchResult;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
+
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.ok;
+import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
+import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
+import static se.sundsvall.messaging.api.model.ApiMapper.toResponse;
 
 @Tag(name = "Sending Resources")
 @RestController

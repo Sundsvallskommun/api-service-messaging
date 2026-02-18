@@ -1,9 +1,9 @@
 package se.sundsvall.messaging.model;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.TestDataFactory.createAddress;
-
-import org.junit.jupiter.api.Test;
 
 class MessageTest {
 	private static final String BATCH_ID = "batchId";

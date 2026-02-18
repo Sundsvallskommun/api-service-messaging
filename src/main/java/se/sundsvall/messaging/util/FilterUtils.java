@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.util;
 
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import se.sundsvall.messaging.api.model.response.UserMessage;
+
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 public class FilterUtils {
 	private FilterUtils() {

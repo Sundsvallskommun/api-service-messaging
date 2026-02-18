@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -11,6 +9,8 @@ import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Email;
 import se.sundsvall.messaging.api.model.request.MessageRequest.Message.Sender.Sms;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageRequestTest {
 

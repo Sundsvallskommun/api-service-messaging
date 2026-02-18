@@ -1,5 +1,16 @@
 package se.sundsvall.messaging;
 
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.integration.db.entity.MessageEntity;
+import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -13,17 +24,6 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.integration.db.entity.MessageEntity;
-import se.sundsvall.messaging.service.event.IncomingMessageEvent;
 
 @ExtendWith(MockitoExtension.class)
 class StartupHandlerTest {

@@ -1,7 +1,5 @@
 package se.sundsvall.messaging;
 
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -9,6 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 
 @Component
 class StartupHandler implements CommandLineRunner {

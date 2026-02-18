@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.integration.oepintegrator;
 
-import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
 import se.sundsvall.messaging.model.MessageStatus;
+
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @Component
 public class OepIntegratorIntegration {

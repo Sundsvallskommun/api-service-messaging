@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.api.validation.impl;
 
-import static org.apache.commons.collections4.MapUtils.isEmpty;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -12,6 +10,8 @@ import java.util.stream.Collectors;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 import se.sundsvall.messaging.api.model.request.Header;
 import se.sundsvall.messaging.api.validation.ValidHeaders;
+
+import static org.apache.commons.collections4.MapUtils.isEmpty;
 
 public class ValidHeadersConstraintValidator implements ConstraintValidator<ValidHeaders, Map<?, ?>> {
 

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>7.0.0</version>
+		<version>7.0.1</version>
 		<relativePath />
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
@@ -36,7 +36,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>mariadb</artifactId>
+			<artifactId>testcontainers-mariadb</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -191,18 +191,6 @@
 							<inputSpec>${project.basedir}/src/main/resources/integrations/sms-sender-2.0.yml</inputSpec>
 							<configOptions>
 								<modelPackage>generated.se.sundsvall.smssender</modelPackage>
-							</configOptions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>web-message-sender-api</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/integrations/web-message-sender-3.2.yml</inputSpec>
-							<configOptions>
-								<modelPackage>generated.se.sundsvall.webmessagesender</modelPackage>
 							</configOptions>
 						</configuration>
 					</execution>

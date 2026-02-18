@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DigitalInvoiceRequestTest {
 

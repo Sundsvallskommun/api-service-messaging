@@ -1,5 +1,18 @@
 package se.sundsvall.messaging.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.messaging.integration.db.DbIntegration;
+import se.sundsvall.messaging.model.Count;
+import se.sundsvall.messaging.model.DepartmentLetter;
+import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageType;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,19 +28,6 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
-import java.time.LocalDate;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.messaging.integration.db.DbIntegration;
-import se.sundsvall.messaging.model.Count;
-import se.sundsvall.messaging.model.DepartmentLetter;
-import se.sundsvall.messaging.model.DepartmentStatistics;
-import se.sundsvall.messaging.model.MessageType;
 
 @ExtendWith(MockitoExtension.class)
 class StatisticsServiceTest {

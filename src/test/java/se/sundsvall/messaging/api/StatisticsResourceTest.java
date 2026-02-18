@@ -1,16 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static se.sundsvall.messaging.Constants.STATISTICS_FOR_DEPARTMENTS_PATH;
-import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
-import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +17,17 @@ import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Statistics;
 import se.sundsvall.messaging.service.StatisticsService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static se.sundsvall.messaging.Constants.STATISTICS_FOR_DEPARTMENTS_PATH;
+import static se.sundsvall.messaging.Constants.STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH;
+import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
