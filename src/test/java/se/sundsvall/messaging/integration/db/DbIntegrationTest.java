@@ -1,20 +1,5 @@
 package se.sundsvall.messaging.integration.db;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
-import static se.sundsvall.messaging.model.MessageStatus.PENDING;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +26,21 @@ import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.messaging.TestDataFactory.createStatisticsEntity;
+import static se.sundsvall.messaging.model.MessageStatus.PENDING;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+
 @ExtendWith(MockitoExtension.class)
 class DbIntegrationTest {
 
@@ -55,6 +55,41 @@ class DbIntegrationTest {
 
 	@InjectMocks
 	private DbIntegration dbIntegration;
+
+	private static BatchHistoryProjection createBatchHistoryProjection() {
+		return new BatchHistoryProjection() {
+
+			@Override
+			public MessageStatus getStatus() {
+				return null;
+			}
+
+			@Override
+			public MessageType getOriginalMessageType() {
+				return null;
+			}
+
+			@Override
+			public MessageType getMessageType() {
+				return null;
+			}
+
+			@Override
+			public String getMessageId() {
+				return null;
+			}
+
+			@Override
+			public LocalDateTime getCreatedAt() {
+				return null;
+			}
+
+			@Override
+			public String getBatchId() {
+				return null;
+			}
+		};
+	}
 
 	@AfterEach
 	void verifyNoMoreMockInteractions() {
@@ -297,7 +332,7 @@ class DbIntegrationTest {
 
 	@ParameterizedTest
 	@EnumSource(MessageType.class)
-	void getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(MessageType type) {
+	void getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(final MessageType type) {
 		final var municipalityId = "municipalityId";
 		final var messageId = "messageId";
 		final var messageTypes = List.of(type);
@@ -310,41 +345,6 @@ class DbIntegrationTest {
 		assertThat(match).isSameAs(entity);
 
 		verify(mockHistoryRepository).findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(municipalityId, messageId, messageTypes);
-	}
-
-	private static BatchHistoryProjection createBatchHistoryProjection() {
-		return new BatchHistoryProjection() {
-
-			@Override
-			public MessageStatus getStatus() {
-				return null;
-			}
-
-			@Override
-			public MessageType getOriginalMessageType() {
-				return null;
-			}
-
-			@Override
-			public MessageType getMessageType() {
-				return null;
-			}
-
-			@Override
-			public String getMessageId() {
-				return null;
-			}
-
-			@Override
-			public LocalDateTime getCreatedAt() {
-				return null;
-			}
-
-			@Override
-			public String getBatchId() {
-				return null;
-			}
-		};
 	}
 
 }

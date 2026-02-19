@@ -1,5 +1,18 @@
 package se.sundsvall.messaging.api.interceptor;
 
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
+import se.sundsvall.messaging.model.InternalDeliveryResult;
+import se.sundsvall.messaging.service.MessageService;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -14,19 +27,6 @@ import static se.sundsvall.messaging.TestDataFactory.X_ISSUER_HEADER_VALUE;
 import static se.sundsvall.messaging.TestDataFactory.createValidDigitalMailRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
-import se.sundsvall.messaging.model.InternalDeliveryResult;
-import se.sundsvall.messaging.service.MessageService;
 
 /**
  * Verify that the HeaderInterceptor works and only that.

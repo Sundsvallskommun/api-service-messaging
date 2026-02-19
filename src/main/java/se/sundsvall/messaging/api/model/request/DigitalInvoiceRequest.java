@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -20,6 +17,9 @@ import se.sundsvall.messaging.model.AccountType;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.InvoiceType;
 import se.sundsvall.messaging.model.ReferenceType;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @With
 @Builder(setterPrefix = "with")

@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.integration.db.entity;
 
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-import static se.sundsvall.messaging.util.JsonUtils.toJson;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,6 +19,9 @@ import lombok.NoArgsConstructor;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
+import static se.sundsvall.messaging.util.JsonUtils.toJson;
 
 @Entity
 @Table(name = "history", indexes = {

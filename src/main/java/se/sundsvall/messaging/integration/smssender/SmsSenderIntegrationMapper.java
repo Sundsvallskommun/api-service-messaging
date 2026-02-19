@@ -1,12 +1,12 @@
 package se.sundsvall.messaging.integration.smssender;
 
-import static java.util.Optional.ofNullable;
-
 import generated.se.sundsvall.smssender.SendSmsRequest;
 import generated.se.sundsvall.smssender.SendSmsRequest.PriorityEnum;
 import generated.se.sundsvall.smssender.Sender;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.Priority;
+
+import static java.util.Optional.ofNullable;
 
 @Component
 class SmsSenderIntegrationMapper {

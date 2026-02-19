@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.integration.slack;
 
-import static org.zalando.problem.Status.BAD_GATEWAY;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.model.block.SectionBlock;
@@ -12,6 +9,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component;
 import org.zalando.problem.Problem;
 import se.sundsvall.messaging.model.MessageStatus;
+
+import static org.zalando.problem.Status.BAD_GATEWAY;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @Component
 @EnableConfigurationProperties(SlackIntegrationProperties.class)

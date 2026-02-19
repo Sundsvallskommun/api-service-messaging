@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Attachment;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Party;
 import se.sundsvall.messaging.api.model.request.EmailBatchRequest.Sender;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EmailBatchRequestTest {
 

@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +13,9 @@ import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.messaging.api.validation.ValidFolderName;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
 @Builder(setterPrefix = "with")

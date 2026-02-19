@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import static java.util.Optional.ofNullable;
-
 import generated.se.sundsvall.digitalmailsender.Attachment;
 import generated.se.sundsvall.digitalmailsender.BodyInformation;
 import generated.se.sundsvall.digitalmailsender.Details;
@@ -15,6 +13,8 @@ import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.response.Mailbox;
+
+import static java.util.Optional.ofNullable;
 
 @Component
 class DigitalMailSenderIntegrationMapper {

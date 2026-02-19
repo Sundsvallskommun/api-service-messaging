@@ -1,12 +1,5 @@
 package se.sundsvall.messaging.integration.db.mapper;
 
-import static org.assertj.core.api.Assertions.within;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
-import static se.sundsvall.messaging.model.MessageStatus.FAILED;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -16,6 +9,13 @@ import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.util.PagingUtil;
+
+import static org.assertj.core.api.Assertions.within;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
+import static se.sundsvall.messaging.model.MessageStatus.FAILED;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 class HistoryMapperTest {
 

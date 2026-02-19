@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.service.mapper;
 
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +22,9 @@ import se.sundsvall.messaging.integration.smssender.SmsDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
+
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
 
 @Component
 public class DtoMapper {

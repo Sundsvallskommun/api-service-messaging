@@ -1,11 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatisticsList;
-import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStats;
-import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
-
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -14,6 +8,12 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.DepartmentStatistics;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.model.Statistics;
+
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatisticsList;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStats;
+import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
 
 @Service
 public class StatisticsService {

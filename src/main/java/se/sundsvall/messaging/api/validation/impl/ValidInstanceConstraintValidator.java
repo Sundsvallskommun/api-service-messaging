@@ -1,12 +1,12 @@
 package se.sundsvall.messaging.api.validation.impl;
 
-import static java.util.Objects.isNull;
-import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
-import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import se.sundsvall.messaging.api.validation.ValidInstance;
+
+import static java.util.Objects.isNull;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_EXTERNAL;
+import static se.sundsvall.messaging.Constants.OEP_INSTANCE_INTERNAL;
 
 public class ValidInstanceConstraintValidator implements ConstraintValidator<ValidInstance, String> {
 

@@ -1,12 +1,12 @@
 package se.sundsvall.messaging.model;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static se.sundsvall.messaging.model.ContentType.APPLICATION_PDF;
 import static se.sundsvall.messaging.model.ContentType.TEXT_HTML;
 import static se.sundsvall.messaging.model.ContentType.TEXT_PLAIN;
-
-import org.junit.jupiter.api.Test;
 
 class ContentTypeTest {
 

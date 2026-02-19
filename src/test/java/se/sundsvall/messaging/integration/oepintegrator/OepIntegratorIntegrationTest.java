@@ -1,12 +1,5 @@
 package se.sundsvall.messaging.integration.oepintegrator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,6 +16,13 @@ import org.springframework.http.ResponseEntity;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.model.ExternalReference;
 import se.sundsvall.messaging.model.MessageStatus;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OepIntegratorIntegrationTest {

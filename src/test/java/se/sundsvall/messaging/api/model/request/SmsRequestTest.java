@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.api.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.request.SmsRequest.Party;
 import se.sundsvall.messaging.model.ExternalReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SmsRequestTest {
 

@@ -1,9 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import static java.util.Optional.ofNullable;
-import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
@@ -12,6 +8,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.response.Mailbox;
 import se.sundsvall.messaging.model.MessageStatus;
+
+import static java.util.Optional.ofNullable;
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @Component
 @EnableConfigurationProperties(DigitalMailSenderIntegrationProperties.class)

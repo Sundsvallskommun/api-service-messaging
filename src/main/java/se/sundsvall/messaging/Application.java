@@ -1,9 +1,9 @@
 package se.sundsvall.messaging;
 
-import static org.springframework.boot.SpringApplication.run;
-
 import org.springframework.scheduling.annotation.EnableAsync;
 import se.sundsvall.dept44.ServiceApplication;
+
+import static org.springframework.boot.SpringApplication.run;
 
 @ServiceApplication
 @EnableAsync

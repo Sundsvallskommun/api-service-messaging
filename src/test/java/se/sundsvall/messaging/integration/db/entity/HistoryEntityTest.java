@@ -1,14 +1,14 @@
 package se.sundsvall.messaging.integration.db.entity;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 class HistoryEntityTest {
 

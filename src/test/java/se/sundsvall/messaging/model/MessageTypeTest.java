@@ -1,5 +1,7 @@
 package se.sundsvall.messaging.model;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -10,8 +12,6 @@ import static se.sundsvall.messaging.model.MessageType.SLACK;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
-import org.junit.jupiter.api.Test;
 
 class MessageTypeTest {
 

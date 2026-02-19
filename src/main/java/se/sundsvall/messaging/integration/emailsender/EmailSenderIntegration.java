@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.integration.emailsender;
 
-import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.model.MessageStatus;
+
+import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @Component
 @EnableConfigurationProperties(EmailSenderIntegrationProperties.class)

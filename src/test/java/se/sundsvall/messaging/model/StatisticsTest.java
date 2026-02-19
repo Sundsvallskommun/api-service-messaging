@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Statistics.Letter;
 import se.sundsvall.messaging.model.Statistics.Message;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class StatisticsTest {
 

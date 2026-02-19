@@ -1,12 +1,5 @@
 package se.sundsvall.messaging.integration.db;
 
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtAfter;
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtBefore;
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withDepartment;
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withMunicipalityId;
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOrigin;
-import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOriginalMessageTypeIn;
-
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +9,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 import se.sundsvall.messaging.model.MessageType;
+
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtAfter;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withCreatedAtBefore;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withDepartment;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withMunicipalityId;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOrigin;
+import static se.sundsvall.messaging.integration.db.specification.StatisticsSpecification.withOriginalMessageTypeIn;
 
 @Repository
 @CircuitBreaker(name = "statisticsRepository")

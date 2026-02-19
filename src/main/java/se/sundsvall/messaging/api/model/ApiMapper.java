@@ -1,12 +1,5 @@
 package se.sundsvall.messaging.api.model;
 
-import static java.util.stream.Collectors.groupingBy;
-import static org.springframework.http.ResponseEntity.created;
-import static org.springframework.web.util.UriComponentsBuilder.fromPath;
-import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,6 +28,13 @@ import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 public class ApiMapper {
 

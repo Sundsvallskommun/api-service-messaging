@@ -1,10 +1,10 @@
 package se.sundsvall.messaging.api.model.response;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
-
-import org.junit.jupiter.api.Test;
 
 class DeliveryResultTest {
 

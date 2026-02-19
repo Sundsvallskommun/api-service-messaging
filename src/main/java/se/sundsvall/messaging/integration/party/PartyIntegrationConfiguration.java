@@ -1,7 +1,5 @@
 package se.sundsvall.messaging.integration.party;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import feign.Request;
 import feign.codec.ErrorDecoder;
 import java.util.List;
@@ -12,6 +10,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 class PartyIntegrationConfiguration {
 

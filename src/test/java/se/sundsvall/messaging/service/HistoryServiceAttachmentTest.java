@@ -1,16 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
-import static se.sundsvall.messaging.model.MessageType.SLACK;
-import static se.sundsvall.messaging.model.MessageType.SMS;
-import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -26,6 +15,17 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.MessageType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
+import static se.sundsvall.messaging.model.MessageType.SLACK;
+import static se.sundsvall.messaging.model.MessageType.SMS;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 /**
  * Testing the extraction of attachment handling in the HistoryService.

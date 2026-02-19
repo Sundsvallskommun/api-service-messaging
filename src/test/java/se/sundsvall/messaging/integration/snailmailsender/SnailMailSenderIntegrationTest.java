@@ -1,5 +1,16 @@
 package se.sundsvall.messaging.integration.snailmailsender;
 
+import generated.se.sundsvall.snailmail.SendSnailMailRequest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
+import org.zalando.problem.ThrowableProblem;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,17 +22,6 @@ import static org.mockito.Mockito.when;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.X_ORIGIN_HEADER_VALUE;
 import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_USER_NAME;
-
-import generated.se.sundsvall.snailmail.SendSnailMailRequest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
 
 @ExtendWith(MockitoExtension.class)
 class SnailMailSenderIntegrationTest {

@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static se.sundsvall.messaging.model.MessageType.LETTER;
-import static se.sundsvall.messaging.model.MessageType.MESSAGE;
-
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -11,6 +8,9 @@ import org.zalando.problem.Status;
 import se.sundsvall.dept44.requestid.RequestId;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.service.event.IncomingMessageEvent;
+
+import static se.sundsvall.messaging.model.MessageType.LETTER;
+import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
 @Component
 class MessageEventHandler {

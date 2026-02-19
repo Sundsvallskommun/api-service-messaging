@@ -1,21 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.OK;
-import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
-import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import generated.se.sundsvall.digitalmailsender.DeliveryStatus;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalInvoiceResponse;
@@ -34,6 +18,22 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.response.Mailbox;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
+import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @ExtendWith(MockitoExtension.class)
 class DigitalMailSenderIntegrationTest {

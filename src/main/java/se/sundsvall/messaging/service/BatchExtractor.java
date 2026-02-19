@@ -1,16 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static org.apache.commons.collections4.CollectionUtils.containsAny;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.EMAIL;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
-import static se.sundsvall.messaging.util.JsonUtils.fromJson;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +13,17 @@ import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.model.MessageType;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static org.apache.commons.collections4.CollectionUtils.containsAny;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
+import static se.sundsvall.messaging.util.JsonUtils.fromJson;
 
 @Component
 public class BatchExtractor {

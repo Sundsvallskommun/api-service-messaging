@@ -1,5 +1,16 @@
 package se.sundsvall.messaging.service.mapper;
 
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
+import se.sundsvall.messaging.model.Count;
+import se.sundsvall.messaging.model.DepartmentLetter;
+import se.sundsvall.messaging.model.DepartmentStatistics;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.when;
@@ -20,17 +31,6 @@ import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toCount;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStatisticsList;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toDepartmentStats;
 import static se.sundsvall.messaging.service.mapper.StatisticsMapper.toStatistics;
-
-import java.util.List;
-import java.util.Map;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
-import se.sundsvall.messaging.model.Count;
-import se.sundsvall.messaging.model.DepartmentLetter;
-import se.sundsvall.messaging.model.DepartmentStatistics;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
 
 class StatisticsMapperTest {
 

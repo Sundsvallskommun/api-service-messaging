@@ -1,8 +1,8 @@
 package se.sundsvall.messaging.integration;
 
-import static java.time.Duration.ofSeconds;
-
 import java.time.Duration;
+
+import static java.time.Duration.ofSeconds;
 
 public final class Constants {
 

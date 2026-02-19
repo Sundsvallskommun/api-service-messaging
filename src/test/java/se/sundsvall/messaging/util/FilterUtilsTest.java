@@ -1,10 +1,5 @@
 package se.sundsvall.messaging.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
-import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,6 +9,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import se.sundsvall.messaging.api.model.response.UserMessage.Recipient;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
+import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 
 class FilterUtilsTest {
 	private static final String PERSON_ID = "personId";

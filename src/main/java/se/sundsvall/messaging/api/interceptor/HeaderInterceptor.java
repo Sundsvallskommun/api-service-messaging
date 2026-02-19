@@ -1,13 +1,13 @@
 package se.sundsvall.messaging.api.interceptor;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import se.sundsvall.dept44.support.Identifier;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
 
 @Configuration
 public class HeaderInterceptor implements HandlerInterceptor {

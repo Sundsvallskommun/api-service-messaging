@@ -1,11 +1,11 @@
 package se.sundsvall.messaging.integration;
 
-import static se.sundsvall.messaging.integration.Constants.DEFAULT_CONNECT_TIMEOUT;
-import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
-
 import java.time.Duration;
 import lombok.Getter;
 import lombok.Setter;
+
+import static se.sundsvall.messaging.integration.Constants.DEFAULT_CONNECT_TIMEOUT;
+import static se.sundsvall.messaging.integration.Constants.DEFAULT_READ_TIMEOUT;
 
 @Getter
 @Setter

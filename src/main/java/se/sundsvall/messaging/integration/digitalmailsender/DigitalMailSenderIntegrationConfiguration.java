@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.integration.digitalmailsender;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.zalando.problem.Status.NOT_FOUND;
-
 import feign.Request;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
@@ -13,6 +10,9 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.zalando.problem.Status.NOT_FOUND;
 
 @Import(FeignConfiguration.class)
 class DigitalMailSenderIntegrationConfiguration {

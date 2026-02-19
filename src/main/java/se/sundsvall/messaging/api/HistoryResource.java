@@ -1,24 +1,5 @@
 package se.sundsvall.messaging.api;
 
-import static org.springframework.http.MediaType.ALL_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.notFound;
-import static org.springframework.http.ResponseEntity.ok;
-import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
-import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_BY_REQUEST_PARAMETER_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
-import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
-import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
-import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
-import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
-import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
-import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -51,6 +32,25 @@ import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.api.model.response.UserMessages;
 import se.sundsvall.messaging.service.HistoryService;
+
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
+import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.CONVERSATION_HISTORY_PATH;
+import static se.sundsvall.messaging.Constants.DELIVERY_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_METADATA_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_AND_DELIVERY_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_BY_REQUEST_PARAMETER_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_ATTACHMENT_PATH;
+import static se.sundsvall.messaging.Constants.MESSAGES_STATUS_PATH;
+import static se.sundsvall.messaging.Constants.USER_BATCHES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
+import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
+import static se.sundsvall.messaging.api.model.ApiMapper.toMessageBatchResult;
+import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
 
 @Tag(name = "History Resources")
 @RestController

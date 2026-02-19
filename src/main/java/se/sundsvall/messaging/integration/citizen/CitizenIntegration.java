@@ -1,17 +1,17 @@
 package se.sundsvall.messaging.integration.citizen;
 
-import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-
 import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.zalando.problem.Problem;
 import se.sundsvall.messaging.model.Address;
+
+import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 @Component
 @EnableConfigurationProperties(CitizenIntegrationProperties.class)
