@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -43,6 +44,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidSmsBatchRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSmsBatchTest {
@@ -50,17 +52,11 @@ class MessageResourceSmsBatchTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/sms/batch";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMessageType(SMS)
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMessageType(SMS)
+		.withMunicipalityId(MUNICIPALITY_ID).withStatus(SENT).build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
-		.withBatchId("someBatchId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withDeliveries(List.of(DELIVERY_RESULT))
+		.withBatchId("someBatchId").withMunicipalityId(MUNICIPALITY_ID).withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
 	@MockitoBean
@@ -73,104 +69,20 @@ class MessageResourceSmsBatchTest {
 	private WebTestClient webTestClient;
 
 	private static Stream<Arguments> requestProvider() {
-		return Stream.of(
-			Arguments.of("abc", UUID.randomUUID().toString(), true),
+		return Stream.of(Arguments.of("abc", UUID.randomUUID().toString(), true),
 			Arguments.of("abc", UUID.randomUUID().toString(), false),
 			Arguments.of("abc12", UUID.randomUUID().toString(), true),
 			Arguments.of("abc12", UUID.randomUUID().toString(), false),
 			Arguments.of("Min Bankman", UUID.randomUUID().toString(), true),
 			Arguments.of("Min Bankman", UUID.randomUUID().toString(), false),
 			Arguments.of(null, UUID.randomUUID().toString(), true),
-			Arguments.of(null, UUID.randomUUID().toString(), false),
-			Arguments.of("abc", null, true),
-			Arguments.of("abc", null, false),
-			Arguments.of("abc12", null, true),
-			Arguments.of("abc12", null, false),
-			Arguments.of("Min Bankman", null, true),
-			Arguments.of("Min Bankman", null, false),
-			Arguments.of(null, null, true),
-			Arguments.of(null, null, false));
+			Arguments.of(null, UUID.randomUUID().toString(), false), Arguments.of("abc", null, true),
+			Arguments.of("abc", null, false), Arguments.of("abc12", null, true), Arguments.of("abc12", null, false),
+			Arguments.of("Min Bankman", null, true), Arguments.of("Min Bankman", null, false),
+			Arguments.of(null, null, true), Arguments.of(null, null, false));
 	}
 
-	@ParameterizedTest
-	@MethodSource("requestProvider")
-	void sendBatch(final String senderName, final String partyId, boolean includeOptionalHeaders) {
-		// Arrange
-		var request = createValidSmsBatchRequest();
-		request = request.withSender(senderName).withParties(List.of(request.parties().getFirst().withPartyId(partyId)));
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).isNotNull().hasSize(1);
-		assertThat(response.messages().getFirst().messageId()).isEqualTo("someMessageId");
-		assertThat(response.messages().getFirst().deliveries()).isNotNull().hasSize(1);
-		assertThat(response.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
-		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleSmsBatchRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeadersShouldBePreserved() {
-		// Arrange
-		var request = createValidSmsBatchRequest();
-		final var uuid = UUID.randomUUID().toString();
-		request = request.withSender("senderName").withParties(List.of(request.parties().getFirst().withPartyId(uuid)));
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).isNotNull().hasSize(1);
-		assertThat(response.messages().getFirst().messageId()).isEqualTo("someMessageId");
-		assertThat(response.messages().getFirst().deliveries()).isNotNull().hasSize(1);
-		assertThat(response.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
-		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleSmsBatchRequest(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
@@ -187,8 +99,72 @@ class MessageResourceSmsBatchTest {
 		};
 	}
 
-	private static SmsBatchRequest addHeaderValues(SmsBatchRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	private static SmsBatchRequest addHeaderValues(final SmsBatchRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestProvider")
+	void sendBatch(final String senderName, final String partyId, final boolean includeOptionalHeaders) {
+		// Arrange
+		var request = createValidSmsBatchRequest();
+		request = request.withSender(senderName)
+			.withParties(List.of(request.parties().getFirst().withPartyId(partyId)));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageBatchResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().messageId()).isEqualTo("someMessageId");
+		assertThat(response.messages().getFirst().deliveries()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher)
+			.handleSmsBatchRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
+	@Test
+	void testOldHeadersShouldBePreserved() {
+		// Arrange
+		var request = createValidSmsBatchRequest();
+		final var uuid = UUID.randomUUID().toString();
+		request = request.withSender("senderName").withParties(List.of(request.parties().getFirst().withPartyId(uuid)));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		when(mockEventDispatcher.handleSmsBatchRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageBatchResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().messageId()).isEqualTo("someMessageId");
+		assertThat(response.messages().getFirst().deliveries()).isNotNull().hasSize(1);
+		assertThat(response.messages().getFirst().deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.messages().getFirst().deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.messages().getFirst().deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher).handleSmsBatchRequest(
+			decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
 	}
 }

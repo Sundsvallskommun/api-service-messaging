@@ -12,10 +12,6 @@ class HeaderTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(Header.values()).containsExactlyInAnyOrder(
-			IN_REPLY_TO,
-			MESSAGE_ID,
-			REFERENCES,
-			AUTO_SUBMITTED);
+		assertThat(Header.values()).containsExactlyInAnyOrder(IN_REPLY_TO, MESSAGE_ID, REFERENCES, AUTO_SUBMITTED);
 	}
 }

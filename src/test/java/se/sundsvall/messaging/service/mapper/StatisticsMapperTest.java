@@ -38,8 +38,7 @@ class StatisticsMapperTest {
 	void test_toDepartmentStats() {
 		final var department = "department";
 		final var origin = "origin";
-		final var statsProjections = List.of(
-			createStatisticsEntity(SMS, SMS, SENT, null, null, MUNICIPALITY_ID),
+		final var statsProjections = List.of(createStatisticsEntity(SMS, SMS, SENT, null, null, MUNICIPALITY_ID),
 			createStatisticsEntity(SMS, SMS, FAILED, null, null, MUNICIPALITY_ID),
 			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, null, null, MUNICIPALITY_ID),
 			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, null, null, MUNICIPALITY_ID),
@@ -156,18 +155,14 @@ class StatisticsMapperTest {
 
 		assertThat(result).isNotNull().hasSize(2)
 			.extracting(DepartmentStatistics::origin, DepartmentStatistics::departmentLetters).containsExactly(
-				tuple("origin", List.of(
-					DepartmentLetter.builder()
-						.withDepartment("department")
+				tuple("origin",
+					List.of(DepartmentLetter.builder().withDepartment("department")
 						.withSnailMail(Count.builder().withSent(1).withFailed(1).build())
-						.withDigitalMail(Count.builder().withSent(1).withFailed(1).build())
-						.build())),
-				tuple("Other", List.of(
-					DepartmentLetter.builder()
-						.withDepartment("Ej kategoriserad")
+						.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())),
+				tuple("Other",
+					List.of(DepartmentLetter.builder().withDepartment("Ej kategoriserad")
 						.withSnailMail(Count.builder().withSent(1).withFailed(1).build())
-						.withDigitalMail(Count.builder().withSent(1).withFailed(1).build())
-						.build())));
+						.withDigitalMail(Count.builder().withSent(1).withFailed(1).build()).build())));
 	}
 
 	private void assertCount(final Count count, final int expectedSent, final int expectedFailed) {
@@ -215,7 +210,8 @@ class StatisticsMapperTest {
 		when(projectionMock.getOriginalMessageType()).thenReturn(MessageType.SMS);
 		when(projectionMock.getMessageType()).thenReturn(MessageType.SNAIL_MAIL);
 
-		final var result = StatisticsMapper.overrideEntryValues(projectionMock, "origin", "department", "municipalityId");
+		final var result = StatisticsMapper.overrideEntryValues(projectionMock, "origin", "department",
+			"municipalityId");
 
 		assertThat(result.getStatus()).isEqualTo(MessageStatus.SENT);
 		assertThat(result.getOriginalMessageType()).isEqualTo(MessageType.SMS);

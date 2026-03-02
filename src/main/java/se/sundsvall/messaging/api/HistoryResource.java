@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.messaging.api.model.ApiMapper;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.api.model.response.HistoryResponse;
@@ -56,18 +56,10 @@ import static se.sundsvall.messaging.api.model.ApiMapper.toMessageResult;
 @RestController
 @Validated
 @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
-@ApiResponse(responseCode = "400",
-	description = "Bad Request",
-	content = @Content(
-		mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-		schema = @Schema(oneOf = {
-			Problem.class, ConstraintViolationProblem.class,
-		})))
-@ApiResponse(responseCode = "500",
-	description = "Internal Server Error",
-	content = @Content(
-		mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-		schema = @Schema(implementation = Problem.class)))
+@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
+	Problem.class, ConstraintViolationProblem.class,
+})))
+@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class HistoryResource {
 
 	private final HistoryService historyService;
@@ -85,18 +77,12 @@ class HistoryResource {
 		@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "To-date (inclusive). Format: yyyy-MM-dd (ISO8601)") final LocalDate to) {
 
 		return ok(historyService.getConversationHistory(municipalityId, partyId, from, to).stream()
-			.map(ApiMapper::toHistoryResponse)
-			.toList());
+			.map(ApiMapper::toHistoryResponse).toList());
 	}
 
-	@Operation(summary = "Get the status for a message batch, its messages and their deliveries",
-		responses = {
-			@ApiResponse(responseCode = "404",
-				description = "Not Found",
-				content = @Content(
-					mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-					schema = @Schema(implementation = Problem.class)))
-		})
+	@Operation(summary = "Get the status for a message batch, its messages and their deliveries", responses = {
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+	})
 	@GetMapping(value = BATCH_STATUS_PATH, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<MessageBatchResult> getBatchStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -106,14 +92,9 @@ class HistoryResource {
 		return history.isEmpty() ? notFound().build() : ok(toMessageBatchResult(history));
 	}
 
-	@Operation(summary = "Get the status for a single message and its deliveries",
-		responses = {
-			@ApiResponse(responseCode = "404",
-				description = "Not Found",
-				content = @Content(
-					mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-					schema = @Schema(implementation = Problem.class)))
-		})
+	@Operation(summary = "Get the status for a single message and its deliveries", responses = {
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+	})
 	@GetMapping(value = MESSAGES_STATUS_PATH, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<MessageResult> getMessageStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -123,23 +104,16 @@ class HistoryResource {
 		return history.isEmpty() ? notFound().build() : ok(toMessageResult(history));
 	}
 
-	@Operation(summary = "Get the status for a single delivery",
-		responses = {
-			@ApiResponse(responseCode = "404",
-				description = "Not Found",
-				content = @Content(
-					mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-					schema = @Schema(implementation = Problem.class)))
-		})
+	@Operation(summary = "Get the status for a single delivery", responses = {
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+	})
 	@GetMapping(value = DELIVERY_STATUS_PATH, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<DeliveryResult> getDeliveryStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "deliveryId", schema = @Schema(format = "uuid"), example = "41141c6f-4825-45a7-b52b-79fbff70765e") @PathVariable @ValidUuid final String deliveryId) {
 
 		return historyService.getHistoryByMunicipalityIdAndDeliveryId(municipalityId, deliveryId)
-			.map(ApiMapper::toDeliveryResult)
-			.map(ResponseEntity::ok)
-			.orElseGet(() -> notFound().build());
+			.map(ApiMapper::toDeliveryResult).map(ResponseEntity::ok).orElseGet(() -> notFound().build());
 	}
 
 	/**
@@ -151,11 +125,7 @@ class HistoryResource {
 		description = "This endpoint is deprecated and will be removed in a future version."
 			+ "Use /messages/{messageId}/metadata instead. To get the file content for the message use /messages/{messageId}/attachments/{fileName}.",
 		responses = {
-			@ApiResponse(responseCode = "404",
-				description = "Not Found",
-				content = @Content(
-					mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-					schema = @Schema(implementation = Problem.class)))
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 		})
 	@GetMapping(value = MESSAGES_AND_DELIVERY_PATH, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<HistoryResponse>> getMessage(
@@ -163,28 +133,21 @@ class HistoryResource {
 		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId) {
 
 		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId).stream()
-			.map(ApiMapper::toHistoryResponse)
-			.toList();
+			.map(ApiMapper::toHistoryResponse).toList();
 
 		return history.isEmpty() ? notFound().build() : ok(history);
 	}
 
-	@Operation(summary = "Get metadata for a message and all its deliveries",
-		responses = {
-			@ApiResponse(responseCode = "404",
-				description = "Not Found",
-				content = @Content(
-					mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-					schema = @Schema(implementation = Problem.class)))
-		})
+	@Operation(summary = "Get metadata for a message and all its deliveries", responses = {
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+	})
 	@GetMapping(value = MESSAGES_AND_DELIVERY_METADATA_PATH, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<HistoryResponse>> getMessageMetadata(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "messageId", schema = @Schema(format = "uuid"), example = "d1e07d2c-2e75-44e0-b978-de7e19d7edad") @PathVariable @ValidUuid final String messageId) {
 
 		final var history = historyService.getHistoryByMunicipalityIdAndMessageId(municipalityId, messageId).stream()
-			.map(ApiMapper::toMetadataHistoryResponse)
-			.toList();
+			.map(ApiMapper::toMetadataHistoryResponse).toList();
 
 		return history.isEmpty() ? notFound().build() : ok(history);
 	}
@@ -229,12 +192,10 @@ class HistoryResource {
 	 *             {@link #readAttachmentByRequestParameter(String, String, String, HttpServletResponse)} instead.
 	 */
 	@Deprecated(since = "2025-10-23", forRemoval = true)
-	@Operation(summary = "Stream attachment by messageId and fileName",
-		deprecated = true,
-		description = """
-			This endpoint is deprecated and will be removed in a future version."
-			Use /{municipalityId}/messages/{messageId}/attachments and provide the filename using request parameter fileName.
-			""")
+	@Operation(summary = "Stream attachment by messageId and fileName", deprecated = true, description = """
+		This endpoint is deprecated and will be removed in a future version."
+		Use /{municipalityId}/messages/{messageId}/attachments and provide the filename using request parameter fileName.
+		""")
 	@GetMapping(value = MESSAGES_ATTACHMENT_PATH, produces = ALL_VALUE)
 	void readAttachment(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,

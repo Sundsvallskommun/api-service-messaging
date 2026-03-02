@@ -112,10 +112,11 @@ public class HistoryEntity {
 	private String organizationNumber;
 
 	@Builder(setterPrefix = "with")
-	private HistoryEntity(final Long id, final String batchId, final String messageId, final String deliveryId, final String partyId,
-		final MessageType messageType, final MessageType originalMessageType, final MessageStatus status, final String statusDetail,
-		final String content, final String origin, final String issuer, final String department, final LocalDateTime createdAt,
-		final String municipalityId, final Address destinationAddress, final String organizationNumber) {
+	private HistoryEntity(final Long id, final String batchId, final String messageId, final String deliveryId,
+		final String partyId, final MessageType messageType, final MessageType originalMessageType,
+		final MessageStatus status, final String statusDetail, final String content, final String origin,
+		final String issuer, final String department, final LocalDateTime createdAt, final String municipalityId,
+		final Address destinationAddress, final String organizationNumber) {
 		this.id = id;
 		this.batchId = batchId;
 		this.messageId = messageId;

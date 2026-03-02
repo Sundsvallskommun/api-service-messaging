@@ -34,26 +34,18 @@ class EmailRequestTest {
 	// EmailRequest
 	@Test
 	void testEmailRequestConstructor() {
-		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
+		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER,
+			ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
 
 		assertEmailRequest(bean);
 	}
 
 	@Test
 	void testEmailRequestBuilder() {
-		final var bean = EmailRequest.builder()
-			.withAttachments(ATTACHMENTS)
-			.withEmailAddress(EMAIL_ADDRESS)
-			.withHeaders(HEADERS)
-			.withHtmlMessage(HTML_MESSAGE)
-			.withIssuer(ISSUER)
-			.withMessage(MESSAGE)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withSender(SENDER)
-			.withSubject(SUBJECT)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = EmailRequest.builder().withAttachments(ATTACHMENTS).withEmailAddress(EMAIL_ADDRESS)
+			.withHeaders(HEADERS).withHtmlMessage(HTML_MESSAGE).withIssuer(ISSUER).withMessage(MESSAGE)
+			.withOrigin(ORIGIN).withParty(PARTY).withSender(SENDER).withSubject(SUBJECT)
+			.withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertEmailRequest(bean);
 	}
@@ -83,11 +75,8 @@ class EmailRequestTest {
 
 	@Test
 	void testEmailRequestAttachmentBuilder() {
-		final var bean = EmailRequest.Attachment.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withName(NAME)
-			.build();
+		final var bean = EmailRequest.Attachment.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withName(NAME).build();
 
 		assertEmailRequestAttachment(bean);
 	}
@@ -109,9 +98,7 @@ class EmailRequestTest {
 
 	@Test
 	void testEmailRequestPartyBuilder() {
-		final var bean = EmailRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
+		final var bean = EmailRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES).withPartyId(PARTY_ID)
 			.build();
 
 		assertEmailRequestParty(bean);
@@ -133,10 +120,7 @@ class EmailRequestTest {
 
 	@Test
 	void testEmailRequestSenderBuilder() {
-		final var bean = EmailRequest.Sender.builder()
-			.withAddress(ADDRESS)
-			.withName(NAME)
-			.withReplyTo(REPLY_TO)
+		final var bean = EmailRequest.Sender.builder().withAddress(ADDRESS).withName(NAME).withReplyTo(REPLY_TO)
 			.build();
 
 		assertEmailRequestSender(bean);

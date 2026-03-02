@@ -20,16 +20,9 @@ class StatisticEntityTest {
 		final var createdAt = LocalDateTime.now();
 		final var municipalityId = "municipalityId";
 
-		final var bean = StatisticEntity.builder()
-			.withCreatedAt(createdAt)
-			.withDepartment(department)
-			.withId(id)
-			.withMessageType(messageType)
-			.withMunicipalityId(municipalityId)
-			.withOrigin(origin)
-			.withOriginalMessageType(originalMessageType)
-			.withStatus(status)
-			.build();
+		final var bean = StatisticEntity.builder().withCreatedAt(createdAt).withDepartment(department).withId(id)
+			.withMessageType(messageType).withMunicipalityId(municipalityId).withOrigin(origin)
+			.withOriginalMessageType(originalMessageType).withStatus(status).build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.getCreatedAt()).isEqualTo(createdAt);

@@ -43,12 +43,8 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestBuilder() {
-		final var bean = MessageRequest.builder()
-			.withIssuer(ISSUER)
-			.withMessages(MESSAGES)
-			.withOrigin(ORIGIN)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = MessageRequest.builder().withIssuer(ISSUER).withMessages(MESSAGES).withOrigin(ORIGIN)
+			.withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertMessageRequest(bean);
 	}
@@ -71,14 +67,8 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestMessageBuilder() {
-		final var bean = MessageRequest.Message.builder()
-			.withFilters(FILTERS)
-			.withHtmlMessage(HTML_MESSAGE)
-			.withMessage(MESSAGE)
-			.withParty(PARTY)
-			.withSender(SENDER)
-			.withSubject(SUBJECT)
-			.build();
+		final var bean = MessageRequest.Message.builder().withFilters(FILTERS).withHtmlMessage(HTML_MESSAGE)
+			.withMessage(MESSAGE).withParty(PARTY).withSender(SENDER).withSubject(SUBJECT).build();
 
 		assertMessageRequestMessage(bean);
 	}
@@ -103,10 +93,8 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestMessagePartyBuilder() {
-		final var bean = MessageRequest.Message.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
-			.build();
+		final var bean = MessageRequest.Message.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID).build();
 
 		assertMessageRequestMessageParty(bean);
 	}
@@ -127,10 +115,7 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestMessageSenderBuilder() {
-		final var bean = MessageRequest.Message.Sender.builder()
-			.withEmail(EMAIL)
-			.withSms(SMS)
-			.build();
+		final var bean = MessageRequest.Message.Sender.builder().withEmail(EMAIL).withSms(SMS).build();
 
 		assertMessageRequestMessageSender(bean);
 	}
@@ -151,11 +136,8 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestMessageSenderEmailBuilder() {
-		final var bean = MessageRequest.Message.Sender.Email.builder()
-			.withAddress(ADDRESS)
-			.withName(EMAIL_NAME)
-			.withReplyTo(REPLY_TO)
-			.build();
+		final var bean = MessageRequest.Message.Sender.Email.builder().withAddress(ADDRESS).withName(EMAIL_NAME)
+			.withReplyTo(REPLY_TO).build();
 
 		assertMessageRequestMessageSenderEmail(bean);
 	}
@@ -177,9 +159,7 @@ class MessageRequestTest {
 
 	@Test
 	void testMessageRequestMessageSenderSmsBuilder() {
-		final var bean = MessageRequest.Message.Sender.Sms.builder()
-			.withName(SMS_NAME)
-			.build();
+		final var bean = MessageRequest.Message.Sender.Sms.builder().withName(SMS_NAME).build();
 
 		assertMessageRequestMessageSenderSms(bean);
 	}

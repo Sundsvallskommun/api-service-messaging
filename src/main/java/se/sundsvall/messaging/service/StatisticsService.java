@@ -24,19 +24,25 @@ public class StatisticsService {
 		this.dbIntegration = dbIntegration;
 	}
 
-	public Statistics getStatistics(final MessageType messageType, final LocalDate from, final LocalDate to, final String municipalityId) {
+	public Statistics getStatistics(final MessageType messageType, final LocalDate from, final LocalDate to,
+		final String municipalityId) {
 		// If no MessageType is provided, we want to fetch statistics for all types
 		final List<MessageType> messageTypes = messageType == null ? List.of() : List.of(messageType);
 
 		return toStatistics(dbIntegration.getStatsByParameters(municipalityId, null, null, messageTypes, from, to));
 	}
 
-	public List<DepartmentStatistics> getDepartmentLetterStatistics(final String origin, final String department, final LocalDate from, final LocalDate to, final String municipalityId) {
-		return toDepartmentStatisticsList(dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER), from, to), municipalityId);
+	public List<DepartmentStatistics> getDepartmentLetterStatistics(final String origin, final String department,
+		final LocalDate from, final LocalDate to, final String municipalityId) {
+		return toDepartmentStatisticsList(
+			dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER), from, to),
+			municipalityId);
 	}
 
-	public DepartmentStats getStatisticsByDepartment(final String municipalityId, final String department, final String origin, final LocalDate from, final LocalDate to) {
-		var statEntries = dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER, SMS), from, to);
+	public DepartmentStats getStatisticsByDepartment(final String municipalityId, final String department,
+		final String origin, final LocalDate from, final LocalDate to) {
+		var statEntries = dbIntegration.getStatsByParameters(municipalityId, origin, department, List.of(LETTER, SMS),
+			from, to);
 		return toDepartmentStats(statEntries, department, origin);
 	}
 

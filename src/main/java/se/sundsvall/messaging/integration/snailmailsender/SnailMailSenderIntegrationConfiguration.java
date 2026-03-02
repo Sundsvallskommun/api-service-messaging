@@ -24,28 +24,20 @@ class SnailMailSenderIntegrationConfiguration {
 
 	@Bean
 	FeignBuilderCustomizer feignCustomizer() {
-		return FeignMultiCustomizer.create()
-			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-			.withErrorDecoder(errorDecoder())
-			.withRequestOptions(requestOptions())
-			.composeCustomizersToOne();
+		return FeignMultiCustomizer.create().withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withErrorDecoder(errorDecoder()).withRequestOptions(requestOptions()).composeCustomizersToOne();
 	}
 
 	private ClientRegistration clientRegistration() {
-		return ClientRegistration
-			.withRegistrationId(SnailMailSenderIntegration.INTEGRATION_NAME)
-			.tokenUri(properties.getTokenUrl())
-			.clientId(properties.getClientId())
+		return ClientRegistration.withRegistrationId(SnailMailSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl()).clientId(properties.getClientId())
 			.clientSecret(properties.getClientSecret())
-			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-			.build();
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType())).build();
 	}
 
 	private Request.Options requestOptions() {
-		return new Request.Options(
-			properties.getConnectTimeout().toMillis(), MILLISECONDS,
-			properties.getReadTimeout().toMillis(), MILLISECONDS,
-			true);
+		return new Request.Options(properties.getConnectTimeout().toMillis(), MILLISECONDS,
+			properties.getReadTimeout().toMillis(), MILLISECONDS, true);
 	}
 
 	private ErrorDecoder errorDecoder() {

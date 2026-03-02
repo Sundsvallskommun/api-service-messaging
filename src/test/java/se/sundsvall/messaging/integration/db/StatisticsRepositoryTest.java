@@ -8,15 +8,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import se.sundsvall.messaging.integration.db.entity.StatisticEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
@@ -27,8 +27,7 @@ import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
 @AutoConfigureTestDatabase(replace = NONE)
 @ActiveProfiles("junit")
 @Sql(scripts = {
-	"/db/scripts/truncate.sql",
-	"/db/scripts/testdata-ut.sql"
+	"/db/scripts/truncate.sql", "/db/scripts/testdata-ut.sql"
 })
 class StatisticsRepositoryTest {
 
@@ -36,47 +35,45 @@ class StatisticsRepositoryTest {
 	private StatisticsRepository statisticsRepository;
 
 	private static Stream<Arguments> provideDateParameters() {
-		return Stream.of(
-			Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
-			Arguments.of(LocalDate.of(2024, 1, 1), null),
-			Arguments.of(null, LocalDate.now()),
+		return Stream.of(Arguments.of(LocalDate.of(2024, 1, 1), LocalDate.now()),
+			Arguments.of(LocalDate.of(2024, 1, 1), null), Arguments.of(null, LocalDate.now()),
 			Arguments.of(null, null));
 	}
 
 	@Test
 	void findAllByParameters() {
-		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), null, null);
+		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), null,
+			null);
 
 		// Assert that the map contains the expected keys
-		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
-			.containsExactly(
-				tuple(SMS, SMS, SENT),
-				tuple(SMS, SMS, SENT),
-				tuple(SMS, SMS, SENT),
-				tuple(SMS, SMS, FAILED),
-				tuple(SMS, SMS, SENT),
-				tuple(SMS, SMS, FAILED));
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType,
+			StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+			.containsExactly(tuple(SMS, SMS, SENT), tuple(SMS, SMS, SENT), tuple(SMS, SMS, SENT),
+				tuple(SMS, SMS, FAILED), tuple(SMS, SMS, SENT), tuple(SMS, SMS, FAILED));
 	}
 
 	@Test
 	void findAllByParametersWithFromAndTo() {
-		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS), LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
+		final var statisticsEntities = statisticsRepository.findAllByParameters(null, null, null, List.of(SMS),
+			LocalDate.of(2024, 2, 25), LocalDate.of(2024, 2, 25));
 
 		// Assert that the map contains the expected keys
-		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
-			.containsExactly(
-				tuple(SMS, SMS, SENT));
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType,
+			StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+			.containsExactly(tuple(SMS, SMS, SENT));
 	}
 
 	@ParameterizedTest()
 	@MethodSource("provideDateParameters")
 	void findAllByParametersWithMunicipalityIdAndyOriginAndDepartment(LocalDate from, LocalDate to) {
-		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", "origin1", "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", "origin1",
+			"SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
-			.containsExactly(
-				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+		assertThat(statisticsEntities)
+			.extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType,
+				StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+			.containsExactly(tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
 	}
 
@@ -84,12 +81,14 @@ class StatisticsRepositoryTest {
 	@MethodSource("provideDateParameters")
 	void findAllByParametersWithDepartment(LocalDate from, LocalDate to) {
 
-		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null,
+			"SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER), from, to);
 
 		// Assert that the map contains the expected keys
-		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
-			.containsExactly(
-				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
+		assertThat(statisticsEntities)
+			.extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType,
+				StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+			.containsExactly(tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED));
@@ -98,31 +97,33 @@ class StatisticsRepositoryTest {
 	@Test
 	void findAllByParametersWithDepartmentNoOriginAndDepartment() {
 
-		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, null, List.of(LETTER), null, null);
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, null, List.of(LETTER),
+			null, null);
 
 		// Assert that the map contains the expected keys
-		assertThat(statisticsEntities).extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
-			.containsExactlyInAnyOrder(
-				tuple("BOU Förskola", SNAIL_MAIL, LETTER, FAILED),
+		assertThat(statisticsEntities)
+			.extracting(StatisticEntity::getDepartment, StatisticEntity::getMessageType,
+				StatisticEntity::getOriginalMessageType, StatisticEntity::getStatus)
+			.containsExactlyInAnyOrder(tuple("BOU Förskola", SNAIL_MAIL, LETTER, FAILED),
 				tuple("Kultur och fritid", SNAIL_MAIL, LETTER, FAILED),
 				tuple("Stadsbyggnadskontoret", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, SENT),
 				tuple("SBK(Gatuavdelningen, Trafiksektionen)", SNAIL_MAIL, LETTER, FAILED),
-				tuple("Kommunstyrelsekontoret", SNAIL_MAIL, LETTER, SENT),
-				tuple("", SNAIL_MAIL, LETTER, SENT),
-				tuple("", SNAIL_MAIL, LETTER, FAILED),
-				tuple(null, SNAIL_MAIL, LETTER, SENT));
+				tuple("Kommunstyrelsekontoret", SNAIL_MAIL, LETTER, SENT), tuple("", SNAIL_MAIL, LETTER, SENT),
+				tuple("", SNAIL_MAIL, LETTER, FAILED), tuple(null, SNAIL_MAIL, LETTER, SENT));
 	}
 
 	@Test
 	void findAllByParametersWithMunicipalityIdAndDepartmentAndOriginAndMessageTypes() {
-		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null, "SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER, SMS), LocalDate.of(2022, 1, 1), LocalDate.of(2024, 12, 25));
+		final var statisticsEntities = statisticsRepository.findAllByParameters("2281", null,
+			"SBK(Gatuavdelningen, Trafiksektionen)", List.of(LETTER, SMS), LocalDate.of(2022, 1, 1),
+			LocalDate.of(2024, 12, 25));
 
-		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType, StatisticEntity::getOriginalMessageType, StatisticEntity::getDepartment, StatisticEntity::getStatus)
-			.containsExactlyInAnyOrder(
-				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
+		assertThat(statisticsEntities).extracting(StatisticEntity::getMessageType,
+			StatisticEntity::getOriginalMessageType, StatisticEntity::getDepartment, StatisticEntity::getStatus)
+			.containsExactlyInAnyOrder(tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
 				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
 				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", SENT),
 				tuple(SNAIL_MAIL, LETTER, "SBK(Gatuavdelningen, Trafiksektionen)", FAILED),

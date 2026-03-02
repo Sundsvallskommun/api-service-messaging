@@ -29,14 +29,13 @@ public class DigitalMailSenderIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendDigitalMail(final String municipalityId, final String organizationNumber, final DigitalMailDto dto) {
-		final var response = client.sendDigitalMail(municipalityId, organizationNumber, mapper.toDigitalMailRequest(dto));
+	public MessageStatus sendDigitalMail(final String municipalityId, final String organizationNumber,
+		final DigitalMailDto dto) {
+		final var response = client.sendDigitalMail(municipalityId, organizationNumber,
+			mapper.toDigitalMailRequest(dto));
 
-		final var success = response.getStatusCode().is2xxSuccessful() &&
-			ofNullable(response.getBody())
-				.map(DigitalMailResponse::getDeliveryStatus)
-				.map(DeliveryStatus::getDelivered)
-				.orElse(false);
+		final var success = response.getStatusCode().is2xxSuccessful() && ofNullable(response.getBody())
+			.map(DigitalMailResponse::getDeliveryStatus).map(DeliveryStatus::getDelivered).orElse(false);
 
 		return success ? SENT : NOT_SENT;
 	}
@@ -44,15 +43,14 @@ public class DigitalMailSenderIntegration {
 	public MessageStatus sendDigitalInvoice(final String municipalityId, final DigitalInvoiceDto dto) {
 		final var response = client.sendDigitalInvoice(municipalityId, mapper.toDigitalInvoiceRequest(dto));
 
-		final var success = response.getStatusCode().is2xxSuccessful() &&
-			ofNullable(response.getBody())
-				.map(DigitalInvoiceResponse::getSent)
-				.orElse(false);
+		final var success = response.getStatusCode().is2xxSuccessful()
+			&& ofNullable(response.getBody()).map(DigitalInvoiceResponse::getSent).orElse(false);
 
 		return success ? SENT : NOT_SENT;
 	}
 
-	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {
+	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber,
+		final List<String> partyIds) {
 		var response = client.getMailboxes(municipalityId, organizationNumber, partyIds);
 
 		return mapper.toMailboxes(response.getBody());

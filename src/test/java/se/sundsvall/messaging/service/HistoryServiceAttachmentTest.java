@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.MessageType;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -29,7 +29,6 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 
 /**
  * Testing the extraction of attachment handling in the HistoryService.
- *
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -70,20 +69,17 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForEmail() {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(EMAIL)
-			.withContent("""
-				{
-				  "attachments": [
-				    {
-				      "name": "test.pdf",
-				      "contentType": "application/pdf",
-				      "content": "aGVsbG8gd29ybGQK"
-				    }
-				  ]
-				}
-				""")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(EMAIL).withContent("""
+			{
+			  "attachments": [
+			    {
+			      "name": "test.pdf",
+			      "contentType": "application/pdf",
+			      "content": "aGVsbG8gd29ybGQK"
+			    }
+			  ]
+			}
+			""").build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
@@ -93,20 +89,17 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForWebMessage() {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(WEB_MESSAGE)
-			.withContent("""
-				{
-				  "attachments": [
-				    {
-				      "fileName": "test.pdf",
-				      "mimeType": "application/pdf",
-				      "base64Data": "aGVsbG8gd29ybGQK"
-				    }
-				  ]
-				}
-				""")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(WEB_MESSAGE).withContent("""
+			{
+			  "attachments": [
+			    {
+			      "fileName": "test.pdf",
+			      "mimeType": "application/pdf",
+			      "base64Data": "aGVsbG8gd29ybGQK"
+			    }
+			  ]
+			}
+			""").build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
@@ -116,20 +109,17 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForDigitalMail() {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(DIGITAL_MAIL)
-			.withContent("""
-				{
-				  "attachments": [
-				    {
-				      "filename": "test.pdf",
-				      "contentType": "application/pdf",
-				      "content": "aGVsbG8gd29ybGQK"
-				    }
-				  ]
-				}
-				""")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(DIGITAL_MAIL).withContent("""
+			{
+			  "attachments": [
+			    {
+			      "filename": "test.pdf",
+			      "contentType": "application/pdf",
+			      "content": "aGVsbG8gd29ybGQK"
+			    }
+			  ]
+			}
+			""").build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
@@ -139,20 +129,17 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForDigitalInvoice() {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(DIGITAL_INVOICE)
-			.withContent("""
-				{
-				  "files": [
-				       {
-				         "filename": "test.pdf",
-				         "contentType": "application/pdf",
-				         "content": "aGVsbG8gd29ybGQK"
-				       }
-				     ]
-				}
-				""")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(DIGITAL_INVOICE).withContent("""
+			{
+			  "files": [
+			       {
+			         "filename": "test.pdf",
+			         "contentType": "application/pdf",
+			         "content": "aGVsbG8gd29ybGQK"
+			       }
+			     ]
+			}
+			""").build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
@@ -162,21 +149,18 @@ class HistoryServiceAttachmentTest {
 
 	@Test
 	void testGetAttachmentForLetter() {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(LETTER)
-			.withContent("""
-				{
-				  "attachments": [
-				       {
-				         "filename": "test.pdf",
-				         "contentType": "application/pdf",
-				         "content": "aGVsbG8gd29ybGQK",
-				         "deliveryMode": "ANY"
-				       }
-				     ]
-				}
-				""")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(LETTER).withContent("""
+			{
+			  "attachments": [
+			       {
+			         "filename": "test.pdf",
+			         "contentType": "application/pdf",
+			         "content": "aGVsbG8gd29ybGQK",
+			         "deliveryMode": "ANY"
+			       }
+			     ]
+			}
+			""").build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 		assertThat(messageAttachments).isNotNull().hasSize(1);
@@ -187,10 +171,7 @@ class HistoryServiceAttachmentTest {
 	@ParameterizedTest
 	@MethodSource("attachmentSource")
 	void testGetMissingOrEmptyAttachments_shouldReturnEmptyAttachments(MessageType messageType, String attachment) {
-		final var historyEntity = HistoryEntity.builder()
-			.withMessageType(messageType)
-			.withContent(attachment)
-			.build();
+		final var historyEntity = HistoryEntity.builder().withMessageType(messageType).withContent(attachment).build();
 
 		final var messageAttachments = historyService.extractAttachment(historyEntity);
 
@@ -198,23 +179,14 @@ class HistoryServiceAttachmentTest {
 	}
 
 	private static Stream<Arguments> attachmentSource() {
-		return Stream.of(
-			Arguments.of(EMAIL, EMPTY_ATTACHMENT),
-			Arguments.of(EMAIL, NO_ATTACHMENT),
-			Arguments.of(EMAIL, null),
-			Arguments.of(WEB_MESSAGE, EMPTY_ATTACHMENT),
-			Arguments.of(WEB_MESSAGE, NO_ATTACHMENT),
-			Arguments.of(WEB_MESSAGE, null),
-			Arguments.of(DIGITAL_MAIL, EMPTY_ATTACHMENT),
-			Arguments.of(DIGITAL_MAIL, NO_ATTACHMENT),
-			Arguments.of(DIGITAL_MAIL, null),
-			Arguments.of(DIGITAL_INVOICE, EMPTY_ATTACHMENT),
-			Arguments.of(DIGITAL_INVOICE, NO_ATTACHMENT),
-			Arguments.of(DIGITAL_INVOICE, null),
+		return Stream.of(Arguments.of(EMAIL, EMPTY_ATTACHMENT), Arguments.of(EMAIL, NO_ATTACHMENT),
+			Arguments.of(EMAIL, null), Arguments.of(WEB_MESSAGE, EMPTY_ATTACHMENT),
+			Arguments.of(WEB_MESSAGE, NO_ATTACHMENT), Arguments.of(WEB_MESSAGE, null),
+			Arguments.of(DIGITAL_MAIL, EMPTY_ATTACHMENT), Arguments.of(DIGITAL_MAIL, NO_ATTACHMENT),
+			Arguments.of(DIGITAL_MAIL, null), Arguments.of(DIGITAL_INVOICE, EMPTY_ATTACHMENT),
+			Arguments.of(DIGITAL_INVOICE, NO_ATTACHMENT), Arguments.of(DIGITAL_INVOICE, null),
 			// These cannot have attachments
-			Arguments.of(MESSAGE, null),
-			Arguments.of(SMS, null),
-			Arguments.of(SLACK, null));
+			Arguments.of(MESSAGE, null), Arguments.of(SMS, null), Arguments.of(SLACK, null));
 	}
 
 }

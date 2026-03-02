@@ -21,10 +21,8 @@ public enum Header {
 	}
 
 	public static Header fromString(final String s) {
-		return Arrays.stream(Header.values())
-			.filter(header -> header.key.equals(s) || header.name().equals(s))
-			.findFirst()
-			.orElse(null);
+		return Arrays.stream(Header.values()).filter(header -> header.key.equals(s) || header.name().equals(s))
+			.findFirst().orElse(null);
 	}
 
 	public String getKey() {

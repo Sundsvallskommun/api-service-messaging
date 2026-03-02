@@ -13,12 +13,8 @@ class MailboxTest {
 		final var reachable = true;
 		final var reason = "Some reason";
 
-		final var mailbox = Mailbox.builder()
-			.withPartyId(partyId)
-			.withSupplier(supplier)
-			.withReachable(reachable)
-			.withReason(reason)
-			.build();
+		final var mailbox = Mailbox.builder().withPartyId(partyId).withSupplier(supplier).withReachable(reachable)
+			.withReason(reason).build();
 
 		assertThat(mailbox.partyId()).isEqualTo(partyId);
 		assertThat(mailbox.supplier()).isEqualTo(supplier);

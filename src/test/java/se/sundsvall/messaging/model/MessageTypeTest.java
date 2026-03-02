@@ -17,15 +17,7 @@ class MessageTypeTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(MessageType.values()).containsExactlyInAnyOrder(
-			DIGITAL_INVOICE,
-			DIGITAL_MAIL,
-			EMAIL,
-			LETTER,
-			MESSAGE,
-			SLACK,
-			SMS,
-			SNAIL_MAIL,
-			WEB_MESSAGE);
+		assertThat(MessageType.values()).containsExactlyInAnyOrder(DIGITAL_INVOICE, DIGITAL_MAIL, EMAIL, LETTER,
+			MESSAGE, SLACK, SMS, SNAIL_MAIL, WEB_MESSAGE);
 	}
 }

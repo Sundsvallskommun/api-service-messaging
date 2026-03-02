@@ -19,8 +19,7 @@ public class ValidDigitalMailRequestConstraintValidator implements ConstraintVal
 		if (isNotBlank(value.body()) && !isNotBlank(value.contentType())) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate("contentType must be set when body is provided")
-				.addPropertyNode("contentType")
-				.addConstraintViolation();
+				.addPropertyNode("contentType").addConstraintViolation();
 			return false;
 		}
 

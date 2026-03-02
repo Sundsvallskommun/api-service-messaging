@@ -27,7 +27,8 @@ class PartyIntegrationTest {
 	void getLegalIdByPartyIdTest_1() {
 		var municipalityId = "2281";
 		var partyId = UUID.randomUUID().toString();
-		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId)).thenReturn(Optional.of("1234567890"));
+		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId))
+			.thenReturn(Optional.of("1234567890"));
 
 		var result = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
@@ -40,8 +41,10 @@ class PartyIntegrationTest {
 	void getLegalIdByPartyIdTest_2() {
 		var municipalityId = "2281";
 		var partyId = UUID.randomUUID().toString();
-		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId)).thenReturn(Optional.empty());
-		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.ENTERPRISE, partyId)).thenReturn(Optional.of("1234567890"));
+		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId))
+			.thenReturn(Optional.empty());
+		when(partyClientMock.getLegalIdByPartyId(municipalityId, PartyType.ENTERPRISE, partyId))
+			.thenReturn(Optional.of("1234567890"));
 
 		var result = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 

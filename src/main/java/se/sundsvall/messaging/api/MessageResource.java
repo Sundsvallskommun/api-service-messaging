@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.zalando.problem.Problem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidOrganizationNumber;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.support.Identifier;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
@@ -90,9 +90,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -113,9 +113,9 @@ class MessageResource {
 		@RequestBody @Valid final SmsBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleSmsBatchRequest(decoratedRequest));
@@ -134,9 +134,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -157,9 +157,9 @@ class MessageResource {
 		@RequestBody @Valid final EmailBatchRequest request,
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		return toResponse(eventDispatcher.handleEmailBatchRequest(decoratedRequest));
@@ -178,9 +178,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -200,9 +200,7 @@ class MessageResource {
 		@Parameter(name = "organizationNumber", description = "The organization number of the sending organization", example = "5561234567") @ValidOrganizationNumber @PathVariable final String organizationNumber,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(null))
+		final var decoratedRequest = request.withMunicipalityId(municipalityId).withIssuer(resolveSentBy(null))
 			.withOrigin(origin);
 
 		if (async) {
@@ -216,12 +214,9 @@ class MessageResource {
 	 *             {@link #sendDigitalMail(String, DigitalMailRequest, String, String, boolean)} instead.
 	 */
 	@Deprecated(forRemoval = true, since = "2025-09-15")
-	@Operation(summary = "Send a single digital mail to one or more parties",
-		deprecated = true,
-		description = "This endpoint is deprecated in favor of /{organizationNumber}/digital-mail and will be removed in a future version.",
-		responses = {
-			@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
-		})
+	@Operation(summary = "Send a single digital mail to one or more parties", deprecated = true, description = "This endpoint is deprecated in favor of /{organizationNumber}/digital-mail and will be removed in a future version.", responses = {
+		@ApiResponse(responseCode = "201", description = "Successful Operation", useReturnTypeSchema = true, headers = @Header(name = LOCATION, schema = @Schema(type = "string")))
+	})
 	@PostMapping("/digital-mail")
 	ResponseEntity<MessageBatchResult> sendDigitalMailDeprecated(
 		@Parameter(name = X_ORIGIN_HEADER_KEY, description = "Origin of the request") @RequestHeader(name = X_ORIGIN_HEADER_KEY, required = false) final String origin,
@@ -232,24 +227,24 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		// To keep backwards compatibility we default to Sundsvall municipalitys organization number since the new
 		// api in digital mail sender requires an organization number
 		if (async) {
-			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
+			return toResponse(eventDispatcher.handleDigitalMailRequest(decoratedRequest,
+				SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 		}
-		return toResponse(messageService.sendDigitalMail(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
+		return toResponse(
+			messageService.sendDigitalMail(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 	}
 
-	@Operation(summary = "Retrieve a list of digital mailboxes",
-		description = "Response contains a list of partyIds, supplier and if the digital mailbox is reachable for the given organization.",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
-		})
+	@Operation(summary = "Retrieve a list of digital mailboxes", description = "Response contains a list of partyIds, supplier and if the digital mailbox is reachable for the given organization.", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
 	@PostMapping(value = "/{organizationNumber}/mailboxes", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<Mailbox>> getMailboxes(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -272,9 +267,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -296,9 +291,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -320,15 +315,16 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		// To keep backwards compatibility we default to Sundsvall municipalitys organization number since the new
 		// api in digital mail sender requires an organization number
 		if (async) {
-			return toResponse(eventDispatcher.handleLetterRequest(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
+			return toResponse(
+				eventDispatcher.handleLetterRequest(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 		}
 		return toResponse(messageService.sendLetter(decoratedRequest, SUNDSVALLS_MUNICIPALITY_ORGANIZATION_NUMBER));
 	}
@@ -346,9 +342,9 @@ class MessageResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(description = "If the message should be sent asynchronously or not") @RequestParam(name = "async", required = false, defaultValue = "false") final boolean async) {
 
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withIssuer(resolveSentBy(issuer)) // Replace with sentBy when old issuer header is removed
+		final var decoratedRequest = request.withMunicipalityId(municipalityId)
+			// TODO: Replace resolveSentBy(issuer) with sentBy when old issuer header is removed
+			.withIssuer(resolveSentBy(issuer))
 			.withOrigin(origin);
 
 		if (async) {
@@ -368,10 +364,7 @@ class MessageResource {
 		@Parameter(name = "batchId", description = "The snail-mail batch id", example = "f427952b-247c-4d3b-b081-675a467b3619") @RequestParam(name = "batchId") @ValidUuid final String batchId) {
 
 		var sentBy = Optional.ofNullable(Identifier.get()).map(Identifier::getValue).orElse(null);
-		final var decoratedRequest = request
-			.withMunicipalityId(municipalityId)
-			.withOrigin(origin)
-			.withIssuer(sentBy);
+		final var decoratedRequest = request.withMunicipalityId(municipalityId).withOrigin(origin).withIssuer(sentBy);
 
 		return toResponse(messageService.sendSnailMail(decoratedRequest, batchId));
 	}
@@ -391,8 +384,7 @@ class MessageResource {
 	// Determine the value of the "sentBy" header, if present uses it, otherwise try to get the value from the
 	// x-issuer-header
 	private String resolveSentBy(final String issuer) {
-		return Optional.ofNullable(Identifier.get())
-			.map(Identifier::getValue)
+		return Optional.ofNullable(Identifier.get()).map(Identifier::getValue)
 			.orElseGet(() -> StringUtils.isNotBlank(issuer) ? issuer : null);
 	}
 }

@@ -25,7 +25,8 @@ class EmailBatchRequestTest {
 	private static final String CONTENT = "content";
 	private static final String CONTENT_TYPE = "contentType";
 	private static final EmailBatchRequest.Sender SENDER = EmailBatchRequest.Sender.builder().build();
-	private static final List<EmailBatchRequest.Attachment> ATTACHMENTS = List.of(EmailBatchRequest.Attachment.builder().build());
+	private static final List<EmailBatchRequest.Attachment> ATTACHMENTS = List
+		.of(EmailBatchRequest.Attachment.builder().build());
 	private static final List<EmailBatchRequest.Party> PARTIES = List.of(EmailBatchRequest.Party.builder().build());
 	private static final Map<String, List<String>> HEADERS = Map.of(Header.MESSAGE_ID.name(), List.of("value"));
 	private static final String MUNICIPALITY_ID = "municipalityId";
@@ -33,25 +34,17 @@ class EmailBatchRequestTest {
 	// EmailBatchRequest
 	@Test
 	void testEmailBatchRequestConstructor() {
-		final var bean = new EmailBatchRequest(PARTIES, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
+		final var bean = new EmailBatchRequest(PARTIES, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER,
+			ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
 
 		assertEmailBatchRequest(bean);
 	}
 
 	@Test
 	void testEmailBatchRequestBuilder() {
-		final var bean = EmailBatchRequest.builder()
-			.withOrigin(ORIGIN)
-			.withIssuer(ISSUER)
-			.withSubject(SUBJECT)
-			.withMessage(MESSAGE)
-			.withHtmlMessage(HTML_MESSAGE)
-			.withHeaders(HEADERS)
-			.withSender(SENDER)
-			.withAttachments(ATTACHMENTS)
-			.withParties(PARTIES)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = EmailBatchRequest.builder().withOrigin(ORIGIN).withIssuer(ISSUER).withSubject(SUBJECT)
+			.withMessage(MESSAGE).withHtmlMessage(HTML_MESSAGE).withHeaders(HEADERS).withSender(SENDER)
+			.withAttachments(ATTACHMENTS).withParties(PARTIES).withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertEmailBatchRequest(bean);
 	}
@@ -80,10 +73,7 @@ class EmailBatchRequestTest {
 
 	@Test
 	void testEmailBatchRequestSenderBuilder() {
-		final var bean = EmailBatchRequest.Sender.builder()
-			.withAddress(ADDRESS)
-			.withName(NAME)
-			.withReplyTo(REPLY_TO)
+		final var bean = EmailBatchRequest.Sender.builder().withAddress(ADDRESS).withName(NAME).withReplyTo(REPLY_TO)
 			.build();
 
 		assertEmailBatchRequestSender(bean);
@@ -106,9 +96,7 @@ class EmailBatchRequestTest {
 
 	@Test
 	void testEmailBatchRequestPartyBuilder() {
-		final var bean = EmailBatchRequest.Party.builder()
-			.withEmailAddress(EMAIL_ADDRESS)
-			.withPartyId(PARTY_ID)
+		final var bean = EmailBatchRequest.Party.builder().withEmailAddress(EMAIL_ADDRESS).withPartyId(PARTY_ID)
 			.build();
 
 		assertEmailBatchRequestParty(bean);
@@ -130,11 +118,8 @@ class EmailBatchRequestTest {
 
 	@Test
 	void testEmailBatchRequestAttachmentBuilder() {
-		final var bean = EmailBatchRequest.Attachment.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withName(ATTACHMENT_NAME)
-			.build();
+		final var bean = EmailBatchRequest.Attachment.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withName(ATTACHMENT_NAME).build();
 
 		assertEmailBatchRequestAttachment(bean);
 	}

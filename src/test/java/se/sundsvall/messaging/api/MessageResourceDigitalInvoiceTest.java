@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,6 +39,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidDigitalInvoiceRe
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_INVOICE;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceDigitalInvoiceTest {
@@ -45,12 +47,8 @@ class MessageResourceDigitalInvoiceTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/digital-invoice";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMessageType(DIGITAL_INVOICE)
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMessageType(DIGITAL_INVOICE)
+		.withMunicipalityId(MUNICIPALITY_ID).withStatus(SENT).build();
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -61,115 +59,7 @@ class MessageResourceDigitalInvoiceTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@ParameterizedTest
-	@ValueSource(booleans = {
-		true, false
-	})
-	void sendSynchronous(boolean includeOptionalHeaders) {
-		// Arrange
-		final var request = createValidDigitalInvoiceRequest();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendDigitalInvoice(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	@ParameterizedTest
-	@ValueSource(booleans = {
-		true, false
-	})
-	void sendAsynchronous(boolean includeOptionalHeaders) {
-		// Arrange
-		final var request = createValidDigitalInvoiceRequest();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockEventDispatcher.handleDigitalInvoiceRequest(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleDigitalInvoiceRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeaderShouldBePreserved() {
-		// Arrange
-		final var request = createValidDigitalInvoiceRequest();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendDigitalInvoice(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
@@ -187,8 +77,95 @@ class MessageResourceDigitalInvoiceTest {
 		};
 	}
 
-	private static DigitalInvoiceRequest addHeaderValues(DigitalInvoiceRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	private static DigitalInvoiceRequest addHeaderValues(final DigitalInvoiceRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = {
+		true, false
+	})
+	void sendSynchronous(final boolean includeOptionalHeaders) {
+		// Arrange
+		final var request = createValidDigitalInvoiceRequest();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService)
+			.sendDigitalInvoice(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = {
+		true, false
+	})
+	void sendAsynchronous(final boolean includeOptionalHeaders) {
+		// Arrange
+		final var request = createValidDigitalInvoiceRequest();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleDigitalInvoiceRequest(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL + "?async=true")
+			.headers(handleHeaders(includeOptionalHeaders)).contentType(APPLICATION_JSON).bodyValue(request)
+			.exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher).handleDigitalInvoiceRequest(
+			includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
+	@Test
+	void testOldHeaderShouldBePreserved() {
+		// Arrange
+		final var request = createValidDigitalInvoiceRequest();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendDigitalInvoice(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(DIGITAL_INVOICE);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService).sendDigitalInvoice(
+			decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
 	}
 }

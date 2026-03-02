@@ -37,9 +37,7 @@ class ValidDigitalMailRequestConstraintValidatorTest {
 	private ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext mockNodeBuilder;
 
 	private static Stream<Arguments> validRequestProvider() {
-		return Stream.of(
-			Arguments.of("someBody", "text/plain"),
-			Arguments.of(null, null),
+		return Stream.of(Arguments.of("someBody", "text/plain"), Arguments.of(null, null),
 			Arguments.of(null, "text/plain"));
 	}
 
@@ -47,9 +45,7 @@ class ValidDigitalMailRequestConstraintValidatorTest {
 	@MethodSource("validRequestProvider")
 	void testValidRequest(final String body, final String contentType) {
 		// Arrange
-		final var request = createValidDigitalMailRequest()
-			.withBody(body)
-			.withContentType(contentType);
+		final var request = createValidDigitalMailRequest().withBody(body).withContentType(contentType);
 
 		// Act
 		final var result = validator.isValid(request, mockContext);
@@ -66,9 +62,7 @@ class ValidDigitalMailRequestConstraintValidatorTest {
 	})
 	void testInvalidRequest_WithBodyButInvalidContentType(final String contentType) {
 		// Arrange
-		final var request = createValidDigitalMailRequest()
-			.withBody("someBody")
-			.withContentType(contentType);
+		final var request = createValidDigitalMailRequest().withBody("someBody").withContentType(contentType);
 		when(mockContext.buildConstraintViolationWithTemplate(anyString())).thenReturn(mockViolationBuilder);
 		when(mockViolationBuilder.addPropertyNode(anyString())).thenReturn(mockNodeBuilder);
 		when(mockNodeBuilder.addConstraintViolation()).thenReturn(mockContext);

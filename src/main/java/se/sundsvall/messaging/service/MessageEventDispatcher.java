@@ -38,10 +38,8 @@ public class MessageEventDispatcher {
 
 	private final RequestMapper requestMapper;
 
-	public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher,
-		final DbIntegration dbIntegration,
-		final MessageMapper messageMapper,
-		final RequestMapper requestMapper) {
+	public MessageEventDispatcher(final ApplicationEventPublisher eventPublisher, final DbIntegration dbIntegration,
+		final MessageMapper messageMapper, final RequestMapper requestMapper) {
 		this.eventPublisher = eventPublisher;
 		this.dbIntegration = dbIntegration;
 		this.messageMapper = messageMapper;
@@ -51,20 +49,18 @@ public class MessageEventDispatcher {
 	public InternalDeliveryBatchResult handleMessageRequest(final MessageRequest request) {
 		final var batchId = UUID.randomUUID().toString();
 
-		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
-			.map(dbIntegration::saveMessage)
-			.toList();
+		final var messages = request.messages().stream().map(message -> messageMapper
+			.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
+			.map(dbIntegration::saveMessage).toList();
 
-		final var deliveries = messages.stream()
-			.map(this::publishMessageEvent)
-			.toList();
+		final var deliveries = messages.stream().map(this::publishMessageEvent).toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
 	}
 
 	public InternalDeliveryResult handleEmailRequest(final EmailRequest request) {
-		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being
+															 // instansiated
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
@@ -75,16 +71,11 @@ public class MessageEventDispatcher {
 
 		final var deliveryResults = ofNullable(request.parties()).orElse(Collections.emptyList()).stream()
 			.map(party -> requestMapper.toEmailRequest(request, party))
-			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId))
-			.map(dbIntegration::saveMessage)
-			.map(this::publishMessageEvent)
-			.toList();
+			.map(emailRequest -> messageMapper.toMessage(emailRequest, batchId)).map(dbIntegration::saveMessage)
+			.map(this::publishMessageEvent).toList();
 
-		return InternalDeliveryBatchResult.builder()
-			.withDeliveries(deliveryResults)
-			.withBatchId(batchId)
-			.withMunicipalityId(request.municipalityId())
-			.build();
+		return InternalDeliveryBatchResult.builder().withDeliveries(deliveryResults).withBatchId(batchId)
+			.withMunicipalityId(request.municipalityId()).build();
 	}
 
 	public InternalDeliveryBatchResult handleSmsBatchRequest(final SmsBatchRequest request) {
@@ -93,53 +84,51 @@ public class MessageEventDispatcher {
 
 		final var deliveryResults = ofNullable(cleanedRequest.parties()).orElse(emptyList()).stream()
 			.map(party -> requestMapper.toSmsRequest(cleanedRequest, party))
-			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId))
-			.map(dbIntegration::saveMessage)
-			.map(this::publishMessageEvent)
-			.toList();
+			.map(smsRequest -> messageMapper.toMessage(smsRequest, batchId)).map(dbIntegration::saveMessage)
+			.map(this::publishMessageEvent).toList();
 
-		return InternalDeliveryBatchResult.builder()
-			.withDeliveries(deliveryResults)
-			.withBatchId(batchId)
-			.withMunicipalityId(request.municipalityId())
-			.build();
+		return InternalDeliveryBatchResult.builder().withDeliveries(deliveryResults).withBatchId(batchId)
+			.withMunicipalityId(request.municipalityId()).build();
 	}
 
 	public InternalDeliveryResult handleSmsRequest(final SmsRequest request) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
-		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being
+															 // instansiated
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest, batchId));
 
 		return publishMessageEvent(message);
 	}
 
 	public InternalDeliveryResult handleWebMessageRequest(final WebMessageRequest request) {
-		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being
+															 // instansiated
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request, String organizationNumber) {
+	public InternalDeliveryBatchResult handleDigitalMailRequest(final DigitalMailRequest request,
+		String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId, organizationNumber));
 
-		final var deliveries = messages.stream()
-			.map(this::publishMessageEvent)
-			.toList();
+		final var deliveries = messages.stream().map(this::publishMessageEvent).toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
 	}
 
 	public InternalDeliveryResult handleDigitalInvoiceRequest(final DigitalInvoiceRequest request) {
-		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being
+															 // instansiated
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
 
-	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request, final String organizationNumber) {
+	public InternalDeliveryBatchResult handleLetterRequest(final LetterRequest request,
+		final String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 
 		final var messages = messageMapper.toMessages(request, batchId, organizationNumber);
@@ -148,24 +137,25 @@ public class MessageEventDispatcher {
 		final var allMessages = Stream.concat(messages.stream(), addressMessages.stream()).toList();
 
 		dbIntegration.saveMessages(allMessages);
-		final var deliveries = allMessages.stream()
-			.map(this::publishMessageEvent)
-			.toList();
+		final var deliveries = allMessages.stream().map(this::publishMessageEvent).toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveries, request.municipalityId());
 	}
 
 	public InternalDeliveryResult handleSlackRequest(final SlackRequest request) {
-		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being instansiated
+		final var batchId = UUID.randomUUID().toString(); // Create batchId as history resource depends on it being
+															 // instansiated
 		final var message = dbIntegration.saveMessage(messageMapper.toMessage(request, batchId));
 
 		return publishMessageEvent(message);
 	}
 
 	private InternalDeliveryResult publishMessageEvent(final Message message) {
-		eventPublisher.publishEvent(new IncomingMessageEvent(this, message.municipalityId(), message.type(), message.deliveryId(), message.origin()));
+		eventPublisher.publishEvent(new IncomingMessageEvent(this, message.municipalityId(), message.type(),
+			message.deliveryId(), message.origin()));
 
-		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(), message.municipalityId());
+		return new InternalDeliveryResult(message.messageId(), message.deliveryId(), message.type(),
+			message.municipalityId());
 	}
 
 }

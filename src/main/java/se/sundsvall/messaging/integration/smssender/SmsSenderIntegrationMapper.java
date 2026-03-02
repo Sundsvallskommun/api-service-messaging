@@ -16,11 +16,8 @@ class SmsSenderIntegrationMapper {
 			return null;
 		}
 
-		return new SendSmsRequest()
-			.sender(new Sender().name(dto.sender()))
-			.mobileNumber(dto.mobileNumber())
-			.message(dto.message())
-			.priority(toPriorityEnum(dto.priority()));
+		return new SendSmsRequest().sender(new Sender().name(dto.sender())).mobileNumber(dto.mobileNumber())
+			.message(dto.message()).priority(toPriorityEnum(dto.priority()));
 	}
 
 	private PriorityEnum toPriorityEnum(Priority priority) {

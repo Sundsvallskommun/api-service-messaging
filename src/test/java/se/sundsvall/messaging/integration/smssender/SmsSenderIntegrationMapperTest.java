@@ -21,11 +21,8 @@ class SmsSenderIntegrationMapperTest {
 
 	@Test
 	void test_toSendSmsRequestFromDto() {
-		final var dto = SmsDto.builder()
-			.withSender("someName")
-			.withMobileNumber("someMobileNumber")
-			.withMessage("someMessage")
-			.build();
+		final var dto = SmsDto.builder().withSender("someName").withMobileNumber("someMobileNumber")
+			.withMessage("someMessage").build();
 
 		final var sendSmsRequest = mapper.toSendSmsRequest(dto);
 
@@ -38,9 +35,7 @@ class SmsSenderIntegrationMapperTest {
 	@ParameterizedTest
 	@MethodSource("priorityArgumentProvider")
 	void test_toSendSmsRequestFromDtoWithNormalPriority(Priority priority, PriorityEnum expectedPriorityEnum) {
-		final var dto = SmsDto.builder()
-			.withPriority(priority)
-			.build();
+		final var dto = SmsDto.builder().withPriority(priority).build();
 
 		final var sendSmsRequest = mapper.toSendSmsRequest(dto);
 
@@ -48,9 +43,7 @@ class SmsSenderIntegrationMapperTest {
 	}
 
 	private static Stream<Arguments> priorityArgumentProvider() {
-		return Stream.of(
-			Arguments.of(null, PriorityEnum.NORMAL),
-			Arguments.of(Priority.NORMAL, PriorityEnum.NORMAL),
+		return Stream.of(Arguments.of(null, PriorityEnum.NORMAL), Arguments.of(Priority.NORMAL, PriorityEnum.NORMAL),
 			Arguments.of(Priority.HIGH, PriorityEnum.HIGH));
 	}
 }

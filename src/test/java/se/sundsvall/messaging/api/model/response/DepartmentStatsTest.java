@@ -15,13 +15,8 @@ class DepartmentStatsTest {
 		var origin = "origin";
 		var department = "department";
 
-		final var departmentStats = DepartmentStats.builder()
-			.withDigitalMail(digitalMail)
-			.withSms(sms)
-			.withSnailMail(snailmail)
-			.withOrigin(origin)
-			.withDepartment(department)
-			.build();
+		final var departmentStats = DepartmentStats.builder().withDigitalMail(digitalMail).withSms(sms)
+			.withSnailMail(snailmail).withOrigin(origin).withDepartment(department).build();
 
 		assertThat(departmentStats).isNotNull();
 		assertThat(departmentStats.digitalMail()).isEqualTo(digitalMail);

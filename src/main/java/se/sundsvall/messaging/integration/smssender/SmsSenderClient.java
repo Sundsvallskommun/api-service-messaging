@@ -8,16 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static se.sundsvall.messaging.integration.smssender.SmsSenderIntegration.INTEGRATION_NAME;
 
-@FeignClient(
-	name = INTEGRATION_NAME,
-	url = "${integration.sms-sender.base-url}",
-	configuration = SmsSenderIntegrationConfiguration.class)
+@FeignClient(name = INTEGRATION_NAME, url = "${integration.sms-sender.base-url}", configuration = SmsSenderIntegrationConfiguration.class)
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface SmsSenderClient {
 
-	@PostMapping("/{municipalityId}/send/sms")
+	@PostMapping(value = "/{municipalityId}/send/sms", consumes = APPLICATION_JSON_VALUE)
 	ResponseEntity<SendSmsResponse> sendSms(@PathVariable String municipalityId, SendSmsRequest request);
 
 }

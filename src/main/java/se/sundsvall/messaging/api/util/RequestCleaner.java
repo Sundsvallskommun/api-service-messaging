@@ -9,10 +9,7 @@ public final class RequestCleaner {
 	}
 
 	public static String cleanSenderName(final String sender) {
-		return Optional.ofNullable(sender).map(oldString -> oldString.replaceAll("[åä]", "a")
-			.replaceAll("[ö]", "o")
-			.replaceAll("[ÅÄ]", "A")
-			.replaceAll("[Ö]", "O"))
-			.orElse(null);
+		return Optional.ofNullable(sender).map(oldString -> oldString.replaceAll("[åä]", "a").replace("ö", "o")
+			.replaceAll("[ÅÄ]", "A").replace("Ö", "O")).orElse(null);
 	}
 }

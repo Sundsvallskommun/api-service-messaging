@@ -30,24 +30,17 @@ class SnailMailRequestTest {
 	// SnailMailRequest
 	@Test
 	void testSnailMailRequestConstructor() {
-		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID, FOLDER_NAME);
+		final var bean = new SnailMailRequest(PARTY, ADDRESS, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS,
+			MUNICIPALITY_ID, FOLDER_NAME);
 
 		assertSnailMailRequest(bean);
 	}
 
 	@Test
 	void testSnailMailRequestBuilder() {
-		final var bean = SnailMailRequest.builder()
-			.withAttachments(ATTACHMENTS)
-			.withDepartment(DEPARTMENT)
-			.withDeviation(DEVIATION)
-			.withIssuer(ISSUER)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withAddress(ADDRESS)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withFolderName(FOLDER_NAME)
-			.build();
+		final var bean = SnailMailRequest.builder().withAttachments(ATTACHMENTS).withDepartment(DEPARTMENT)
+			.withDeviation(DEVIATION).withIssuer(ISSUER).withOrigin(ORIGIN).withParty(PARTY).withAddress(ADDRESS)
+			.withMunicipalityId(MUNICIPALITY_ID).withFolderName(FOLDER_NAME).build();
 
 		assertSnailMailRequest(bean);
 	}
@@ -75,11 +68,8 @@ class SnailMailRequestTest {
 
 	@Test
 	void testSnailMailRequestAttachmentBuilder() {
-		final var bean = SnailMailRequest.Attachment.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withFilename(NAME)
-			.build();
+		final var bean = SnailMailRequest.Attachment.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withFilename(NAME).build();
 
 		assertSnailMailRequestAttachment(bean);
 	}
@@ -101,10 +91,8 @@ class SnailMailRequestTest {
 
 	@Test
 	void testSnailMailRequestPartyBuilder() {
-		final var bean = SnailMailRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
-			.build();
+		final var bean = SnailMailRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID).build();
 
 		assertSnailMailRequestParty(bean);
 	}

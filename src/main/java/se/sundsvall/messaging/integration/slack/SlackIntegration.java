@@ -7,10 +7,10 @@ import com.slack.api.model.block.composition.MarkdownTextObject;
 import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.model.MessageStatus;
 
-import static org.zalando.problem.Status.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @Component
@@ -25,15 +25,8 @@ public class SlackIntegration {
 
 	public MessageStatus sendMessage(final SlackDto dto) {
 		try {
-			var request = ChatPostMessageRequest.builder()
-				.token(dto.token())
-				.channel(dto.channel())
-				.blocks(List.of(
-					SectionBlock.builder()
-						.text(MarkdownTextObject.builder()
-							.text(dto.message())
-							.build())
-						.build()))
+			var request = ChatPostMessageRequest.builder().token(dto.token()).channel(dto.channel()).blocks(List
+				.of(SectionBlock.builder().text(MarkdownTextObject.builder().text(dto.message()).build()).build()))
 				.build();
 
 			var response = methodsClient.chatPostMessage(request);
@@ -42,17 +35,11 @@ public class SlackIntegration {
 				return SENT;
 			}
 
-			throw Problem.builder()
-				.withStatus(BAD_GATEWAY)
-				.withTitle("Unable to send Slack message")
-				.withDetail(response.getError())
-				.build();
+			throw Problem.builder().withStatus(BAD_GATEWAY).withTitle("Unable to send Slack message")
+				.withDetail(response.getError()).build();
 		} catch (Exception e) {
-			throw Problem.builder()
-				.withStatus(BAD_GATEWAY)
-				.withTitle("Unable to send Slack message")
-				.withDetail(e.getMessage())
-				.build();
+			throw Problem.builder().withStatus(BAD_GATEWAY).withTitle("Unable to send Slack message")
+				.withDetail(e.getMessage()).build();
 		}
 	}
 }

@@ -9,11 +9,8 @@ class MessageBatchResultTest {
 
 	@Test
 	void testBuilderAndGetters() {
-		final var messageBatchResult = MessageBatchResult.builder()
-			.withBatchId("someBatchId")
-			.withMessages(List.of(
-				MessageResult.builder().build()))
-			.build();
+		final var messageBatchResult = MessageBatchResult.builder().withBatchId("someBatchId")
+			.withMessages(List.of(MessageResult.builder().build())).build();
 
 		assertThat(messageBatchResult).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(messageBatchResult.batchId()).isEqualTo("someBatchId");

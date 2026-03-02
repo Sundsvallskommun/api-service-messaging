@@ -23,11 +23,10 @@ class RequestMapperTest {
 
 	RequestMapperTest() {
 		mapper = new RequestMapper(
-			new Defaults(
-				new Defaults.Sms("name"),
-				new Defaults.Email("name", "address", "replyTo"),
+			new Defaults(new Defaults.Sms("name"), new Defaults.Email("name", "address", "replyTo"),
 				new Defaults.DigitalMail("municipalityId",
-					new Defaults.DigitalMail.SupportInfo("text", "emailAddress", "phoneNumber", "url"), "subject")));
+					new Defaults.DigitalMail.SupportInfo("text", "emailAddress", "phoneNumber", "url"),
+					"subject")));
 	}
 
 	@Test
@@ -51,31 +50,14 @@ class RequestMapperTest {
 		final var value = "value";
 		final var attachments = createAttachments(content, contentType, filename);
 		final var party = LetterRequest.Party.builder()
-			.withExternalReferences(List.of(ExternalReference.builder()
-				.withKey(key)
-				.withValue(value)
-				.build()))
+			.withExternalReferences(List.of(ExternalReference.builder().withKey(key).withValue(value).build()))
 			.build();
-		final var supportInfo = LetterRequest.Sender.SupportInfo.builder()
-			.withEmailAddress(emailAddress)
-			.withPhoneNumber(phoneNumber)
-			.withText(text)
-			.withUrl(url)
-			.build();
-		final var sender = LetterRequest.Sender.builder()
-			.withSupportInfo(supportInfo)
-			.build();
-		final var letterRequest = LetterRequest.builder()
-			.withAttachments(attachments)
-			.withBody(body)
-			.withContentType(contentType)
-			.withDepartment(department)
-			.withDeviation(deviation)
-			.withOrigin(origin)
-			.withParty(party)
-			.withSubject(subject)
-			.withSender(sender)
-			.build();
+		final var supportInfo = LetterRequest.Sender.SupportInfo.builder().withEmailAddress(emailAddress)
+			.withPhoneNumber(phoneNumber).withText(text).withUrl(url).build();
+		final var sender = LetterRequest.Sender.builder().withSupportInfo(supportInfo).build();
+		final var letterRequest = LetterRequest.builder().withAttachments(attachments).withBody(body)
+			.withContentType(contentType).withDepartment(department).withDeviation(deviation).withOrigin(origin)
+			.withParty(party).withSubject(subject).withSender(sender).build();
 
 		// Act
 		final var digitalMailRequest = mapper.toDigitalMailRequest(letterRequest, partyId);
@@ -127,24 +109,12 @@ class RequestMapperTest {
 		final var partyId = "partyId";
 		final var subject = "subject";
 		final var attachments = createAttachments(content, contentType, filename);
-		final var address = Address.builder()
-			.withAddress("someAddress")
-			.withCountry("someCountry")
-			.withZipCode("someZipCode")
-			.withFirstName("someFirstName")
-			.withLastName("someLastName")
-			.withCity("someCity")
-			.withApartmentNumber("someApartmentNumber")
-			.build();
-		final var letterRequest = LetterRequest.builder()
-			.withAttachments(attachments)
-			.withBody(body)
-			.withContentType(contentType)
-			.withDepartment(department)
-			.withDeviation(deviation)
-			.withOrigin(origin)
-			.withSubject(subject)
-			.build();
+		final var address = Address.builder().withAddress("someAddress").withCountry("someCountry")
+			.withZipCode("someZipCode").withFirstName("someFirstName").withLastName("someLastName")
+			.withCity("someCity").withApartmentNumber("someApartmentNumber").build();
+		final var letterRequest = LetterRequest.builder().withAttachments(attachments).withBody(body)
+			.withContentType(contentType).withDepartment(department).withDeviation(deviation).withOrigin(origin)
+			.withSubject(subject).build();
 
 		// Act
 		final var snailMailRequest = mapper.toSnailMailRequest(letterRequest, partyId, address);
@@ -178,17 +148,9 @@ class RequestMapperTest {
 		final var origin = "origin";
 		final var sender = "sender";
 		final var partyId = "partyId";
-		final var party = SmsBatchRequest.Party.builder()
-			.withMobileNumber(mobileNumber)
-			.withPartyId(partyId)
-			.build();
-		final var smsBatchRequest = SmsBatchRequest.builder()
-			.withMessage(message)
-			.withOrigin(origin)
-			.withParties(List.of(party))
-			.withSender(sender)
-			.withPriority(Priority.HIGH)
-			.build();
+		final var party = SmsBatchRequest.Party.builder().withMobileNumber(mobileNumber).withPartyId(partyId).build();
+		final var smsBatchRequest = SmsBatchRequest.builder().withMessage(message).withOrigin(origin)
+			.withParties(List.of(party)).withSender(sender).withPriority(Priority.HIGH).build();
 
 		// Act
 		final var smsRequest = mapper.toSmsRequest(smsBatchRequest, party);
@@ -207,23 +169,16 @@ class RequestMapperTest {
 
 	private List<LetterRequest.Attachment> createAttachments(String content, String contentType, String filename) {
 		return List.of(
-			LetterRequest.Attachment.builder()
-				.withContent(content + DeliveryMode.ANY)
-				.withContentType(contentType + DeliveryMode.ANY)
-				.withFilename(filename + DeliveryMode.ANY)
-				.withDeliveryMode(DeliveryMode.ANY)
-				.build(),
-			LetterRequest.Attachment.builder()
-				.withContent(content + DeliveryMode.SNAIL_MAIL)
+			LetterRequest.Attachment.builder().withContent(content + DeliveryMode.ANY)
+				.withContentType(contentType + DeliveryMode.ANY).withFilename(filename + DeliveryMode.ANY)
+				.withDeliveryMode(DeliveryMode.ANY).build(),
+			LetterRequest.Attachment.builder().withContent(content + DeliveryMode.SNAIL_MAIL)
 				.withContentType(contentType + DeliveryMode.SNAIL_MAIL)
-				.withFilename(filename + DeliveryMode.SNAIL_MAIL)
-				.withDeliveryMode(DeliveryMode.SNAIL_MAIL)
+				.withFilename(filename + DeliveryMode.SNAIL_MAIL).withDeliveryMode(DeliveryMode.SNAIL_MAIL)
 				.build(),
-			LetterRequest.Attachment.builder()
-				.withContent(content + DeliveryMode.DIGITAL_MAIL)
+			LetterRequest.Attachment.builder().withContent(content + DeliveryMode.DIGITAL_MAIL)
 				.withContentType(contentType + DeliveryMode.DIGITAL_MAIL)
-				.withFilename(filename + DeliveryMode.DIGITAL_MAIL)
-				.withDeliveryMode(DeliveryMode.DIGITAL_MAIL)
+				.withFilename(filename + DeliveryMode.DIGITAL_MAIL).withDeliveryMode(DeliveryMode.DIGITAL_MAIL)
 				.build());
 	}
 

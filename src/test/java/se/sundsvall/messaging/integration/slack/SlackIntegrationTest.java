@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -51,8 +51,7 @@ class SlackIntegrationTest {
 
 		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenReturn(response);
 
-		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> slackIntegration.sendMessage(slackDto));
+		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> slackIntegration.sendMessage(slackDto));
 
 		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
 	}
@@ -63,11 +62,9 @@ class SlackIntegrationTest {
 		response.setOk(false);
 		response.setError("Channel not found");
 
-		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class)))
-			.thenThrow(new RuntimeException());
+		when(mockMethodsClient.chatPostMessage(any(ChatPostMessageRequest.class))).thenThrow(new RuntimeException());
 
-		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> slackIntegration.sendMessage(slackDto));
+		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> slackIntegration.sendMessage(slackDto));
 
 		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
 	}

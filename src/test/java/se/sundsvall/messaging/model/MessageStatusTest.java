@@ -15,13 +15,7 @@ class MessageStatusTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(MessageStatus.values()).containsExactlyInAnyOrder(
-			AWAITING_FEEDBACK,
-			FAILED,
-			NO_CONTACT_SETTINGS_FOUND,
-			NO_CONTACT_WANTED,
-			NOT_SENT,
-			PENDING,
-			SENT);
+		assertThat(MessageStatus.values()).containsExactlyInAnyOrder(AWAITING_FEEDBACK, FAILED,
+			NO_CONTACT_SETTINGS_FOUND, NO_CONTACT_WANTED, NOT_SENT, PENDING, SENT);
 	}
 }

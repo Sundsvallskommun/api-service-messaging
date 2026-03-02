@@ -33,13 +33,8 @@ class InternalDeliveryResultTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = InternalDeliveryResult.builder()
-			.withDeliveryId(DELIVERY_ID)
-			.withMessageId(MESSAGE_ID)
-			.withMessageType(EMAIL)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withStatus(FAILED)
-			.build();
+		final var bean = InternalDeliveryResult.builder().withDeliveryId(DELIVERY_ID).withMessageId(MESSAGE_ID)
+			.withMessageType(EMAIL).withMunicipalityId(MUNICIPALITY_ID).withStatus(FAILED).build();
 
 		assertBean(bean, FAILED);
 	}

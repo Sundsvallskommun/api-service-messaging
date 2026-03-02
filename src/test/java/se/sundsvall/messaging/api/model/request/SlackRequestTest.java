@@ -23,14 +23,8 @@ class SlackRequestTest {
 
 	@Test
 	void testSlackRequestBuilder() {
-		final var bean = SlackRequest.builder()
-			.withChannel(CHANNEL)
-			.withIssuer(ISSUER)
-			.withMessage(MESSAGE)
-			.withOrigin(ORIGIN)
-			.withToken(TOKEN)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = SlackRequest.builder().withChannel(CHANNEL).withIssuer(ISSUER).withMessage(MESSAGE)
+			.withOrigin(ORIGIN).withToken(TOKEN).withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertSlackRequest(bean);
 	}

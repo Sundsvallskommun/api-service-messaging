@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,6 +29,7 @@ import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
 import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
 import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceMailboxesTest {
@@ -43,38 +45,30 @@ class MessageResourceMailboxesTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Consumer<HttpHeaders> xSentByHeader() {
+		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
+	}
+
 	@Test
 	void testGetMailboxes() {
 		final var uuid = UUID.randomUUID().toString();
 		final var uuid2 = UUID.randomUUID().toString();
 		final var partyIds = List.of(uuid, uuid2);
 
-		when(mockMessageService.getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds))
-			.thenReturn(List.of(new Mailbox(uuid, null, "Kivra", true), new Mailbox(uuid2, "someReason", "Kivra", false)));
+		when(mockMessageService.getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds)).thenReturn(
+			List.of(new Mailbox(uuid, null, "Kivra", true), new Mailbox(uuid2, "someReason", "Kivra", false)));
 
-		final var response = webTestClient.post()
-			.uri(MAILBOXES_URL)
-			.headers(xSentByHeader())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(partyIds)
-			.exchange()
-			.expectStatus().isOk()
-			.expectBodyList(Mailbox.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(MAILBOXES_URL).headers(xSentByHeader())
+			.contentType(APPLICATION_JSON).bodyValue(partyIds).exchange().expectStatus().isOk()
+			.expectBodyList(Mailbox.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
 		assertThat(response).extracting(Mailbox::partyId, Mailbox::supplier, Mailbox::reachable, Mailbox::reason)
-			.containsExactlyInAnyOrder(
-				tuple(uuid, "Kivra", true, null),
+			.containsExactlyInAnyOrder(tuple(uuid, "Kivra", true, null),
 				tuple(uuid2, "Kivra", false, "someReason"));
 
 		verify(mockMessageService).getMailboxes(MUNICIPALITY_ID, ORGANIZATION_NUMBER, partyIds);
 		verifyNoMoreInteractions(mockMessageService);
 		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> xSentByHeader() {
-		return httpHeaders -> httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
 	}
 }

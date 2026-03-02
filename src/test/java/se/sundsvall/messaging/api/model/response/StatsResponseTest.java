@@ -12,21 +12,15 @@ class StatsResponseTest {
 
 	@Test
 	void testBuilderAndGetters() {
-		final var response = Statistics.builder()
-			.withEmail(Count.builder().withSent(1).withFailed(2).build())
+		final var response = Statistics.builder().withEmail(Count.builder().withSent(1).withFailed(2).build())
 			.withSms(Count.builder().withSent(1).withFailed(0).build())
 			.withDigitalMail(Count.builder().withSent(1).withFailed(1).build())
 			.withWebMessage(Count.builder().withSent(2).withFailed(2).build())
 			.withSnailMail(Count.builder().withSent(0).withFailed(1).build())
-			.withMessage(Message.builder()
-				.withEmail(Count.builder().withSent(1).withFailed(1).build())
-				.withSms(Count.builder().withSent(2).withFailed(2).build())
-				.withUndeliverable(5)
-				.build())
-			.withLetter(Letter.builder()
-				.withDigitalMail(Count.builder().withSent(4).withFailed(0).build())
-				.withSnailMail(Count.builder().withSent(1).withFailed(3).build())
-				.build())
+			.withMessage(Message.builder().withEmail(Count.builder().withSent(1).withFailed(1).build())
+				.withSms(Count.builder().withSent(2).withFailed(2).build()).withUndeliverable(5).build())
+			.withLetter(Letter.builder().withDigitalMail(Count.builder().withSent(4).withFailed(0).build())
+				.withSnailMail(Count.builder().withSent(1).withFailed(3).build()).build())
 			.build();
 
 		assertThat(response).isNotNull().hasNoNullFieldsOrProperties();

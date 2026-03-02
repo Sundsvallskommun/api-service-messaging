@@ -15,7 +15,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(headerInterceptor)
-			.excludePathPatterns("/health", "/actuator/**", "/swagger-ui/**");
+		registry.addInterceptor(headerInterceptor).excludePathPatterns("/health", "/actuator/**", "/swagger-ui/**");
 	}
 }

@@ -12,7 +12,8 @@ class ValidFolderNameValidatorTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"fol\"der", "fol*der", "fol<der", "fol>der", "fol?der", "fol|der", "fol/der", "fol\\der", "fol:der"
+		"fol\"der", "fol*der", "fol<der", "fol>der", "fol?der", "fol|der", "fol/der", "fol\\der",
+		"fol:der"
 	})
 	void testInvalidCharacters(String folderName) {
 		assertThat(validator.isValid(folderName, null)).isFalse();

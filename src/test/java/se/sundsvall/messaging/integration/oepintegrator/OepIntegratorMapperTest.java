@@ -16,9 +16,7 @@ class OepIntegratorMapperTest {
 	private final OepIntegratorMapper mapper = new OepIntegratorMapper();
 
 	private static Stream<Arguments> argumentProvider() {
-		return Stream.of(
-			Arguments.of("userId", "partyId", false),
-			Arguments.of("userId", "partyId", true));
+		return Stream.of(Arguments.of("userId", "partyId", false), Arguments.of("userId", "partyId", true));
 	}
 
 	@ParameterizedTest
@@ -29,7 +27,8 @@ class OepIntegratorMapperTest {
 		final var message = "message";
 		final var oepInstance = "oepInstance";
 		final var attachments = List.of(new WebMessageDto.Attachment("fileName", "application/pdf", "content"));
-		final var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, sendAsOwner, attachments);
+		final var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance,
+			sendAsOwner, attachments);
 
 		final var result = mapper.toWebmessageRequest(webMessageDto);
 
@@ -43,7 +42,8 @@ class OepIntegratorMapperTest {
 			assertThat(result.getSender().getUserId()).isNull();
 		}
 		assertThat(result.getMessage()).isEqualTo(message);
-		assertThat(result.getExternalReferences()).allSatisfy(reference -> assertThat(reference).usingRecursiveComparison().isEqualTo(mapper.toExternalReference(externalReference)));
+		assertThat(result.getExternalReferences()).allSatisfy(reference -> assertThat(reference)
+			.usingRecursiveComparison().isEqualTo(mapper.toExternalReference(externalReference)));
 	}
 
 	@Test
@@ -53,8 +53,8 @@ class OepIntegratorMapperTest {
 
 		final var result = mapper.toExternalReferences(externalReferences);
 
-		assertThat(result).hasSize(2)
-			.allSatisfy(reference -> assertThat(reference).usingRecursiveComparison().isEqualTo(mapper.toExternalReference(externalReference)));
+		assertThat(result).hasSize(2).allSatisfy(reference -> assertThat(reference).usingRecursiveComparison()
+			.isEqualTo(mapper.toExternalReference(externalReference)));
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -31,6 +32,7 @@ import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 /**
  * Verify that the HeaderInterceptor works and only that.
  */
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class HeaderInterceptorResourceTest {
@@ -38,17 +40,11 @@ class HeaderInterceptorResourceTest {
 	private static final String DIGITAL_MAIL_URL = "/" + MUNICIPALITY_ID + "/" + ORGANIZATION_NUMBER + "/digital-mail";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withMessageType(DIGITAL_MAIL)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMunicipalityId(MUNICIPALITY_ID)
+		.withMessageType(DIGITAL_MAIL).withStatus(SENT).build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
-		.withBatchId("someBatchId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withDeliveries(List.of(DELIVERY_RESULT))
+		.withBatchId("someBatchId").withMunicipalityId(MUNICIPALITY_ID).withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
 	@MockitoBean
@@ -66,14 +62,9 @@ class HeaderInterceptorResourceTest {
 
 		when(mockMessageService.sendLetter(any(), anyString())).thenReturn(DELIVERY_BATCH_RESULT);
 
-		webTestClient.post()
-			.uri(DIGITAL_MAIL_URL)
-			.headers(headers -> headers.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectBody(MessageBatchResult.class)
-			.returnResult();
+		webTestClient.post().uri(DIGITAL_MAIL_URL)
+			.headers(headers -> headers.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE)).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectBody(MessageBatchResult.class).returnResult();
 
 		verify(mockMessageService).sendDigitalMail(decoratedRequest, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockMessageService);

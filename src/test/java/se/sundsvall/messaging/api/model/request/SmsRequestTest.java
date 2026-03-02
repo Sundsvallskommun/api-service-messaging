@@ -24,24 +24,17 @@ class SmsRequestTest {
 	// SmsRequest
 	@Test
 	void testSmsRequestConstructor() {
-		final var bean = new SmsRequest(PARTY, SENDER, MOBILE_NUMBER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT, MUNICIPALITY_ID);
+		final var bean = new SmsRequest(PARTY, SENDER, MOBILE_NUMBER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT,
+			MUNICIPALITY_ID);
 
 		assertSmsRequest(bean);
 	}
 
 	@Test
 	void testSmsRequestBuilder() {
-		final var bean = SmsRequest.builder()
-			.withIssuer(ISSUER)
-			.withMessage(MESSAGE)
-			.withMobileNumber(MOBILE_NUMBER)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withPriority(PRIORITY)
-			.withSender(SENDER)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withDepartment(DEPARTMENT)
-			.build();
+		final var bean = SmsRequest.builder().withIssuer(ISSUER).withMessage(MESSAGE).withMobileNumber(MOBILE_NUMBER)
+			.withOrigin(ORIGIN).withParty(PARTY).withPriority(PRIORITY).withSender(SENDER)
+			.withMunicipalityId(MUNICIPALITY_ID).withDepartment(DEPARTMENT).build();
 
 		assertSmsRequest(bean);
 	}
@@ -69,9 +62,7 @@ class SmsRequestTest {
 
 	@Test
 	void testSmsRequestPartyBuilder() {
-		final var bean = SmsRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
+		final var bean = SmsRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES).withPartyId(PARTY_ID)
 			.build();
 
 		assertSmsRequestParty(bean);

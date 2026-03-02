@@ -8,11 +8,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
@@ -27,6 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSmsFailureTest {
@@ -53,26 +55,18 @@ class MessageResourceSmsFailureTest {
 	@ValueSource(strings = {
 		"", " ", "not-a-uuid"
 	})
-	void shouldFailWithInvalidPartyId(String partyId) {
+	void shouldFailWithInvalidPartyId(final String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -81,29 +75,21 @@ class MessageResourceSmsFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceKey(String key) {
+	void shouldFailWithInvalidExternalReferenceKey(final String key) {
 		// Arrange
 		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withKey(key))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withKey(key))));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -112,29 +98,21 @@ class MessageResourceSmsFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceValue(String value) {
+	void shouldFailWithInvalidExternalReferenceValue(final String value) {
 		// Arrange
 		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withValue(value))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withValue(value))));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -145,27 +123,20 @@ class MessageResourceSmsFailureTest {
 		"not-a-mobile-number", " "
 	})
 	@NullAndEmptySource
-	void shouldFailWithNullOrInvalidMobileNumber(String value) {
+	void shouldFailWithNullOrInvalidMobileNumber(final String value) {
 		// Arrange
 		final var request = validRequest.withMobileNumber(value);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("mobileNumber", "must be a valid MSISDN (example: +46701740605). Regular expression: ^\\+[1-9][\\d]{3,14}$"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("mobileNumber",
+				"must be a valid MSISDN (example: +46701740605). Regular expression: ^\\+[1-9][\\d]{3,14}$"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
 	}
@@ -173,26 +144,18 @@ class MessageResourceSmsFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithNullOrBlankMessage(String value) {
+	void shouldFailWithNullOrBlankMessage(final String value) {
 		// Arrange
 		final var request = validRequest.withMessage(value);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -203,26 +166,18 @@ class MessageResourceSmsFailureTest {
 		"ab", "abcdefghijkl"
 	})
 	@EmptySource
-	void shouldFailWithBlankOrInvalidSenderLength(String value) {
+	void shouldFailWithBlankOrInvalidSenderLength(final String value) {
 		// Arrange
 		final var request = validRequest.withSender(value);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender", "size must be between 3 and 11"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);

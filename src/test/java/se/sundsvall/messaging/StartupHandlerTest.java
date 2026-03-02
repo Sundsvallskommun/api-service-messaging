@@ -52,35 +52,13 @@ class StartupHandlerTest {
 
 	@Test
 	void testRun() {
-		var messages = List.of(
-			MessageEntity.builder()
-				.withMessageId("messageId1")
-				.withType(MESSAGE)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId2")
-				.withType(EMAIL)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId3")
-				.withType(SMS)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId4")
-				.withType(WEB_MESSAGE)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId4")
-				.withType(SNAIL_MAIL)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId4")
-				.withType(LETTER)
-				.build(),
-			MessageEntity.builder()
-				.withMessageId("messageId4")
-				.withType(DIGITAL_MAIL)
-				.build());
+		var messages = List.of(MessageEntity.builder().withMessageId("messageId1").withType(MESSAGE).build(),
+			MessageEntity.builder().withMessageId("messageId2").withType(EMAIL).build(),
+			MessageEntity.builder().withMessageId("messageId3").withType(SMS).build(),
+			MessageEntity.builder().withMessageId("messageId4").withType(WEB_MESSAGE).build(),
+			MessageEntity.builder().withMessageId("messageId4").withType(SNAIL_MAIL).build(),
+			MessageEntity.builder().withMessageId("messageId4").withType(LETTER).build(),
+			MessageEntity.builder().withMessageId("messageId4").withType(DIGITAL_MAIL).build());
 
 		when(mockDbIntegration.getLatestMessagesWithStatus(PENDING)).thenReturn(messages);
 

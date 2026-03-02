@@ -46,11 +46,13 @@ class OepIntegratorIntegrationTest {
 		final var message = "message";
 		final var userId = "userId";
 		final var oepInstance = "oepInstance";
-		final var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, false, null);
+		final var webMessageDto = new WebMessageDto(partyId, externalReferences, message, userId, oepInstance, false,
+			null);
 		final var attachments = List.of(new WebMessageRequest.Attachment("fileName", "mimeType", createBase64String()));
 		final var responseMock = mock(ResponseEntity.class);
 
-		doReturn(responseMock).when(client).createWebmessage(eq(municipalityId), eq(webMessageDto.oepInstance()), any(), any());
+		doReturn(responseMock).when(client).createWebmessage(eq(municipalityId), eq(webMessageDto.oepInstance()), any(),
+			any());
 		when(responseMock.getStatusCode()).thenReturn(status);
 
 		final var result = integration.sendWebMessage(municipalityId, webMessageDto, attachments);
@@ -59,8 +61,7 @@ class OepIntegratorIntegrationTest {
 	}
 
 	private static Stream<Arguments> argumentsProvider() {
-		return Stream.of(
-			Arguments.of(HttpStatus.OK, MessageStatus.SENT),
+		return Stream.of(Arguments.of(HttpStatus.OK, MessageStatus.SENT),
 			Arguments.of(HttpStatus.NOT_FOUND, MessageStatus.NOT_SENT));
 	}
 

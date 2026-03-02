@@ -26,21 +26,11 @@ class HistoryMapperTest {
 
 	@Test
 	void mapToHistoryFromHistoryEntity() {
-		final var historyEntity = HistoryEntity.builder()
-			.withBatchId("someBatchId")
-			.withMessageId("someMessageId")
-			.withDeliveryId("someDeliveryId")
-			.withPartyId("somePartyId")
-			.withMessageType(SNAIL_MAIL)
-			.withStatus(FAILED)
-			.withMunicipalityId("someMunicipalityId")
-			.withContent("someContent")
-			.withOrigin("someOrigin")
-			.withIssuer("someIssuer")
-			.withOriginalMessageType(DIGITAL_MAIL)
-			.withCreatedAt(LocalDateTime.now())
-			.withOrganizationNumber("1234567890")
-			.build();
+		final var historyEntity = HistoryEntity.builder().withBatchId("someBatchId").withMessageId("someMessageId")
+			.withDeliveryId("someDeliveryId").withPartyId("somePartyId").withMessageType(SNAIL_MAIL)
+			.withStatus(FAILED).withMunicipalityId("someMunicipalityId").withContent("someContent")
+			.withOrigin("someOrigin").withIssuer("someIssuer").withOriginalMessageType(DIGITAL_MAIL)
+			.withCreatedAt(LocalDateTime.now()).withOrganizationNumber("1234567890").build();
 
 		final var history = HistoryMapper.mapToHistory(historyEntity);
 
@@ -68,21 +58,11 @@ class HistoryMapperTest {
 	void mapToHistoryEntity() {
 		final var statusDetail = "someStatusDetail";
 		final var address = Address.builder().withAddress("someAddress").build();
-		final var message = Message.builder()
-			.withBatchId("someBatchId")
-			.withMessageId("someMessageId")
-			.withDeliveryId("someDeliveryId")
-			.withPartyId("somePartyId")
-			.withType(SNAIL_MAIL)
-			.withOriginalType(DIGITAL_MAIL)
-			.withStatus(FAILED)
-			.withContent("{\"department\":\"department\"}")
-			.withOrigin("someOrigin")
-			.withIssuer("someIssuer")
-			.withMunicipalityId("someMunicipalityId")
-			.withAddress(address)
-			.withOrganizationNumber("1234567890")
-			.build();
+		final var message = Message.builder().withBatchId("someBatchId").withMessageId("someMessageId")
+			.withDeliveryId("someDeliveryId").withPartyId("somePartyId").withType(SNAIL_MAIL)
+			.withOriginalType(DIGITAL_MAIL).withStatus(FAILED).withContent("{\"department\":\"department\"}")
+			.withOrigin("someOrigin").withIssuer("someIssuer").withMunicipalityId("someMunicipalityId")
+			.withAddress(address).withOrganizationNumber("1234567890").build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
@@ -99,7 +79,8 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getOrigin()).isEqualTo(message.origin());
 		assertThat(historyEntity.getIssuer()).isEqualTo(message.issuer());
 		assertThat(historyEntity.getDepartment()).isEqualTo("department");
-		assertThat(historyEntity.getCreatedAt()).isNotNull().isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
+		assertThat(historyEntity.getCreatedAt()).isNotNull().isCloseTo(LocalDateTime.now(),
+			within(2, ChronoUnit.SECONDS));
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 		assertThat(historyEntity.getDestinationAddress()).isEqualTo(address);
 		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
@@ -108,18 +89,10 @@ class HistoryMapperTest {
 	@Test
 	void mapToHistoryEntityNoDepartment() {
 		final var statusDetail = "someStatusDetail";
-		final var message = Message.builder()
-			.withBatchId("someBatchId")
-			.withMessageId("someMessageId")
-			.withDeliveryId("someDeliveryId")
-			.withPartyId("somePartyId")
-			.withType(SNAIL_MAIL)
-			.withStatus(FAILED)
-			.withContent("{\"no-department\":\"someValue\"}")
-			.withOrigin("someOrigin")
-			.withMunicipalityId("someMunicipalityId")
-			.withOrganizationNumber("1234567890")
-			.build();
+		final var message = Message.builder().withBatchId("someBatchId").withMessageId("someMessageId")
+			.withDeliveryId("someDeliveryId").withPartyId("somePartyId").withType(SNAIL_MAIL).withStatus(FAILED)
+			.withContent("{\"no-department\":\"someValue\"}").withOrigin("someOrigin")
+			.withMunicipalityId("someMunicipalityId").withOrganizationNumber("1234567890").build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
@@ -141,16 +114,9 @@ class HistoryMapperTest {
 	@Test
 	void mapToHistoryEntityWhenContentIsNull() {
 		final var statusDetail = "someStatusDetail";
-		final var message = Message.builder()
-			.withBatchId("someBatchId")
-			.withMessageId("someMessageId")
-			.withDeliveryId("someDeliveryId")
-			.withPartyId("somePartyId")
-			.withType(SNAIL_MAIL)
-			.withStatus(FAILED)
-			.withOrigin("someOrigin")
-			.withMunicipalityId("someMunicipalityId")
-			.build();
+		final var message = Message.builder().withBatchId("someBatchId").withMessageId("someMessageId")
+			.withDeliveryId("someDeliveryId").withPartyId("somePartyId").withType(SNAIL_MAIL).withStatus(FAILED)
+			.withOrigin("someOrigin").withMunicipalityId("someMunicipalityId").build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
 
@@ -178,7 +144,8 @@ class HistoryMapperTest {
 		final var recipientCount = 456;
 		final var status = Batch.Status.builder().build();
 
-		final var bean = HistoryMapper.toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount, status);
+		final var bean = HistoryMapper.toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount,
+			status);
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.attachmentCount()).isEqualTo(attachmentCount);

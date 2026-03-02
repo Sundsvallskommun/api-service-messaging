@@ -10,11 +10,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
@@ -30,6 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createValidWebMessageRequest;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceWebMessageFailureTest {
@@ -58,21 +60,13 @@ class MessageResourceWebMessageFailureTest {
 		final var request = validRequest.withParty(null).withSendAsOwner(true);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party", "must not be null"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -83,26 +77,18 @@ class MessageResourceWebMessageFailureTest {
 		" ", "not-a-uuid"
 	})
 	@EmptySource
-	void shouldFailWithInvalidPartyId(String partyId) {
+	void shouldFailWithInvalidPartyId(final String partyId) {
 		// Arrange
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -111,28 +97,20 @@ class MessageResourceWebMessageFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceKey(String key) {
+	void shouldFailWithInvalidExternalReferenceKey(final String key) {
 		// Arrange
 		final var externalReference = validRequest.party().externalReferences().getFirst();
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withKey(key))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withKey(key))));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -141,28 +119,20 @@ class MessageResourceWebMessageFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceValue(String value) {
+	void shouldFailWithInvalidExternalReferenceValue(final String value) {
 		// Arrange
 		final var externalReference = validRequest.party().externalReferences().getFirst();
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withValue(value))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withValue(value))));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -172,26 +142,18 @@ class MessageResourceWebMessageFailureTest {
 	@ValueSource(strings = {
 		"", " ", "invalid", "internal", "external", "iNTERNAL", "eXTERNAL"
 	})
-	void shouldFailWithInvalidOepInstance(String oepInstance) {
+	void shouldFailWithInvalidOepInstance(final String oepInstance) {
 		// Arrange
 		final var request = validRequest.withOepInstance(oepInstance);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("oepInstance", "instance must be 'INTERNAL' or 'EXTERNAL'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -200,26 +162,18 @@ class MessageResourceWebMessageFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidMessage(String message) {
+	void shouldFailWithInvalidMessage(final String message) {
 		// Arrange
 		final var request = validRequest.withMessage(message);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -231,22 +185,14 @@ class MessageResourceWebMessageFailureTest {
 		final var request = validRequest.withAttachments(createAttachments(11));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactly(
+			tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
@@ -257,34 +203,23 @@ class MessageResourceWebMessageFailureTest {
 		final var request = validRequest.withAttachments(List.of());
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactly(
+			tuple("attachments", "Attachments must contain 1-10 items when provided, or be null/omitted"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
 
-	private List<Attachment> createAttachments(int size) {
+	private List<Attachment> createAttachments(final int size) {
 		final List<Attachment> list = new ArrayList<>();
 		for (var i = 0; i < size; i++) {
-			list.add(WebMessageRequest.Attachment.builder()
-				.withFileName("someFileName")
-				.withMimeType("text/plain")
-				.withBase64Data("bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK")
-				.build());
+			list.add(WebMessageRequest.Attachment.builder().withFileName("someFileName").withMimeType("text/plain")
+				.withBase64Data("bG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQK").build());
 		}
 
 		return list;

@@ -34,20 +34,10 @@ class MessageMapperTest {
 
 	@Test
 	void mapToMessage() {
-		var messageEntity = MessageEntity.builder()
-			.withBatchId(BATCH_ID)
-			.withMessageId(MESSAGE_ID)
-			.withDeliveryId(DELIVERY_ID)
-			.withPartyId(PARTY_ID)
-			.withType(TYPE)
-			.withOriginalMessageType(ORIGINAL_TYPE)
-			.withStatus(STATUS)
-			.withContent(CONTENT)
-			.withOrigin(ORIGIN)
-			.withIssuer(ISSUER)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withOrganizationNumber(ORGANIZATION_NUMBER)
-			.build();
+		var messageEntity = MessageEntity.builder().withBatchId(BATCH_ID).withMessageId(MESSAGE_ID)
+			.withDeliveryId(DELIVERY_ID).withPartyId(PARTY_ID).withType(TYPE).withOriginalMessageType(ORIGINAL_TYPE)
+			.withStatus(STATUS).withContent(CONTENT).withOrigin(ORIGIN).withIssuer(ISSUER)
+			.withMunicipalityId(MUNICIPALITY_ID).withOrganizationNumber(ORGANIZATION_NUMBER).build();
 
 		var message = MessageMapper.mapToMessage(messageEntity);
 
@@ -74,25 +64,15 @@ class MessageMapperTest {
 	@Test
 	void mapToMessageEntity() {
 		var address = Address.builder().withAddress("someAddress").build();
-		var message = Message.builder()
-			.withBatchId(BATCH_ID)
-			.withMessageId(MESSAGE_ID)
-			.withDeliveryId(DELIVERY_ID)
-			.withPartyId(PARTY_ID)
-			.withType(TYPE)
-			.withOriginalType(ORIGINAL_TYPE)
-			.withStatus(STATUS)
-			.withContent(CONTENT)
-			.withOrigin(ORIGIN)
-			.withIssuer(ISSUER)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withAddress(address)
-			.withOrganizationNumber(ORGANIZATION_NUMBER)
-			.build();
+		var message = Message.builder().withBatchId(BATCH_ID).withMessageId(MESSAGE_ID).withDeliveryId(DELIVERY_ID)
+			.withPartyId(PARTY_ID).withType(TYPE).withOriginalType(ORIGINAL_TYPE).withStatus(STATUS)
+			.withContent(CONTENT).withOrigin(ORIGIN).withIssuer(ISSUER).withMunicipalityId(MUNICIPALITY_ID)
+			.withAddress(address).withOrganizationNumber(ORGANIZATION_NUMBER).build();
 
 		var messageEntity = MessageMapper.mapToMessageEntity(message);
 
-		assertThat(messageEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "createdAt", "destinationAddressJson");
+		assertThat(messageEntity).isNotNull().hasNoNullFieldsOrPropertiesExcept("id", "createdAt",
+			"destinationAddressJson");
 		assertThat(messageEntity.getBatchId()).isEqualTo(BATCH_ID);
 		assertThat(messageEntity.getMessageId()).isEqualTo(MESSAGE_ID);
 		assertThat(messageEntity.getDeliveryId()).isEqualTo(DELIVERY_ID);

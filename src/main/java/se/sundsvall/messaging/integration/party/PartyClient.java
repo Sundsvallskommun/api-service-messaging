@@ -9,17 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import static se.sundsvall.messaging.integration.party.PartyIntegration.INTEGRATION_NAME;
 
-@FeignClient(
-	name = INTEGRATION_NAME,
-	url = "${integration.party.base-url}",
-	configuration = PartyIntegrationConfiguration.class,
-	dismiss404 = true)
+@FeignClient(name = INTEGRATION_NAME, url = "${integration.party.base-url}", configuration = PartyIntegrationConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
-	Optional<String> getLegalIdByPartyId(
-		@PathVariable String municipalityId,
-		@PathVariable PartyType type,
+	Optional<String> getLegalIdByPartyId(@PathVariable String municipalityId, @PathVariable PartyType type,
 		@PathVariable String partyId);
 }

@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.api.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
@@ -10,8 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -28,8 +24,12 @@ import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
@@ -47,77 +47,55 @@ public class ApiMapper {
 
 	public static ResponseEntity<MessageResult> toResponse(final InternalDeliveryResult deliveryResult) {
 		final var uri = fromPath(MESSAGES_STATUS_PATH)
-			.buildAndExpand(deliveryResult.municipalityId(), deliveryResult.messageId())
-			.toUri();
+			.buildAndExpand(deliveryResult.municipalityId(), deliveryResult.messageId()).toUri();
 
-		return created(uri)
-			.body(MessageResult.builder()
-				.withMessageId(deliveryResult.messageId())
-				.withDeliveries(List.of(DeliveryResult.builder()
-					.withDeliveryId(deliveryResult.deliveryId())
-					.withMessageType(deliveryResult.messageType())
-					.withStatus(deliveryResult.status())
-					.build()))
-				.build());
+		return created(uri).body(MessageResult.builder().withMessageId(deliveryResult.messageId())
+			.withDeliveries(List.of(DeliveryResult.builder().withDeliveryId(deliveryResult.deliveryId())
+				.withMessageType(deliveryResult.messageType()).withStatus(deliveryResult.status()).build()))
+			.build());
 	}
 
 	public static ResponseEntity<MessageBatchResult> toResponse(final InternalDeliveryBatchResult deliveryBatchResult) {
 		final var uri = fromPath(BATCH_STATUS_PATH)
-			.buildAndExpand(deliveryBatchResult.municipalityId(), deliveryBatchResult.batchId())
-			.toUri();
+			.buildAndExpand(deliveryBatchResult.municipalityId(), deliveryBatchResult.batchId()).toUri();
 
 		// Group the deliveries by message id
 		final var groupedDeliveries = deliveryBatchResult.deliveries().stream()
 			.collect(groupingBy(InternalDeliveryResult::messageId));
 
-		return created(uri)
-			.body(MessageBatchResult.builder()
-				.withBatchId(deliveryBatchResult.batchId())
-				.withMessages(groupedDeliveries.entrySet().stream()
-					.map(message -> MessageResult.builder()
-						.withMessageId(message.getKey())
-						.withDeliveries(message.getValue().stream()
-							.map(delivery -> DeliveryResult.builder()
-								.withDeliveryId(delivery.deliveryId())
-								.withMessageType(delivery.messageType())
-								.withStatus(delivery.status())
-								.build())
-							.toList())
-						.build())
+		return created(uri).body(MessageBatchResult.builder().withBatchId(deliveryBatchResult.batchId())
+			.withMessages(groupedDeliveries.entrySet().stream().map(message -> MessageResult.builder()
+				.withMessageId(message.getKey())
+				.withDeliveries(message.getValue().stream()
+					.map(delivery -> DeliveryResult.builder().withDeliveryId(delivery.deliveryId())
+						.withMessageType(delivery.messageType()).withStatus(delivery.status()).build())
 					.toList())
-				.build());
+				.build()).toList())
+			.build());
 	}
 
 	public static DeliveryResult toDeliveryResult(final History deliveryHistory) {
-		return DeliveryResult.builder()
-			.withDeliveryId(deliveryHistory.deliveryId())
-			.withMessageType(deliveryHistory.messageType())
-			.withStatus(deliveryHistory.status())
-			.build();
+		return DeliveryResult.builder().withDeliveryId(deliveryHistory.deliveryId())
+			.withMessageType(deliveryHistory.messageType()).withStatus(deliveryHistory.status()).build();
 	}
 
 	public static HistoryResponse toHistoryResponse(final History history) {
-		return HistoryResponse.builder()
-			.withMessageType(history.messageType())
-			.withStatus(history.status())
-			.withContent(fromJson(history.content(), getType(history)))
-			.withTimestamp(history.createdAt())
-			.build();
+		return HistoryResponse.builder().withMessageType(history.messageType()).withStatus(history.status())
+			.withContent(fromJson(history.content(), getType(history))).withTimestamp(history.createdAt()).build();
 	}
 
 	/**
 	 * Creates a HistoryResponse from a History object, but removes the file content from the attachment.
 	 *
-	 * @param  history the history to convert
+	 * @param  history
+	 *                 the history to convert
+	 *
 	 * @return         the HistoryResponse without attachments
 	 */
 	public static HistoryResponse toMetadataHistoryResponse(final History history) {
-		return HistoryResponse.builder()
-			.withMessageType(history.messageType())
-			.withStatus(history.status())
+		return HistoryResponse.builder().withMessageType(history.messageType()).withStatus(history.status())
 			.withTimestamp(history.createdAt())
-			.withContent(fromJson(removeAttachmentsFromHistory(history.content()), getType(history)))
-			.build();
+			.withContent(fromJson(removeAttachmentsFromHistory(history.content()), getType(history))).build();
 	}
 
 	private static Type getType(History history) {
@@ -135,12 +113,13 @@ public class ApiMapper {
 	}
 
 	/**
-	 * Removes the file content from the attachments. Base64 content is not stored in the same manner for all requests so we
-	 * need to check for both "content" and"base64Data" fields (defined in ATTACHMENT_CONTENT_FIELDS). If we cannot parse
-	 * the content, we
-	 * return the original content.
+	 * Removes the file content from the attachments. Base64 content is not stored in the same manner for all requests
+	 * so we need to check for both "content" and"base64Data" fields (defined in ATTACHMENT_CONTENT_FIELDS). If we
+	 * cannot parse the content, we return the original content.
 	 *
-	 * @param  content the attachments from the history to remove file content from
+	 * @param  content
+	 *                 the attachments from the history to remove file content from
+	 *
 	 * @return         the attachments without file content
 	 */
 	private static String removeAttachmentsFromHistory(String content) {
@@ -164,14 +143,13 @@ public class ApiMapper {
 	/**
 	 * Remove the "content" and "base64Data" fields from the attachments
 	 *
-	 * @param root the "node" to process
+	 * @param root
+	 *             the "node" to process
 	 */
 	private static void removeAttachmentFileContents(JsonNode root) {
-		ATTACHMENT_FIELDS.stream()
-			.filter(root::has)  // Check that the field exists
+		ATTACHMENT_FIELDS.stream().filter(root::has) // Check that the field exists
 			.map(root::get)// Get the field
-			.filter(Objects::nonNull)
-			.filter(JsonNode::isArray) // Check that the field is an array
+			.filter(Objects::nonNull).filter(JsonNode::isArray) // Check that the field is an array
 			.forEach(attachments -> attachments.forEach(attachment -> {
 				// Make sure it's an object node otherwise we cannot remove the fields
 				if (attachment instanceof ObjectNode objectNode) {
@@ -188,26 +166,17 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get batch status");
+			throw Problem.valueOf(NOT_FOUND, "Unable to get batch status");
 		}
 
 		// Grab the first (and only) "root" entry
-		final var batch = groupedHistory
-			.entrySet()
-			.iterator()
-			.next();
+		final var batch = groupedHistory.entrySet().iterator().next();
 
-		return MessageBatchResult.builder()
-			.withBatchId(batch.getKey())
-			.withMessages(batch.getValue().entrySet().stream()
-				.map(message -> MessageResult.builder()
-					.withMessageId(message.getKey())
-					.withDeliveries(message.getValue().stream()
-						.map(ApiMapper::toDeliveryResult)
-						.toList())
-					.build())
-				.toList())
-			.build();
+		return MessageBatchResult.builder().withBatchId(batch.getKey()).withMessages(batch.getValue().entrySet()
+			.stream()
+			.map(message -> MessageResult.builder().withMessageId(message.getKey())
+				.withDeliveries(message.getValue().stream().map(ApiMapper::toDeliveryResult).toList()).build())
+			.toList()).build();
 	}
 
 	public static MessageResult toMessageResult(final List<History> history) {
@@ -216,21 +185,14 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get message status");
+			throw Problem.valueOf(NOT_FOUND, "Unable to get message status");
 		}
 
 		// Grab the first (and only) "root" entry
-		final var message = groupedHistory
-			.entrySet()
-			.iterator()
-			.next();
+		final var message = groupedHistory.entrySet().iterator().next();
 
-		return MessageResult.builder()
-			.withMessageId(message.getKey())
-			.withDeliveries(message.getValue().stream()
-				.map(ApiMapper::toDeliveryResult)
-				.toList())
-			.build();
+		return MessageResult.builder().withMessageId(message.getKey())
+			.withDeliveries(message.getValue().stream().map(ApiMapper::toDeliveryResult).toList()).build();
 	}
 
 }

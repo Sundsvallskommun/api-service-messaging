@@ -19,9 +19,7 @@ class DepartmentStatisticsTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = DepartmentStatistics.builder()
-			.withDepartmentLetters(DEPARTMENT_LETTERS)
-			.withOrigin(ORIGIN)
+		final var bean = DepartmentStatistics.builder().withDepartmentLetters(DEPARTMENT_LETTERS).withOrigin(ORIGIN)
 			.build();
 
 		assertBean(bean);

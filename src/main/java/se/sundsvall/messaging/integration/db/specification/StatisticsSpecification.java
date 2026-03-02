@@ -16,9 +16,7 @@ public interface StatisticsSpecification {
 	String CREATED_AT = "createdAt";
 
 	static Specification<StatisticEntity> withOriginalMessageTypeIn(final List<MessageType> messageTypes) {
-		final var messageTypesAsString = messageTypes.stream()
-			.map(MessageType::name)
-			.toList();
+		final var messageTypesAsString = messageTypes.stream().map(MessageType::name).toList();
 		return BUILDER.buildInFilter(ORIGINAL_MESSAGE_TYPE, messageTypesAsString);
 	}
 

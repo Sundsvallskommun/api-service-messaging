@@ -10,8 +10,6 @@ class AccountTypeTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(AccountType.values()).containsExactlyInAnyOrder(
-			BANKGIRO,
-			PLUSGIRO);
+		assertThat(AccountType.values()).containsExactlyInAnyOrder(BANKGIRO, PLUSGIRO);
 	}
 }

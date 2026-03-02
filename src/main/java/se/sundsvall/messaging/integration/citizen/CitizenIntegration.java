@@ -4,14 +4,14 @@ import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.model.Address;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Component
 @EnableConfigurationProperties(CitizenIntegrationProperties.class)
@@ -29,31 +29,18 @@ public class CitizenIntegration {
 
 	public Address getCitizenAddress(final String partyId, final String municipalityId) {
 		final var citizen = client.getCitizen(municipalityId, partyId)
-			.orElseThrow(() -> Problem.builder()
-				.withTitle("No citizen data found")
-				.withStatus(INTERNAL_SERVER_ERROR)
-				.withDetail("Failed to fetch data from Citizen API")
-				.build());
+			.orElseThrow(() -> Problem.builder().withTitle("No citizen data found")
+				.withStatus(INTERNAL_SERVER_ERROR).withDetail("Failed to fetch data from Citizen API").build());
 
-		return ofNullable(citizen.getAddresses())
-			.orElse(emptyList())
-			.stream()
-			.filter(address -> POPULATION_REGISTRATION_ADDRESS.equals(address.getAddressType()))
-			.findFirst()
-			.map(address -> Address.builder()
-				.withFirstName(capitalize(citizen.getGivenname()))
-				.withLastName(capitalize(citizen.getLastname()))
-				.withAddress(capitalize(address.getAddress()))
+		return ofNullable(citizen.getAddresses()).orElse(emptyList()).stream()
+			.filter(address -> POPULATION_REGISTRATION_ADDRESS.equals(address.getAddressType())).findFirst()
+			.map(address -> Address.builder().withFirstName(capitalize(citizen.getGivenname()))
+				.withLastName(capitalize(citizen.getLastname())).withAddress(capitalize(address.getAddress()))
 				.withApartmentNumber(capitalize(address.getAppartmentNumber()))
-				.withCareOf(capitalize(address.getCo()))
-				.withZipCode(capitalize(address.getPostalCode()))
-				.withCity(capitalize(address.getCity()))
-				.withCountry(capitalize(address.getCountry()))
-				.build())
-			.orElseThrow(() -> Problem.builder()
-				.withTitle("No citizen address data found")
-				.withStatus(INTERNAL_SERVER_ERROR)
-				.withDetail("Unable to extract address data from Citizen API")
+				.withCareOf(capitalize(address.getCo())).withZipCode(capitalize(address.getPostalCode()))
+				.withCity(capitalize(address.getCity())).withCountry(capitalize(address.getCountry())).build())
+			.orElseThrow(() -> Problem.builder().withTitle("No citizen address data found")
+				.withStatus(INTERNAL_SERVER_ERROR).withDetail("Unable to extract address data from Citizen API")
 				.build());
 	}
 
@@ -62,9 +49,7 @@ public class CitizenIntegration {
 			return null;
 		}
 
-		return Arrays.stream(string.split("\\s+"))
-			.map(String::toLowerCase)
-			.map(StringUtils::capitalize)
+		return Arrays.stream(string.split("\\s+")).map(String::toLowerCase).map(StringUtils::capitalize)
 			.collect(joining(" "));
 	}
 }

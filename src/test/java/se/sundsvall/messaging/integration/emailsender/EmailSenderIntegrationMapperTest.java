@@ -33,6 +33,7 @@ class EmailSenderIntegrationMapperTest {
 		assertThat(mappedRequest.getAttachments()).hasSize(1);
 		assertThat(mappedRequest.getHeaders().get("MESSAGE_ID").getFirst()).isEqualTo("someMessageId");
 		assertThat(mappedRequest.getHeaders().get("IN_REPLY_TO").getFirst()).isEqualTo("someInReplyTo");
-		assertThat(mappedRequest.getHeaders().get("REFERENCES")).containsExactlyInAnyOrder("someReferences", "someMoreReferences");
+		assertThat(mappedRequest.getHeaders().get("REFERENCES")).containsExactlyInAnyOrder("someReferences",
+			"someMoreReferences");
 	}
 }

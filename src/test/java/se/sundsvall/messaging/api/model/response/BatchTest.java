@@ -19,25 +19,18 @@ class BatchTest {
 
 	@Test
 	void batchConstructor() {
-		final var bean = new Batch(BATCH_ID, MESSAGE_TYPE, SUBJECT, SENT, ATTACHMENT_COUNT, RECIPIENT_COUNT, new Status(SUCCESSFULL, UNSUCCESSFUL));
+		final var bean = new Batch(BATCH_ID, MESSAGE_TYPE, SUBJECT, SENT, ATTACHMENT_COUNT, RECIPIENT_COUNT,
+			new Status(SUCCESSFULL, UNSUCCESSFUL));
 
 		assertBatchValues(bean);
 	}
 
 	@Test
 	void batchBuilder() {
-		final var bean = Batch.builder()
-			.withAttachmentCount(ATTACHMENT_COUNT)
-			.withBatchId(BATCH_ID)
-			.withMessageType(MESSAGE_TYPE)
-			.withRecipientCount(RECIPIENT_COUNT)
-			.withSent(SENT)
-			.withStatus(Status.builder()
-				.withSuccessful(SUCCESSFULL)
-				.withUnsuccessful(UNSUCCESSFUL)
-				.build())
-			.withSubject(SUBJECT)
-			.build();
+		final var bean = Batch.builder().withAttachmentCount(ATTACHMENT_COUNT).withBatchId(BATCH_ID)
+			.withMessageType(MESSAGE_TYPE).withRecipientCount(RECIPIENT_COUNT).withSent(SENT)
+			.withStatus(Status.builder().withSuccessful(SUCCESSFULL).withUnsuccessful(UNSUCCESSFUL).build())
+			.withSubject(SUBJECT).build();
 
 		assertBatchValues(bean);
 	}
@@ -52,7 +45,8 @@ class BatchTest {
 		assertThat(bean.status().successful()).isEqualTo(SUCCESSFULL);
 		assertThat(bean.status().unsuccessful()).isEqualTo(UNSUCCESSFUL);
 		assertThat(bean.subject()).isEqualTo(SUBJECT);
-		assertThat(bean).hasOnlyFields("attachmentCount", "batchId", "messageType", "recipientCount", "sent", "status", "subject");
+		assertThat(bean).hasOnlyFields("attachmentCount", "batchId", "messageType", "recipientCount", "sent", "status",
+			"subject");
 	}
 
 	@Test
@@ -64,10 +58,7 @@ class BatchTest {
 
 	@Test
 	void batchStatusBuilder() {
-		final var bean = Status.builder()
-			.withSuccessful(SUCCESSFULL)
-			.withUnsuccessful(UNSUCCESSFUL)
-			.build();
+		final var bean = Status.builder().withSuccessful(SUCCESSFULL).withUnsuccessful(UNSUCCESSFUL).build();
 
 		assertStatusValues(bean);
 	}
@@ -81,18 +72,14 @@ class BatchTest {
 	@Test
 	void testNoDirtOnEmptyBean() {
 		assertThat(Batch.builder().build()).hasAllNullFieldsOrPropertiesExcept("attachmentCount", "recipientCount")
-			.hasFieldOrPropertyWithValue("attachmentCount", 0)
-			.hasFieldOrPropertyWithValue("recipientCount", 0);
+			.hasFieldOrPropertyWithValue("attachmentCount", 0).hasFieldOrPropertyWithValue("recipientCount", 0);
 		assertThat(new Batch(null, null, null, null, 0, 0, null))
 			.hasAllNullFieldsOrPropertiesExcept("attachmentCount", "recipientCount")
-			.hasFieldOrPropertyWithValue("attachmentCount", 0)
-			.hasFieldOrPropertyWithValue("recipientCount", 0);
+			.hasFieldOrPropertyWithValue("attachmentCount", 0).hasFieldOrPropertyWithValue("recipientCount", 0);
 
 		assertThat(Status.builder().build()).hasAllNullFieldsOrPropertiesExcept("successful", "unsuccessful")
-			.hasFieldOrPropertyWithValue("successful", 0)
-			.hasFieldOrPropertyWithValue("unsuccessful", 0);
+			.hasFieldOrPropertyWithValue("successful", 0).hasFieldOrPropertyWithValue("unsuccessful", 0);
 		assertThat(new Status(0, 0)).hasAllNullFieldsOrPropertiesExcept("successful", "unsuccessful")
-			.hasFieldOrPropertyWithValue("successful", 0)
-			.hasFieldOrPropertyWithValue("unsuccessful", 0);
+			.hasFieldOrPropertyWithValue("successful", 0).hasFieldOrPropertyWithValue("unsuccessful", 0);
 	}
 }

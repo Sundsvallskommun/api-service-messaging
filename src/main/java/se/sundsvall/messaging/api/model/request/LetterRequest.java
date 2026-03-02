@@ -28,14 +28,18 @@ public record LetterRequest(
 	@Valid @Schema(description = "Sender") Sender sender,
 
 	@OneOf( {
-		"text/plain", "text/html"
+		"text/plain",
+		"text/html"
 	}) @Schema(description = "Content type", allowableValues = {
-		"text/plain", "text/html"
+		"text/plain",
+		"text/html"
 	}) String contentType,
 
 	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'text/html')") String body,
 
-	@NotBlank @Schema(description = "Department and unit that should be billed in case of snailmail", examples = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
+	@NotBlank @Schema(description = "Department and unit that should be billed in case of snailmail",
+		examples = "SBK"
+			+ "(Gatuavdelningen, Trafiksektionen)") String department,
 
 	@Schema(description = "If the letter to send deviates from the standard", examples = "A3 Ritning") String deviation,
 
@@ -111,9 +115,7 @@ public record LetterRequest(
 			digital mail, snail-mail or any of them
 			""")
 		public enum DeliveryMode {
-			ANY,
-			DIGITAL_MAIL,
-			SNAIL_MAIL
+			ANY, DIGITAL_MAIL, SNAIL_MAIL
 		}
 	}
 }

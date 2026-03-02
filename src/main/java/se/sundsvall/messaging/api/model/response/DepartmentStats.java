@@ -7,10 +7,7 @@ import se.sundsvall.messaging.model.Count;
 
 @Builder(setterPrefix = "with")
 @Schema(name = "DepartmentStats")
-public record DepartmentStats(
-	@JsonProperty("ORIGIN") String origin,
-	@JsonProperty("DEPARTMENT") String department,
-	@JsonProperty("SNAIL_MAIL") Count snailMail,
-	@JsonProperty("DIGITAL_MAIL") Count digitalMail,
+public record DepartmentStats(@JsonProperty("ORIGIN") String origin, @JsonProperty("DEPARTMENT") String department,
+	@JsonProperty("SNAIL_MAIL") Count snailMail, @JsonProperty("DIGITAL_MAIL") Count digitalMail,
 	@JsonProperty("SMS") Count sms) {
 }

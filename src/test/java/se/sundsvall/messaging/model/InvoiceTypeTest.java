@@ -10,8 +10,6 @@ class InvoiceTypeTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(InvoiceType.values()).containsExactlyInAnyOrder(
-			INVOICE,
-			REMINDER);
+		assertThat(InvoiceType.values()).containsExactlyInAnyOrder(INVOICE, REMINDER);
 	}
 }

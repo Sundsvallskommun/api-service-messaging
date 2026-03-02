@@ -19,8 +19,7 @@ public class ValidHeadersConstraintValidator implements ConstraintValidator<Vali
 
 	public ValidHeadersConstraintValidator() {
 		allowedHeaderNames = Arrays.stream(Header.values())
-			.map(header -> String.format("%s/%s", header.getKey(), header.name()))
-			.collect(Collectors.toSet());
+			.map(header -> String.format("%s/%s", header.getKey(), header.name())).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -35,16 +34,14 @@ public class ValidHeadersConstraintValidator implements ConstraintValidator<Vali
 		var isValid = true;
 		for (var entry : values.entrySet()) {
 			var headerName = entry.getKey().toString();
-			var headerValues = ((List<?>) entry.getValue()).stream()
-				.map(Object::toString)
-				.toList();
+			var headerValues = ((List<?>) entry.getValue()).stream().map(Object::toString).toList();
 
 			var matchingHeader = Header.fromString(headerName);
 			if (matchingHeader == null) {
 				unwrappedContext
-					.buildConstraintViolationWithTemplate(headerName + " is not a valid header. Allowed headers are: " + allowedHeaderNames)
-					.addPropertyNode(headerName)
-					.addConstraintViolation();
+					.buildConstraintViolationWithTemplate(
+						headerName + " is not a valid header. Allowed headers are: " + allowedHeaderNames)
+					.addPropertyNode(headerName).addConstraintViolation();
 				isValid = false;
 				continue;
 			}
@@ -53,9 +50,7 @@ public class ValidHeadersConstraintValidator implements ConstraintValidator<Vali
 			var message = matchingHeader.getMessage();
 			for (var headerValue : headerValues) {
 				if (!pattern.matcher(headerValue).matches()) {
-					unwrappedContext
-						.buildConstraintViolationWithTemplate(message)
-						.addPropertyNode(headerName)
+					unwrappedContext.buildConstraintViolationWithTemplate(message).addPropertyNode(headerName)
 						.addConstraintViolation();
 					isValid = false;
 				}

@@ -38,10 +38,12 @@ public record WebMessageRequest(
 	@Schema(description = "Issuer of request", examples = "user123", hidden = true) @JsonIgnore String issuer,
 
 	@Schema(description = "Determines if the message should be added to the internal or external OeP instance", allowableValues = {
-		OEP_INSTANCE_INTERNAL, OEP_INSTANCE_EXTERNAL
+		OEP_INSTANCE_INTERNAL,
+		OEP_INSTANCE_EXTERNAL
 	}, examples = OEP_INSTANCE_INTERNAL) @ValidInstance(nullable = true) String oepInstance,
 
-	// The attachment object is a record and no restrictions are placed on the fields means that empty attachments are
+	// The attachment object is a record and no restrictions are placed on the fields means that empty attachments
+	// are
 	// allowed.
 	// This will create immutable lists and doesn't play nice with when deserialization happens.
 	// The solution is to set minItems to 1 in @Size, which allows attachments to be null or omitted,

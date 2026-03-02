@@ -5,11 +5,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.MessageEventDispatcher;
 import se.sundsvall.messaging.service.MessageService;
@@ -23,6 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createValidSlackRequest;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSlackFailureTest {
@@ -41,26 +43,18 @@ class MessageResourceSlackFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailForInvalidToken(String token) {
+	void shouldFailForInvalidToken(final String token) {
 		// Arrange
 		final var request = createValidSlackRequest().withToken(token);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("token", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -69,26 +63,18 @@ class MessageResourceSlackFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailForInvalidChannel(String channel) {
+	void shouldFailForInvalidChannel(final String channel) {
 		// Arrange
 		final var request = createValidSlackRequest().withChannel(channel);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("channel", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);
@@ -97,26 +83,18 @@ class MessageResourceSlackFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailForInvalidMessage(String message) {
+	void shouldFailForInvalidMessage(final String message) {
 		// Arrange
 		final var request = createValidSlackRequest().withMessage(message);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("message", "must not be blank"));
 
 		verifyNoInteractions(messageServiceMock, eventDispatcherMock);

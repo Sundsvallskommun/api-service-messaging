@@ -8,9 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -19,6 +18,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ExtendWith(MockitoExtension.class)
 class SmsSenderIntegrationTest {
@@ -51,20 +52,15 @@ class SmsSenderIntegrationTest {
 	@Test
 	void test_sendSms_whenExceptionIsThrownByClient() {
 		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class)))
-			.thenThrow(Problem.builder()
-				.withStatus(Status.BAD_GATEWAY)
-				.withCause(Problem.builder()
-					.withStatus(Status.BAD_REQUEST)
-					.build())
-				.build());
+		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class))).thenThrow(Problem.builder()
+			.withStatus(BAD_GATEWAY).withCause(Problem.builder().withStatus(BAD_REQUEST).build()).build());
 
 		var dto = SmsDto.builder().build();
-		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> integration.sendSms("2281", dto))
+		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> integration.sendSms("2281", dto))
 			.satisfies(problem -> {
-				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
+				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().isInstanceOf(ThrowableProblem.class).satisfies(
+					cause -> assertThat(((ThrowableProblem) cause).getStatus()).isEqualTo(BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));

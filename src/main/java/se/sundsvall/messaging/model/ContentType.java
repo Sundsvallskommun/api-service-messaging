@@ -6,8 +6,7 @@ import org.springframework.http.MediaType;
 
 public enum ContentType {
 
-	TEXT_PLAIN(MediaType.TEXT_PLAIN_VALUE),
-	TEXT_HTML(MediaType.TEXT_HTML_VALUE),
+	TEXT_PLAIN(MediaType.TEXT_PLAIN_VALUE), TEXT_HTML(MediaType.TEXT_HTML_VALUE),
 	APPLICATION_PDF(MediaType.APPLICATION_PDF_VALUE);
 
 	private final String value;
@@ -22,9 +21,7 @@ public enum ContentType {
 
 	@JsonCreator
 	public static ContentType fromString(final String s) {
-		return Arrays.stream(ContentType.values())
-			.filter(contentType -> contentType.value.equals(s))
-			.findFirst()
+		return Arrays.stream(ContentType.values()).filter(contentType -> contentType.value.equals(s)).findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Unhandled content type: '" + s + "'"));
 	}
 }

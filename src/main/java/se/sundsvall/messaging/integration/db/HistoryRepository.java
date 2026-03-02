@@ -25,17 +25,21 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long>, P
 
 	List<HistoryEntity> findByMunicipalityIdAndBatchId(String municipalityId, String batchId);
 
-	List<BatchHistoryProjection> findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer, LocalDateTime createdAt);
+	List<BatchHistoryProjection> findByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer,
+		LocalDateTime createdAt);
 
 	Page<HistoryEntity> findByMunicipalityIdAndIssuer(String municipalityId, String issuer, Pageable pageable);
 
-	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String issuer, LocalDateTime createdAt, Pageable pageable);
+	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndIssuerAndCreatedAtIsAfter(String municipalityId,
+		String issuer, LocalDateTime createdAt, Pageable pageable);
 
-	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(String municipalityId, String batchId, String issuer, LocalDateTime createdAt, Pageable pageable);
+	Page<MessageIdProjection> findDistinctMessageIdsByMunicipalityIdAndBatchIdAndIssuerAndCreatedAtIsAfter(
+		String municipalityId, String batchId, String issuer, LocalDateTime createdAt, Pageable pageable);
 
 	Optional<HistoryEntity> findFirstByMunicipalityIdAndMessageId(String municipalityId, String messageId);
 
-	HistoryEntity findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(String municipalityId, String messageId, List<MessageType> messageTypes);
+	HistoryEntity findFirstByMunicipalityIdAndMessageIdAndMessageTypeIn(String municipalityId, String messageId,
+		List<MessageType> messageTypes);
 
 	boolean existsByMunicipalityIdAndMessageIdAndIssuer(String municipalityId, String messageId, String issuer);
 }

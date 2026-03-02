@@ -19,11 +19,9 @@ class SnailMailSenderIntegrationMapperTest {
 	@Test
 	void test_toSendSnailmailRequest() {
 		var dto = SnailMailDto.builder()
-			.withAttachments(List.of(SnailMailDto.Attachment.builder()
-				.withFilename("someName")
+			.withAttachments(List.of(SnailMailDto.Attachment.builder().withFilename("someName")
 				.withContentType(Attachment.ContentTypeEnum.APPLICATION_PDF.getValue())
-				.withContent("someContent")
-				.build()))
+				.withContent("someContent").build()))
 			.build();
 
 		var mappedRequest = mapper.toSendSnailmailRequest(dto);

@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.model.Message;
 import se.sundsvall.messaging.model.MessageType;
@@ -28,7 +28,8 @@ import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 @ExtendWith(MockitoExtension.class)
 class MessageEventHandlerTest {
 
-	private final IncomingMessageEvent event = new IncomingMessageEvent(this, "2281", EMAIL, "someDeliveryId", "someOrigin");
+	private final IncomingMessageEvent event = new IncomingMessageEvent(this, "2281", EMAIL, "someDeliveryId",
+		"someOrigin");
 
 	@Mock
 	private MessageService mockMessageService;

@@ -25,29 +25,25 @@ public record Statistics(
 	@JsonProperty("LETTER") Letter letter) {
 
 	public int total() {
-		return ofNullable(email).map(Count::total).orElse(0) +
-			ofNullable(sms).map(Count::total).orElse(0) +
-			ofNullable(webMessage).map(Count::total).orElse(0) +
-			ofNullable(digitalMail).map(Count::total).orElse(0) +
-			ofNullable(snailMail).map(Count::total).orElse(0) +
-			ofNullable(message).map(Message::total).orElse(0) +
-			ofNullable(letter).map(Letter::total).orElse(0);
+		return ofNullable(email).map(Count::total).orElse(0) + ofNullable(sms).map(Count::total).orElse(0)
+			+ ofNullable(webMessage).map(Count::total).orElse(0)
+			+ ofNullable(digitalMail).map(Count::total).orElse(0)
+			+ ofNullable(snailMail).map(Count::total).orElse(0) + ofNullable(message).map(Message::total).orElse(0)
+			+ ofNullable(letter).map(Letter::total).orElse(0);
 	}
 
 	@Builder(setterPrefix = "with")
 	@Schema(name = "MessageStatistics")
 	@JsonIgnoreProperties("total")
-	public record Message(
-		@JsonProperty("EMAIL") Count email,
+	public record Message(@JsonProperty("EMAIL") Count email,
 
 		@JsonProperty("SMS") Count sms,
 
 		@JsonProperty("UNDELIVERABLE") Integer undeliverable) {
 
 		public int total() {
-			return ofNullable(email).map(Count::total).orElse(0) +
-				ofNullable(sms).map(Count::total).orElse(0) +
-				ofNullable(undeliverable).orElse(0);
+			return ofNullable(email).map(Count::total).orElse(0) + ofNullable(sms).map(Count::total).orElse(0)
+				+ ofNullable(undeliverable).orElse(0);
 		}
 	}
 
@@ -61,8 +57,8 @@ public record Statistics(
 		@JsonProperty("DIGITAL_MAIL") Count digitalMail) {
 
 		public int total() {
-			return ofNullable(digitalMail).map(Count::total).orElse(0) +
-				ofNullable(snailMail).map(Count::total).orElse(0);
+			return ofNullable(digitalMail).map(Count::total).orElse(0)
+				+ ofNullable(snailMail).map(Count::total).orElse(0);
 		}
 	}
 }

@@ -22,23 +22,17 @@ class SmsBatchRequestTest {
 	// SmsBatchRequest
 	@Test
 	void testSmsBatchRequestConstructor() {
-		final var bean = new SmsBatchRequest(SENDER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT, PARTIES, MUNICIPALITY_ID);
+		final var bean = new SmsBatchRequest(SENDER, ORIGIN, ISSUER, MESSAGE, PRIORITY, DEPARTMENT, PARTIES,
+			MUNICIPALITY_ID);
 
 		assertSmsBatchRequest(bean);
 	}
 
 	@Test
 	void testSmsBatchRequestBuilder() {
-		final var bean = SmsBatchRequest.builder()
-			.withIssuer(ISSUER)
-			.withMessage(MESSAGE)
-			.withOrigin(ORIGIN)
-			.withParties(PARTIES)
-			.withPriority(PRIORITY)
-			.withSender(SENDER)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withDepartment(DEPARTMENT)
-			.build();
+		final var bean = SmsBatchRequest.builder().withIssuer(ISSUER).withMessage(MESSAGE).withOrigin(ORIGIN)
+			.withParties(PARTIES).withPriority(PRIORITY).withSender(SENDER).withMunicipalityId(MUNICIPALITY_ID)
+			.withDepartment(DEPARTMENT).build();
 
 		assertSmsBatchRequest(bean);
 	}
@@ -65,10 +59,7 @@ class SmsBatchRequestTest {
 
 	@Test
 	void testSmsBatchRequestPartyBuilder() {
-		final var bean = SmsBatchRequest.Party.builder()
-			.withMobileNumber(MOBILE_NUMBER)
-			.withPartyId(PARTY_ID)
-			.build();
+		final var bean = SmsBatchRequest.Party.builder().withMobileNumber(MOBILE_NUMBER).withPartyId(PARTY_ID).build();
 
 		assertSmsBatchRequestParty(bean);
 	}

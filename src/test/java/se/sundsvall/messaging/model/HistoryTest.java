@@ -22,27 +22,18 @@ class HistoryTest {
 
 	@Test
 	void testConstructor() {
-		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS, CONTENT, ORIGIN, ISSUER, CREATED_AT, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		final var bean = new History(BATCH_ID, MESSAGE_ID, DELIVERY_ID, MESSAGE_TYPE, ORIGINAL_MESSAGE_TYPE, STATUS,
+			CONTENT, ORIGIN, ISSUER, CREATED_AT, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
 
 		assertBean(bean);
 	}
 
 	@Test
 	void testBuilder() {
-		final var bean = History.builder()
-			.withBatchId(BATCH_ID)
-			.withContent(CONTENT)
-			.withCreatedAt(CREATED_AT)
-			.withDeliveryId(DELIVERY_ID)
-			.withIssuer(ISSUER)
-			.withMessageId(MESSAGE_ID)
-			.withMessageType(MESSAGE_TYPE)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withOrigin(ORIGIN)
-			.withOriginalMessageType(ORIGINAL_MESSAGE_TYPE)
-			.withStatus(STATUS)
-			.withOrganizationNumber(ORGANIZATION_NUMBER)
-			.build();
+		final var bean = History.builder().withBatchId(BATCH_ID).withContent(CONTENT).withCreatedAt(CREATED_AT)
+			.withDeliveryId(DELIVERY_ID).withIssuer(ISSUER).withMessageId(MESSAGE_ID).withMessageType(MESSAGE_TYPE)
+			.withMunicipalityId(MUNICIPALITY_ID).withOrigin(ORIGIN).withOriginalMessageType(ORIGINAL_MESSAGE_TYPE)
+			.withStatus(STATUS).withOrganizationNumber(ORGANIZATION_NUMBER).build();
 
 		assertBean(bean);
 	}

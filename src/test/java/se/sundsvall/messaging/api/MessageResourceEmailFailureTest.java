@@ -9,11 +9,12 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Header;
@@ -29,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceEmailFailureTest {
@@ -55,23 +57,15 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = {
 		"", " ", "not-a-uuid"
 	})
-	void shouldFailWithInvalidPartyId(String partyId) {
+	void shouldFailWithInvalidPartyId(final String partyId) {
 		final var request = validRequest.withParty(validRequest.party().withPartyId(partyId));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -80,26 +74,18 @@ class MessageResourceEmailFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceKey(String key) {
+	void shouldFailWithInvalidExternalReferenceKey(final String key) {
 		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withKey(key))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withKey(key))));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].key", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -108,26 +94,18 @@ class MessageResourceEmailFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithInvalidExternalReferenceValue(String value) {
+	void shouldFailWithInvalidExternalReferenceValue(final String value) {
 		final var externalReference = validRequest.party().externalReferences().getFirst();
 
-		final var request = validRequest.withParty(validRequest.party()
-			.withExternalReferences(List.of(externalReference.withValue(value))));
+		final var request = validRequest
+			.withParty(validRequest.party().withExternalReferences(List.of(externalReference.withValue(value))));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("party.externalReferences[0].value", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -138,26 +116,17 @@ class MessageResourceEmailFailureTest {
 		"not-an-email-address", " "
 	})
 	@NullAndEmptySource
-	void shouldFailWithNullOrInvalidEmailAddress(String value) {
+	void shouldFailWithNullOrInvalidEmailAddress(final String value) {
 		final var request = validRequest.withEmailAddress(value);
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsAnyOf(
-				tuple("emailAddress", "must not be blank"),
-				tuple("emailAddress", "must be a well-formed email address"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsAnyOf(
+			tuple("emailAddress", "must not be blank"),
+			tuple("emailAddress", "must be a well-formed email address"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
@@ -167,23 +136,15 @@ class MessageResourceEmailFailureTest {
 		" "
 	})
 	@NullAndEmptySource
-	void shouldFailWithNullOrBlankSubject(String value) {
+	void shouldFailWithNullOrBlankSubject(final String value) {
 		final var request = validRequest.withSubject(value);
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("subject", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -192,23 +153,15 @@ class MessageResourceEmailFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithBlankSenderName(String value) {
+	void shouldFailWithBlankSenderName(final String value) {
 		final var request = validRequest.withSender(validRequest.sender().withName(value));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.name", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -219,26 +172,17 @@ class MessageResourceEmailFailureTest {
 		" ", "not-a-valid-email-address"
 	})
 	@NullAndEmptySource
-	void shouldFailWithBlankOrInvalidSenderAddress(String value) {
+	void shouldFailWithBlankOrInvalidSenderAddress(final String value) {
 		final var request = validRequest.withSender(validRequest.sender().withAddress(value));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsAnyOf(
-				tuple("sender.address", "must not be blank"),
-				tuple("sender.address", "must be a well-formed email address"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsAnyOf(
+			tuple("sender.address", "must not be blank"),
+			tuple("sender.address", "must be a well-formed email address"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}
@@ -247,20 +191,12 @@ class MessageResourceEmailFailureTest {
 	void shouldFailWithInvalidReplyToAddress() {
 		final var request = validRequest.withSender(validRequest.sender().withReplyTo("not-a-valid-email-address"));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("sender.replyTo", "must be a well-formed email address"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -270,20 +206,12 @@ class MessageResourceEmailFailureTest {
 	void shouldFailWithInvalidHtmlMessage() {
 		final var request = validRequest.withHtmlMessage("not-a-valid-base-64");
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("htmlMessage", "not a valid BASE64-encoded string"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -292,23 +220,16 @@ class MessageResourceEmailFailureTest {
 	@ParameterizedTest
 	@ValueSource(strings = " ")
 	@NullAndEmptySource
-	void shouldFailWithMissingFileName(String fileName) {
-		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
+	void shouldFailWithMissingFileName(final String fileName) {
+		final var request = validRequest
+			.withAttachments(List.of(validRequest.attachments().getFirst().withName(fileName)));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].name", "must not be blank"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -316,22 +237,15 @@ class MessageResourceEmailFailureTest {
 
 	@Test
 	void shouldFailWithInvalidFileContent() {
-		final var request = validRequest.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
+		final var request = validRequest
+			.withAttachments(List.of(validRequest.attachments().getFirst().withContent("not-a-valid-base-64")));
 
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("attachments[0].content", "not a valid BASE64-encoded string"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
@@ -341,24 +255,16 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = {
 		"", " ", "abc", "<abc>", "b@c", "<a@b", "a@>"
 	})
-	void shouldFailWithInvalidHeaderValue(String value) {
+	void shouldFailWithInvalidHeaderValue(final String value) {
 		final var request = validRequest.withHeaders(Map.of(Header.MESSAGE_ID.getKey(), List.of(value)));
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).contentType(APPLICATION_JSON).bodyValue(request).exchange()
+			.expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("headers.Message-ID", "must start with '<', contain '@' and end with '>'"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);

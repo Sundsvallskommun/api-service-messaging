@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.messaging.api.model.response.DepartmentStats;
 import se.sundsvall.messaging.api.validation.ValidNullOrNotEmpty;
 import se.sundsvall.messaging.model.DepartmentStatistics;
@@ -35,18 +35,10 @@ import static se.sundsvall.messaging.Constants.STATISTICS_PATH;
 @Tag(name = "Statistics Resources")
 @Validated
 @RestController
-@ApiResponse(responseCode = "400",
-	description = "Bad Request",
-	content = @Content(
-		mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-		schema = @Schema(oneOf = {
-			Problem.class, ConstraintViolationProblem.class
-		})))
-@ApiResponse(responseCode = "500",
-	description = "Internal Server Error",
-	content = @Content(
-		mediaType = APPLICATION_PROBLEM_JSON_VALUE,
-		schema = @Schema(implementation = Problem.class)))
+@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
+	Problem.class, ConstraintViolationProblem.class
+})))
+@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class StatisticsResource {
 
 	private final StatisticsService statisticsService;
@@ -72,7 +64,8 @@ class StatisticsResource {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
 	@GetMapping(value = {
-		STATISTICS_FOR_DEPARTMENTS_PATH, STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH
+		STATISTICS_FOR_DEPARTMENTS_PATH,
+		STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH
 	}, produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<DepartmentStatistics>> getDepartmentStatistics(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,

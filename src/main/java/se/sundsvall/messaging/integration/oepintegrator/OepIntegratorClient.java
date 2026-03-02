@@ -14,16 +14,12 @@ import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static se.sundsvall.messaging.integration.oepintegrator.OepIntegratorIntegration.INTEGRATION_NAME;
 
-@FeignClient(
-	name = INTEGRATION_NAME,
-	url = "${integration.oep-integrator.base-url}",
-	configuration = OepIntegratorConfiguration.class)
+@FeignClient(name = INTEGRATION_NAME, url = "${integration.oep-integrator.base-url}", configuration = OepIntegratorConfiguration.class)
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface OepIntegratorClient {
 
 	@PostMapping(path = "/{municipalityId}/{instanceType}/webmessages", consumes = MULTIPART_FORM_DATA_VALUE, produces = ALL_VALUE)
-	ResponseEntity<Void> createWebmessage(
-		@PathVariable(value = "municipalityId") final String municipalityId,
+	ResponseEntity<Void> createWebmessage(@PathVariable(value = "municipalityId") final String municipalityId,
 		@PathVariable(value = "instanceType") final String instanceType,
 		@Valid @RequestPart(value = "request") final WebmessageRequest request,
 		@RequestPart(value = "attachments", required = false) final List<AttachmentMultipartFile> attachments);

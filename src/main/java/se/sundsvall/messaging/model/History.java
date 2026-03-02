@@ -6,18 +6,8 @@ import lombok.With;
 
 @With
 @Builder(setterPrefix = "with")
-public record History(
-	String batchId,
-	String messageId,
-	String deliveryId,
-	MessageType messageType,
-	MessageType originalMessageType,
-	MessageStatus status,
-	String content,
-	String origin,
-	String issuer,
-	LocalDateTime createdAt,
-	String municipalityId,
-	String organizationNumber) {
+public record History(String batchId, String messageId, String deliveryId, MessageType messageType,
+	MessageType originalMessageType, MessageStatus status, String content, String origin, String issuer,
+	LocalDateTime createdAt, String municipalityId, String organizationNumber) {
 
 }

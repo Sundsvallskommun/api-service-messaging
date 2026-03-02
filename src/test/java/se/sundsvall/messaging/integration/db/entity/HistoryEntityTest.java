@@ -32,25 +32,12 @@ class HistoryEntityTest {
 		var destinationAddress = Address.builder().withAddress("someStreet").build();
 		var organizationNumber = "1234567890";
 
-		var bean = HistoryEntity.builder()
-			.withBatchId(batchId)
-			.withContent(content)
-			.withCreatedAt(createdAt)
-			.withDeliveryId(deliveryId)
-			.withDepartment(department)
-			.withId(id)
-			.withIssuer(issuer)
-			.withMessageId(messageId)
-			.withMessageType(messageType)
-			.withMunicipalityId(municipalityId)
-			.withOrigin(origin)
-			.withOriginalMessageType(originalMessageType)
-			.withPartyId(partyId)
-			.withStatus(status)
-			.withStatusDetail(statusDetail)
-			.withDestinationAddress(destinationAddress)
-			.withOrganizationNumber(organizationNumber)
-			.build();
+		var bean = HistoryEntity.builder().withBatchId(batchId).withContent(content).withCreatedAt(createdAt)
+			.withDeliveryId(deliveryId).withDepartment(department).withId(id).withIssuer(issuer)
+			.withMessageId(messageId).withMessageType(messageType).withMunicipalityId(municipalityId)
+			.withOrigin(origin).withOriginalMessageType(originalMessageType).withPartyId(partyId).withStatus(status)
+			.withStatusDetail(statusDetail).withDestinationAddress(destinationAddress)
+			.withOrganizationNumber(organizationNumber).build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
 		assertThat(bean.getBatchId()).isEqualTo(batchId);
@@ -81,8 +68,7 @@ class HistoryEntityTest {
 	@Test
 	void testPrePersist() {
 		var entity = HistoryEntity.builder()
-			.withDestinationAddress(Address.builder().withAddress("someAddress").build())
-			.build();
+			.withDestinationAddress(Address.builder().withAddress("someAddress").build()).build();
 		assertThat(entity.getCreatedAt()).isNull();
 		assertThat(entity.getDestinationAddressJson()).isNull();
 

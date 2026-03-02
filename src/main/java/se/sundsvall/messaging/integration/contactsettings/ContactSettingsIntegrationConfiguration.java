@@ -23,28 +23,20 @@ class ContactSettingsIntegrationConfiguration {
 
 	@Bean
 	FeignBuilderCustomizer feignCustomizer() {
-		return FeignMultiCustomizer.create()
-			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
-			.withErrorDecoder(errorDecoder())
-			.withRequestOptions(requestOptions())
-			.composeCustomizersToOne();
+		return FeignMultiCustomizer.create().withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+			.withErrorDecoder(errorDecoder()).withRequestOptions(requestOptions()).composeCustomizersToOne();
 	}
 
 	private ClientRegistration clientRegistration() {
-		return ClientRegistration
-			.withRegistrationId(ContactSettingsIntegration.INTEGRATION_NAME)
-			.tokenUri(properties.getTokenUrl())
-			.clientId(properties.getClientId())
+		return ClientRegistration.withRegistrationId(ContactSettingsIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl()).clientId(properties.getClientId())
 			.clientSecret(properties.getClientSecret())
-			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-			.build();
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType())).build();
 	}
 
 	private Request.Options requestOptions() {
-		return new Request.Options(
-			properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
-			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
-			true);
+		return new Request.Options(properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS, true);
 	}
 
 	private ErrorDecoder errorDecoder() {

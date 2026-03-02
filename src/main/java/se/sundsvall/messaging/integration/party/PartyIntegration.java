@@ -17,9 +17,8 @@ public class PartyIntegration {
 	}
 
 	public String getLegalIdByPartyId(final String municipalityId, final String partyId) {
-		return client.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId)
-			.orElseGet(() -> client.getLegalIdByPartyId(municipalityId, PartyType.ENTERPRISE, partyId)
-				.orElse(null));
+		return client.getLegalIdByPartyId(municipalityId, PartyType.PRIVATE, partyId).orElseGet(
+			() -> client.getLegalIdByPartyId(municipalityId, PartyType.ENTERPRISE, partyId).orElse(null));
 	}
 
 }

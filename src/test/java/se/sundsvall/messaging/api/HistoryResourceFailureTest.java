@@ -5,14 +5,15 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.zalando.problem.Problem;
-import org.zalando.problem.violations.ConstraintViolationProblem;
-import org.zalando.problem.violations.Violation;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
+import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.service.HistoryService;
 
@@ -34,6 +35,7 @@ import static se.sundsvall.messaging.Constants.USER_MESSAGES_PATH;
 import static se.sundsvall.messaging.Constants.USER_MESSAGE_PATH;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class HistoryResourceFailureTest {
@@ -44,6 +46,21 @@ class HistoryResourceFailureTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
+		return createParameterMap(null, page, limit);
+	}
+
+	private static MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page,
+		final Integer limit) {
+		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+
+		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));
+		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
+		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
+
+		return parameters;
+	}
+
 	@Test
 	void getConversationHistoryShouldFailWithInvalidUuId() {
 		// Arrange
@@ -51,18 +68,14 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH).build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+			.uri(uriBuilder -> uriBuilder.path(CONVERSATION_HISTORY_PATH)
+				.build(Map.of("partyId", partyId, "municipalityId", MUNICIPALITY_ID)))
+			.exchange().expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getConversationHistory.partyId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -75,18 +88,14 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH).build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+			.uri(uriBuilder -> uriBuilder.path(BATCH_STATUS_PATH)
+				.build(Map.of("batchId", batchId, "municipalityId", MUNICIPALITY_ID)))
+			.exchange().expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getBatchStatus.batchId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -99,18 +108,14 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGES_STATUS_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_STATUS_PATH)
+				.build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.exchange().expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageStatus.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -123,18 +128,14 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH).build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+			.uri(uriBuilder -> uriBuilder.path(DELIVERY_STATUS_PATH)
+				.build(Map.of("deliveryId", deliveryId, "municipalityId", MUNICIPALITY_ID)))
+			.exchange().expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getDeliveryStatus.deliveryId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -147,18 +148,14 @@ class HistoryResourceFailureTest {
 
 		// Act
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_PATH).build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_PATH)
+				.build(Map.of("messageId", messageId, "municipalityId", MUNICIPALITY_ID)))
+			.exchange().expectStatus().isBadRequest().expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class).returnResult().getResponseBody();
 
 		// Assert and verify
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessage.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -172,18 +169,13 @@ class HistoryResourceFailureTest {
 		final var limit = 15;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserBatches.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -196,21 +188,17 @@ class HistoryResourceFailureTest {
 		final var limit = 0;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactlyInAnyOrder(
-				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
-				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactlyInAnyOrder(
+			tuple("getUserBatches.limit",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"),
+			tuple("getUserBatches.page",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"));
 
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -222,21 +210,17 @@ class HistoryResourceFailureTest {
 		final var limit = Integer.MAX_VALUE + 1;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_BATCHES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactlyInAnyOrder(
-				tuple("getUserBatches.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
-				tuple("getUserBatches.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactlyInAnyOrder(
+			tuple("getUserBatches.limit",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"),
+			tuple("getUserBatches.page",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"));
 
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -249,18 +233,13 @@ class HistoryResourceFailureTest {
 		final var limit = 15;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", municipalityId, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessages.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -277,15 +256,11 @@ class HistoryResourceFailureTest {
 			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
 				.queryParams(createParameterMap(batchId, page, limit))
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessages.batchId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -298,21 +273,17 @@ class HistoryResourceFailureTest {
 		final var limit = 0;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactlyInAnyOrder(
-				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
-				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactlyInAnyOrder(
+			tuple("getUserMessages.limit",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"),
+			tuple("getUserMessages.page",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"));
 
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -324,21 +295,17 @@ class HistoryResourceFailureTest {
 		final var limit = Integer.MAX_VALUE + 1;
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH)
-				.queryParams(createParameterMap(page, limit))
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGES_PATH).queryParams(createParameterMap(page, limit))
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactlyInAnyOrder(
-				tuple("getUserMessages.limit", "must be greater than or equal to 1 and less than or equal to 2147483647"),
-				tuple("getUserMessages.page", "must be greater than or equal to 1 and less than or equal to 2147483647"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactlyInAnyOrder(
+			tuple("getUserMessages.limit",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"),
+			tuple("getUserMessages.page",
+				"must be greater than or equal to 1 and less than or equal to 2147483647"));
 
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -352,15 +319,11 @@ class HistoryResourceFailureTest {
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", municipalityId, "messageId", messageId, "fileName", fileName)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachment.municipalityId", "not a valid municipality ID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -373,15 +336,11 @@ class HistoryResourceFailureTest {
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path(MESSAGES_ATTACHMENT_PATH)
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId, "fileName", fileName)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachment.messageId", "not a valid UUID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -395,16 +354,12 @@ class HistoryResourceFailureTest {
 			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
 				.queryParam("fileName", fileName)
 				.build(Map.of("municipalityId", "invalid-municipalityId", "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
-			.containsExactly(tuple("readAttachmentByRequestParameter.municipalityId", "not a valid municipality ID"));
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message).containsExactly(
+			tuple("readAttachmentByRequestParameter.municipalityId", "not a valid municipality ID"));
 		verifyNoInteractions(mockHistoryService);
 	}
 
@@ -417,15 +372,11 @@ class HistoryResourceFailureTest {
 			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
 				.queryParam("fileName", fileName)
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("readAttachmentByRequestParameter.messageId", "not a valid UUID"));
 		verifyNoInteractions(mockHistoryService);
 	}
@@ -437,16 +388,10 @@ class HistoryResourceFailureTest {
 		final var response = webTestClient.get()
 			.uri(uriBuilder -> uriBuilder.path("/{municipalityId}/messages/{messageId}/attachments")
 				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(Problem.class)
-			.returnResult()
-			.getResponseBody();
+			.exchange().expectStatus().isBadRequest().expectBody(Problem.class).returnResult().getResponseBody();
 
-		assertThat(response).isNotNull()
-			.returns("Bad Request", Problem::getTitle)
-			.returns("Required request parameter 'fileName' for method parameter type String is not present",
-				Problem::getDetail);
+		assertThat(response).isNotNull().returns("Bad Request", Problem::getTitle)
+			.returns("Required parameter 'fileName' is not present.", Problem::getDetail);
 		verifyNoInteractions(mockHistoryService);
 	}
 
@@ -455,17 +400,13 @@ class HistoryResourceFailureTest {
 		final var messageId = "not-valid";
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
-				Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH)
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "messageId", messageId)))
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageMetadata.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -477,17 +418,13 @@ class HistoryResourceFailureTest {
 		final var messageId = UUID.randomUUID().toString();
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH).build(
-				Map.of("municipalityId", municipalityId, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.uri(uriBuilder -> uriBuilder.path(MESSAGES_AND_DELIVERY_METADATA_PATH)
+				.build(Map.of("municipalityId", municipalityId, "messageId", messageId)))
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getMessageMetadata.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -499,17 +436,13 @@ class HistoryResourceFailureTest {
 		final var userId = "userId";
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
-				Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH)
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "userId", userId, "messageId", messageId)))
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessage.messageId", "not a valid UUID"));
 
 		verifyNoInteractions(mockHistoryService);
@@ -522,33 +455,15 @@ class HistoryResourceFailureTest {
 		final var messageId = UUID.randomUUID().toString();
 
 		final var response = webTestClient.get()
-			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH).build(
-				Map.of("municipalityId", municipalityId, "userId", userId, "messageId", messageId)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
+			.uri(uriBuilder -> uriBuilder.path(USER_MESSAGE_PATH)
+				.build(Map.of("municipalityId", municipalityId, "userId", userId, "messageId", messageId)))
+			.exchange().expectStatus().isBadRequest().expectBody(ConstraintViolationProblem.class).returnResult()
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::getField, Violation::getMessage)
+		assertThat(response.getViolations()).extracting(Violation::field, Violation::message)
 			.containsExactly(tuple("getUserMessage.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(mockHistoryService);
-	}
-
-	private static MultiValueMap<String, String> createParameterMap(final Integer page, final Integer limit) {
-		return createParameterMap(null, page, limit);
-	}
-
-	private static MultiValueMap<String, String> createParameterMap(final String batchId, final Integer page, final Integer limit) {
-		final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-
-		ofNullable(batchId).ifPresent(p -> parameters.add("batchId", p));
-		ofNullable(page).ifPresent(p -> parameters.add("page", p.toString()));
-		ofNullable(limit).ifPresent(p -> parameters.add("limit", p.toString()));
-
-		return parameters;
 	}
 }

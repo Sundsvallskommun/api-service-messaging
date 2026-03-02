@@ -10,4 +10,5 @@ public record MessageResult(
 
 	@Schema(description = "The message id", format = "uuid") String messageId,
 
-	@Schema(description = "The message deliveries") List<DeliveryResult> deliveries) {}
+	@Schema(description = "The message deliveries") List<DeliveryResult> deliveries) {
+}

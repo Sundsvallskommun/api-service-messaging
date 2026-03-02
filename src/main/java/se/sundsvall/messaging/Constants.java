@@ -8,7 +8,8 @@ public final class Constants {
 
 	public static final String STATISTICS_FOR_DEPARTMENTS_PATH = STATISTICS_PATH + "/departments";
 
-	public static final String STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH = STATISTICS_FOR_DEPARTMENTS_PATH + "/{department}";
+	public static final String STATISTICS_FOR_SPECIFIC_DEPARTMENT_PATH = STATISTICS_FOR_DEPARTMENTS_PATH
+		+ "/{department}";
 
 	public static final String BATCH_STATUS_PATH = "/{municipalityId}/status/batch/{batchId}";
 

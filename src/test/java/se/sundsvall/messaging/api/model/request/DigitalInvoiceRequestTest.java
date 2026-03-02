@@ -40,25 +40,17 @@ class DigitalInvoiceRequestTest {
 	// DigitalInvoiceRequest
 	@Test
 	void testDigitalInvoiceRequestConstructor() {
-		final var bean = new DigitalInvoiceRequest(PARTY, TYPE, SUBJECT, REFERENCE, PAYABLE, DETAILS, ORIGIN, ISSUER, FILES, MUNICIPALITY_ID);
+		final var bean = new DigitalInvoiceRequest(PARTY, TYPE, SUBJECT, REFERENCE, PAYABLE, DETAILS, ORIGIN, ISSUER,
+			FILES, MUNICIPALITY_ID);
 
 		assertDigitalInvoiceRequest(bean);
 	}
 
 	@Test
 	void testDigitalInvoiceRequestBuilder() {
-		final var bean = DigitalInvoiceRequest.builder()
-			.withDetails(DETAILS)
-			.withFiles(FILES)
-			.withIssuer(ISSUER)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withPayable(PAYABLE)
-			.withReference(REFERENCE)
-			.withSubject(SUBJECT)
-			.withType(TYPE)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = DigitalInvoiceRequest.builder().withDetails(DETAILS).withFiles(FILES).withIssuer(ISSUER)
+			.withOrigin(ORIGIN).withParty(PARTY).withPayable(PAYABLE).withReference(REFERENCE).withSubject(SUBJECT)
+			.withType(TYPE).withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertDigitalInvoiceRequest(bean);
 	}
@@ -79,21 +71,17 @@ class DigitalInvoiceRequestTest {
 	// DigitalInvoiceRequest.Details
 	@Test
 	void testDigitalInvoiceRequestDetailsConstructor() {
-		final var bean = new DigitalInvoiceRequest.Details(AMOUNT, DUE_DATE, PAYMENT_REFERENCE_TYPE, PAYMENT_REFERENCE, ACCOUNT_TYPE, ACCOUNT_NUMBER);
+		final var bean = new DigitalInvoiceRequest.Details(AMOUNT, DUE_DATE, PAYMENT_REFERENCE_TYPE, PAYMENT_REFERENCE,
+			ACCOUNT_TYPE, ACCOUNT_NUMBER);
 
 		assertDigitalInvoiceRequestDetails(bean);
 	}
 
 	@Test
 	void testDigitalInvoiceRequestDetailsBuilder() {
-		final var bean = DigitalInvoiceRequest.Details.builder()
-			.withAccountNumber(ACCOUNT_NUMBER)
-			.withAccountType(ACCOUNT_TYPE)
-			.withAmount(AMOUNT)
-			.withDueDate(DUE_DATE)
-			.withPaymentReference(PAYMENT_REFERENCE)
-			.withPaymentReferenceType(PAYMENT_REFERENCE_TYPE)
-			.build();
+		final var bean = DigitalInvoiceRequest.Details.builder().withAccountNumber(ACCOUNT_NUMBER)
+			.withAccountType(ACCOUNT_TYPE).withAmount(AMOUNT).withDueDate(DUE_DATE)
+			.withPaymentReference(PAYMENT_REFERENCE).withPaymentReferenceType(PAYMENT_REFERENCE_TYPE).build();
 
 		assertDigitalInvoiceRequestDetails(bean);
 	}
@@ -118,11 +106,8 @@ class DigitalInvoiceRequestTest {
 
 	@Test
 	void testDigitalInvoiceRequestFileBuilder() {
-		final var bean = DigitalInvoiceRequest.File.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withFilename(FILENAME)
-			.build();
+		final var bean = DigitalInvoiceRequest.File.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withFilename(FILENAME).build();
 
 		assertDigitalInvoiceRequestFile(bean);
 	}
@@ -144,10 +129,8 @@ class DigitalInvoiceRequestTest {
 
 	@Test
 	void testDigitalInvoiceRequestPartyBuilder() {
-		final var bean = DigitalInvoiceRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
-			.build();
+		final var bean = DigitalInvoiceRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID).build();
 
 		assertDigitalInvoiceRequestParty(bean);
 	}

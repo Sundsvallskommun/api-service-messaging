@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,6 +39,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidSlackRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SLACK;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSlackTest {
@@ -45,12 +47,8 @@ class MessageResourceSlackTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/slack";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withMessageType(SLACK)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMunicipalityId(MUNICIPALITY_ID)
+		.withMessageType(SLACK).withStatus(SENT).build();
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -61,28 +59,41 @@ class MessageResourceSlackTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
+		return httpHeaders -> {
+			if (includeOptionalHeaders) {
+				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
+				httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
+				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
+			}
+		};
+	}
+
+	private static Consumer<HttpHeaders> oldHeaders() {
+		return httpHeaders -> {
+			httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
+			httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
+		};
+	}
+
+	private static SlackRequest addHeaderValues(final SlackRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
 	@ParameterizedTest
 	@ValueSource(booleans = {
 		true, false
 	})
-	void sendSynchronous(boolean includeOptionalHeaders) {
+	void sendSynchronous(final boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();
 		when(mockMessageService.sendToSlack(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageResult.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
@@ -101,24 +112,17 @@ class MessageResourceSlackTest {
 	@ValueSource(booleans = {
 		true, false
 	})
-	void sendAsynchronous(boolean includeOptionalHeaders) {
+	void sendAsynchronous(final boolean includeOptionalHeaders) {
 		// Arrange
 		final var request = createValidSlackRequest();
 		when(mockEventDispatcher.handleSlackRequest(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL + "?async=true")
+			.headers(handleHeaders(includeOptionalHeaders)).contentType(APPLICATION_JSON).bodyValue(request)
+			.exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
@@ -140,18 +144,10 @@ class MessageResourceSlackTest {
 		when(mockMessageService.sendToSlack(any())).thenReturn(DELIVERY_RESULT);
 
 		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
 
 		// Assert & verify
 		assertThat(response).isNotNull();
@@ -161,30 +157,9 @@ class MessageResourceSlackTest {
 		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
 
-		verify(mockMessageService).sendToSlack(request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verify(mockMessageService)
+			.sendToSlack(request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
 		verifyNoMoreInteractions(mockEventDispatcher);
 		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
-		return httpHeaders -> {
-			if (includeOptionalHeaders) {
-				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
-				httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
-				httpHeaders.add(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE);
-			}
-		};
-	}
-
-	private static Consumer<HttpHeaders> oldHeaders() {
-		return httpHeaders -> {
-			httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
-			httpHeaders.add(X_ISSUER_HEADER, X_ISSUER_HEADER_VALUE);
-		};
-	}
-
-	private static SlackRequest addHeaderValues(SlackRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
 	}
 }

@@ -12,10 +12,7 @@ class ContentTypeTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(ContentType.values()).containsExactlyInAnyOrder(
-			APPLICATION_PDF,
-			TEXT_HTML,
-			TEXT_PLAIN);
+		assertThat(ContentType.values()).containsExactlyInAnyOrder(APPLICATION_PDF, TEXT_HTML, TEXT_PLAIN);
 	}
 
 	@Test

@@ -58,8 +58,7 @@ public record UserMessage(
 	@With
 	@Builder(setterPrefix = "with")
 	@Schema(description = "Address model")
-	public record Address(
-		@Schema(description = "The address", examples = "Storgatan 1") String address,
+	public record Address(@Schema(description = "The address", examples = "Storgatan 1") String address,
 		@Schema(description = "The city", examples = "Sundsvall") String city,
 		@Schema(description = "The country", examples = "Sweden") String country,
 		@Schema(description = "The first name", examples = "Kalle") String firstName,

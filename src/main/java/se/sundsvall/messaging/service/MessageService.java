@@ -14,9 +14,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.LinkedMultiValueMap;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -47,6 +46,7 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
@@ -82,19 +82,13 @@ public class MessageService {
 	private final RequestMapper requestMapper;
 	private final DtoMapper dtoMapper;
 
-	public MessageService(final TransactionTemplate transactionTemplate,
-		final DbIntegration dbIntegration,
-		final CitizenIntegration citizenIntegration,
-		final ContactSettingsIntegration contactSettingsIntegration,
-		final SmsSenderIntegration smsSenderIntegration,
-		final EmailSenderIntegration emailSenderIntegration,
+	public MessageService(final TransactionTemplate transactionTemplate, final DbIntegration dbIntegration,
+		final CitizenIntegration citizenIntegration, final ContactSettingsIntegration contactSettingsIntegration,
+		final SmsSenderIntegration smsSenderIntegration, final EmailSenderIntegration emailSenderIntegration,
 		final DigitalMailSenderIntegration digitalMailSenderIntegration,
-		final SnailMailSenderIntegration snailMailSenderIntegration,
-		final SlackIntegration slackIntegration,
-		final OepIntegratorIntegration oepIntegration,
-		final MessageMapper messageMapper,
-		final RequestMapper requestMapper,
-		final DtoMapper dtoMapper) {
+		final SnailMailSenderIntegration snailMailSenderIntegration, final SlackIntegration slackIntegration,
+		final OepIntegratorIntegration oepIntegration, final MessageMapper messageMapper,
+		final RequestMapper requestMapper, final DtoMapper dtoMapper) {
 		this.transactionTemplate = transactionTemplate;
 		this.dbIntegration = dbIntegration;
 		this.citizenIntegration = citizenIntegration;
@@ -146,11 +140,10 @@ public class MessageService {
 	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request, String organizationNumber) {
 		final var batchId = UUID.randomUUID().toString();
 		// Save the message(s)
-		final var deliveries = dbIntegration.saveMessages(messageMapper.toMessages(request, batchId, organizationNumber));
+		final var deliveries = dbIntegration
+			.saveMessages(messageMapper.toMessages(request, batchId, organizationNumber));
 		// Deliver them
-		final var deliveryResults = deliveries.stream()
-			.map(this::deliver)
-			.toList();
+		final var deliveryResults = deliveries.stream().map(this::deliver).toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults, request.municipalityId());
 	}
@@ -165,17 +158,13 @@ public class MessageService {
 
 	public InternalDeliveryBatchResult sendMessages(final MessageRequest request) {
 		final var batchId = UUID.randomUUID().toString();
-		final var messages = request.messages().stream()
-			.map(message -> messageMapper.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
-			.map(dbIntegration::saveMessage)
-			.toList();
+		final var messages = request.messages().stream().map(message -> messageMapper
+			.toMessage(request.municipalityId(), request.origin(), request.issuer(), batchId, message))
+			.map(dbIntegration::saveMessage).toList();
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
-		final var deliveryResults = messages.stream()
-			.map(this::sendMessage)
-			.flatMap(Collection::stream)
-			.toList();
+		final var deliveryResults = messages.stream().map(this::sendMessage).flatMap(Collection::stream).toList();
 
 		return new InternalDeliveryBatchResult(batchId, deliveryResults, request.municipalityId());
 	}
@@ -205,9 +194,7 @@ public class MessageService {
 
 		// Handle and send each message individually, since we don't know if it will result in zero,
 		// one or more actual deliveries
-		final var deliveryResults = allMessages.stream()
-			.map(this::routeAndSendLetter)
-			.flatMap(Collection::stream)
+		final var deliveryResults = allMessages.stream().map(this::routeAndSendLetter).flatMap(Collection::stream)
 			.toList();
 
 		LOG.info("Triggering sync batch {}", batchId);
@@ -217,15 +204,19 @@ public class MessageService {
 		return new InternalDeliveryBatchResult(batchId, deliveryResults, request.municipalityId());
 	}
 
-	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId, final String municipalityId) {
-		final var snailMailDeliveryResults = deliveryResults.stream().filter(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType())).toList();
+	private void sendSnailMailBatch(final List<InternalDeliveryResult> deliveryResults, final String batchId,
+		final String municipalityId) {
+		final var snailMailDeliveryResults = deliveryResults.stream()
+			.filter(deliveryResult -> SNAIL_MAIL.equals(deliveryResult.messageType())).toList();
 
 		if (snailMailDeliveryResults.isEmpty()) {
 			LOG.info("Not triggering batch {} since it contains no snail-mail deliveries", batchId);
-		} else if (snailMailDeliveryResults.stream().allMatch(deliveryResult -> FAILED.equals(deliveryResult.status()))) {
+		} else if (snailMailDeliveryResults.stream()
+			.allMatch(deliveryResult -> FAILED.equals(deliveryResult.status()))) {
 			LOG.warn("Not triggering batch {} since all deliveries within it failed", batchId);
 		} else {
-			snailMailDeliveryResults.forEach(deliveryResult -> LOG.info("Delivery {} was sent as snail-mail", deliveryResult.deliveryId()));
+			snailMailDeliveryResults.forEach(
+				deliveryResult -> LOG.info("Delivery {} was sent as snail-mail", deliveryResult.deliveryId()));
 
 			// At least one delivery was sent as snail-mail - send the batch
 			snailMailSenderIntegration.sendBatch(municipalityId, batchId);
@@ -259,12 +250,12 @@ public class MessageService {
 		}
 
 		// Get the message filters
-		final var filters = ofNullable(request.filters())
-			.map(LinkedMultiValueMap::new)
+		final var filters = ofNullable(request.filters()).map(LinkedMultiValueMap::new)
 			.orElseGet(LinkedMultiValueMap::new);
 
 		// Get contact settings and maybe act upon them
-		final var contactSettings = contactSettingsIntegration.getContactSettings(message.municipalityId(), partyId, filters);
+		final var contactSettings = contactSettingsIntegration.getContactSettings(message.municipalityId(), partyId,
+			filters);
 		if (contactSettings.isEmpty()) {
 			LOG.info("No contact settings found for {} with filters {}", partyId, filters);
 
@@ -275,26 +266,23 @@ public class MessageService {
 		} else {
 			for (final var contactSetting : contactSettings) {
 				// Determine the contact method, if any
-				final var actualContactMethod = ofNullable(contactSetting.contactMethod())
-					.map(contactMethod -> {
-						if (contactSetting.disabled()) {
-							return NO_CONTACT;
-						}
+				final var actualContactMethod = ofNullable(contactSetting.contactMethod()).map(contactMethod -> {
+					if (contactSetting.disabled()) {
+						return NO_CONTACT;
+					}
 
-						return contactMethod;
-					})
-					.orElse(UNKNOWN);
+					return contactMethod;
+				}).orElse(UNKNOWN);
 
 				// Re-map the delivery to use the actual contact method and deliver it
 				switch (actualContactMethod) {
 					case EMAIL -> {
 						final var deliveryId = UUID.randomUUID().toString();
 
-						LOG.info("Handling incoming message {} as e-mail with delivery id {}", message.messageId(), deliveryId);
+						LOG.info("Handling incoming message {} as e-mail with delivery id {}", message.messageId(),
+							deliveryId);
 
-						final var delivery = message
-							.withDeliveryId(deliveryId)
-							.withType(EMAIL)
+						final var delivery = message.withDeliveryId(deliveryId).withType(EMAIL)
 							.withContent(requestMapper.toEmailRequest(message, contactSetting.destination()));
 
 						// Save the re-mapped delivery
@@ -307,11 +295,10 @@ public class MessageService {
 					case SMS -> {
 						final var deliveryId = UUID.randomUUID().toString();
 
-						LOG.info("Handling incoming message {} as SMS with delivery id {}", message.messageId(), deliveryId);
+						LOG.info("Handling incoming message {} as SMS with delivery id {}", message.messageId(),
+							deliveryId);
 
-						final var delivery = message
-							.withDeliveryId(deliveryId)
-							.withType(SMS)
+						final var delivery = message.withDeliveryId(deliveryId).withType(SMS)
 							.withContent(requestMapper.toSmsRequest(message, contactSetting.destination()));
 
 						// Save the re-mapped delivery
@@ -322,19 +309,21 @@ public class MessageService {
 						deliveryResults.add(deliver(delivery));
 					}
 					case NO_CONTACT -> {
-						LOG.info("No contact wanted for {} ({}). No delivery will be attempted", partyId, contactSetting.contactMethod());
+						LOG.info("No contact wanted for {} ({}). No delivery will be attempted", partyId,
+							contactSetting.contactMethod());
 
 						archiveMessage(message.withStatus(NO_CONTACT_WANTED));
 
 						deliveryResults.add(new InternalDeliveryResult(message, NO_CONTACT_WANTED));
 					}
 					default -> {
-						LOG.warn("Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
+						LOG.warn(
+							"Unknown/missing contact method for message {} and delivery id {} - will not be delivered",
 							message.messageId(), message.deliveryId());
 
 						final var statusDetail = String.format(
-							"Unknown/missing contact method for message %s and delivery id %s",
-							message.messageId(), message.deliveryId());
+							"Unknown/missing contact method for message %s and delivery id %s", message.messageId(),
+							message.deliveryId());
 
 						archiveMessage(message.withStatus(FAILED), statusDetail);
 
@@ -370,9 +359,8 @@ public class MessageService {
 			// intended for it
 			if (!digitalMailRequest.attachments().isEmpty()) {
 				// "Re-route" the message as digital mail
-				final var reroutedMessage = dbIntegration.saveMessage(message
-					.withType(DIGITAL_MAIL)
-					.withContent(digitalMailRequestAsJson));
+				final var reroutedMessage = dbIntegration
+					.saveMessage(message.withType(DIGITAL_MAIL).withContent(digitalMailRequestAsJson));
 
 				try {
 					// Deliver it
@@ -416,7 +404,8 @@ public class MessageService {
 					snailMailRequest = snailMailRequest.withAddress(address);
 					snailMailRequestAsJson = toJson(snailMailRequest);
 				} catch (final Exception e) {
-					// If something went wrong fetching the address, there's nothing more to do with this message but to bail out early
+					// If something went wrong fetching the address, there's nothing more to do with this message but to
+					// bail out early
 					LOG.info("Unable to get address from citizen");
 
 					final var failedMessage = message.withStatus(FAILED);
@@ -436,11 +425,8 @@ public class MessageService {
 				deliveryIdModified = true;
 			}
 
-			final var reroutedMessage = dbIntegration.saveMessage(message
-				.withDeliveryId(deliveryId)
-				.withType(SNAIL_MAIL)
-				.withContent(snailMailRequestAsJson)
-				.withAddress(address));
+			final var reroutedMessage = dbIntegration.saveMessage(message.withDeliveryId(deliveryId)
+				.withType(SNAIL_MAIL).withContent(snailMailRequestAsJson).withAddress(address));
 
 			try {
 				// Deliver it
@@ -477,12 +463,20 @@ public class MessageService {
 
 		// Get the delivery attempt for the given message type
 		final Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
-			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
-			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
-			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
-			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
-			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request), ((WebMessageRequest) request).attachments());
-			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId(), delivery.address()));
+			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(),
+				dtoMapper.toSmsDto((SmsRequest) request));
+			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(),
+				dtoMapper.toEmailDto((EmailRequest) request));
+			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(),
+				delivery.organizationNumber(),
+				dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
+			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(),
+				dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
+			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(),
+				dtoMapper.toWebMessageDto((WebMessageRequest) request),
+				((WebMessageRequest) request).attachments());
+			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(),
+				dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId(), delivery.address()));
 			case SLACK -> () -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};
@@ -493,7 +487,8 @@ public class MessageService {
 			// Archive the message
 			archiveMessage(delivery.withStatus(status));
 
-			return new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, delivery.municipalityId());
+			return new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status,
+				delivery.municipalityId());
 		} catch (final Exception e) {
 			LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
 
@@ -502,7 +497,7 @@ public class MessageService {
 			if (e instanceof final ThrowableProblem eAsThrowableProblem) {
 				throwableProblem = eAsThrowableProblem;
 			} else {
-				throwableProblem = Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
+				throwableProblem = Problem.valueOf(INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
 			}
 
 			// Archive the message with FAILED status
@@ -521,8 +516,8 @@ public class MessageService {
 
 			@Override
 			protected void doInTransactionWithoutResult(@NotNull final TransactionStatus ignored) {
-				LOG.info("Moving {} delivery {} with status {} to history", message.type(),
-					message.deliveryId(), message.status());
+				LOG.info("Moving {} delivery {} with status {} to history", message.type(), message.deliveryId(),
+					message.status());
 
 				dbIntegration.saveHistory(message, statusDetail);
 				dbIntegration.deleteMessageByDeliveryId(message.deliveryId());
@@ -530,7 +525,8 @@ public class MessageService {
 		});
 	}
 
-	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {
+	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber,
+		final List<String> partyIds) {
 		return digitalMailSenderIntegration.getMailboxes(municipalityId, organizationNumber, partyIds);
 	}
 }

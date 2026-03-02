@@ -19,10 +19,7 @@ class CountTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = Count.builder()
-			.withFailed(FAILED)
-			.withSent(SENT)
-			.build();
+		final var bean = Count.builder().withFailed(FAILED).withSent(SENT).build();
 
 		assertBean(bean);
 	}

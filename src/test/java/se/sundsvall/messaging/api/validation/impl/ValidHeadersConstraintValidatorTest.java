@@ -45,11 +45,9 @@ class ValidHeadersConstraintValidatorTest {
 	void headerMapWithValidHeadersOnlyUsingEnumConstants() {
 		when(mockContext.unwrap(HibernateConstraintValidatorContext.class)).thenReturn(mockContext);
 
-		var headers = Map.of(
-			Header.MESSAGE_ID.name(), List.of("<aaa@bbb>"),
-			Header.IN_REPLY_TO.name(), List.of("<ccc@ddd>"),
-			Header.REFERENCES.name(), List.of("<eee@fff>"),
-			Header.AUTO_SUBMITTED.name(), List.of("auto-generated"));
+		var headers = Map.of(Header.MESSAGE_ID.name(), List.of("<aaa@bbb>"), Header.IN_REPLY_TO.name(),
+			List.of("<ccc@ddd>"), Header.REFERENCES.name(), List.of("<eee@fff>"), Header.AUTO_SUBMITTED.name(),
+			List.of("auto-generated"));
 
 		assertThat(validator.isValid(headers, mockContext)).isTrue();
 
@@ -62,11 +60,9 @@ class ValidHeadersConstraintValidatorTest {
 	void headerMapWithValidHeadersOnlyUsingEnumConstantKeys() {
 		when(mockContext.unwrap(HibernateConstraintValidatorContext.class)).thenReturn(mockContext);
 
-		var headers = Map.of(
-			Header.MESSAGE_ID.getKey(), List.of("<aaa@bbb>"),
-			Header.IN_REPLY_TO.getKey(), List.of("<ccc@ddd>"),
-			Header.REFERENCES.getKey(), List.of("<eee@fff>"),
-			Header.AUTO_SUBMITTED.name(), List.of("auto-generated"));
+		var headers = Map.of(Header.MESSAGE_ID.getKey(), List.of("<aaa@bbb>"), Header.IN_REPLY_TO.getKey(),
+			List.of("<ccc@ddd>"), Header.REFERENCES.getKey(), List.of("<eee@fff>"), Header.AUTO_SUBMITTED.name(),
+			List.of("auto-generated"));
 
 		assertThat(validator.isValid(headers, mockContext)).isTrue();
 
@@ -82,9 +78,8 @@ class ValidHeadersConstraintValidatorTest {
 		when(mockViolationBuilder.addPropertyNode(any())).thenReturn(mockNodeBuilderContext);
 		when(mockNodeBuilderContext.addConstraintViolation()).thenReturn(mockContext);
 
-		var headers = Map.of(
-			"SomeUnknownHeader", List.of("someValue"),
-			"SomeOtherUnknownHeader", List.of("someOtherValue"));
+		var headers = Map.of("SomeUnknownHeader", List.of("someValue"), "SomeOtherUnknownHeader",
+			List.of("someOtherValue"));
 
 		assertThat(validator.isValid(headers, mockContext)).isFalse();
 
@@ -101,10 +96,8 @@ class ValidHeadersConstraintValidatorTest {
 		when(mockViolationBuilder.addPropertyNode(any())).thenReturn(mockNodeBuilderContext);
 		when(mockNodeBuilderContext.addConstraintViolation()).thenReturn(mockContext);
 
-		var headers = Map.of(
-			Header.MESSAGE_ID.name(), List.of("invalid-message-id-value"),
-			Header.REFERENCES.name(), List.of("invalid-references-value"),
-			Header.IN_REPLY_TO.name(), List.of("invalid-in-reply-to-value"),
+		var headers = Map.of(Header.MESSAGE_ID.name(), List.of("invalid-message-id-value"), Header.REFERENCES.name(),
+			List.of("invalid-references-value"), Header.IN_REPLY_TO.name(), List.of("invalid-in-reply-to-value"),
 			Header.AUTO_SUBMITTED.name(), List.of("invalid-auto-submitted-value"));
 
 		assertThat(validator.isValid(headers, mockContext)).isFalse();

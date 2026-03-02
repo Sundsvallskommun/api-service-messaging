@@ -15,15 +15,17 @@ public class FilterUtils {
 	}
 
 	public static boolean isDigitalMailAndUnsuccessful(UserMessage.Recipient recipient) {
-		return Objects.equals(DIGITAL_MAIL.name(), recipient.messageType()) &&
-			ObjectUtils.notEqual(SENT.name(), recipient.status());
+		return Objects.equals(DIGITAL_MAIL.name(), recipient.messageType())
+			&& ObjectUtils.notEqual(SENT.name(), recipient.status());
 	}
 
 	public static boolean isSnailMailSuccessful(String personId, List<UserMessage.Recipient> recipients) {
-		return recipients.stream()
-			.filter(recipient -> Objects.equals(SNAIL_MAIL.name(), recipient.messageType()))
+		return recipients.stream().filter(recipient -> Objects.equals(SNAIL_MAIL.name(), recipient.messageType()))
 			.filter(recipient -> Objects.nonNull(recipient.personId()))
 			.filter(recipient -> Objects.equals(personId, recipient.personId()))
-			.anyMatch(recipient -> Objects.equals(SENT.name(), recipient.status())); // If snail mail has been successfully sent, the digital mail entry should be filtered out
+			.anyMatch(recipient -> Objects.equals(SENT.name(), recipient.status())); // If snail mail has been
+																					 // successfully sent, the
+																					 // digital mail entry should be
+																					 // filtered out
 	}
 }

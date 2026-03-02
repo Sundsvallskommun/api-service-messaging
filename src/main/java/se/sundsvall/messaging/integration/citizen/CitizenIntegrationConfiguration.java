@@ -26,27 +26,19 @@ class CitizenIntegrationConfiguration {
 
 	@Bean
 	FeignBuilderCustomizer feignCustomizer() {
-		return FeignMultiCustomizer.create()
-			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+		return FeignMultiCustomizer.create().withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
 			.withErrorDecoder(new ProblemErrorDecoder(INTEGRATION_NAME, List.of(NOT_FOUND.value())))
-			.withRequestOptions(requestOptions())
-			.composeCustomizersToOne();
+			.withRequestOptions(requestOptions()).composeCustomizersToOne();
 	}
 
 	private ClientRegistration clientRegistration() {
-		return ClientRegistration
-			.withRegistrationId(INTEGRATION_NAME)
-			.tokenUri(properties.getTokenUrl())
-			.clientId(properties.getClientId())
-			.clientSecret(properties.getClientSecret())
-			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-			.build();
+		return ClientRegistration.withRegistrationId(INTEGRATION_NAME).tokenUri(properties.getTokenUrl())
+			.clientId(properties.getClientId()).clientSecret(properties.getClientSecret())
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType())).build();
 	}
 
 	private Request.Options requestOptions() {
-		return new Request.Options(
-			properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
-			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS,
-			true);
+		return new Request.Options(properties.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS,
+			properties.getReadTimeout().toMillis(), TimeUnit.MILLISECONDS, true);
 	}
 }

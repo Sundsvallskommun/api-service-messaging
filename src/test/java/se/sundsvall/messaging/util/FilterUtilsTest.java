@@ -21,10 +21,8 @@ class FilterUtilsTest {
 	@ParameterizedTest
 	@MethodSource("isDigitalMailAndUnsuccessfulArgumentProvider")
 	void isDigitalMailAndUnsuccessful(MessageType messageType, MessageStatus messageStatus, boolean result) {
-		assertThat(FilterUtils.isDigitalMailAndUnsuccessful(Recipient.builder()
-			.withMessageType(messageType.name())
-			.withStatus(messageStatus.name())
-			.build()))
+		assertThat(FilterUtils.isDigitalMailAndUnsuccessful(
+			Recipient.builder().withMessageType(messageType.name()).withStatus(messageStatus.name()).build()))
 			.isEqualTo(result);
 	}
 
@@ -32,21 +30,18 @@ class FilterUtilsTest {
 		final List<Arguments> arguments = new ArrayList<>();
 
 		// All combinations when messagetype is separated from DIGITAL_MAIL should not be true
-		List.of(MessageType.values()).stream()
-			.filter(messageType -> DIGITAL_MAIL != messageType)
+		List.of(MessageType.values()).stream().filter(messageType -> DIGITAL_MAIL != messageType)
 			.forEach(messageType -> {
-				List.of(MessageStatus.values()).stream()
-					.forEach(messageStatus -> {
-						arguments.add(Arguments.of(messageType, messageStatus, false));
-					});
+				List.of(MessageStatus.values()).stream().forEach(messageStatus -> {
+					arguments.add(Arguments.of(messageType, messageStatus, false));
+				});
 			});
 
 		// Combination when messagetype is DIGITAL_MAIL and status is SENT should not be true
 		arguments.add(Arguments.of(DIGITAL_MAIL, SENT, false));
 
 		// Combination when messagetype is DIGITAL_MAIL and status is separated from SENT should be true
-		List.of(MessageStatus.values()).stream()
-			.filter(messageStatus -> SENT != messageStatus)
+		List.of(MessageStatus.values()).stream().filter(messageStatus -> SENT != messageStatus)
 			.forEach(messageStatus -> {
 				arguments.add(Arguments.of(DIGITAL_MAIL, messageStatus, true));
 			});
@@ -57,38 +52,29 @@ class FilterUtilsTest {
 	@ParameterizedTest
 	@MethodSource("isSnailMailSuccessfulParameterProvider")
 	void isSnailMailSuccessful(String personId, MessageType messageType, MessageStatus messageStatus, boolean result) {
-		assertThat(FilterUtils.isSnailMailSuccessful(PERSON_ID, List.of(Recipient.builder()
-			.withPersonId(personId)
-			.withMessageType(messageType.name())
-			.withStatus(messageStatus.name())
-			.build()))).isEqualTo(result);
+		assertThat(FilterUtils.isSnailMailSuccessful(PERSON_ID, List.of(Recipient.builder().withPersonId(personId)
+			.withMessageType(messageType.name()).withStatus(messageStatus.name()).build()))).isEqualTo(result);
 	}
 
 	private static Stream<Arguments> isSnailMailSuccessfulParameterProvider() {
 		final List<Arguments> arguments = new ArrayList<>();
 
 		// All combinations when personId is null should not be true
-		List.of(MessageType.values()).stream()
-			.forEach(messageType -> {
-				List.of(MessageStatus.values()).stream()
-					.forEach(messageStatus -> {
-						arguments.add(Arguments.of(null, messageType, messageStatus, false));
-					});
+		List.of(MessageType.values()).stream().forEach(messageType -> {
+			List.of(MessageStatus.values()).stream().forEach(messageStatus -> {
+				arguments.add(Arguments.of(null, messageType, messageStatus, false));
 			});
+		});
 
 		// All combinations when messagetype is separated from SNAIL_MAIL should not be true
-		List.of(MessageType.values()).stream()
-			.filter(messageType -> SNAIL_MAIL != messageType)
-			.forEach(messageType -> {
-				List.of(MessageStatus.values()).stream()
-					.forEach(messageStatus -> {
-						arguments.add(Arguments.of(PERSON_ID, messageType, messageStatus, false));
-					});
+		List.of(MessageType.values()).stream().filter(messageType -> SNAIL_MAIL != messageType).forEach(messageType -> {
+			List.of(MessageStatus.values()).stream().forEach(messageStatus -> {
+				arguments.add(Arguments.of(PERSON_ID, messageType, messageStatus, false));
 			});
+		});
 
 		// Combination when messagetype is SNAIL_MAIL and status is separated from SENT should be true
-		List.of(MessageStatus.values()).stream()
-			.filter(messageStatus -> SENT != messageStatus)
+		List.of(MessageStatus.values()).stream().filter(messageStatus -> SENT != messageStatus)
 			.forEach(messageStatus -> {
 				arguments.add(Arguments.of(PERSON_ID, SNAIL_MAIL, messageStatus, false));
 			});

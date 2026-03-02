@@ -34,7 +34,8 @@ class InterceptorConfigTest {
 	@Test
 	void testAddInterceptors() {
 		when(mockinterceptorRegistry.addInterceptor(mockInterceptor)).thenReturn(mockInterceptorRegistration);
-		when(mockInterceptorRegistration.excludePathPatterns(EXCLUDED_PATTERNS)).thenReturn(mockInterceptorRegistration);
+		when(mockInterceptorRegistration.excludePathPatterns(EXCLUDED_PATTERNS))
+			.thenReturn(mockInterceptorRegistration);
 
 		interceptorConfig.addInterceptors(mockinterceptorRegistry);
 

@@ -10,11 +10,8 @@ class DeliveryResultTest {
 
 	@Test
 	void testBuilderAndGetters() {
-		final var deliveryResult = DeliveryResult.builder()
-			.withDeliveryId("someDeliveryId")
-			.withMessageType(SMS)
-			.withStatus(SENT)
-			.build();
+		final var deliveryResult = DeliveryResult.builder().withDeliveryId("someDeliveryId").withMessageType(SMS)
+			.withStatus(SENT).build();
 
 		assertThat(deliveryResult).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");

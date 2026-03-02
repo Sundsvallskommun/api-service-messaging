@@ -7,8 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.response.DeliveryResult;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
@@ -18,6 +17,7 @@ import se.sundsvall.messaging.model.MessageType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.model.MessageStatus.FAILED;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
@@ -28,11 +28,8 @@ import static se.sundsvall.messaging.model.MessageType.WEB_MESSAGE;
 class ApiMapperTest {
 
 	private final InternalDeliveryResult deliveryResult = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMunicipalityId("someMunicipalityId")
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMunicipalityId("someMunicipalityId")
+		.withStatus(SENT).build();
 
 	@Test
 	void toResponse_fromDeliveryResult() {
@@ -55,20 +52,12 @@ class ApiMapperTest {
 	@Test
 	void toResponse_fromBatchResult() {
 		// Arrange
-		final var deliveryBatchResult = InternalDeliveryBatchResult.builder()
-			.withBatchId("someBatchId")
+		final var deliveryBatchResult = InternalDeliveryBatchResult.builder().withBatchId("someBatchId")
 			.withDeliveries(List.of(
-				InternalDeliveryResult.builder()
-					.withMessageId("someMessageId")
-					.withDeliveryId("someDeliveryId")
-					.withMessageType(DIGITAL_MAIL)
-					.withStatus(FAILED)
-					.build(),
-				InternalDeliveryResult.builder()
-					.withMessageId("someMessageId")
-					.withDeliveryId("someOtherDeliveryId")
-					.withMessageType(SNAIL_MAIL)
-					.withStatus(SENT)
+				InternalDeliveryResult.builder().withMessageId("someMessageId").withDeliveryId("someDeliveryId")
+					.withMessageType(DIGITAL_MAIL).withStatus(FAILED).build(),
+				InternalDeliveryResult.builder().withMessageId("someMessageId")
+					.withDeliveryId("someOtherDeliveryId").withMessageType(SNAIL_MAIL).withStatus(SENT)
 					.build()))
 			.build();
 
@@ -86,8 +75,8 @@ class ApiMapperTest {
 				assertThat(message.deliveries()).extracting(DeliveryResult::deliveryId).doesNotContainNull();
 				assertThat(message.deliveries()).extracting(DeliveryResult::messageType)
 					.containsExactlyInAnyOrder(DIGITAL_MAIL, SNAIL_MAIL);
-				assertThat(message.deliveries()).extracting(DeliveryResult::status)
-					.containsExactlyInAnyOrder(FAILED, SENT);
+				assertThat(message.deliveries()).extracting(DeliveryResult::status).containsExactlyInAnyOrder(FAILED,
+					SENT);
 			});
 		});
 	}
@@ -95,11 +84,8 @@ class ApiMapperTest {
 	@Test
 	void toDeliveryResult() {
 		// Arrange
-		final var history = History.builder()
-			.withDeliveryId("someDeliveryId")
-			.withMessageType(WEB_MESSAGE)
-			.withStatus(FAILED)
-			.build();
+		final var history = History.builder().withDeliveryId("someDeliveryId").withMessageType(WEB_MESSAGE)
+			.withStatus(FAILED).build();
 
 		// Act
 		final var result = ApiMapper.toDeliveryResult(history);
@@ -114,12 +100,8 @@ class ApiMapperTest {
 	@EnumSource(MessageType.class)
 	void toHistoryResponse(final MessageType messageType) {
 		// Arrange
-		final var history = History.builder()
-			.withMessageType(messageType)
-			.withStatus(SENT)
-			.withContent("{}")
-			.withCreatedAt(LocalDateTime.now())
-			.build();
+		final var history = History.builder().withMessageType(messageType).withStatus(SENT).withContent("{}")
+			.withCreatedAt(LocalDateTime.now()).build();
 
 		// Act
 		final var result = ApiMapper.toHistoryResponse(history);
@@ -136,18 +118,10 @@ class ApiMapperTest {
 	void toMessageResult() {
 		// Arrange
 		final var history = List.of(
-			History.builder()
-				.withMessageId("11")
-				.withDeliveryId("111")
-				.withMessageType(SNAIL_MAIL)
-				.withStatus(SENT)
+			History.builder().withMessageId("11").withDeliveryId("111").withMessageType(SNAIL_MAIL).withStatus(SENT)
 				.build(),
-			History.builder()
-				.withMessageId("11")
-				.withDeliveryId("222")
-				.withMessageType(DIGITAL_MAIL)
-				.withStatus(FAILED)
-				.build());
+			History.builder().withMessageId("11").withDeliveryId("222").withMessageType(DIGITAL_MAIL)
+				.withStatus(FAILED).build());
 
 		// Act
 		final var result = ApiMapper.toMessageResult(history);
@@ -168,19 +142,14 @@ class ApiMapperTest {
 	@Test
 	void toMessageResultWhenMultipleRootEntries() {
 		// Arrange
-		final var history = List.of(
-			History.builder()
-				.withMessageId("1")
-				.build(),
-			History.builder()
-				.withMessageId("2")
-				.build());
+		final var history = List.of(History.builder().withMessageId("1").build(),
+			History.builder().withMessageId("2").build());
 
 		// Act
 		final var e = assertThrows(ThrowableProblem.class, () -> ApiMapper.toMessageResult(history));
 
 		// Assert and verify
-		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
+		assertThat(e.getStatus()).isEqualTo(NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get message status");
 	}
 
@@ -188,20 +157,10 @@ class ApiMapperTest {
 	void toMessageBatchResult() {
 		// Arrange
 		final var history = List.of(
-			History.builder()
-				.withBatchId("1")
-				.withMessageId("11")
-				.withDeliveryId("111")
-				.withMessageType(DIGITAL_MAIL)
-				.withStatus(SENT)
-				.build(),
-			History.builder()
-				.withBatchId("1")
-				.withMessageId("22")
-				.withDeliveryId("222")
-				.withMessageType(SNAIL_MAIL)
-				.withStatus(FAILED)
-				.build());
+			History.builder().withBatchId("1").withMessageId("11").withDeliveryId("111")
+				.withMessageType(DIGITAL_MAIL).withStatus(SENT).build(),
+			History.builder().withBatchId("1").withMessageId("22").withDeliveryId("222").withMessageType(SNAIL_MAIL)
+				.withStatus(FAILED).build());
 
 		// Act
 		final var result = ApiMapper.toMessageBatchResult(history);
@@ -228,21 +187,14 @@ class ApiMapperTest {
 	@Test
 	void toMessageBatchResultWhenMultipleRootEntries() {
 		// Arrange
-		final var history = List.of(
-			History.builder()
-				.withBatchId("1")
-				.withMessageId("1")
-				.build(),
-			History.builder()
-				.withBatchId("2")
-				.withMessageId("2")
-				.build());
+		final var history = List.of(History.builder().withBatchId("1").withMessageId("1").build(),
+			History.builder().withBatchId("2").withMessageId("2").build());
 
 		// Act
 		final var e = assertThrows(ThrowableProblem.class, () -> ApiMapper.toMessageBatchResult(history));
 
 		// Assert and verify
-		assertThat(e.getStatus()).isEqualTo(Status.NOT_FOUND);
+		assertThat(e.getStatus()).isEqualTo(NOT_FOUND);
 		assertThat(e.getMessage()).isEqualTo("Not Found: Unable to get batch status");
 	}
 }

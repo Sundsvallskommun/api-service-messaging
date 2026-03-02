@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 import static se.sundsvall.messaging.model.MessageStatus.PENDING;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
@@ -18,8 +18,7 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 @AutoConfigureTestDatabase(replace = NONE)
 @ActiveProfiles("junit")
 @Sql(scripts = {
-	"/db/scripts/truncate.sql",
-	"/db/scripts/testdata-ut.sql"
+	"/db/scripts/truncate.sql", "/db/scripts/testdata-ut.sql"
 })
 class MessageRepositoryTest {
 
@@ -83,10 +82,12 @@ class MessageRepositoryTest {
 
 		assertThat(matches).hasSize(2).satisfiesExactly(entity -> {
 			assertThat(entity.getMessageId()).isEqualTo("cb1af665-835f-45b8-8755-9aa2ed284292");
-			assertThat(entity.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.of(2024, 01, 16, 14, 44, 17));
+			assertThat(entity.getCreatedAt().truncatedTo(ChronoUnit.SECONDS))
+				.isEqualTo(LocalDateTime.of(2024, 01, 16, 14, 44, 17));
 		}, entity -> {
 			assertThat(entity.getMessageId()).isEqualTo("47a249ea-0308-4b93-a482-a023d708a788");
-			assertThat(entity.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.of(2024, 01, 24, 10, 26, 17));
+			assertThat(entity.getCreatedAt().truncatedTo(ChronoUnit.SECONDS))
+				.isEqualTo(LocalDateTime.of(2024, 01, 24, 10, 26, 17));
 		});
 	}
 }

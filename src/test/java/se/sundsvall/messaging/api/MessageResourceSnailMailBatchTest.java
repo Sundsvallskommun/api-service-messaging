@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSnailMailBatchTest {
@@ -33,11 +35,8 @@ class MessageResourceSnailMailBatchTest {
 
 	@Test
 	void shouldReturnOK() {
-		webTestClient.post()
-			.uri("/2281/snail-mail/batch/f427952b-247c-4d3b-b081-675a467b3619")
-			.contentType(MediaType.APPLICATION_JSON)
-			.exchange()
-			.expectStatus().isEqualTo(HttpStatus.OK);
+		webTestClient.post().uri("/2281/snail-mail/batch/f427952b-247c-4d3b-b081-675a467b3619")
+			.contentType(MediaType.APPLICATION_JSON).exchange().expectStatus().isEqualTo(HttpStatus.OK);
 
 		verify(mockMessageService).sendSnailMailBatch("2281", "f427952b-247c-4d3b-b081-675a467b3619");
 	}

@@ -10,8 +10,6 @@ class PriorityTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(Priority.values()).containsExactlyInAnyOrder(
-			HIGH,
-			NORMAL);
+		assertThat(Priority.values()).containsExactlyInAnyOrder(HIGH, NORMAL);
 	}
 }

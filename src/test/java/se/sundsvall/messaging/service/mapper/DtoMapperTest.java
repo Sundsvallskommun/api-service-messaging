@@ -35,11 +35,10 @@ class DtoMapperTest {
 	@BeforeEach
 	void setUp() {
 		dtoMapper = new DtoMapper(
-			new Defaults(
-				new Defaults.Sms("name"),
-				new Defaults.Email("name", "address", "replyTo"),
+			new Defaults(new Defaults.Sms("name"), new Defaults.Email("name", "address", "replyTo"),
 				new Defaults.DigitalMail("municipalityId",
-					new Defaults.DigitalMail.SupportInfo("text", "emailAddress", "phoneNumber", "url"), "subject")));
+					new Defaults.DigitalMail.SupportInfo("text", "emailAddress", "phoneNumber", "url"),
+					"subject")));
 	}
 
 	@Test
@@ -55,9 +54,12 @@ class DtoMapperTest {
 		assertThat(emailDto.subject()).isEqualTo(emailRequest.subject());
 		assertThat(emailDto.message()).isEqualTo(emailRequest.message());
 		assertThat(emailDto.attachments()).hasSize(emailRequest.attachments().size());
-		assertThat(emailDto.headers().get("MESSAGE_ID")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(MESSAGE_ID.name()));
-		assertThat(emailDto.headers().get("IN_REPLY_TO")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(IN_REPLY_TO.name()));
-		assertThat(emailDto.headers().get("REFERENCES")).containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(REFERENCES.name()));
+		assertThat(emailDto.headers().get("MESSAGE_ID"))
+			.containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(MESSAGE_ID.name()));
+		assertThat(emailDto.headers().get("IN_REPLY_TO"))
+			.containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(IN_REPLY_TO.name()));
+		assertThat(emailDto.headers().get("REFERENCES"))
+			.containsExactlyInAnyOrderElementsOf(emailRequest.headers().get(REFERENCES.name()));
 
 	}
 
@@ -75,8 +77,7 @@ class DtoMapperTest {
 
 	@Test
 	void toSmsDtoWithoutSetPriorityTest() {
-		final var smsRequest = createValidSmsRequest()
-			.withPriority(null);
+		final var smsRequest = createValidSmsRequest().withPriority(null);
 
 		final var smsDto = dtoMapper.toSmsDto(smsRequest);
 
@@ -93,21 +94,26 @@ class DtoMapperTest {
 		final var digitalMailDto = dtoMapper.toDigitalMailDto(digitalMailRequest, partyId);
 
 		assertThat(digitalMailDto.sender().municipalityId()).isEqualTo("municipalityId");
-		assertThat(digitalMailDto.sender().supportInfo().text()).isEqualTo(digitalMailRequest.sender().supportInfo().text());
-		assertThat(digitalMailDto.sender().supportInfo().emailAddress()).isEqualTo(digitalMailRequest.sender().supportInfo().emailAddress());
-		assertThat(digitalMailDto.sender().supportInfo().phoneNumber()).isEqualTo(digitalMailRequest.sender().supportInfo().phoneNumber());
-		assertThat(digitalMailDto.sender().supportInfo().url()).isEqualTo(digitalMailRequest.sender().supportInfo().url());
+		assertThat(digitalMailDto.sender().supportInfo().text())
+			.isEqualTo(digitalMailRequest.sender().supportInfo().text());
+		assertThat(digitalMailDto.sender().supportInfo().emailAddress())
+			.isEqualTo(digitalMailRequest.sender().supportInfo().emailAddress());
+		assertThat(digitalMailDto.sender().supportInfo().phoneNumber())
+			.isEqualTo(digitalMailRequest.sender().supportInfo().phoneNumber());
+		assertThat(digitalMailDto.sender().supportInfo().url())
+			.isEqualTo(digitalMailRequest.sender().supportInfo().url());
 		assertThat(digitalMailDto.partyId()).isEqualTo(partyId);
 		assertThat(digitalMailDto.contentType()).isEqualTo(ContentType.fromString(digitalMailRequest.contentType()));
 		assertThat(digitalMailDto.subject()).isEqualTo(digitalMailRequest.subject());
 		assertThat(digitalMailDto.body()).isEqualTo(digitalMailRequest.body());
 
 		assertThat(digitalMailDto.attachments())
-			.extracting(DigitalMailDto.Attachment::filename, DigitalMailDto.Attachment::contentType, DigitalMailDto.Attachment::content)
-			.containsExactlyInAnyOrder(
-				digitalMailRequest.attachments().stream()
-					.map(attachment -> tuple(attachment.filename(), ContentType.fromString(attachment.contentType()), attachment.content()))
-					.toArray(Tuple[]::new));
+			.extracting(DigitalMailDto.Attachment::filename, DigitalMailDto.Attachment::contentType,
+				DigitalMailDto.Attachment::content)
+			.containsExactlyInAnyOrder(digitalMailRequest.attachments().stream()
+				.map(attachment -> tuple(attachment.filename(),
+					ContentType.fromString(attachment.contentType()), attachment.content()))
+				.toArray(Tuple[]::new));
 	}
 
 	@Test
@@ -123,18 +129,20 @@ class DtoMapperTest {
 
 		assertThat(digitalInvoiceDto.details().amount()).isEqualTo(digitalInvoiceRequest.details().amount());
 		assertThat(digitalInvoiceDto.details().dueDate()).isEqualTo(digitalInvoiceRequest.details().dueDate());
-		assertThat(digitalInvoiceDto.details().paymentReferenceType()).isEqualTo(digitalInvoiceRequest.details().paymentReferenceType());
-		assertThat(digitalInvoiceDto.details().paymentReference()).isEqualTo(digitalInvoiceRequest.details().paymentReference());
+		assertThat(digitalInvoiceDto.details().paymentReferenceType())
+			.isEqualTo(digitalInvoiceRequest.details().paymentReferenceType());
+		assertThat(digitalInvoiceDto.details().paymentReference())
+			.isEqualTo(digitalInvoiceRequest.details().paymentReference());
 		assertThat(digitalInvoiceDto.details().accountType()).isEqualTo(digitalInvoiceRequest.details().accountType());
-		assertThat(digitalInvoiceDto.details().accountNumber()).isEqualTo(digitalInvoiceRequest.details().accountNumber());
+		assertThat(digitalInvoiceDto.details().accountNumber())
+			.isEqualTo(digitalInvoiceRequest.details().accountNumber());
 
 		// Verify that each attachment is there and mapped correctly
 		assertThat(digitalInvoiceDto.files())
-			.extracting(DigitalInvoiceDto.File::filename, DigitalInvoiceDto.File::contentType, DigitalInvoiceDto.File::content)
-			.containsExactlyInAnyOrder(
-				digitalInvoiceRequest.files().stream()
-					.map(file -> tuple(file.filename(), file.contentType(), file.content()))
-					.toArray(Tuple[]::new));
+			.extracting(DigitalInvoiceDto.File::filename, DigitalInvoiceDto.File::contentType,
+				DigitalInvoiceDto.File::content)
+			.containsExactlyInAnyOrder(digitalInvoiceRequest.files().stream()
+				.map(file -> tuple(file.filename(), file.contentType(), file.content())).toArray(Tuple[]::new));
 	}
 
 	@Test
@@ -149,12 +157,11 @@ class DtoMapperTest {
 		assertThat(webMessageDto.oepInstance()).isEqualTo(webMessageRequest.oepInstance());
 
 		// Verify that each attachment is there and mapped correctly
-		assertThat(webMessageDto.attachments())
-			.extracting(WebMessageDto.Attachment::fileName, WebMessageDto.Attachment::mimeType, WebMessageDto.Attachment::base64Data)
-			.containsExactlyInAnyOrder(
-				webMessageRequest.attachments().stream()
-					.map(attachment -> tuple(attachment.fileName(), attachment.mimeType(), attachment.base64Data()))
-					.toArray(Tuple[]::new));
+		assertThat(webMessageDto.attachments()).extracting(WebMessageDto.Attachment::fileName,
+			WebMessageDto.Attachment::mimeType, WebMessageDto.Attachment::base64Data)
+			.containsExactlyInAnyOrder(webMessageRequest.attachments().stream()
+				.map(attachment -> tuple(attachment.fileName(), attachment.mimeType(), attachment.base64Data()))
+				.toArray(Tuple[]::new));
 	}
 
 	@Test
@@ -169,12 +176,11 @@ class DtoMapperTest {
 		assertThat(webMessageDto.oepInstance()).isEqualTo(OEP_INSTANCE_EXTERNAL);
 
 		// Verify that each attachment is there and mapped correctly
-		assertThat(webMessageDto.attachments())
-			.extracting(WebMessageDto.Attachment::fileName, WebMessageDto.Attachment::mimeType, WebMessageDto.Attachment::base64Data)
-			.containsExactlyInAnyOrder(
-				webMessageRequest.attachments().stream()
-					.map(attachment -> tuple(attachment.fileName(), attachment.mimeType(), attachment.base64Data()))
-					.toArray(Tuple[]::new));
+		assertThat(webMessageDto.attachments()).extracting(WebMessageDto.Attachment::fileName,
+			WebMessageDto.Attachment::mimeType, WebMessageDto.Attachment::base64Data)
+			.containsExactlyInAnyOrder(webMessageRequest.attachments().stream()
+				.map(attachment -> tuple(attachment.fileName(), attachment.mimeType(), attachment.base64Data()))
+				.toArray(Tuple[]::new));
 	}
 
 	@Test
@@ -196,12 +202,11 @@ class DtoMapperTest {
 		assertThat(snailMailDto.folderName()).isEqualTo(snailMailRequest.folderName());
 
 		// Verify that each attachment is there and mapped correctly
-		assertThat(snailMailDto.attachments())
-			.extracting(SnailMailDto.Attachment::filename, SnailMailDto.Attachment::contentType, SnailMailDto.Attachment::content)
-			.containsExactlyInAnyOrder(
-				snailMailRequest.attachments().stream()
-					.map(attachment -> tuple(attachment.filename(), attachment.contentType(), attachment.content()))
-					.toArray(Tuple[]::new));
+		assertThat(snailMailDto.attachments()).extracting(SnailMailDto.Attachment::filename,
+			SnailMailDto.Attachment::contentType, SnailMailDto.Attachment::content)
+			.containsExactlyInAnyOrder(snailMailRequest.attachments().stream()
+				.map(attachment -> tuple(attachment.filename(), attachment.contentType(), attachment.content()))
+				.toArray(Tuple[]::new));
 	}
 
 	@Test

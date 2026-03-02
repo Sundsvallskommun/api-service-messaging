@@ -11,9 +11,8 @@ import static org.springdoc.core.utils.SpringDocUtils.isValidPath;
 
 public class ValidFolderNameValidator implements ConstraintValidator<ValidFolderName, String> {
 
-	private boolean nullable;
-
 	private static final List<Character> INVALID_FOLDER_CHARS = List.of('"', '*', '<', '>', '?', '|', '/', '\\', ':');
+	private boolean nullable;
 
 	@Override
 	public void initialize(final ValidFolderName constraintAnnotation) {
@@ -21,7 +20,7 @@ public class ValidFolderNameValidator implements ConstraintValidator<ValidFolder
 	}
 
 	@Override
-	public boolean isValid(String value, ConstraintValidatorContext context) {
+	public boolean isValid(final String value, final ConstraintValidatorContext context) {
 		if (isNull(value) && nullable) {
 			return true;
 		}
@@ -29,10 +28,9 @@ public class ValidFolderNameValidator implements ConstraintValidator<ValidFolder
 			return false;
 		}
 
-		return INVALID_FOLDER_CHARS.stream()
-			.noneMatch(character -> value.contains(character.toString()) // Doesn't contain invalid characters
-				|| value.endsWith(" ")    // Doesn't end with space
-				|| value.endsWith(".")    // Doesn't end with dot
-					&& isValidPath(value));
+		return INVALID_FOLDER_CHARS.stream().noneMatch(character -> value.contains(character.toString()) // Doesn't contain invalid characters
+			|| value.endsWith(" ") // Doesn't end with space
+			|| value.endsWith(".") // Doesn't end with a dot
+				&& isValidPath(value));
 	}
 }

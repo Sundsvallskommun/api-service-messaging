@@ -15,21 +15,14 @@ class EmailSenderIntegrationMapper {
 		}
 
 		return new SendEmailRequest()
-			.sender(new Sender()
-				.name(dto.sender().name())
-				.address(dto.sender().address())
+			.sender(new Sender().name(dto.sender().name()).address(dto.sender().address())
 				.replyTo(dto.sender().replyTo()))
-			.emailAddress(dto.emailAddress())
-			.subject(dto.subject())
-			.message(dto.message())
-			.htmlMessage(dto.htmlMessage())
-			.headers(dto.headers())
+			.emailAddress(dto.emailAddress()).subject(dto.subject()).message(dto.message())
+			.htmlMessage(dto.htmlMessage()).headers(dto.headers())
 			.attachments(Optional.ofNullable(dto.attachments())
 				.map(attachments -> attachments.stream()
-					.map(attachment -> new Attachment()
-						.name(attachment.name())
-						.contentType(attachment.contentType())
-						.content(attachment.content()))
+					.map(attachment -> new Attachment().name(attachment.name())
+						.contentType(attachment.contentType()).content(attachment.content()))
 					.toList())
 				.orElse(null));
 

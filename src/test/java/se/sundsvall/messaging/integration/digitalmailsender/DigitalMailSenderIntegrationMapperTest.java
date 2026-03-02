@@ -30,25 +30,14 @@ class DigitalMailSenderIntegrationMapperTest {
 
 	@Test
 	void test_toDigitalMailRequest() {
-		var dto = DigitalMailDto.builder()
-			.withSender(DigitalMailDto.Sender.builder()
-				.withMunicipalityId("someMunicipalityId")
-				.withSupportInfo(DigitalMailDto.Sender.SupportInfo.builder()
-					.withEmailAddress("someEmailAddress")
-					.withPhoneNumber("somePhoneNumber")
-					.withText("someText")
-					.withUrl("someUrl")
-					.build())
-				.build())
-			.withPartyId("somePartyId")
-			.withSubject("someSubject")
-			.withContentType(ContentType.TEXT_PLAIN)
+		var dto = DigitalMailDto.builder().withSender(DigitalMailDto.Sender.builder()
+			.withMunicipalityId("someMunicipalityId")
+			.withSupportInfo(DigitalMailDto.Sender.SupportInfo.builder().withEmailAddress("someEmailAddress")
+				.withPhoneNumber("somePhoneNumber").withText("someText").withUrl("someUrl").build())
+			.build()).withPartyId("somePartyId").withSubject("someSubject").withContentType(ContentType.TEXT_PLAIN)
 			.withBody("someBody")
-			.withAttachments(List.of(DigitalMailDto.Attachment.builder()
-				.withFilename("someFilename")
-				.withContentType(ContentType.APPLICATION_PDF)
-				.withContent("someContent")
-				.build()))
+			.withAttachments(List.of(DigitalMailDto.Attachment.builder().withFilename("someFilename")
+				.withContentType(ContentType.APPLICATION_PDF).withContent("someContent").build()))
 			.build();
 
 		var request = mapper.toDigitalMailRequest(dto);
@@ -74,24 +63,15 @@ class DigitalMailSenderIntegrationMapperTest {
 
 	@Test
 	void test_toDigitalInvoiceRequest() {
-		var dto = DigitalInvoiceDto.builder()
-			.withPartyId("somePartyId")
-			.withType(InvoiceType.INVOICE)
-			.withSubject("someSubject")
-			.withReference("someReference")
-			.withDetails(DigitalInvoiceDto.Details.builder()
-				.withAmount(56.78f)
-				.withDueDate(LocalDate.now().plusDays(7))
-				.withPaymentReferenceType(ReferenceType.SE_OCR)
-				.withPaymentReference("somePaymentReference")
-				.withAccountType(AccountType.BANKGIRO)
-				.withAccountNumber("someAccountNumber")
-				.build())
-			.withFiles(List.of(DigitalInvoiceDto.File.builder()
-				.withContentType(ContentType.APPLICATION_PDF.getValue())
-				.withContent("someContent")
-				.withFilename("someFilename")
-				.build()))
+		var dto = DigitalInvoiceDto.builder().withPartyId("somePartyId").withType(InvoiceType.INVOICE)
+			.withSubject("someSubject").withReference("someReference")
+			.withDetails(DigitalInvoiceDto.Details.builder().withAmount(56.78f)
+				.withDueDate(LocalDate.now().plusDays(7)).withPaymentReferenceType(ReferenceType.SE_OCR)
+				.withPaymentReference("somePaymentReference").withAccountType(AccountType.BANKGIRO)
+				.withAccountNumber("someAccountNumber").build())
+			.withFiles(
+				List.of(DigitalInvoiceDto.File.builder().withContentType(ContentType.APPLICATION_PDF.getValue())
+					.withContent("someContent").withFilename("someFilename").build()))
 			.build();
 
 		var request = mapper.toDigitalInvoiceRequest(dto);
@@ -120,19 +100,17 @@ class DigitalMailSenderIntegrationMapperTest {
 	@Test
 	void test_toMailboxes() {
 		var mailbox1 = new Mailbox().partyId("somePartyId").supplier("someSupplier").reachable(true).reason(null);
-		var mailbox2 = new Mailbox().partyId("anotherPartyId").supplier("anotherSupplier").reachable(false).reason("someReason");
+		var mailbox2 = new Mailbox().partyId("anotherPartyId").supplier("anotherSupplier").reachable(false)
+			.reason("someReason");
 
 		var result = mapper.toMailboxes(List.of(mailbox1, mailbox2));
 
-		assertThat(result)
-			.hasSize(2)
-			.extracting(
-				se.sundsvall.messaging.api.model.response.Mailbox::partyId,
+		assertThat(result).hasSize(2)
+			.extracting(se.sundsvall.messaging.api.model.response.Mailbox::partyId,
 				se.sundsvall.messaging.api.model.response.Mailbox::supplier,
 				se.sundsvall.messaging.api.model.response.Mailbox::reachable,
 				se.sundsvall.messaging.api.model.response.Mailbox::reason)
-			.containsExactlyInAnyOrder(
-				tuple("somePartyId", "someSupplier", true, null),
+			.containsExactlyInAnyOrder(tuple("somePartyId", "someSupplier", true, null),
 				tuple("anotherPartyId", "anotherSupplier", false, "someReason"));
 	}
 
@@ -144,9 +122,7 @@ class DigitalMailSenderIntegrationMapperTest {
 	}
 
 	public static Stream<Arguments> emptyMailboxProvider() {
-		return Stream.of(
-			arguments("null list", null),
-			arguments("empty list", List.of()));
+		return Stream.of(arguments("null list", null), arguments("empty list", List.of()));
 	}
 
 }

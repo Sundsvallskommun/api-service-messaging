@@ -19,11 +19,8 @@ class DepartmentLetterTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = DepartmentLetter.builder()
-			.withDepartment(DEPARTMENT)
-			.withDigitalMail(DIGITAL_MAIL)
-			.withSnailMail(SNAIL_MAIL)
-			.build();
+		final var bean = DepartmentLetter.builder().withDepartment(DEPARTMENT).withDigitalMail(DIGITAL_MAIL)
+			.withSnailMail(SNAIL_MAIL).build();
 
 		assertBean(bean);
 	}

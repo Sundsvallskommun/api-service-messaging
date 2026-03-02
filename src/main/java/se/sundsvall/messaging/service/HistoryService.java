@@ -1,9 +1,7 @@
 package se.sundsvall.messaging.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,12 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
-import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
@@ -34,6 +31,9 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
 import se.sundsvall.messaging.util.FilterUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -43,7 +43,7 @@ import static java.util.stream.Collectors.toCollection;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
@@ -61,7 +61,8 @@ public class HistoryService {
 
 	private final BatchExtractor batchExtractor;
 
-	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration, final ObjectMapper objectMapper, BatchExtractor batchDecorator) {
+	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration,
+		final ObjectMapper objectMapper, BatchExtractor batchDecorator) {
 		this.dbIntegration = dbIntegration;
 		this.partyIntegration = partyIntegration;
 		this.objectMapper = objectMapper;
@@ -76,7 +77,8 @@ public class HistoryService {
 		return dbIntegration.getHistoryByMunicipalityIdAndBatchId(municipalityId, batchId);
 	}
 
-	public Optional<History> getHistoryByMunicipalityIdAndDeliveryId(final String municipalityId, final String deliveryId) {
+	public Optional<History> getHistoryByMunicipalityIdAndDeliveryId(final String municipalityId,
+		final String deliveryId) {
 		return dbIntegration.getHistoryByMunicipalityIdAndDeliveryId(municipalityId, deliveryId);
 	}
 
@@ -85,7 +87,8 @@ public class HistoryService {
 		return dbIntegration.getHistory(municipalityId, partyId, from, to);
 	}
 
-	public void streamAttachment(final String municipalityId, final String messageId, final String fileName, final HttpServletResponse response) throws IOException {
+	public void streamAttachment(final String municipalityId, final String messageId, final String fileName,
+		final HttpServletResponse response) throws IOException {
 		final var history = dbIntegration.getFirstHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		final var nameField = getFileNameField(history.getMessageType());
 		final var content = objectMapper.readTree(history.getContent());
@@ -102,11 +105,8 @@ public class HistoryService {
 		for (final var attachment : attachments) {
 			final var name = attachment.get(nameField).asText();
 			if (fileName.equals(name)) {
-				return Attachment.builder()
-					.withName(name)
-					.withContent(attachment.get("content").asText())
-					.withContentType(attachment.get("contentType").asText())
-					.build();
+				return Attachment.builder().withName(name).withContent(attachment.get("content").asText())
+					.withContentType(attachment.get("contentType").asText()).build();
 			}
 		}
 		throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " not found");
@@ -119,90 +119,96 @@ public class HistoryService {
 		response.addHeader(CONTENT_LENGTH, String.valueOf(decodedContent.length));
 		response.setContentLength(decodedContent.length);
 
-		final var binaryStream = new BinaryStreamImpl(decodedContent);
+		final var binaryStream = new ByteArrayInputStream(decodedContent);
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
-	public UserBatches getUserBatches(final String municipalityId, final String issuer, final Integer page, final Integer limit) {
+	public UserBatches getUserBatches(final String municipalityId, final String issuer, final Integer page,
+		final Integer limit) {
 		final var thirtyDaysAgo = LocalDate.now().minusDays(30).atStartOfDay();
-		final var batches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, thirtyDaysAgo).stream() // Fetch batchprojections for all messages sent the 30 last day for issuer
-			.collect(groupingBy(BatchHistoryProjection::getBatchId)).entrySet().stream() // Group result by batch id and stream result (Map<batchId, List<BatchHistoryProjection>>)
+		final var batches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, thirtyDaysAgo).stream() // Fetch
+																														 // batchprojections
+																														 // for
+																														 // all
+																														 // messages
+																														 // sent
+																														 // the
+																														 // 30
+																														 // last
+																														 // day
+																														 // for
+																														 // issuer
+			.collect(groupingBy(BatchHistoryProjection::getBatchId)).entrySet().stream() // Group result by batch id
+																						 // and stream result
+																						 // (Map<batchId,
+																						 // List<BatchHistoryProjection>>)
 			.map(entry -> createBatch(municipalityId, entry)) // To map each entry to a Batch object
 			.filter(Objects::nonNull) // Just to be safe
-			.sorted((o1, o2) -> ofNullable(o2.sent()).orElse(LocalDateTime.MAX).compareTo(ofNullable(o1.sent()).orElse(LocalDateTime.MAX))) // Sort on sent descending to have latest batches first in list
+			.sorted((o1, o2) -> ofNullable(o2.sent()).orElse(LocalDateTime.MAX)
+				.compareTo(ofNullable(o1.sent()).orElse(LocalDateTime.MAX))) // Sort on sent descending to have
+																			 // latest batches first in list
 			.toList();
 
-		return toUserBatches(toPage(page, limit, batches), page); // Return a paginated result with content matching requested page and limit
+		return toUserBatches(toPage(page, limit, batches), page); // Return a paginated result with content matching
+																	 // requested page and limit
 	}
 
 	Batch createBatch(String municipalityId, Entry<String, List<BatchHistoryProjection>> batchHistoryProjectionEntry) {
-		return ofNullable(batchHistoryProjectionEntry)
-			.map(entry -> {
-				final var batchId = entry.getKey();
-				final var batchMessages = entry.getValue();
+		return ofNullable(batchHistoryProjectionEntry).map(entry -> {
+			final var batchId = entry.getKey();
+			final var batchMessages = entry.getValue();
 
-				final var sent = batchExtractor.extractSent(batchMessages);
-				final var attachmentCount = batchExtractor.extractAttachmentCount(municipalityId, batchMessages);
-				final var recipientCount = batchExtractor.extractRecipientCount(batchMessages);
-				final var messageType = batchExtractor.extractOriginalMesageType(batchMessages);
-				final var subject = batchExtractor.extractSubject(municipalityId, batchMessages);
-				final var status = toStatus(
-					batchExtractor.extractSuccessfulCount(batchMessages),
-					batchExtractor.extractUnsuccessfulCount(batchMessages));
+			final var sent = batchExtractor.extractSent(batchMessages);
+			final var attachmentCount = batchExtractor.extractAttachmentCount(municipalityId, batchMessages);
+			final var recipientCount = batchExtractor.extractRecipientCount(batchMessages);
+			final var messageType = batchExtractor.extractOriginalMesageType(batchMessages);
+			final var subject = batchExtractor.extractSubject(municipalityId, batchMessages);
+			final var status = toStatus(batchExtractor.extractSuccessfulCount(batchMessages),
+				batchExtractor.extractUnsuccessfulCount(batchMessages));
 
-				return toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount, status);
-			})
-			.orElse(null);
+			return toBatch(batchId, sent, messageType, subject, attachmentCount, recipientCount, status);
+		}).orElse(null);
 	}
 
-	public UserMessages getUserMessages(final String municipalityId, final String userId, String batchId, final Integer page, final Integer limit) {
+	public UserMessages getUserMessages(final String municipalityId, final String userId, String batchId,
+		final Integer page, final Integer limit) {
 		final var thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 		final var pageRequest = PageRequest.of(page - 1, limit);
-		final var messageIdPage = isNull(batchId) ? dbIntegration.getUniqueMessageIds(municipalityId, userId, thirtyDaysAgo, pageRequest)
+		final var messageIdPage = isNull(batchId)
+			? dbIntegration.getUniqueMessageIds(municipalityId, userId, thirtyDaysAgo, pageRequest)
 			: dbIntegration.getUniqueMessageIds(municipalityId, batchId, userId, thirtyDaysAgo, pageRequest);
 
-		return UserMessages.builder()
-			.withMessages(createUserMessages(municipalityId, messageIdPage.getContent()))
-			.withMetaData(PagingMetaData.create()
-				.withPage(messageIdPage.getNumber() + 1)
-				.withLimit(messageIdPage.getSize())
-				.withCount(messageIdPage.getNumberOfElements())
+		return UserMessages.builder().withMessages(createUserMessages(municipalityId, messageIdPage.getContent()))
+			.withMetaData(PagingMetaData.create().withPage(messageIdPage.getNumber() + 1)
+				.withLimit(messageIdPage.getSize()).withCount(messageIdPage.getNumberOfElements())
 				.withTotalRecords(messageIdPage.getTotalElements())
 				.withTotalPages(messageIdPage.getTotalPages()))
 			.build();
 	}
 
-	List<UserMessage> createUserMessages(final String municipalityId, final List<MessageIdProjection> messageIdProjections) {
-		return messageIdProjections.stream()
-			.map(MessageIdProjection::getMessageId)
-			.map(messageId -> createUserMessage(municipalityId, messageId))
-			.toList();
+	List<UserMessage> createUserMessages(final String municipalityId,
+		final List<MessageIdProjection> messageIdProjections) {
+		return messageIdProjections.stream().map(MessageIdProjection::getMessageId)
+			.map(messageId -> createUserMessage(municipalityId, messageId)).toList();
 	}
 
 	UserMessage createUserMessage(final String municipalityId, final String messageId) {
 		final var histories = dbIntegration.getHistoryEntityByMunicipalityIdAndMessageId(municipalityId, messageId);
 		final var recipients = createRecipients(municipalityId, histories);
-		final var history = histories.stream()
-			.filter(h -> h.getMessageType() == MessageType.DIGITAL_MAIL)
-			.findFirst().orElse(histories.getFirst());
+		final var history = histories.stream().filter(h -> h.getMessageType() == MessageType.DIGITAL_MAIL).findFirst()
+			.orElse(histories.getFirst());
 
-		return UserMessage.builder()
-			.withMessageId(messageId)
-			.withIssuer(history.getIssuer())
-			.withOrigin(history.getOrigin())
-			.withSent(history.getCreatedAt())
-			.withRecipients(recipients)
-			.withSubject(extractSubject(history))
-			.withAttachments(extractAttachment(history))
-			.withBody(extractMessage(history))
-			.build();
+		return UserMessage.builder().withMessageId(messageId).withIssuer(history.getIssuer())
+			.withOrigin(history.getOrigin()).withSent(history.getCreatedAt()).withRecipients(recipients)
+			.withSubject(extractSubject(history)).withAttachments(extractAttachment(history))
+			.withBody(extractMessage(history)).build();
 	}
 
 	private String extractMessage(final HistoryEntity history) {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return "";
 		}
 		return ofNullable(content.get("message")).map(JsonNode::asText).orElse(null);
@@ -212,7 +218,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return null;
 		}
 		return ofNullable(content.get("mobileNumber")).map(JsonNode::asText).orElse(null);
@@ -222,7 +228,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return "";
 		}
 		return ofNullable(content.get("subject")).map(JsonNode::asText).orElse(null);
@@ -241,7 +247,7 @@ public class HistoryService {
 			final var jsonNode = objectMapper.readTree(history.getContent());
 			final var attachmentsField = getAttachmentsField(messageType);
 			attachmentsNode = jsonNode.get(attachmentsField);
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return emptyList();
 		}
 
@@ -250,65 +256,53 @@ public class HistoryService {
 			final var contentTypeField = getContentTypeField(messageType);
 
 			for (final var attachment : attachmentsNode) {
-				attachments.add(UserMessage.MessageAttachment.builder()
-					.withFileName(attachment.get(fileNameField).asText())
-					.withContentType(attachment.get(contentTypeField).asText())
-					.build());
+				attachments.add(
+					UserMessage.MessageAttachment.builder().withFileName(attachment.get(fileNameField).asText())
+						.withContentType(attachment.get(contentTypeField).asText()).build());
 			}
 		}
 		return attachments;
 	}
 
 	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
-		final var recipients = histories.stream()
-			.map(history -> createRecipient(municipalityId, history))
+		final var recipients = histories.stream().map(history -> createRecipient(municipalityId, history))
 			.collect(toCollection(ArrayList::new));
 
 		// Remove entries with messagetype DIGITAL_MAIL and status not equal to SENT if there exists an entry with same
 		// personId with messagetype SNAIL_MAIL and status SENT
-		recipients.removeAll(
-			recipients.stream()
-				.filter(FilterUtils::isDigitalMailAndUnsuccessful)
-				.filter(recipient -> isSnailMailSuccessful(recipient.personId(), recipients))
-				.toList());
+		recipients.removeAll(recipients.stream().filter(FilterUtils::isDigitalMailAndUnsuccessful)
+			.filter(recipient -> isSnailMailSuccessful(recipient.personId(), recipients)).toList());
 
 		return recipients;
 	}
 
 	UserMessage.Recipient createRecipient(final String municipalityId, final HistoryEntity history) {
 		final var legalId = ofNullable(history.getPartyId())
-			.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party))
-			.orElse(null);
+			.map(party -> partyIntegration.getLegalIdByPartyId(municipalityId, party)).orElse(null);
 
-		return UserMessage.Recipient.builder()
-			.withStatus(history.getStatus().name())
+		return UserMessage.Recipient.builder().withStatus(history.getStatus().name())
 			.withMessageType(history.getMessageType().toString())
 			.withAddress(createAddress(history.getDestinationAddress()))
-			.withMobileNumber(extractMobileNumber(history))
-			.withPersonId(legalId)
-			.build();
+			.withMobileNumber(extractMobileNumber(history)).withPersonId(legalId).build();
 	}
 
 	UserMessage.Address createAddress(final Address address) {
-		return ofNullable(address)
-			.map(addr -> UserMessage.Address.builder()
-				.withAddress(addr.address())
-				.withCity(addr.city())
-				.withCountry(addr.country())
-				.withFirstName(addr.firstName())
-				.withLastName(addr.lastName())
-				.withCareOf(addr.careOf())
-				.withZipCode(addr.zipCode())
-				.build())
+		return ofNullable(address).map(addr -> UserMessage.Address.builder().withAddress(addr.address())
+			.withCity(addr.city()).withCountry(addr.country()).withFirstName(addr.firstName())
+			.withLastName(addr.lastName()).withCareOf(addr.careOf()).withZipCode(addr.zipCode()).build())
 			.orElse(null);
 	}
 
 	/**
 	 * Retrieves a specific user message based on the municipalityId, issuer, and messageId.
 	 *
-	 * @param  municipalityId The municipality ID.
-	 * @param  issuer         The issuer of the message.
-	 * @param  messageId      The message ID.
+	 * @param  municipalityId
+	 *                        The municipality ID.
+	 * @param  issuer
+	 *                        The issuer of the message.
+	 * @param  messageId
+	 *                        The message ID.
+	 *
 	 * @return                The UserMessage.
 	 */
 	public UserMessage getUserMessage(final String municipalityId, final String issuer, final String messageId) {
@@ -323,7 +317,9 @@ public class HistoryService {
 	/**
 	 * Get the attachments field name for the given message type.
 	 *
-	 * @param  messageType messageType to get the attachments field for
+	 * @param  messageType
+	 *                     messageType to get the attachments field for
+	 *
 	 * @return             the attachments field name
 	 */
 	String getAttachmentsField(final MessageType messageType) {
@@ -337,7 +333,9 @@ public class HistoryService {
 	/**
 	 * Get the name field name for the given message type.
 	 *
-	 * @param  messageType messageType to get the name field for
+	 * @param  messageType
+	 *                     messageType to get the name field for
+	 *
 	 * @return             the name field name
 	 */
 	String getFileNameField(final MessageType messageType) {
@@ -352,7 +350,9 @@ public class HistoryService {
 	/**
 	 * Get the content type field name for the given message type.
 	 *
-	 * @param  messageType messageType to get the content type field name for
+	 * @param  messageType
+	 *                     messageType to get the content type field name for
+	 *
 	 * @return             the content type field name
 	 */
 	String getContentTypeField(final MessageType messageType) {

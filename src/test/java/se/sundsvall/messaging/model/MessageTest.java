@@ -22,28 +22,18 @@ class MessageTest {
 
 	@Test
 	void testConstructor() {
-		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS, CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS,
+			CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
 
 		assertBean(bean);
 	}
 
 	@Test
 	void testBuilder() {
-		final var bean = Message.builder()
-			.withBatchId(BATCH_ID)
-			.withContent(CONTENT)
-			.withDeliveryId(DELIVERY_ID)
-			.withIssuer(ISSUER)
-			.withMessageId(MESSAGE_ID)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.withOrigin(ORIGIN)
-			.withOriginalType(ORIGINAL_TYPE)
-			.withPartyId(PARTY_ID)
-			.withStatus(STATUS)
-			.withType(TYPE)
-			.withAddress(ADDRESS)
-			.withOrganizationNumber(ORGANIZATION_NUMBER)
-			.build();
+		final var bean = Message.builder().withBatchId(BATCH_ID).withContent(CONTENT).withDeliveryId(DELIVERY_ID)
+			.withIssuer(ISSUER).withMessageId(MESSAGE_ID).withMunicipalityId(MUNICIPALITY_ID).withOrigin(ORIGIN)
+			.withOriginalType(ORIGINAL_TYPE).withPartyId(PARTY_ID).withStatus(STATUS).withType(TYPE)
+			.withAddress(ADDRESS).withOrganizationNumber(ORGANIZATION_NUMBER).build();
 
 		assertBean(bean);
 	}

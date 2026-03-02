@@ -15,13 +15,13 @@ public class ValidWebMessageRequestConstraintValidator implements ConstraintVali
 
 		if (value.sendAsOwner()) { // One or the other must be set if sendAsOwner is true
 			if (partyId != null && userId != null) {
-				context.buildConstraintViolationWithTemplate("Only one of partyId and userId can be set if sendAsOwner is true")
-					.addConstraintViolation();
+				context.buildConstraintViolationWithTemplate(
+					"Only one of partyId and userId can be set if sendAsOwner is true").addConstraintViolation();
 				return false;
 			}
 			if (partyId == null && userId == null) {
-				context.buildConstraintViolationWithTemplate("Both partyId and userId cannot be null if sendAsOwner is true")
-					.addConstraintViolation();
+				context.buildConstraintViolationWithTemplate(
+					"Both partyId and userId cannot be null if sendAsOwner is true").addConstraintViolation();
 				return false;
 			}
 			return true;

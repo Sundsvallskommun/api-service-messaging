@@ -8,21 +8,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static se.sundsvall.messaging.Constants.X_ISSUER_HEADER_KEY;
 import static se.sundsvall.messaging.Constants.X_ORIGIN_HEADER_KEY;
 import static se.sundsvall.messaging.Constants.X_SENT_BY_HEADER_KEY;
 import static se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration.INTEGRATION_NAME;
 
-@FeignClient(
-	name = INTEGRATION_NAME,
-	url = "${integration.snailmail-sender.base-url}",
-	configuration = SnailMailSenderIntegrationConfiguration.class)
+@FeignClient(name = INTEGRATION_NAME, url = "${integration.snailmail-sender.base-url}", configuration = SnailMailSenderIntegrationConfiguration.class)
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface SnailMailSenderClient {
 
-	@PostMapping("{municipalityId}/send/snailmail")
-	ResponseEntity<Void> sendSnailmail(@RequestHeader(X_SENT_BY_HEADER_KEY) String sentBy, @RequestHeader(X_ISSUER_HEADER_KEY) String issuer, @RequestHeader(X_ORIGIN_HEADER_KEY) String xOrigin, @PathVariable String municipalityId,
-		SendSnailMailRequest request);
+	@PostMapping(value = "{municipalityId}/send/snailmail", consumes = APPLICATION_JSON_VALUE)
+	ResponseEntity<Void> sendSnailmail(@RequestHeader(X_SENT_BY_HEADER_KEY) String sentBy,
+		@RequestHeader(X_ISSUER_HEADER_KEY) String issuer, @RequestHeader(X_ORIGIN_HEADER_KEY) String xOrigin,
+		@PathVariable String municipalityId, SendSnailMailRequest request);
 
 	@PostMapping("{municipalityId}/send/batch/{batchId}")
 	ResponseEntity<Void> sendBatch(@PathVariable String municipalityId, @PathVariable String batchId);

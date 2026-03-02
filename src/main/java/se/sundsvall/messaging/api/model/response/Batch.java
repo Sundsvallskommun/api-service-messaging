@@ -19,7 +19,7 @@ public record Batch(
 	@With
 	@Builder(setterPrefix = "with")
 	@Schema(description = "Batch status model")
-	public record Status(
-		@Schema(description = "Amount of successfully sent messages", examples = "13") int successful,
-		@Schema(description = "Amount of failed messages", examples = "2") int unsuccessful) {}
+	public record Status(@Schema(description = "Amount of successfully sent messages", examples = "13") int successful,
+		@Schema(description = "Amount of failed messages", examples = "2") int unsuccessful) {
+	}
 }

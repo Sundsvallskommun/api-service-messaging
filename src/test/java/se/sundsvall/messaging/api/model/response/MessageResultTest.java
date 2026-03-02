@@ -9,10 +9,8 @@ class MessageResultTest {
 
 	@Test
 	void testBuilderAndGetters() {
-		final var messageResult = MessageResult.builder()
-			.withMessageId("someMessageId")
-			.withDeliveries(List.of(DeliveryResult.builder().build()))
-			.build();
+		final var messageResult = MessageResult.builder().withMessageId("someMessageId")
+			.withDeliveries(List.of(DeliveryResult.builder().build())).build();
 
 		assertThat(messageResult).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(messageResult.messageId()).isEqualTo("someMessageId");

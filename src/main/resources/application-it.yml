@@ -33,67 +33,67 @@ messaging:
 integration:
   # SmsSender integration
   sms-sender:
-    base-url: http://localhost:${wiremock.server.port}/sms-sender
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/sms-sender
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # EmailSender integration
   email-sender:
-    base-url: http://localhost:${wiremock.server.port}/email-sender
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/email-sender
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # SnailmailSender integration
   snailmail-sender:
-    base-url: http://localhost:${wiremock.server.port}/snailmail-sender
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/snailmail-sender
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # WebMessageSender integration
   web-message-sender:
-    base-url: http://localhost:${wiremock.server.port}/web-message-sender
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/web-message-sender
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # OepIntegrator integration
   oep-integrator:
-    base-url: http://localhost:${wiremock.server.port}/oep-integrator
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/oep-integrator
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # DigitalMailSender integration
   digital-mail-sender:
-    base-url: http://localhost:${wiremock.server.port}/digital-mail-sender
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/digital-mail-sender
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # Slack integration
   slack:
-    base-url: http://localhost:${wiremock.server.port}/slack/
+    base-url: http://localhost:${wiremock.server.port:}/slack/
 
   # ContactSettings integration
   contact-settings:
-    base-url: http://localhost:${wiremock.server.port}/contact-settings
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/contact-settings
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # Party integration
   party:
-    base-url: http://localhost:${wiremock.server.port}/party
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/party
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret
 
   # Citizen integration
   citizen:
-    base-url: http://localhost:${wiremock.server.port}/citizen
-    token-url: http://localhost:${wiremock.server.port}/token
+    base-url: http://localhost:${wiremock.server.port:}/citizen
+    token-url: http://localhost:${wiremock.server.port:}/token
     client-id: someClientId
     client-secret: someClientSecret

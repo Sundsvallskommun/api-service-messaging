@@ -20,7 +20,8 @@ public record Defaults(
 
 	public record Sms(
 
-		@NotBlank @Size(max = 11) String name) {}
+		@NotBlank @Size(max = 11) String name) {
+	}
 
 	public record Email(
 
@@ -28,7 +29,8 @@ public record Defaults(
 
 		@NotBlank @jakarta.validation.constraints.Email String address,
 
-		@jakarta.validation.constraints.Email String replyTo) {}
+		@jakarta.validation.constraints.Email String replyTo) {
+	}
 
 	public record DigitalMail(
 
@@ -47,6 +49,7 @@ public record Defaults(
 
 			@NotBlank String phoneNumber,
 
-			@NotBlank String url) {}
+			@NotBlank String url) {
+		}
 	}
 }

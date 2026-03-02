@@ -30,23 +30,11 @@ class MessageEntityTest {
 		var destinationAddress = Address.builder().withAddress("someAddress").build();
 		var organizationNumber = "1234567890";
 
-		var bean = MessageEntity.builder()
-			.withBatchId(batchId)
-			.withContent(content)
-			.withCreatedAt(createdAt)
-			.withDeliveryId(deliveryId)
-			.withId(id)
-			.withIssuer(issuer)
-			.withMessageId(messageId)
-			.withType(type)
-			.withMunicipalityId(municipalityId)
-			.withOrigin(origin)
-			.withOriginalMessageType(originalMessageType)
-			.withPartyId(partyId)
-			.withStatus(status)
-			.withDestinationAddress(destinationAddress)
-			.withOrganizationNumber(organizationNumber)
-			.build();
+		var bean = MessageEntity.builder().withBatchId(batchId).withContent(content).withCreatedAt(createdAt)
+			.withDeliveryId(deliveryId).withId(id).withIssuer(issuer).withMessageId(messageId).withType(type)
+			.withMunicipalityId(municipalityId).withOrigin(origin).withOriginalMessageType(originalMessageType)
+			.withPartyId(partyId).withStatus(status).withDestinationAddress(destinationAddress)
+			.withOrganizationNumber(organizationNumber).build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
 		assertThat(bean.getBatchId()).isEqualTo(batchId);

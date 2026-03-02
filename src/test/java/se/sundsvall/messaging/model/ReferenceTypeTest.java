@@ -10,8 +10,6 @@ class ReferenceTypeTest {
 
 	@Test
 	void testEnumValues() {
-		assertThat(ReferenceType.values()).containsExactlyInAnyOrder(
-			SE_OCR,
-			TENANT_REF);
+		assertThat(ReferenceType.values()).containsExactlyInAnyOrder(SE_OCR, TENANT_REF);
 	}
 }

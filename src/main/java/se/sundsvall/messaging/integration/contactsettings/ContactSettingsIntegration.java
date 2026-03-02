@@ -21,21 +21,16 @@ public class ContactSettingsIntegration {
 		this.client = client;
 	}
 
-	public List<ContactDto> getContactSettings(final String municipalityId, final String partyId, final MultiValueMap<String, String> filters) {
+	public List<ContactDto> getContactSettings(final String municipalityId, final String partyId,
+		final MultiValueMap<String, String> filters) {
 		final var responseList = client.getSettings(municipalityId, partyId, filters).orElse(emptyList());
 
-		return responseList.stream()
-			.map(ContactSetting::getContactChannels)
-			.flatMap(Collection::stream)
-			.map(contactChannel -> ContactDto.builder()
-				.withContactMethod(switch (contactChannel.getContactMethod())
-				{
-					case SMS -> ContactDto.ContactMethod.SMS;
-					case EMAIL -> ContactDto.ContactMethod.EMAIL;
-				})
-				.withDestination(contactChannel.getDestination())
-				.withDisabled(contactChannel.getDisabled())
-				.build())
+		return responseList.stream().map(ContactSetting::getContactChannels).flatMap(Collection::stream).map(
+			contactChannel -> ContactDto.builder().withContactMethod(switch (contactChannel.getContactMethod())
+			{
+				case SMS -> ContactDto.ContactMethod.SMS;
+				case EMAIL -> ContactDto.ContactMethod.EMAIL;
+			}).withDestination(contactChannel.getDestination()).withDisabled(contactChannel.getDisabled()).build())
 			.toList();
 	}
 }

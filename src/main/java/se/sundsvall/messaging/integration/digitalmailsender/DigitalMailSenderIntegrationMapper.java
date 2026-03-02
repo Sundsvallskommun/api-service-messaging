@@ -24,22 +24,17 @@ class DigitalMailSenderIntegrationMapper {
 			return null;
 		}
 
-		return new DigitalMailRequest()
-			.partyId(dto.partyId())
-			.municipalityId(dto.sender().municipalityId())
+		return new DigitalMailRequest().partyId(dto.partyId()).municipalityId(dto.sender().municipalityId())
 			.headerSubject(dto.subject())
-			.supportInfo(new SupportInfo()
-				.supportText(dto.sender().supportInfo().text())
+			.supportInfo(new SupportInfo().supportText(dto.sender().supportInfo().text())
 				.contactInformationEmail(dto.sender().supportInfo().emailAddress())
 				.contactInformationPhoneNumber(dto.sender().supportInfo().phoneNumber())
 				.contactInformationUrl(dto.sender().supportInfo().url()))
 			.bodyInformation(new BodyInformation().contentType(dto.contentType().getValue()).body(dto.body()))
 			.attachments(ofNullable(dto.attachments())
 				.map(attachments -> attachments.stream()
-					.map(attachment -> new Attachment()
-						.contentType(attachment.contentType().getValue())
-						.body(attachment.content())
-						.filename(attachment.filename()))
+					.map(attachment -> new Attachment().contentType(attachment.contentType().getValue())
+						.body(attachment.content()).filename(attachment.filename()))
 					.toList())
 				.orElse(null));
 	}
@@ -49,42 +44,26 @@ class DigitalMailSenderIntegrationMapper {
 			return null;
 		}
 
-		return new DigitalInvoiceRequest()
-			.partyId(dto.partyId())
-			.type(DigitalInvoiceRequest.TypeEnum.fromValue(dto.type().name()))
-			.subject(dto.subject())
-			.reference(dto.reference())
-			.payable(dto.payable())
-			.details(new Details()
-				.amount(dto.details().amount())
-				.dueDate(dto.details().dueDate())
-				.paymentReferenceType(PaymentReferenceTypeEnum.fromValue(dto.details().paymentReferenceType().name()))
+		return new DigitalInvoiceRequest().partyId(dto.partyId())
+			.type(DigitalInvoiceRequest.TypeEnum.fromValue(dto.type().name())).subject(dto.subject())
+			.reference(dto.reference()).payable(dto.payable())
+			.details(new Details().amount(dto.details().amount()).dueDate(dto.details().dueDate())
+				.paymentReferenceType(
+					PaymentReferenceTypeEnum.fromValue(dto.details().paymentReferenceType().name()))
 				.paymentReference(dto.details().paymentReference())
-				.accountType(AccountTypeEnum.fromValue(dto.details().accountType().name()))
-				.accountNumber(dto.details().accountNumber()))
-			.files(dto.files().stream()
-				.map(file -> new Attachment()
-					.filename(file.filename())
-					.contentType(file.contentType())
-					.body(file.content()))
-				.toList());
+				.accountType(AccountTypeEnum.fromValue(dto.details().accountType().name())).accountNumber(
+					dto.details().accountNumber()))
+			.files(dto.files().stream().map(file -> new Attachment().filename(file.filename())
+				.contentType(file.contentType()).body(file.content())).toList());
 	}
 
 	public List<Mailbox> toMailboxes(final List<generated.se.sundsvall.digitalmailsender.Mailbox> mailboxes) {
-		return Optional.ofNullable(mailboxes)
-			.orElse(List.of())
-			.stream()
-			.filter(Objects::nonNull)
-			.map(this::toMailbox)
+		return Optional.ofNullable(mailboxes).orElse(List.of()).stream().filter(Objects::nonNull).map(this::toMailbox)
 			.toList();
 	}
 
 	private Mailbox toMailbox(final generated.se.sundsvall.digitalmailsender.Mailbox mailbox) {
-		return Mailbox.builder()
-			.withPartyId(mailbox.getPartyId())
-			.withSupplier(mailbox.getSupplier())
-			.withReachable(Boolean.TRUE.equals(mailbox.getReachable()))
-			.withReason(mailbox.getReason())
-			.build();
+		return Mailbox.builder().withPartyId(mailbox.getPartyId()).withSupplier(mailbox.getSupplier())
+			.withReachable(Boolean.TRUE.equals(mailbox.getReachable())).withReason(mailbox.getReason()).build();
 	}
 }

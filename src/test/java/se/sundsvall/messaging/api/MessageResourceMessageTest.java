@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,6 +41,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidMessageRequestMe
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.MESSAGE;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceMessageTest {
@@ -47,17 +49,11 @@ class MessageResourceMessageTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/messages";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withMessageType(MESSAGE)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMunicipalityId(MUNICIPALITY_ID)
+		.withMessageType(MESSAGE).withStatus(SENT).build();
 
 	private static final InternalDeliveryBatchResult DELIVERY_BATCH_RESULT = InternalDeliveryBatchResult.builder()
-		.withBatchId("someBatchId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withDeliveries(List.of(DELIVERY_RESULT))
+		.withBatchId("someBatchId").withMunicipalityId(MUNICIPALITY_ID).withDeliveries(List.of(DELIVERY_RESULT))
 		.build();
 
 	@MockitoBean
@@ -69,124 +65,7 @@ class MessageResourceMessageTest {
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@ParameterizedTest
-	@ValueSource(booleans = {
-		true, false
-	})
-	void sendSynchronous(boolean includeOptionalHeaders) {
-		// Arrange
-		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
-			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
-			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
-		});
-
-		verify(mockMessageService).sendMessages(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	@ParameterizedTest
-	@ValueSource(booleans = {
-		true, false
-	})
-	void sendAsynchronous(boolean includeOptionalHeaders) {
-		// Arrange
-		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockEventDispatcher.handleMessageRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
-			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
-			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
-		});
-
-		verify(mockEventDispatcher).handleMessageRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeadersShouldBePreserved() {
-		// Arrange
-		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageBatchResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.batchId()).isEqualTo("someBatchId");
-		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
-			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
-			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
-			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
-			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
-		});
-
-		verify(mockMessageService).sendMessages(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
@@ -203,8 +82,104 @@ class MessageResourceMessageTest {
 		};
 	}
 
-	private static MessageRequest addHeaderValues(MessageRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	private static MessageRequest addHeaderValues(final MessageRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = {
+		true, false
+	})
+	void sendSynchronous(final boolean includeOptionalHeaders) {
+		// Arrange
+		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageBatchResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
+			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
+		});
+
+		verify(mockMessageService)
+			.sendMessages(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = {
+		true, false
+	})
+	void sendAsynchronous(final boolean includeOptionalHeaders) {
+		// Arrange
+		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockEventDispatcher.handleMessageRequest(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL + "?async=true")
+			.headers(handleHeaders(includeOptionalHeaders)).contentType(APPLICATION_JSON).bodyValue(request)
+			.exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageBatchResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
+			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
+		});
+
+		verify(mockEventDispatcher)
+			.handleMessageRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
+	@Test
+	void testOldHeadersShouldBePreserved() {
+		// Arrange
+		final var request = MessageRequest.builder().withMessages(List.of(createValidMessageRequestMessage())).build();
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendMessages(any())).thenReturn(DELIVERY_BATCH_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/batch/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageBatchResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.batchId()).isEqualTo("someBatchId");
+		assertThat(response.messages()).hasSize(1).allSatisfy(messageResult -> {
+			assertThat(messageResult.messageId()).isEqualTo("someMessageId");
+			assertThat(messageResult.deliveries()).isNotNull().hasSize(1);
+			assertThat(messageResult.deliveries().getFirst().messageType()).isEqualTo(MESSAGE);
+			assertThat(messageResult.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+			assertThat(messageResult.deliveries().getFirst().status()).isEqualTo(SENT);
+		});
+
+		verify(mockMessageService)
+			.sendMessages(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
 	}
 }

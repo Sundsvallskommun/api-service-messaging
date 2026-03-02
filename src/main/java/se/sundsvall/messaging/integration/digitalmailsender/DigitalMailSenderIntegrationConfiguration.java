@@ -12,7 +12,7 @@ import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import(FeignConfiguration.class)
 class DigitalMailSenderIntegrationConfiguration {
@@ -25,27 +25,22 @@ class DigitalMailSenderIntegrationConfiguration {
 
 	@Bean
 	FeignBuilderCustomizer feignCustomizer() {
-		return FeignMultiCustomizer.create()
-			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
+		return FeignMultiCustomizer.create().withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
 			.withRequestOptions(requestOptions())
-			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.getStatusCode())))
+			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME,
+				List.of(NOT_FOUND.value())))
 			.composeCustomizersToOne();
 	}
 
 	private ClientRegistration clientRegistration() {
-		return ClientRegistration
-			.withRegistrationId(DigitalMailSenderIntegration.INTEGRATION_NAME)
-			.tokenUri(properties.getTokenUrl())
-			.clientId(properties.getClientId())
+		return ClientRegistration.withRegistrationId(DigitalMailSenderIntegration.INTEGRATION_NAME)
+			.tokenUri(properties.getTokenUrl()).clientId(properties.getClientId())
 			.clientSecret(properties.getClientSecret())
-			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType()))
-			.build();
+			.authorizationGrantType(new AuthorizationGrantType(properties.getGrantType())).build();
 	}
 
 	private Request.Options requestOptions() {
-		return new Request.Options(
-			properties.getConnectTimeout().toMillis(), MILLISECONDS,
-			properties.getReadTimeout().toMillis(), MILLISECONDS,
-			true);
+		return new Request.Options(properties.getConnectTimeout().toMillis(), MILLISECONDS,
+			properties.getReadTimeout().toMillis(), MILLISECONDS, true);
 	}
 }

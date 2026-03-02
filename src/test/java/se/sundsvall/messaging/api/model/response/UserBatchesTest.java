@@ -25,10 +25,7 @@ class UserBatchesTest {
 
 	@Test
 	void userBatchesBuilder() {
-		final var userBatches = UserBatches.builder()
-			.withMetaData(PAGING_META_DATA)
-			.withBatches(USER_BATCHES)
-			.build();
+		final var userBatches = UserBatches.builder().withMetaData(PAGING_META_DATA).withBatches(USER_BATCHES).build();
 
 		assertThat(userBatches).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(userBatches.metaData()).isEqualTo(PAGING_META_DATA);

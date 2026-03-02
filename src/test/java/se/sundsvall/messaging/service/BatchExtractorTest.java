@@ -64,9 +64,7 @@ class BatchExtractorTest {
 	}
 
 	private static Stream<Arguments> extractRecipientCountArgumentProvider() {
-		return Stream.of(
-			Arguments.of(null, 0),
-			Arguments.of(emptyList(), 0),
+		return Stream.of(Arguments.of(null, 0), Arguments.of(emptyList(), 0),
 			Arguments.of(List.of(createBatchHistoryProjection("1")), 1),
 			Arguments.of(List.of(createBatchHistoryProjection("1"), createBatchHistoryProjection("1")), 1),
 			Arguments.of(List.of(createBatchHistoryProjection("1"), createBatchHistoryProjection("2")), 2));
@@ -80,12 +78,9 @@ class BatchExtractorTest {
 
 	private static Stream<Arguments> extractSuccessfulCountArgumentProvider() {
 		final Map<List<BatchHistoryProjection>, Integer> scenarios = new HashMap<>(
-			List.of(MessageStatus.values()).stream()
-				.filter(status -> ObjectUtils.notEqual(SENT, status))
-				.map(status -> createBatchHistoryProjection("1", status))
-				.map(List::of)
-				.map(list -> Map.entry(list, 0))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+			List.of(MessageStatus.values()).stream().filter(status -> ObjectUtils.notEqual(SENT, status))
+				.map(status -> createBatchHistoryProjection("1", status)).map(List::of)
+				.map(list -> Map.entry(list, 0)).collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 		scenarios.put(null, 0);
 		scenarios.put(emptyList(), 0);
@@ -94,9 +89,8 @@ class BatchExtractorTest {
 		scenarios.put(List.of(createBatchHistoryProjection("1", SENT), createBatchHistoryProjection("2", FAILED)), 1);
 		scenarios.put(List.of(createBatchHistoryProjection("1", SENT), createBatchHistoryProjection("2", SENT)), 2);
 
-		return scenarios.entrySet().stream()
-			.map(entry -> Arguments.of(entry.getKey(), entry.getValue()))
-			.toList().stream();
+		return scenarios.entrySet().stream().map(entry -> Arguments.of(entry.getKey(), entry.getValue())).toList()
+			.stream();
 	}
 
 	@ParameterizedTest
@@ -107,12 +101,9 @@ class BatchExtractorTest {
 
 	private static Stream<Arguments> extractUnsuccessfulCountArgumentProvider() {
 		final Map<List<BatchHistoryProjection>, Integer> scenarios = new HashMap<>(
-			List.of(MessageStatus.values()).stream()
-				.filter(status -> ObjectUtils.notEqual(SENT, status))
-				.map(status -> createBatchHistoryProjection("1", status))
-				.map(List::of)
-				.map(list -> Map.entry(list, 1))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+			List.of(MessageStatus.values()).stream().filter(status -> ObjectUtils.notEqual(SENT, status))
+				.map(status -> createBatchHistoryProjection("1", status)).map(List::of)
+				.map(list -> Map.entry(list, 1)).collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
 		scenarios.put(null, 0);
 		scenarios.put(emptyList(), 0);
@@ -121,27 +112,28 @@ class BatchExtractorTest {
 		scenarios.put(List.of(createBatchHistoryProjection("1", SENT), createBatchHistoryProjection("2", FAILED)), 1);
 		scenarios.put(List.of(createBatchHistoryProjection("1", FAILED), createBatchHistoryProjection("2", FAILED)), 2);
 
-		return scenarios.entrySet().stream()
-			.map(entry -> Arguments.of(entry.getKey(), entry.getValue()))
-			.toList().stream();
+		return scenarios.entrySet().stream().map(entry -> Arguments.of(entry.getKey(), entry.getValue())).toList()
+			.stream();
 	}
 
 	@ParameterizedTest
 	@MethodSource("extractSubjectWhenCorrectTypeArgumentProvider")
-	void extractSubjectWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType, String expected) {
-		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID), eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder()
-			.withMessageType(messageType)
-			.withContent("{\"subject\": \"%s\"}".formatted(SUBJECT))
-			.build());
+	void extractSubjectWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType,
+		String expected) {
+		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID),
+			eq(MESSAGE_ID), anyList()))
+			.thenReturn(HistoryEntity.builder().withMessageType(messageType)
+				.withContent("{\"subject\": \"%s\"}".formatted(SUBJECT)).build());
 
 		assertThat(extractor.extractSubject(MUNICIPALITY_ID, projections)).isEqualTo(expected);
 	}
 
 	private static Stream<Arguments> extractSubjectWhenCorrectTypeArgumentProvider() {
-		return Stream.of(
-			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, null, EMAIL)), EMAIL, SUBJECT),
-			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)), DIGITAL_MAIL, SUBJECT),
-			Arguments.of(List.of(createBatchHistoryProjection("otherMessageId", null, SNAIL_MAIL), createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)), DIGITAL_MAIL, SUBJECT));
+		return Stream.of(Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, null, EMAIL)), EMAIL, SUBJECT),
+			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)), DIGITAL_MAIL,
+				SUBJECT),
+			Arguments.of(List.of(createBatchHistoryProjection("otherMessageId", null, SNAIL_MAIL),
+				createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)), DIGITAL_MAIL, SUBJECT));
 	}
 
 	@ParameterizedTest
@@ -152,39 +144,36 @@ class BatchExtractorTest {
 	}
 
 	private static Stream<Arguments> extractSubjectWhenIncorrectTypeArgumentProvider() {
-		return List.of(MessageType.values()).stream()
-			.filter(type -> ObjectUtils.notEqual(EMAIL, type))
+		return List.of(MessageType.values()).stream().filter(type -> ObjectUtils.notEqual(EMAIL, type))
 			.filter(type -> ObjectUtils.notEqual(DIGITAL_MAIL, type))
-			.map(type -> createBatchHistoryProjection(MESSAGE_ID, null, type))
-			.map(List::of)
-			.map(Arguments::of);
+			.map(type -> createBatchHistoryProjection(MESSAGE_ID, null, type)).map(List::of).map(Arguments::of);
 	}
 
 	@Test
 	void extractSubjectWhenEntityDiffersInType() {
-		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID), eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder()
-			.withMessageType(SNAIL_MAIL)
-			.build());
+		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID),
+			eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder().withMessageType(SNAIL_MAIL).build());
 
-		assertThat(extractor.extractSubject(MUNICIPALITY_ID, List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isEqualTo(EMPTY_STRING);
+		assertThat(extractor.extractSubject(MUNICIPALITY_ID,
+			List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isEqualTo(EMPTY_STRING);
 	}
 
 	@ParameterizedTest
 	@MethodSource("extractAttachmentCountWhenCorrectTypeArgumentProvider")
-	void extractAttachmentCountWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType, int attachmentSize) {
+	void extractAttachmentCountWhenCorrectType(List<BatchHistoryProjection> projections, MessageType messageType,
+		int attachmentSize) {
 		final var attachmentContent = ",{\"contentType\": \"application/pdf\"}".repeat(attachmentSize).substring(1);
 
-		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID), eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder()
-			.withMessageType(messageType)
-			.withContent("{\"attachments\": [%s] }".formatted(attachmentContent))
-			.build());
+		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID),
+			eq(MESSAGE_ID), anyList()))
+			.thenReturn(HistoryEntity.builder().withMessageType(messageType)
+				.withContent("{\"attachments\": [%s] }".formatted(attachmentContent)).build());
 
 		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID, projections)).isEqualTo(attachmentSize);
 	}
 
 	private static Stream<Arguments> extractAttachmentCountWhenCorrectTypeArgumentProvider() {
-		return Stream.of(
-			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, EMAIL)), EMAIL, 1),
+		return Stream.of(Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, EMAIL)), EMAIL, 1),
 			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, WEB_MESSAGE)), WEB_MESSAGE, 2),
 			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, SNAIL_MAIL)), SNAIL_MAIL, 3),
 			Arguments.of(List.of(createBatchHistoryProjection(MESSAGE_ID, DIGITAL_MAIL)), DIGITAL_MAIL, 4));
@@ -198,23 +187,20 @@ class BatchExtractorTest {
 	}
 
 	private static Stream<Arguments> extractAttachmentCountWhenIncorrectTypeArgumentProvider() {
-		return List.of(MessageType.values()).stream()
-			.filter(type -> ObjectUtils.notEqual(EMAIL, type))
+		return List.of(MessageType.values()).stream().filter(type -> ObjectUtils.notEqual(EMAIL, type))
 			.filter(type -> ObjectUtils.notEqual(WEB_MESSAGE, type))
 			.filter(type -> ObjectUtils.notEqual(SNAIL_MAIL, type))
 			.filter(type -> ObjectUtils.notEqual(DIGITAL_MAIL, type))
-			.map(type -> createBatchHistoryProjection(MESSAGE_ID, null, type))
-			.map(List::of)
-			.map(Arguments::of);
+			.map(type -> createBatchHistoryProjection(MESSAGE_ID, null, type)).map(List::of).map(Arguments::of);
 	}
 
 	@Test
 	void extractAttchmentCountWhenEntityDiffersInType() {
-		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID), eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder()
-			.withMessageType(SMS)
-			.build());
+		when(dbIntegrationMock.getFirstHistoryEntityByMunicipalityIdAndMessageIdAndTypeIn(eq(MUNICIPALITY_ID),
+			eq(MESSAGE_ID), anyList())).thenReturn(HistoryEntity.builder().withMessageType(SMS).build());
 
-		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID, List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isZero();
+		assertThat(extractor.extractAttachmentCount(MUNICIPALITY_ID,
+			List.of(createBatchHistoryProjection(MESSAGE_ID, null, DIGITAL_MAIL)))).isZero();
 	}
 
 	@ParameterizedTest
@@ -224,12 +210,11 @@ class BatchExtractorTest {
 	}
 
 	private static Stream<Arguments> extractOriginalMesageTypeArgumentProvider() {
-		return Stream.of(
-			Arguments.of(null, null),
-			Arguments.of(emptyList(), null),
+		return Stream.of(Arguments.of(null, null), Arguments.of(emptyList(), null),
 			Arguments.of(List.of(createBatchHistoryProjection(null)), null),
 			Arguments.of(List.of(createBatchHistoryProjection(null, null, null, SNAIL_MAIL)), SNAIL_MAIL.name()),
-			Arguments.of(List.of(createBatchHistoryProjection(null, null, SNAIL_MAIL, DIGITAL_MAIL)), DIGITAL_MAIL.name()));
+			Arguments.of(List.of(createBatchHistoryProjection(null, null, SNAIL_MAIL, DIGITAL_MAIL)),
+				DIGITAL_MAIL.name()));
 	}
 
 	@ParameterizedTest
@@ -241,13 +226,12 @@ class BatchExtractorTest {
 	private static Stream<Arguments> extractSentArgumentProvider() {
 		final var timeStamp = LocalDateTime.now();
 
-		return Stream.of(
-			Arguments.of(null, null),
-			Arguments.of(emptyList(), null),
+		return Stream.of(Arguments.of(null, null), Arguments.of(emptyList(), null),
 			Arguments.of(List.of(createBatchHistoryProjection(null)), null),
 			Arguments.of(List.of(createBatchHistoryProjection(SENT, timeStamp)), timeStamp),
 			Arguments.of(List.of(createBatchHistoryProjection(null, timeStamp)), timeStamp),
-			Arguments.of(List.of(createBatchHistoryProjection(SENT, null), createBatchHistoryProjection(null, timeStamp)), timeStamp));
+			Arguments.of(List.of(createBatchHistoryProjection(SENT, null),
+				createBatchHistoryProjection(null, timeStamp)), timeStamp));
 	}
 
 	private static BatchHistoryProjection createBatchHistoryProjection(String messageId) {
@@ -262,19 +246,23 @@ class BatchExtractorTest {
 		return createBatchHistoryProjection(messageId, status, null);
 	}
 
-	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status, MessageType messageType, MessageType originalMessageType) {
+	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status,
+		MessageType messageType, MessageType originalMessageType) {
 		return createBatchHistoryProjection(messageId, status, messageType, originalMessageType, null);
 	}
 
-	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status, MessageType messageType) {
+	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status,
+		MessageType messageType) {
 		return createBatchHistoryProjection(messageId, status, messageType, null, null);
 	}
 
-	private static BatchHistoryProjection createBatchHistoryProjection(MessageStatus messageStatus, LocalDateTime createdAt) {
+	private static BatchHistoryProjection createBatchHistoryProjection(MessageStatus messageStatus,
+		LocalDateTime createdAt) {
 		return createBatchHistoryProjection(null, messageStatus, null, null, createdAt);
 	}
 
-	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status, MessageType messageType, MessageType originalMessageType, LocalDateTime createdAt) {
+	private static BatchHistoryProjection createBatchHistoryProjection(String messageId, MessageStatus status,
+		MessageType messageType, MessageType originalMessageType, LocalDateTime createdAt) {
 		return new BatchHistoryProjection() {
 
 			@Override

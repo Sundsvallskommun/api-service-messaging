@@ -20,10 +20,12 @@ class DigitalMailRequestTest {
 	private static final String ISSUER = "issuer";
 	private static final DigitalMailRequest.Party PARTY = DigitalMailRequest.Party.builder().build();
 	private static final DigitalMailRequest.Sender SENDER = DigitalMailRequest.Sender.builder().build();
-	private static final List<DigitalMailRequest.Attachment> ATTACHMENTS = List.of(DigitalMailRequest.Attachment.builder().build());
+	private static final List<DigitalMailRequest.Attachment> ATTACHMENTS = List
+		.of(DigitalMailRequest.Attachment.builder().build());
 	private static final List<String> PARTY_IDS = List.of("partyId");
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
-	private static final DigitalMailRequest.Sender.SupportInfo SUPPORT_INFO = DigitalMailRequest.Sender.SupportInfo.builder().build();
+	private static final DigitalMailRequest.Sender.SupportInfo SUPPORT_INFO = DigitalMailRequest.Sender.SupportInfo
+		.builder().build();
 	private static final String TEXT = "text";
 	private static final String EMAIL_ADDRESS = "emailAddress";
 	private static final String PHONE_NUMBER = "phonenumber";
@@ -35,25 +37,17 @@ class DigitalMailRequestTest {
 	// DigitalMailRequest
 	@Test
 	void testDigitalMailRequestConstructor() {
-		final var bean = new DigitalMailRequest(PARTY, SENDER, SUBJECT, DEPARTMENT, CONTENT_TYPE, BODY, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new DigitalMailRequest(PARTY, SENDER, SUBJECT, DEPARTMENT, CONTENT_TYPE, BODY, ORIGIN, ISSUER,
+			ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertDigitalMailRequest(bean);
 	}
 
 	@Test
 	void testDigitalMailRequestBuilder() {
-		final var bean = DigitalMailRequest.builder()
-			.withAttachments(ATTACHMENTS)
-			.withBody(BODY)
-			.withContentType(CONTENT_TYPE)
-			.withDepartment(DEPARTMENT)
-			.withIssuer(ISSUER)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withSender(SENDER)
-			.withSubject(SUBJECT)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = DigitalMailRequest.builder().withAttachments(ATTACHMENTS).withBody(BODY)
+			.withContentType(CONTENT_TYPE).withDepartment(DEPARTMENT).withIssuer(ISSUER).withOrigin(ORIGIN)
+			.withParty(PARTY).withSender(SENDER).withSubject(SUBJECT).withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertDigitalMailRequest(bean);
 	}
@@ -82,10 +76,8 @@ class DigitalMailRequestTest {
 
 	@Test
 	void testDigitalMailRequestPartyBuilder() {
-		final var bean = DigitalMailRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyIds(PARTY_IDS)
-			.build();
+		final var bean = DigitalMailRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyIds(PARTY_IDS).build();
 
 		assertDigitalMailRequestParty(bean);
 	}
@@ -106,9 +98,7 @@ class DigitalMailRequestTest {
 
 	@Test
 	void testDigitalMailRequestSenderBuilder() {
-		final var bean = DigitalMailRequest.Sender.builder()
-			.withSupportInfo(SUPPORT_INFO)
-			.build();
+		final var bean = DigitalMailRequest.Sender.builder().withSupportInfo(SUPPORT_INFO).build();
 
 		assertDigitalMailRequestSender(bean);
 	}
@@ -128,12 +118,8 @@ class DigitalMailRequestTest {
 
 	@Test
 	void testDigitalMailRequestSenderSupportInfoBuilder() {
-		final var bean = DigitalMailRequest.Sender.SupportInfo.builder()
-			.withEmailAddress(EMAIL_ADDRESS)
-			.withPhoneNumber(PHONE_NUMBER)
-			.withText(TEXT)
-			.withUrl(URL)
-			.build();
+		final var bean = DigitalMailRequest.Sender.SupportInfo.builder().withEmailAddress(EMAIL_ADDRESS)
+			.withPhoneNumber(PHONE_NUMBER).withText(TEXT).withUrl(URL).build();
 
 		assertDigitalMailRequestSenderSupportInfo(bean);
 	}
@@ -156,11 +142,8 @@ class DigitalMailRequestTest {
 
 	@Test
 	void testDigitalMailRequestAttachmentBuilder() {
-		final var bean = DigitalMailRequest.Attachment.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withFilename(FILENAME)
-			.build();
+		final var bean = DigitalMailRequest.Attachment.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withFilename(FILENAME).build();
 
 		assertDigitalMailRequestAttachment(bean);
 	}

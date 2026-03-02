@@ -30,11 +30,8 @@ class SlackIntegrationConfiguration {
 
 	@Bean
 	OkHttpClient okHttpClient() {
-		return new OkHttpClient.Builder()
-			.connectTimeout(properties.connectTimeout())
-			.readTimeout(properties.readTimeout())
-			.addNetworkInterceptor(new LogbookInterceptor(logbook))
-			.addNetworkInterceptor(new GzipInterceptor())
-			.build();
+		return new OkHttpClient.Builder().connectTimeout(properties.connectTimeout())
+			.readTimeout(properties.readTimeout()).addNetworkInterceptor(new LogbookInterceptor(logbook))
+			.addNetworkInterceptor(new GzipInterceptor()).build();
 	}
 }

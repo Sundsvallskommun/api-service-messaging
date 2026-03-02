@@ -10,13 +10,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StatisticsTest {
 
 	private static final int UNDERLIVERABLE = RandomUtils.secure().randomInt();
-	private static final Count EMAIL = Count.builder().withFailed(RandomUtils.secure().randomInt()).withSent(RandomUtils.secure().randomInt()).build();
-	private static final Count SMS = Count.builder().withFailed(RandomUtils.secure().randomInt()).withSent(RandomUtils.secure().randomInt()).build();
-	private static final Count WEB_MESSAGE = Count.builder().withFailed(RandomUtils.secure().randomInt()).withSent(RandomUtils.secure().randomInt()).build();
-	private static final Count DIGITAL_MAIL = Count.builder().withFailed(RandomUtils.secure().randomInt()).withSent(RandomUtils.secure().randomInt()).build();
-	private static final Count SNAIL_MAIL = Count.builder().withFailed(RandomUtils.secure().randomInt()).withSent(RandomUtils.secure().randomInt()).build();
-	private static final Message MESSAGE = Message.builder().withEmail(EMAIL).withSms(SMS).withUndeliverable(UNDERLIVERABLE).build();
-	private static final Letter LETTER = Letter.builder().withDigitalMail(DIGITAL_MAIL).withSnailMail(SNAIL_MAIL).build();
+	private static final Count EMAIL = Count.builder().withFailed(RandomUtils.secure().randomInt())
+		.withSent(RandomUtils.secure().randomInt()).build();
+	private static final Count SMS = Count.builder().withFailed(RandomUtils.secure().randomInt())
+		.withSent(RandomUtils.secure().randomInt()).build();
+	private static final Count WEB_MESSAGE = Count.builder().withFailed(RandomUtils.secure().randomInt())
+		.withSent(RandomUtils.secure().randomInt()).build();
+	private static final Count DIGITAL_MAIL = Count.builder().withFailed(RandomUtils.secure().randomInt())
+		.withSent(RandomUtils.secure().randomInt()).build();
+	private static final Count SNAIL_MAIL = Count.builder().withFailed(RandomUtils.secure().randomInt())
+		.withSent(RandomUtils.secure().randomInt()).build();
+	private static final Message MESSAGE = Message.builder().withEmail(EMAIL).withSms(SMS)
+		.withUndeliverable(UNDERLIVERABLE).build();
+	private static final Letter LETTER = Letter.builder().withDigitalMail(DIGITAL_MAIL).withSnailMail(SNAIL_MAIL)
+		.build();
 
 	// Statistics
 	@Test
@@ -28,15 +35,8 @@ class StatisticsTest {
 
 	@Test
 	void testStatisticsBuilder() {
-		final var bean = Statistics.builder()
-			.withDigitalMail(DIGITAL_MAIL)
-			.withEmail(EMAIL)
-			.withLetter(LETTER)
-			.withMessage(MESSAGE)
-			.withSms(SMS)
-			.withSnailMail(SNAIL_MAIL)
-			.withWebMessage(WEB_MESSAGE)
-			.build();
+		final var bean = Statistics.builder().withDigitalMail(DIGITAL_MAIL).withEmail(EMAIL).withLetter(LETTER)
+			.withMessage(MESSAGE).withSms(SMS).withSnailMail(SNAIL_MAIL).withWebMessage(WEB_MESSAGE).build();
 
 		assertStatistics(bean);
 	}
@@ -50,7 +50,8 @@ class StatisticsTest {
 		assertThat(bean.sms()).isEqualTo(SMS);
 		assertThat(bean.snailMail()).isEqualTo(SNAIL_MAIL);
 		assertThat(bean.webMessage()).isEqualTo(WEB_MESSAGE);
-		assertThat(bean.total()).isEqualTo(DIGITAL_MAIL.total() + EMAIL.total() + LETTER.total() + MESSAGE.total() + SMS.total() + SNAIL_MAIL.total() + WEB_MESSAGE.total());
+		assertThat(bean.total()).isEqualTo(DIGITAL_MAIL.total() + EMAIL.total() + LETTER.total() + MESSAGE.total()
+			+ SMS.total() + SNAIL_MAIL.total() + WEB_MESSAGE.total());
 	}
 
 	// Statistics.Letter
@@ -63,10 +64,7 @@ class StatisticsTest {
 
 	@Test
 	void testStatisticsLetterBuilder() {
-		final var bean = Statistics.Letter.builder()
-			.withDigitalMail(DIGITAL_MAIL)
-			.withSnailMail(SNAIL_MAIL)
-			.build();
+		final var bean = Statistics.Letter.builder().withDigitalMail(DIGITAL_MAIL).withSnailMail(SNAIL_MAIL).build();
 
 		assertStatisticsLetter(bean);
 	}
@@ -88,10 +86,7 @@ class StatisticsTest {
 
 	@Test
 	void testStatisticsMessageBUilder() {
-		final var bean = Statistics.Message.builder()
-			.withEmail(EMAIL)
-			.withSms(SMS)
-			.withUndeliverable(UNDERLIVERABLE)
+		final var bean = Statistics.Message.builder().withEmail(EMAIL).withSms(SMS).withUndeliverable(UNDERLIVERABLE)
 			.build();
 
 		assertStatisticsMessage(bean);

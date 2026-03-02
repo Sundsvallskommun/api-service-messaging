@@ -22,14 +22,14 @@ public class OepIntegratorIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendWebMessage(final String municipalityId, final WebMessageDto webMessageDto, final List<Attachment> attachments) {
+	public MessageStatus sendWebMessage(final String municipalityId, final WebMessageDto webMessageDto,
+		final List<Attachment> attachments) {
 		final var request = mapper.toWebmessageRequest(webMessageDto);
 
-		var multipartFiles = Optional.ofNullable(attachments)
-			.map(mapper::toAttachmentMultipartFiles)
-			.orElse(null);
+		var multipartFiles = Optional.ofNullable(attachments).map(mapper::toAttachmentMultipartFiles).orElse(null);
 
-		final var response = client.createWebmessage(municipalityId, webMessageDto.oepInstance(), request, multipartFiles);
+		final var response = client.createWebmessage(municipalityId, webMessageDto.oepInstance(), request,
+			multipartFiles);
 
 		return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
 	}

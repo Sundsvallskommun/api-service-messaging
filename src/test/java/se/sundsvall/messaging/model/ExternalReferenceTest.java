@@ -18,10 +18,7 @@ class ExternalReferenceTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = ExternalReference.builder()
-			.withKey(KEY)
-			.withValue(VALUE)
-			.build();
+		final var bean = ExternalReference.builder().withKey(KEY).withValue(VALUE).build();
 
 		assertBean(bean);
 	}

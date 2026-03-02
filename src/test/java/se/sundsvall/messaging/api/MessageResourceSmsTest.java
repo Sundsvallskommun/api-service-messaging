@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -41,6 +42,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidSmsRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceSmsTest {
@@ -48,12 +50,8 @@ class MessageResourceSmsTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/sms";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMessageType(SMS)
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMessageType(SMS)
+		.withMunicipalityId(MUNICIPALITY_ID).withStatus(SENT).build();
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -67,130 +65,14 @@ class MessageResourceSmsTest {
 	private static Stream<Arguments> requestProvider() {
 		final var validRequest = createValidSmsRequest();
 
-		return Stream.of(
-			Arguments.of("abc", validRequest.party(), true),
-			Arguments.of("abc", validRequest.party(), false),
-			Arguments.of("abc12", validRequest.party(), true),
-			Arguments.of("abc12", validRequest.party(), false),
-			Arguments.of("Min Bankman", null, true),
-			Arguments.of("Min Bankman", null, false),
-			Arguments.of(null, null, true),
+		return Stream.of(Arguments.of("abc", validRequest.party(), true),
+			Arguments.of("abc", validRequest.party(), false), Arguments.of("abc12", validRequest.party(), true),
+			Arguments.of("abc12", validRequest.party(), false), Arguments.of("Min Bankman", null, true),
+			Arguments.of("Min Bankman", null, false), Arguments.of(null, null, true),
 			Arguments.of(null, null, false));
 	}
 
-	@ParameterizedTest
-	@MethodSource("requestProvider")
-	void sendSynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
-		// Arrange
-		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
-		final var request = createValidSmsRequest()
-			.withParty(party)
-			.withSender(senderName);
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendSms(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	@ParameterizedTest
-	@MethodSource("requestProvider")
-	void sendAsynchronous(final String senderName, final Party party, boolean includeOptionalHeaders) {
-		// Arrange
-		when(mockEventDispatcher.handleSmsRequest(any())).thenReturn(DELIVERY_RESULT);
-		final var request = createValidSmsRequest()
-			.withParty(party)
-			.withSender(senderName);
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleSmsRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeaderShouldBePreserved() {
-		final var senderName = "senderName";
-		final var party = createValidSmsRequest().party();
-		// Arrange
-		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
-		final var request = createValidSmsRequest()
-			.withParty(party)
-			.withSender(senderName);
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendSms(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
@@ -207,8 +89,93 @@ class MessageResourceSmsTest {
 		};
 	}
 
-	private static SmsRequest addHeaderValues(SmsRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	private static SmsRequest addHeaderValues(final SmsRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestProvider")
+	void sendSynchronous(final String senderName, final Party party, final boolean includeOptionalHeaders) {
+		// Arrange
+		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
+		final var request = createValidSmsRequest().withParty(party).withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService)
+			.sendSms(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestProvider")
+	void sendAsynchronous(final String senderName, final Party party, final boolean includeOptionalHeaders) {
+		// Arrange
+		when(mockEventDispatcher.handleSmsRequest(any())).thenReturn(DELIVERY_RESULT);
+		final var request = createValidSmsRequest().withParty(party).withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		// Act
+		final var response = webTestClient.post().uri(URL + "?async=true")
+			.headers(handleHeaders(includeOptionalHeaders)).contentType(APPLICATION_JSON).bodyValue(request)
+			.exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher)
+			.handleSmsRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
+	@Test
+	void testOldHeaderShouldBePreserved() {
+		final var senderName = "senderName";
+		final var party = createValidSmsRequest().party();
+		// Arrange
+		when(mockMessageService.sendSms(any())).thenReturn(DELIVERY_RESULT);
+		final var request = createValidSmsRequest().withParty(party).withSender(senderName);
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(SMS);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService)
+			.sendSms(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
 	}
 }

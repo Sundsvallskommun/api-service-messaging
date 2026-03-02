@@ -60,16 +60,18 @@ class AttachmentMultipartFileTest {
 
 	@ParameterizedTest
 	@MethodSource("argumentProvider")
-	void createWithNullArguments(final String fileName, final String mimeType, final InputStream inputStream, final String errorMessage) {
+	void createWithNullArguments(final String fileName, final String mimeType, final InputStream inputStream,
+		final String errorMessage) {
 		assertThatThrownBy(() -> AttachmentMultipartFile.create(fileName, mimeType, inputStream))
-			.isInstanceOf(NullPointerException.class)
-			.hasMessage(errorMessage);
+			.isInstanceOf(NullPointerException.class).hasMessage(errorMessage);
 	}
 
 	static Stream<Arguments> argumentProvider() {
 		return Stream.of(
-			Arguments.of(null, "text/plain", new ByteArrayInputStream("Test".getBytes()), "Filename must be provided"),
-			Arguments.of("test.txt", null, new ByteArrayInputStream("Test".getBytes()), "MimeType must be provided"),
+			Arguments.of(null, "text/plain", new ByteArrayInputStream("Test".getBytes()),
+				"Filename must be provided"),
+			Arguments.of("test.txt", null, new ByteArrayInputStream("Test".getBytes()),
+				"MimeType must be provided"),
 			Arguments.of("test.txt", "text/plain", null, "Content stream must be provided"));
 	}
 

@@ -20,11 +20,8 @@ class InternalDeliveryBatchResultTest {
 
 	@Test
 	void testBuilder() {
-		final var bean = InternalDeliveryBatchResult.builder()
-			.withBatchId(BATCH_ID)
-			.withDeliveries(DELIVERIES)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = InternalDeliveryBatchResult.builder().withBatchId(BATCH_ID).withDeliveries(DELIVERIES)
+			.withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertBean(bean);
 	}

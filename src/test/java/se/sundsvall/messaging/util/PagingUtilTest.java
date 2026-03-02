@@ -20,7 +20,8 @@ class PagingUtilTest {
 
 		final var bean = PagingUtil.toPage(page, limit, matches);
 
-		assertThat(bean.getPageable().getPageNumber()).isEqualTo(expectedCurrentPage - 1); // As current page is zero based
+		assertThat(bean.getPageable().getPageNumber()).isEqualTo(expectedCurrentPage - 1); // As current page is zero
+																							 // based
 		assertThat(bean.getPageable().getPageSize()).isEqualTo(limit);
 		assertThat(bean.getPageable().getSort()).isEqualTo(Sort.unsorted());
 
@@ -32,19 +33,11 @@ class PagingUtilTest {
 	}
 
 	private static Stream<Arguments> toPageArgumentProvider() {
-		final var matches = List.of(
-			Batch.builder().build(),
-			Batch.builder().build(),
-			Batch.builder().build(),
-			Batch.builder().build(),
-			Batch.builder().build());
+		final var matches = List.of(Batch.builder().build(), Batch.builder().build(), Batch.builder().build(),
+			Batch.builder().build(), Batch.builder().build());
 
-		return Stream.of(
-			Arguments.of(1, 1, matches, 1, 5),
-			Arguments.of(2, 1, matches, 2, 5),
-			Arguments.of(1, 2, matches, 1, 3),
-			Arguments.of(5, 1, matches, 5, 5),
-			Arguments.of(1, 5, matches, 1, 1),
+		return Stream.of(Arguments.of(1, 1, matches, 1, 5), Arguments.of(2, 1, matches, 2, 5),
+			Arguments.of(1, 2, matches, 1, 3), Arguments.of(5, 1, matches, 5, 5), Arguments.of(1, 5, matches, 1, 1),
 			Arguments.of(2, 5, matches, 2, 1));
 	}
 

@@ -22,41 +22,26 @@ public final class HistoryMapper {
 	}
 
 	public static History mapToHistory(final HistoryEntity historyEntity) {
-		return ofNullable(historyEntity).map(entity -> History.builder()
-			.withBatchId(historyEntity.getBatchId())
-			.withMessageId(historyEntity.getMessageId())
-			.withDeliveryId(historyEntity.getDeliveryId())
+		return ofNullable(historyEntity).map(entity -> History.builder().withBatchId(historyEntity.getBatchId())
+			.withMessageId(historyEntity.getMessageId()).withDeliveryId(historyEntity.getDeliveryId())
 			.withMessageType(historyEntity.getMessageType())
-			.withOriginalMessageType(historyEntity.getOriginalMessageType())
-			.withStatus(historyEntity.getStatus())
-			.withContent(historyEntity.getContent())
-			.withCreatedAt(historyEntity.getCreatedAt())
-			.withOrigin(historyEntity.getOrigin())
-			.withIssuer(historyEntity.getIssuer())
+			.withOriginalMessageType(historyEntity.getOriginalMessageType()).withStatus(historyEntity.getStatus())
+			.withContent(historyEntity.getContent()).withCreatedAt(historyEntity.getCreatedAt())
+			.withOrigin(historyEntity.getOrigin()).withIssuer(historyEntity.getIssuer())
 			.withMunicipalityId(historyEntity.getMunicipalityId())
-			.withOrganizationNumber(historyEntity.getOrganizationNumber())
-			.build()).orElse(null);
+			.withOrganizationNumber(historyEntity.getOrganizationNumber()).build()).orElse(null);
 	}
 
 	public static HistoryEntity mapToHistoryEntity(final Message message, final String statusDetail) {
-		return ofNullable(message).map(actualMessage -> HistoryEntity.builder()
-			.withBatchId(actualMessage.batchId())
-			.withMessageId(actualMessage.messageId())
-			.withDeliveryId(actualMessage.deliveryId())
-			.withPartyId(actualMessage.partyId())
-			.withMessageType(actualMessage.type())
-			.withOriginalMessageType(actualMessage.originalType())
-			.withStatus(actualMessage.status())
-			.withStatusDetail(statusDetail)
-			.withContent(actualMessage.content())
-			.withOrigin(actualMessage.origin())
-			.withIssuer(actualMessage.issuer())
-			.withDepartment(toDepartment(actualMessage.content()))
-			.withCreatedAt(LocalDateTime.now())
-			.withMunicipalityId(actualMessage.municipalityId())
+		return ofNullable(message).map(actualMessage -> HistoryEntity.builder().withBatchId(actualMessage.batchId())
+			.withMessageId(actualMessage.messageId()).withDeliveryId(actualMessage.deliveryId())
+			.withPartyId(actualMessage.partyId()).withMessageType(actualMessage.type())
+			.withOriginalMessageType(actualMessage.originalType()).withStatus(actualMessage.status())
+			.withStatusDetail(statusDetail).withContent(actualMessage.content()).withOrigin(actualMessage.origin())
+			.withIssuer(actualMessage.issuer()).withDepartment(toDepartment(actualMessage.content()))
+			.withCreatedAt(LocalDateTime.now()).withMunicipalityId(actualMessage.municipalityId())
 			.withDestinationAddress(actualMessage.address())
-			.withOrganizationNumber(actualMessage.organizationNumber())
-			.build()).orElse(null);
+			.withOrganizationNumber(actualMessage.organizationNumber()).build()).orElse(null);
 	}
 
 	private static String toDepartment(final String content) {
@@ -69,29 +54,19 @@ public final class HistoryMapper {
 		return jsonObject.has(DEPARTMENT) ? jsonObject.get(DEPARTMENT).getAsString() : null;
 	}
 
-	public static Batch toBatch(final String batchId, final LocalDateTime sent, final String messageType, final String subject, final int attachmentCount, final int recipientCount, final Batch.Status status) {
-		return Batch.builder()
-			.withAttachmentCount(attachmentCount)
-			.withBatchId(batchId)
-			.withMessageType(messageType)
-			.withRecipientCount(recipientCount)
-			.withSent(sent)
-			.withStatus(status)
-			.withSubject(subject)
-			.build();
+	public static Batch toBatch(final String batchId, final LocalDateTime sent, final String messageType,
+		final String subject, final int attachmentCount, final int recipientCount, final Batch.Status status) {
+		return Batch.builder().withAttachmentCount(attachmentCount).withBatchId(batchId).withMessageType(messageType)
+			.withRecipientCount(recipientCount).withSent(sent).withStatus(status).withSubject(subject).build();
 	}
 
 	public static Batch.Status toStatus(final int successful, final int unsuccessful) {
-		return Batch.Status.builder()
-			.withSuccessful(successful)
-			.withUnsuccessful(unsuccessful)
-			.build();
+		return Batch.Status.builder().withSuccessful(successful).withUnsuccessful(unsuccessful).build();
 	}
 
 	public static UserBatches toUserBatches(final Page<Batch> pagedBatch, final int page) {
 		return UserBatches.builder()
 			.withBatches(pagedBatch.getTotalPages() < page ? Collections.emptyList() : pagedBatch.getContent())
-			.withMetaData(PagingAndSortingMetaData.create().withPageData(pagedBatch))
-			.build();
+			.withMetaData(PagingAndSortingMetaData.create().withPageData(pagedBatch)).build();
 	}
 }

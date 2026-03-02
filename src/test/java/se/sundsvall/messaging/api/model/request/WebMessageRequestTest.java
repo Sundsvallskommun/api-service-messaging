@@ -29,23 +29,17 @@ class WebMessageRequestTest {
 	// WebMessageRequest
 	@Test
 	void testWebMessageRequestConstructor() {
-		final var bean = new WebMessageRequest(PARTY, MESSAGE, SENDER, SEND_AS_OWNER, ORIGIN, ISSUER, OEP_INSTANCE, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new WebMessageRequest(PARTY, MESSAGE, SENDER, SEND_AS_OWNER, ORIGIN, ISSUER, OEP_INSTANCE,
+			ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertWebMessageRequest(bean);
 	}
 
 	@Test
 	void testWebMessageRequestBuilder() {
-		final var bean = WebMessageRequest.builder()
-			.withAttachments(ATTACHMENTS)
-			.withIssuer(ISSUER)
-			.withMessage(MESSAGE)
-			.withSender(SENDER)
-			.withOepInstance(OEP_INSTANCE)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = WebMessageRequest.builder().withAttachments(ATTACHMENTS).withIssuer(ISSUER)
+			.withMessage(MESSAGE).withSender(SENDER).withOepInstance(OEP_INSTANCE).withOrigin(ORIGIN)
+			.withParty(PARTY).withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertWebMessageRequest(bean);
 	}
@@ -72,11 +66,8 @@ class WebMessageRequestTest {
 
 	@Test
 	void testWebMessageRequestAttachmentBuilder() {
-		final var bean = WebMessageRequest.Attachment.builder()
-			.withBase64Data(BASE64_DATA)
-			.withFileName(FILE_NAME)
-			.withMimeType(MIME_TYPE)
-			.build();
+		final var bean = WebMessageRequest.Attachment.builder().withBase64Data(BASE64_DATA).withFileName(FILE_NAME)
+			.withMimeType(MIME_TYPE).build();
 
 		assertWebMessageRequestAttachment(bean);
 	}
@@ -98,10 +89,8 @@ class WebMessageRequestTest {
 
 	@Test
 	void testWebMessageRequestPartyBuilder() {
-		final var bean = WebMessageRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyId(PARTY_ID)
-			.build();
+		final var bean = WebMessageRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyId(PARTY_ID).build();
 
 		assertWebMessageRequestParty(bean);
 	}
@@ -123,9 +112,7 @@ class WebMessageRequestTest {
 
 	@Test
 	void testWebMessageRequestSenderBuilder() {
-		final var bean = WebMessageRequest.Sender.builder()
-			.withUserId(USER_ID)
-			.build();
+		final var bean = WebMessageRequest.Sender.builder().withUserId(USER_ID).build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.userId()).isEqualTo(USER_ID);

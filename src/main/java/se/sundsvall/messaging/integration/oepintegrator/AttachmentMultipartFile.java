@@ -20,7 +20,8 @@ class AttachmentMultipartFile implements MultipartFile {
 		this.contentStream = contentStream;
 	}
 
-	public static AttachmentMultipartFile create(final String fileName, final String mimeType, final InputStream contentStream) {
+	public static AttachmentMultipartFile create(final String fileName, final String mimeType,
+		final InputStream contentStream) {
 		requireNonNull(fileName, "Filename must be provided");
 		requireNonNull(mimeType, "MimeType must be provided");
 		requireNonNull(contentStream, "Content stream must be provided");

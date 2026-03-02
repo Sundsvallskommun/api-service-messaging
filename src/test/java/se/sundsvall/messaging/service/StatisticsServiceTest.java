@@ -45,15 +45,16 @@ class StatisticsServiceTest {
 		final var municipalityId = "2281";
 		final var statsProjection = createStatisticsEntity(SMS, SMS, SENT, null, null, municipalityId);
 
-		when(mockDbIntegration.getStatsByParameters(municipalityId, null, null, List.of(messageType), now, now.plusMonths(1)))
-			.thenReturn(List.of(statsProjection));
+		when(mockDbIntegration.getStatsByParameters(municipalityId, null, null, List.of(messageType), now,
+			now.plusMonths(1))).thenReturn(List.of(statsProjection));
 
 		final var result = statisticsService.getStatistics(messageType, now, now.plusMonths(1), municipalityId);
 
 		assertThat(result).isNotNull();
 		assertThat(result.sms()).extracting(Count::sent).isEqualTo(1);
 
-		verify(mockDbIntegration).getStatsByParameters(municipalityId, null, null, List.of(messageType), now, now.plusMonths(1));
+		verify(mockDbIntegration).getStatsByParameters(municipalityId, null, null, List.of(messageType), now,
+			now.plusMonths(1));
 	}
 
 	@Test
@@ -63,21 +64,21 @@ class StatisticsServiceTest {
 		final var fromDate = LocalDate.now();
 		final var toDate = LocalDate.now().plusMonths(1);
 		final var municipalityId = "2281";
-		final var statsProjection = createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId);
+		final var statsProjection = createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, origin, department,
+			municipalityId);
 
-		when(mockDbIntegration.getStatsByParameters(anyString(), anyString(), anyString(), anyList(), any(LocalDate.class), any(LocalDate.class)))
-			.thenReturn(List.of(statsProjection));
+		when(mockDbIntegration.getStatsByParameters(anyString(), anyString(), anyString(), anyList(),
+			any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of(statsProjection));
 
-		final var result = statisticsService.getDepartmentLetterStatistics(origin, department, fromDate, toDate, municipalityId);
+		final var result = statisticsService.getDepartmentLetterStatistics(origin, department, fromDate, toDate,
+			municipalityId);
 
-		assertThat(result).hasSize(1)
-			.extracting(DepartmentStatistics::origin, DepartmentStatistics::departmentLetters).containsExactly(
-				tuple(origin, List.of(DepartmentLetter.builder()
-					.withDepartment(department)
-					.withSnailMail(Count.builder().withSent(1).withFailed(0).build())
-					.build())));
+		assertThat(result).hasSize(1).extracting(DepartmentStatistics::origin, DepartmentStatistics::departmentLetters)
+			.containsExactly(tuple(origin, List.of(DepartmentLetter.builder().withDepartment(department)
+				.withSnailMail(Count.builder().withSent(1).withFailed(0).build()).build())));
 
-		verify(mockDbIntegration).getStatsByParameters(municipalityId, origin, department, List.of(LETTER), fromDate, toDate);
+		verify(mockDbIntegration).getStatsByParameters(municipalityId, origin, department, List.of(LETTER), fromDate,
+			toDate);
 	}
 
 	@Test
@@ -88,17 +89,18 @@ class StatisticsServiceTest {
 		final var fromDate = LocalDate.now();
 		final var toDate = LocalDate.now().plusMonths(1);
 		final var messageTypes = List.of(LETTER, SMS);
-		final var statProjections = List.of(
-			createStatisticsEntity(SMS, SMS, SENT, origin, department, municipalityId),
+		final var statProjections = List.of(createStatisticsEntity(SMS, SMS, SENT, origin, department, municipalityId),
 			createStatisticsEntity(SMS, SMS, FAILED, origin, department, municipalityId),
 			createStatisticsEntity(SNAIL_MAIL, LETTER, SENT, origin, department, municipalityId),
 			createStatisticsEntity(SNAIL_MAIL, LETTER, FAILED, origin, department, municipalityId),
 			createStatisticsEntity(DIGITAL_MAIL, LETTER, SENT, origin, department, municipalityId),
 			createStatisticsEntity(DIGITAL_MAIL, LETTER, FAILED, origin, department, municipalityId));
 
-		when(mockDbIntegration.getStatsByParameters(municipalityId, origin, department, messageTypes, fromDate, toDate)).thenReturn(statProjections);
+		when(mockDbIntegration.getStatsByParameters(municipalityId, origin, department, messageTypes, fromDate, toDate))
+			.thenReturn(statProjections);
 
-		final var result = statisticsService.getStatisticsByDepartment(municipalityId, department, origin, fromDate, toDate);
+		final var result = statisticsService.getStatisticsByDepartment(municipalityId, department, origin, fromDate,
+			toDate);
 
 		assertThat(result).isNotNull().satisfies(departmentStats -> {
 			assertThat(departmentStats.origin()).isEqualTo(origin);
@@ -108,7 +110,8 @@ class StatisticsServiceTest {
 			assertThat(departmentStats.digitalMail()).usingRecursiveComparison().isEqualTo(new Count(1, 1));
 		});
 
-		verify(mockDbIntegration).getStatsByParameters(municipalityId, origin, department, messageTypes, fromDate, toDate);
+		verify(mockDbIntegration).getStatsByParameters(municipalityId, origin, department, messageTypes, fromDate,
+			toDate);
 		verifyNoMoreInteractions(mockDbIntegration);
 	}
 
@@ -127,6 +130,7 @@ class StatisticsServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.sms()).extracting(Count::sent).isEqualTo(1);
 
-		verify(mockDbIntegration).getStatsByParameters(municipalityId, null, null, messageTypes, now, now.plusMonths(1));
+		verify(mockDbIntegration).getStatsByParameters(municipalityId, null, null, messageTypes, now,
+			now.plusMonths(1));
 	}
 }

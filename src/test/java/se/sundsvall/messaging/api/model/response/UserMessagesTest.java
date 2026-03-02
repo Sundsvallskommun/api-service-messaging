@@ -25,10 +25,7 @@ class UserMessagesTest {
 
 	@Test
 	void userMessagesBuilder() {
-		var userMessages = UserMessages.builder()
-			.withMetaData(PAGING_META_DATA)
-			.withMessages(USER_MESSAGES)
-			.build();
+		var userMessages = UserMessages.builder().withMetaData(PAGING_META_DATA).withMessages(USER_MESSAGES).build();
 
 		assertThat(userMessages).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(userMessages.metaData()).isEqualTo(PAGING_META_DATA);

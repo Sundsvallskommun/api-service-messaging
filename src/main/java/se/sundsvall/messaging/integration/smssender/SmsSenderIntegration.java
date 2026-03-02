@@ -27,10 +27,8 @@ public class SmsSenderIntegration {
 	public MessageStatus sendSms(final String municipalityId, final SmsDto dto) {
 		var response = client.sendSms(municipalityId, mapper.toSendSmsRequest(dto));
 
-		var success = response.getStatusCode().is2xxSuccessful() &&
-			ofNullable(response.getBody())
-				.map(SendSmsResponse::getSent)
-				.orElse(false);
+		var success = response.getStatusCode().is2xxSuccessful()
+			&& ofNullable(response.getBody()).map(SendSmsResponse::getSent).orElse(false);
 
 		return success ? SENT : NOT_SENT;
 	}

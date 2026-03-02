@@ -31,14 +31,13 @@ class StartupHandler implements CommandLineRunner {
 		if (pendingMessages.isEmpty()) {
 			LOG.info("No pending messages to process");
 		} else {
-			pendingMessages.stream()
-				.map(message -> {
-					LOG.info("Processing {} with id {} and delivery id {}", message.getType(),
-						message.getMessageId(), message.getDeliveryId());
+			pendingMessages.stream().map(message -> {
+				LOG.info("Processing {} with id {} and delivery id {}", message.getType(), message.getMessageId(),
+					message.getDeliveryId());
 
-					return new IncomingMessageEvent(this, message.getMunicipalityId(), message.getType(), message.getDeliveryId(), message.getOrigin());
-				})
-				.forEach(eventPublisher::publishEvent);
+				return new IncomingMessageEvent(this, message.getMunicipalityId(), message.getType(),
+					message.getDeliveryId(), message.getOrigin());
+			}).forEach(eventPublisher::publishEvent);
 		}
 	}
 

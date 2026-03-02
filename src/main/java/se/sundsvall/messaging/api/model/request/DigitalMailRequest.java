@@ -31,13 +31,16 @@ public record DigitalMailRequest(
 	}) String subject,
 
 	@Schema(description = "Department and unit that should be billed for the message", types = {
-		"string", "null"
+		"string",
+		"null"
 	}, examples = "SBK" + "(Gatuavdelningen, Trafiksektionen)") String department,
 
 	@OneOf(value = {
-		"text/plain", "text/html"
+		"text/plain",
+		"text/html"
 	}, nullable = true) @Schema(description = "Content type", allowableValues = {
-		"text/plain", "text/html"
+		"text/plain",
+		"text/html"
 	}) String contentType,
 
 	@Schema(description = "Body (plain text if contentType is set to 'text/plain', BASE64-encoded if contentType is set to 'application/html')") String body,

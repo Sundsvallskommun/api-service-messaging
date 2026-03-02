@@ -94,9 +94,11 @@ public class MessageEntity {
 	private String organizationNumber;
 
 	@Builder(setterPrefix = "with")
-	private MessageEntity(final Long id, final String messageId, final String batchId, final String deliveryId, final String partyId, final MessageType type, final MessageType originalMessageType, final MessageStatus status, final String content,
-		final String origin, final String issuer, final LocalDateTime createdAt,
-		final String municipalityId, final Address destinationAddress, final String organizationNumber) {
+	private MessageEntity(final Long id, final String messageId, final String batchId, final String deliveryId,
+		final String partyId, final MessageType type, final MessageType originalMessageType,
+		final MessageStatus status, final String content, final String origin, final String issuer,
+		final LocalDateTime createdAt, final String municipalityId, final Address destinationAddress,
+		final String organizationNumber) {
 		this.id = id;
 		this.messageId = messageId;
 		this.batchId = batchId;

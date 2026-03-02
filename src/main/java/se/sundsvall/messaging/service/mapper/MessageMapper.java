@@ -34,196 +34,103 @@ import static se.sundsvall.messaging.util.JsonUtils.toJson;
 public class MessageMapper {
 
 	public Message toMessage(final EmailRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(EmailRequest.Party::partyId)
-				.orElse(null))
-			.withType(EMAIL)
-			.withOriginalType(EMAIL)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
-			.build();
+			.withPartyId(ofNullable(request.party()).map(EmailRequest.Party::partyId).orElse(null)).withType(EMAIL)
+			.withOriginalType(EMAIL).withStatus(PENDING).withContent(toJson(request)).withOrigin(request.origin())
+			.withIssuer(request.issuer()).withMunicipalityId(request.municipalityId()).build();
 	}
 
 	public Message toMessage(final SmsRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(SmsRequest.Party::partyId)
-				.orElse(null))
-			.withType(SMS)
-			.withOriginalType(SMS)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
-			.build();
+			.withPartyId(ofNullable(request.party()).map(SmsRequest.Party::partyId).orElse(null)).withType(SMS)
+			.withOriginalType(SMS).withStatus(PENDING).withContent(toJson(request)).withOrigin(request.origin())
+			.withIssuer(request.issuer()).withMunicipalityId(request.municipalityId()).build();
 	}
 
 	public Message toMessage(final SnailMailRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(SnailMailRequest.Party::partyId)
-				.orElse(null))
-			.withType(SNAIL_MAIL)
-			.withOriginalType(SNAIL_MAIL)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
-			.withAddress(Optional.ofNullable(request.address()).map(address -> Address.builder()
-				.withFirstName(address.firstName())
-				.withLastName(address.lastName())
-				.withApartmentNumber(address.apartmentNumber())
-				.withAddress(address.address())
-				.withZipCode(address.zipCode())
-				.withCity(address.city())
-				.withCountry(address.country())
-				.withCareOf(address.careOf())
-				.build())
+			.withPartyId(ofNullable(request.party()).map(SnailMailRequest.Party::partyId).orElse(null))
+			.withType(SNAIL_MAIL).withOriginalType(SNAIL_MAIL).withStatus(PENDING).withContent(toJson(request))
+			.withOrigin(request.origin()).withIssuer(request.issuer()).withMunicipalityId(request.municipalityId())
+			.withAddress(Optional.ofNullable(request.address())
+				.map(address -> Address.builder().withFirstName(address.firstName())
+					.withLastName(address.lastName()).withApartmentNumber(address.apartmentNumber())
+					.withAddress(address.address()).withZipCode(address.zipCode()).withCity(address.city())
+					.withCountry(address.country()).withCareOf(address.careOf()).build())
 				.orElse(null))
 			.build();
 	}
 
 	public Message toMessage(final WebMessageRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(WebMessageRequest.Party::partyId)
-				.orElse(null))
-			.withType(WEB_MESSAGE)
-			.withOriginalType(WEB_MESSAGE)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
+			.withPartyId(ofNullable(request.party()).map(WebMessageRequest.Party::partyId).orElse(null))
+			.withType(WEB_MESSAGE).withOriginalType(WEB_MESSAGE).withStatus(PENDING).withContent(toJson(request))
+			.withOrigin(request.origin()).withIssuer(request.issuer()).withMunicipalityId(request.municipalityId())
 			.build();
 	}
 
 	public List<Message> toMessages(final DigitalMailRequest request, final String batchId, String organizationNumber) {
 		return request.party().partyIds().stream()
-			.map(partyId -> Message.builder()
-				.withBatchId(batchId)
-				.withMessageId(UUID.randomUUID().toString())
-				.withDeliveryId(UUID.randomUUID().toString())
-				.withPartyId(partyId)
-				.withType(DIGITAL_MAIL)
-				.withOriginalType(DIGITAL_MAIL)
-				.withStatus(PENDING)
-				.withContent(toJson(request))
-				.withOrigin(request.origin())
-				.withIssuer(request.issuer())
-				.withMunicipalityId(request.municipalityId())
-				.withOrganizationNumber(organizationNumber)
+			.map(partyId -> Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
+				.withDeliveryId(UUID.randomUUID().toString()).withPartyId(partyId).withType(DIGITAL_MAIL)
+				.withOriginalType(DIGITAL_MAIL).withStatus(PENDING).withContent(toJson(request))
+				.withOrigin(request.origin()).withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId()).withOrganizationNumber(organizationNumber)
 				.build())
 			.toList();
 	}
 
 	public Message toMessage(final DigitalInvoiceRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(DigitalInvoiceRequest.Party::partyId)
-				.orElse(null))
-			.withType(DIGITAL_INVOICE)
-			.withOriginalType(DIGITAL_INVOICE)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
-			.build();
+			.withPartyId(ofNullable(request.party()).map(DigitalInvoiceRequest.Party::partyId).orElse(null))
+			.withType(DIGITAL_INVOICE).withOriginalType(DIGITAL_INVOICE).withStatus(PENDING)
+			.withContent(toJson(request)).withOrigin(request.origin()).withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId()).build();
 	}
 
-	public List<Message> toMessages(final LetterRequest request, final String batchId, final String organizationNumber) {
+	public List<Message> toMessages(final LetterRequest request, final String batchId,
+		final String organizationNumber) {
 		return ofNullable(request.party()).map(LetterRequest.Party::partyIds).orElse(emptyList()).stream()
-			.map(partyId -> Message.builder()
-				.withBatchId(batchId)
-				.withMessageId(UUID.randomUUID().toString())
-				.withDeliveryId(UUID.randomUUID().toString())
-				.withPartyId(partyId)
-				.withType(LETTER)
-				.withOriginalType(LETTER)
-				.withStatus(PENDING)
-				.withContent(toJson(request))
-				.withOrigin(request.origin())
-				.withIssuer(request.issuer())
-				.withMunicipalityId(request.municipalityId())
-				.withOrganizationNumber(organizationNumber)
+			.map(partyId -> Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
+				.withDeliveryId(UUID.randomUUID().toString()).withPartyId(partyId).withType(LETTER)
+				.withOriginalType(LETTER).withStatus(PENDING).withContent(toJson(request))
+				.withOrigin(request.origin()).withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId()).withOrganizationNumber(organizationNumber)
 				.build())
 			.toList();
 	}
 
 	public List<Message> mapAddressesToMessages(final LetterRequest request, final String batchId) {
 		return ofNullable(request.party()).map(LetterRequest.Party::addresses).orElse(emptyList()).stream()
-			.map(address -> Message.builder()
-				.withBatchId(batchId)
-				.withMessageId(UUID.randomUUID().toString())
-				.withDeliveryId(UUID.randomUUID().toString())
-				.withPartyId(null)
-				.withAddress(address)
-				.withType(SNAIL_MAIL)
-				.withOriginalType(LETTER)
-				.withStatus(PENDING)
-				.withContent(toJson(request))
-				.withOrigin(request.origin())
-				.withIssuer(request.issuer())
-				.withMunicipalityId(request.municipalityId())
-				.build())
+			.map(address -> Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
+				.withDeliveryId(UUID.randomUUID().toString()).withPartyId(null).withAddress(address)
+				.withType(SNAIL_MAIL).withOriginalType(LETTER).withStatus(PENDING).withContent(toJson(request))
+				.withOrigin(request.origin()).withIssuer(request.issuer())
+				.withMunicipalityId(request.municipalityId()).build())
 			.toList();
 	}
 
-	public Message toMessage(final String municipalityId, final String origin, final String issuer, final String batchId, final MessageRequest.Message request) {
+	public Message toMessage(final String municipalityId, final String origin, final String issuer,
+		final String batchId, final MessageRequest.Message request) {
 		final var messageId = UUID.randomUUID().toString();
 
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(messageId)
+		return Message.builder().withBatchId(batchId).withMessageId(messageId)
 			.withDeliveryId(UUID.randomUUID().toString())
-			.withPartyId(ofNullable(request.party())
-				.map(MessageRequest.Message.Party::partyId)
-				.orElse(null))
-			.withType(MESSAGE)
-			.withOriginalType(MESSAGE)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(origin)
-			.withIssuer(issuer)
-			.withMunicipalityId(municipalityId)
-			.build();
+			.withPartyId(ofNullable(request.party()).map(MessageRequest.Message.Party::partyId).orElse(null))
+			.withType(MESSAGE).withOriginalType(MESSAGE).withStatus(PENDING).withContent(toJson(request))
+			.withOrigin(origin).withIssuer(issuer).withMunicipalityId(municipalityId).build();
 	}
 
 	public Message toMessage(final SlackRequest request, final String batchId) {
-		return Message.builder()
-			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
-			.withDeliveryId(UUID.randomUUID().toString())
-			.withType(SLACK)
-			.withOriginalType(SLACK)
-			.withStatus(PENDING)
-			.withContent(toJson(request))
-			.withOrigin(request.origin())
-			.withIssuer(request.issuer())
-			.withMunicipalityId(request.municipalityId())
-			.build();
+		return Message.builder().withBatchId(batchId).withMessageId(UUID.randomUUID().toString())
+			.withDeliveryId(UUID.randomUUID().toString()).withType(SLACK).withOriginalType(SLACK)
+			.withStatus(PENDING).withContent(toJson(request)).withOrigin(request.origin())
+			.withIssuer(request.issuer()).withMunicipalityId(request.municipalityId()).build();
 	}
 
 }

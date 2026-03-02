@@ -11,4 +11,5 @@ public record ExternalReference(
 
 	@NotBlank @Schema(description = "The external reference key", examples = "flowInstanceId") String key,
 
-	@NotBlank @Schema(description = "The external reference value", examples = "356t4r34f") String value) {}
+	@NotBlank @Schema(description = "The external reference value", examples = "356t4r34f") String value) {
+}

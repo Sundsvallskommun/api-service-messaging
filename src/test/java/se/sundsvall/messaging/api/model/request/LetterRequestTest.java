@@ -44,26 +44,18 @@ class LetterRequestTest {
 	// LetterRequest
 	@Test
 	void testLetterRequestConstructor() {
-		final var bean = new LetterRequest(PARTY, SUBJECT, SENDER, CONTENT_TYPE, BODY, DEPARTMENT, DEVIATION, ORIGIN, ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
+		final var bean = new LetterRequest(PARTY, SUBJECT, SENDER, CONTENT_TYPE, BODY, DEPARTMENT, DEVIATION, ORIGIN,
+			ISSUER, ATTACHMENTS, MUNICIPALITY_ID);
 
 		assertLetterRequest(bean);
 	}
 
 	@Test
 	void testLetterRequestBuilder() {
-		final var bean = LetterRequest.builder()
-			.withAttachments(ATTACHMENTS)
-			.withBody(BODY)
-			.withContentType(CONTENT_TYPE)
-			.withDepartment(DEPARTMENT)
-			.withDeviation(DEVIATION)
-			.withIssuer(ISSUER)
-			.withOrigin(ORIGIN)
-			.withParty(PARTY)
-			.withSender(SENDER)
-			.withSubject(SUBJECT)
-			.withMunicipalityId(MUNICIPALITY_ID)
-			.build();
+		final var bean = LetterRequest.builder().withAttachments(ATTACHMENTS).withBody(BODY)
+			.withContentType(CONTENT_TYPE).withDepartment(DEPARTMENT).withDeviation(DEVIATION).withIssuer(ISSUER)
+			.withOrigin(ORIGIN).withParty(PARTY).withSender(SENDER).withSubject(SUBJECT)
+			.withMunicipalityId(MUNICIPALITY_ID).build();
 
 		assertLetterRequest(bean);
 	}
@@ -93,12 +85,8 @@ class LetterRequestTest {
 
 	@Test
 	void testLetterRequestAttachmentBuilder() {
-		final var bean = LetterRequest.Attachment.builder()
-			.withContent(CONTENT)
-			.withContentType(CONTENT_TYPE)
-			.withDeliveryMode(DELIVERY_MODE)
-			.withFilename(FILENAME)
-			.build();
+		final var bean = LetterRequest.Attachment.builder().withContent(CONTENT).withContentType(CONTENT_TYPE)
+			.withDeliveryMode(DELIVERY_MODE).withFilename(FILENAME).build();
 
 		assertLetterRequestAttachment(bean);
 	}
@@ -121,11 +109,8 @@ class LetterRequestTest {
 
 	@Test
 	void testLetterRequestPartyBuilder() {
-		final var bean = LetterRequest.Party.builder()
-			.withExternalReferences(EXTERNAL_REFERENCES)
-			.withPartyIds(PARTY_IDS)
-			.withAddresses(List.of(ADDRESS))
-			.build();
+		final var bean = LetterRequest.Party.builder().withExternalReferences(EXTERNAL_REFERENCES)
+			.withPartyIds(PARTY_IDS).withAddresses(List.of(ADDRESS)).build();
 
 		assertLetterRequestParty(bean);
 	}
@@ -147,9 +132,7 @@ class LetterRequestTest {
 
 	@Test
 	void testLetterRequestSenderBuilder() {
-		final var bean = LetterRequest.Sender.builder()
-			.withSupportInfo(SUPPORT_INFO)
-			.build();
+		final var bean = LetterRequest.Sender.builder().withSupportInfo(SUPPORT_INFO).build();
 
 		assertLetterRequestSender(bean);
 	}
@@ -169,12 +152,8 @@ class LetterRequestTest {
 
 	@Test
 	void testLetterRequestSenderSupportInfoBuilder() {
-		final var bean = LetterRequest.Sender.SupportInfo.builder()
-			.withEmailAddress(EMAIL_ADDRESS)
-			.withPhoneNumber(PHONE_NUMBER)
-			.withText(TEXT)
-			.withUrl(URL)
-			.build();
+		final var bean = LetterRequest.Sender.SupportInfo.builder().withEmailAddress(EMAIL_ADDRESS)
+			.withPhoneNumber(PHONE_NUMBER).withText(TEXT).withUrl(URL).build();
 
 		assertLetterRequestSenderSupportInfo(bean);
 	}
@@ -190,19 +169,25 @@ class LetterRequestTest {
 	// Other
 	@Test
 	void testEnumValidValues() {
-		assertThat(LetterRequest.Attachment.DeliveryMode.values()).containsExactlyInAnyOrder(ANY, DIGITAL_MAIL, SNAIL_MAIL);
+		assertThat(LetterRequest.Attachment.DeliveryMode.values()).containsExactlyInAnyOrder(ANY, DIGITAL_MAIL,
+			SNAIL_MAIL);
 	}
 
 	@Test
 	void testAttachmentDeliveryIntendedMethods() {
-		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(ANY).build().isIntendedForDigitalMail()).isTrue();
+		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(ANY).build().isIntendedForDigitalMail())
+			.isTrue();
 		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(ANY).build().isIntendedForSnailMail()).isTrue();
 
-		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(SNAIL_MAIL).build().isIntendedForDigitalMail()).isFalse();
-		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(SNAIL_MAIL).build().isIntendedForSnailMail()).isTrue();
+		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(SNAIL_MAIL).build().isIntendedForDigitalMail())
+			.isFalse();
+		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(SNAIL_MAIL).build().isIntendedForSnailMail())
+			.isTrue();
 
-		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(DIGITAL_MAIL).build().isIntendedForDigitalMail()).isTrue();
-		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(DIGITAL_MAIL).build().isIntendedForSnailMail()).isFalse();
+		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(DIGITAL_MAIL).build().isIntendedForDigitalMail())
+			.isTrue();
+		assertThat(LetterRequest.Attachment.builder().withDeliveryMode(DIGITAL_MAIL).build().isIntendedForSnailMail())
+			.isFalse();
 	}
 
 	// No dirt

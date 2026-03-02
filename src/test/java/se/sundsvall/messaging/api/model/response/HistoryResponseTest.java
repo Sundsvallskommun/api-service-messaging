@@ -11,12 +11,8 @@ class HistoryResponseTest {
 
 	@Test
 	void testBuilderAndGetters() {
-		final var historyResponse = HistoryResponse.builder()
-			.withMessageType(WEB_MESSAGE)
-			.withStatus(SENT)
-			.withContent("someContent")
-			.withTimestamp(LocalDateTime.now())
-			.build();
+		final var historyResponse = HistoryResponse.builder().withMessageType(WEB_MESSAGE).withStatus(SENT)
+			.withContent("someContent").withTimestamp(LocalDateTime.now()).build();
 
 		assertThat(historyResponse).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(historyResponse.messageType()).isEqualTo(WEB_MESSAGE);

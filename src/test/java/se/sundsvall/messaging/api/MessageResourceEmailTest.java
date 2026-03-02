@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -41,6 +42,7 @@ import static se.sundsvall.messaging.TestDataFactory.createValidEmailRequest;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.EMAIL;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceEmailTest {
@@ -48,12 +50,8 @@ class MessageResourceEmailTest {
 	private static final String URL = "/" + MUNICIPALITY_ID + "/email";
 
 	private static final InternalDeliveryResult DELIVERY_RESULT = InternalDeliveryResult.builder()
-		.withMessageId("someMessageId")
-		.withDeliveryId("someDeliveryId")
-		.withMunicipalityId(MUNICIPALITY_ID)
-		.withMessageType(EMAIL)
-		.withStatus(SENT)
-		.build();
+		.withMessageId("someMessageId").withDeliveryId("someDeliveryId").withMunicipalityId(MUNICIPALITY_ID)
+		.withMessageType(EMAIL).withStatus(SENT).build();
 
 	@MockitoBean
 	private MessageService mockMessageService;
@@ -67,124 +65,13 @@ class MessageResourceEmailTest {
 	private static Stream<Arguments> requestProvider() {
 		final var validRequest = createValidEmailRequest();
 
-		return Stream.of(
-			Arguments.of("sender@sender.se", validRequest.party(), true),
+		return Stream.of(Arguments.of("sender@sender.se", validRequest.party(), true),
 			Arguments.of("sender@sender.se", validRequest.party(), false),
-			Arguments.of("sender@sender.se", null, true),
-			Arguments.of("sender@sender.se", null, false),
-			Arguments.of(null, null, true),
-			Arguments.of(null, null, false));
+			Arguments.of("sender@sender.se", null, true), Arguments.of("sender@sender.se", null, false),
+			Arguments.of(null, null, true), Arguments.of(null, null, false));
 	}
 
-	@ParameterizedTest
-	@MethodSource("requestProvider")
-	void sendSynchronous(String replyTo, Party party, boolean includeOptionalHeaders) {
-		// Arrange
-		var request = createValidEmailRequest();
-		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendEmail(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	@ParameterizedTest
-	@MethodSource("requestProvider")
-	void sendAsynchronous(String replyTo, Party party, boolean includeOptionalHeaders) {
-		// Arrange
-		var request = createValidEmailRequest();
-		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-
-		when(mockEventDispatcher.handleEmailRequest(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL + "?async=true")
-			.headers(handleHeaders(includeOptionalHeaders))
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockEventDispatcher).handleEmailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockMessageService);
-	}
-
-	@Test
-	void testOldHeadersShouldBePreserved() {
-		// Arrange
-		var request = createValidEmailRequest();
-		request = request.withParty(createValidEmailRequest().party()).withSender(request.sender().withReplyTo("sender@sender.se"));
-		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
-		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
-
-		// Act
-		final var response = webTestClient.post()
-			.uri(URL)
-			.headers(oldHeaders())
-			.contentType(APPLICATION_JSON)
-			.bodyValue(request)
-			.exchange()
-			.expectHeader().exists(LOCATION)
-			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$")
-			.expectStatus().isCreated()
-			.expectBody(MessageResult.class)
-			.returnResult()
-			.getResponseBody();
-
-		// Assert & verify
-		assertThat(response).isNotNull();
-		assertThat(response.messageId()).isEqualTo("someMessageId");
-		assertThat(response.deliveries()).isNotNull().hasSize(1);
-		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
-		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
-		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
-
-		verify(mockMessageService).sendEmail(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
-		verifyNoMoreInteractions(mockEventDispatcher);
-		verifyNoInteractions(mockEventDispatcher);
-	}
-
-	private static Consumer<HttpHeaders> handleHeaders(boolean includeOptionalHeaders) {
+	private static Consumer<HttpHeaders> handleHeaders(final boolean includeOptionalHeaders) {
 		return httpHeaders -> {
 			if (includeOptionalHeaders) {
 				httpHeaders.add(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE);
@@ -201,8 +88,96 @@ class MessageResourceEmailTest {
 		};
 	}
 
-	private static EmailRequest addHeaderValues(EmailRequest request) {
-		return request.withOrigin(X_ORIGIN_HEADER_VALUE)
-			.withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	private static EmailRequest addHeaderValues(final EmailRequest request) {
+		return request.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_SENT_BY_HEADER_USER_NAME);
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestProvider")
+	void sendSynchronous(final String replyTo, final Party party, final boolean includeOptionalHeaders) {
+		// Arrange
+		var request = createValidEmailRequest();
+		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(handleHeaders(includeOptionalHeaders))
+			.contentType(APPLICATION_JSON).bodyValue(request).exchange().expectHeader().exists(LOCATION)
+			.expectHeader().valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus()
+			.isCreated().expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService)
+			.sendEmail(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestProvider")
+	void sendAsynchronous(final String replyTo, final Party party, final boolean includeOptionalHeaders) {
+		// Arrange
+		var request = createValidEmailRequest();
+		request = request.withParty(party).withSender(request.sender().withReplyTo(replyTo));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+
+		when(mockEventDispatcher.handleEmailRequest(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL + "?async=true")
+			.headers(handleHeaders(includeOptionalHeaders)).contentType(APPLICATION_JSON).bodyValue(request)
+			.exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockEventDispatcher)
+			.handleEmailRequest(includeOptionalHeaders ? addHeaderValues(decoratedRequest) : decoratedRequest);
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockMessageService);
+	}
+
+	@Test
+	void testOldHeadersShouldBePreserved() {
+		// Arrange
+		var request = createValidEmailRequest();
+		request = request.withParty(createValidEmailRequest().party())
+			.withSender(request.sender().withReplyTo("sender@sender.se"));
+		final var decoratedRequest = request.withMunicipalityId(MUNICIPALITY_ID);
+		when(mockMessageService.sendEmail(any())).thenReturn(DELIVERY_RESULT);
+
+		// Act
+		final var response = webTestClient.post().uri(URL).headers(oldHeaders()).contentType(APPLICATION_JSON)
+			.bodyValue(request).exchange().expectHeader().exists(LOCATION).expectHeader()
+			.valuesMatch(LOCATION, "^/" + MUNICIPALITY_ID + "/status/messages/(.*)$").expectStatus().isCreated()
+			.expectBody(MessageResult.class).returnResult().getResponseBody();
+
+		// Assert & verify
+		assertThat(response).isNotNull();
+		assertThat(response.messageId()).isEqualTo("someMessageId");
+		assertThat(response.deliveries()).isNotNull().hasSize(1);
+		assertThat(response.deliveries().getFirst().messageType()).isEqualTo(EMAIL);
+		assertThat(response.deliveries().getFirst().deliveryId()).isEqualTo("someDeliveryId");
+		assertThat(response.deliveries().getFirst().status()).isEqualTo(SENT);
+
+		verify(mockMessageService)
+			.sendEmail(decoratedRequest.withOrigin(X_ORIGIN_HEADER_VALUE).withIssuer(X_ISSUER_HEADER_VALUE));
+		verifyNoMoreInteractions(mockEventDispatcher);
+		verifyNoInteractions(mockEventDispatcher);
 	}
 }

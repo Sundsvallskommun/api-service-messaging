@@ -12,17 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import static se.sundsvall.messaging.integration.contactsettings.ContactSettingsIntegration.INTEGRATION_NAME;
 
-@FeignClient(
-	name = INTEGRATION_NAME,
-	url = "${integration.contact-settings.base-url}",
-	configuration = ContactSettingsIntegrationConfiguration.class,
-	dismiss404 = true)
+@FeignClient(name = INTEGRATION_NAME, url = "${integration.contact-settings.base-url}", configuration = ContactSettingsIntegrationConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = INTEGRATION_NAME)
 interface ContactSettingsClient {
 
 	@GetMapping("/{municipalityId}/settings")
-	Optional<List<ContactSetting>> getSettings(
-		@PathVariable final String municipalityId,
+	Optional<List<ContactSetting>> getSettings(@PathVariable final String municipalityId,
 		@RequestParam("partyId") final String partyId,
 		@RequestParam("query") final MultiValueMap<String, String> filters);
 
