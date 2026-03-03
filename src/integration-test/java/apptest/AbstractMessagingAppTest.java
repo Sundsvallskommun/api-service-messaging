@@ -2,10 +2,22 @@ package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import se.sundsvall.dept44.common.validators.annotation.impl.ValidUuidConstraintValidator;
 import se.sundsvall.dept44.test.AbstractAppTest;
 
 abstract class AbstractMessagingAppTest extends AbstractAppTest {
+
+	@Autowired
+	private CircuitBreakerRegistry circuitBreakerRegistry;
+
+	@BeforeEach
+	void resetCircuitBreakers() {
+		circuitBreakerRegistry.getAllCircuitBreakers()
+			.forEach(cb -> cb.transitionToClosedState());
+	}
 
 	protected static final String X_SENT_BY_HEADER = "X-Sent-By";
 	protected static final String X_SENT_BY_HEADER_VALUE = "type=adAccount; joe01doe";

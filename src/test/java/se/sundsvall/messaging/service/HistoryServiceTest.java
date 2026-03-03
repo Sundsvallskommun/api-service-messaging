@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -32,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.UserMessage;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -42,6 +39,9 @@ import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -270,7 +270,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void createUserMessageTest() throws JsonProcessingException {
+	void createUserMessageTest() throws JacksonException {
 		final var municipalityId = "2281";
 		final var messageId = "someMessageId";
 		final var history = createHistoryEntity();
@@ -356,7 +356,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void extractAttachmentTest() throws JsonProcessingException {
+	void extractAttachmentTest() throws JacksonException {
 		final var history = createHistoryEntity();
 
 		final var jsonNodeMock = mock(JsonNode.class);
@@ -384,7 +384,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void createRecipientTest() throws JsonProcessingException {
+	void createRecipientTest() throws JacksonException {
 		final var municipalityId = "2281";
 		final var history = HistoryEntity.builder()
 			.withPartyId("partyId")
@@ -415,7 +415,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void createRecipientTest_nullPartyId() throws JsonProcessingException {
+	void createRecipientTest_nullPartyId() throws JacksonException {
 		final var municipalityId = "2281";
 		final var history = HistoryEntity.builder()
 			.withMessageType(MESSAGE)
@@ -441,7 +441,7 @@ class HistoryServiceTest {
 	}
 
 	@Test
-	void getUserMessageTest() throws JsonProcessingException {
+	void getUserMessageTest() throws JacksonException {
 		final var municipalityId = "2281";
 		final var history = createHistoryEntity();
 		final var messageId = history.getMessageId();

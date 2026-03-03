@@ -1,8 +1,5 @@
 package se.sundsvall.messaging.api.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
@@ -10,8 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -28,8 +24,12 @@ import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static se.sundsvall.messaging.Constants.BATCH_STATUS_PATH;
@@ -188,7 +188,7 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get batch status");
+			throw Problem.valueOf(NOT_FOUND, "Unable to get batch status");
 		}
 
 		// Grab the first (and only) "root" entry
@@ -216,7 +216,7 @@ public class ApiMapper {
 
 		// Sanity check - we should only have a single "root" entry, but just to be safe...
 		if (groupedHistory.size() != 1) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Unable to get message status");
+			throw Problem.valueOf(NOT_FOUND, "Unable to get message status");
 		}
 
 		// Grab the first (and only) "root" entry

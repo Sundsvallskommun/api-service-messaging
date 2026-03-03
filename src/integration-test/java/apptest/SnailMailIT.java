@@ -8,7 +8,6 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class SnailMailIT extends AbstractMessagingAppTest {
 	private HistoryRepository historyRepository;
 
 	@Test
-	void test1_sendSnailMail_successfulRequest() throws JsonProcessingException, ClassNotFoundException {
+	void test1_sendSnailMail_successfulRequest() throws ClassNotFoundException {
 		final var response = setupCall()
 			.withServicePath("/2281/snail-mail?batchId=ebaa0101-b68d-4736-9bdb-a99d74c27a71")
 			.withHeader(Identifier.HEADER_NAME, X_SENT_BY_HEADER_VALUE)

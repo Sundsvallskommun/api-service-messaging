@@ -14,9 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.response.Mailbox;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.messaging.TestDataFactory.MUNICIPALITY_ID;
 import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
@@ -84,17 +85,17 @@ class DigitalMailSenderIntegrationTest {
 		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class))).thenReturn(new DigitalMailRequest());
 		when(mockClient.sendDigitalMail(anyString(), anyString(), any(DigitalMailRequest.class)))
 			.thenThrow(Problem.builder()
-				.withStatus(Status.BAD_GATEWAY)
+				.withStatus(BAD_GATEWAY)
 				.withCause(Problem.builder()
-					.withStatus(Status.BAD_REQUEST)
+					.withStatus(BAD_REQUEST)
 					.build())
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> integration.sendDigitalMail(MUNICIPALITY_ID, ORGANIZATION_NUMBER, createDigitalMailDto()))
 			.satisfies(problem -> {
-				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
+				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(((ThrowableProblem) cause).getStatus()).isEqualTo(BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
@@ -123,17 +124,17 @@ class DigitalMailSenderIntegrationTest {
 		when(mockMapper.toDigitalInvoiceRequest(any(DigitalInvoiceDto.class))).thenReturn(new DigitalInvoiceRequest());
 		when(mockClient.sendDigitalInvoice(anyString(), any(DigitalInvoiceRequest.class)))
 			.thenThrow(Problem.builder()
-				.withStatus(Status.BAD_GATEWAY)
+				.withStatus(BAD_GATEWAY)
 				.withCause(Problem.builder()
-					.withStatus(Status.BAD_REQUEST)
+					.withStatus(BAD_REQUEST)
 					.build())
 				.build());
 
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> integration.sendDigitalInvoice(MUNICIPALITY_ID, createDigitalInvoiceDto()))
 			.satisfies(problem -> {
-				assertThat(problem.getStatus()).isEqualTo(Status.BAD_GATEWAY);
-				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(cause.getStatus()).isEqualTo(Status.BAD_REQUEST));
+				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
+				assertThat(problem.getCause()).isNotNull().satisfies(cause -> assertThat(((ThrowableProblem) cause).getStatus()).isEqualTo(BAD_REQUEST));
 			});
 
 		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
