@@ -1,38 +1,35 @@
 package se.sundsvall.messaging.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonFactoryBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadConstraints;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.lang.reflect.Type;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
-import static com.fasterxml.jackson.databind.type.TypeFactory.rawClass;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static tools.jackson.databind.type.TypeFactory.rawClass;
 
 public final class JsonUtils {
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(
-		new JsonFactoryBuilder()
+	private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder(
+		JsonFactory.builder()
 			.streamReadConstraints(
 				StreamReadConstraints
 					.builder()
 					.maxStringLength(Integer.MAX_VALUE)
 					.build())
 			.build())
-		.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
-		.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-		.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-		.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false)
-		.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
-		.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-		.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
-		.registerModule(new JavaTimeModule());
+		.changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_NULL))
+		.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+		.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+		.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+		.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+		.build();
 
 	private JsonUtils() {}
 
@@ -47,11 +44,7 @@ public final class JsonUtils {
 			return null;
 		}
 
-		try {
-			return OBJECT_MAPPER.writeValueAsString(value);
-		} catch (final JsonProcessingException e) {
-			throw new RuntimeJsonProcessingException(e);
-		}
+		return OBJECT_MAPPER.writeValueAsString(value);
 	}
 
 	/**
@@ -73,11 +66,7 @@ public final class JsonUtils {
 			return null;
 		}
 
-		try {
-			return OBJECT_MAPPER.readValue(json, typeReference);
-		} catch (final JsonProcessingException e) {
-			throw new RuntimeJsonProcessingException(e);
-		}
+		return OBJECT_MAPPER.readValue(json, typeReference);
 	}
 
 	public static <T> T fromJson(final String json, final Class<T> valueType) {
@@ -85,22 +74,6 @@ public final class JsonUtils {
 			return null;
 		}
 
-		try {
-			return OBJECT_MAPPER.readValue(json, valueType);
-		} catch (final JsonProcessingException e) {
-			throw new RuntimeJsonProcessingException(e);
-		}
-	}
-
-	/**
-	 * Unchecked variant/wrapper of {@link JsonProcessingException}.
-	 */
-	static class RuntimeJsonProcessingException extends RuntimeException {
-
-		private static final long serialVersionUID = 2058498165913771606L;
-
-		RuntimeJsonProcessingException(final JsonProcessingException cause) {
-			super(cause);
-		}
+		return OBJECT_MAPPER.readValue(json, valueType);
 	}
 }

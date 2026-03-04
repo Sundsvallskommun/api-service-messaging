@@ -12,7 +12,7 @@ import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import(FeignConfiguration.class)
 class DigitalMailSenderIntegrationConfiguration {
@@ -28,7 +28,7 @@ class DigitalMailSenderIntegrationConfiguration {
 		return FeignMultiCustomizer.create()
 			.withRetryableOAuth2InterceptorForClientRegistration(clientRegistration())
 			.withRequestOptions(requestOptions())
-			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.getStatusCode())))
+			.withErrorDecoder(new ProblemErrorDecoder(DigitalMailSenderIntegration.INTEGRATION_NAME, List.of(NOT_FOUND.value())))
 			.composeCustomizersToOne();
 	}
 

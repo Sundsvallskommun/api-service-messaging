@@ -1,9 +1,7 @@
 package se.sundsvall.messaging.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,12 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
-import org.hibernate.engine.jdbc.internal.BinaryStreamImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
-import org.zalando.problem.Problem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.api.model.response.UserBatches;
 import se.sundsvall.messaging.api.model.response.UserMessage;
@@ -34,6 +31,9 @@ import se.sundsvall.messaging.model.History;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.model.Attachment;
 import se.sundsvall.messaging.util.FilterUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
@@ -43,7 +43,7 @@ import static java.util.stream.Collectors.toCollection;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
@@ -119,7 +119,7 @@ public class HistoryService {
 		response.addHeader(CONTENT_LENGTH, String.valueOf(decodedContent.length));
 		response.setContentLength(decodedContent.length);
 
-		final var binaryStream = new BinaryStreamImpl(decodedContent);
+		final var binaryStream = new ByteArrayInputStream(decodedContent);
 		StreamUtils.copy(binaryStream, response.getOutputStream());
 	}
 
@@ -202,7 +202,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return "";
 		}
 		return ofNullable(content.get("message")).map(JsonNode::asText).orElse(null);
@@ -212,7 +212,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return null;
 		}
 		return ofNullable(content.get("mobileNumber")).map(JsonNode::asText).orElse(null);
@@ -222,7 +222,7 @@ public class HistoryService {
 		JsonNode content;
 		try {
 			content = objectMapper.readTree(history.getContent());
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return "";
 		}
 		return ofNullable(content.get("subject")).map(JsonNode::asText).orElse(null);
@@ -241,7 +241,7 @@ public class HistoryService {
 			final var jsonNode = objectMapper.readTree(history.getContent());
 			final var attachmentsField = getAttachmentsField(messageType);
 			attachmentsNode = jsonNode.get(attachmentsField);
-		} catch (final JsonProcessingException ignored) {
+		} catch (final JacksonException ignored) {
 			return emptyList();
 		}
 

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,6 +29,7 @@ import static se.sundsvall.messaging.TestDataFactory.ORGANIZATION_NUMBER;
 import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER;
 import static se.sundsvall.messaging.TestDataFactory.X_SENT_BY_HEADER_VALUE;
 
+@AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @ActiveProfiles("junit")
 class MessageResourceMailboxesTest {

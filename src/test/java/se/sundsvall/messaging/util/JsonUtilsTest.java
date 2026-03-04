@@ -1,18 +1,17 @@
 package se.sundsvall.messaging.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static se.sundsvall.messaging.test.assertj.Assertions.assertThat;
 
 class JsonUtilsTest {
 
-	record Person(String name, String emailAddress) {}
-
 	@Test
 	void toJson() {
-		var person = new Person("Bob", "bob@something.com");
+		final var person = new Person("Bob", "bob@something.com");
 
 		assertThat(JsonUtils.toJson(person)).isEqualTo("{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}");
 	}
@@ -24,9 +23,9 @@ class JsonUtilsTest {
 
 	@Test
 	void fromJsonUsingClass() {
-		var json = "{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}";
+		final var json = "{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}";
 
-		var person = JsonUtils.fromJson(json, Person.class);
+		final var person = JsonUtils.fromJson(json, Person.class);
 
 		assertThat(person).isNotNull();
 		assertThat(person.name).isEqualTo("Bob");
@@ -45,15 +44,16 @@ class JsonUtilsTest {
 
 	@Test
 	void fromJsonWithInvalidJsonUsingClass() {
-		assertThatExceptionOfType(JsonUtils.RuntimeJsonProcessingException.class)
+		assertThatExceptionOfType(JacksonException.class)
 			.isThrownBy(() -> JsonUtils.fromJson("{", Person.class));
 	}
 
 	@Test
 	void fromJsonUsingTypeReference() {
-		var json = "{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}";
+		final var json = "{\"name\":\"Bob\",\"emailAddress\":\"bob@something.com\"}";
 
-		var person = JsonUtils.fromJson(json, new TypeReference<Person>() {});
+		final var person = JsonUtils.fromJson(json, new TypeReference<Person>() {
+		});
 
 		assertThat(person).isNotNull();
 		assertThat(person.name).isEqualTo("Bob");
@@ -62,17 +62,25 @@ class JsonUtilsTest {
 
 	@Test
 	void fromJsonWithNullJsonUsingTypeReference() {
-		assertThat(JsonUtils.fromJson(null, new TypeReference<Person>() {})).isNull();
+		assertThat(JsonUtils.fromJson(null, new TypeReference<Person>() {
+		})).isNull();
 	}
 
 	@Test
 	void fromJsonWithBlankJsonUsingTypeReference() {
-		assertThat(JsonUtils.fromJson("", new TypeReference<Person>() {})).isNull();
+		assertThat(JsonUtils.fromJson("", new TypeReference<Person>() {
+		})).isNull();
 	}
 
 	@Test
 	void fromJsonWithInvalidJsonUsingTypeReference() {
-		assertThatExceptionOfType(JsonUtils.RuntimeJsonProcessingException.class)
-			.isThrownBy(() -> JsonUtils.fromJson("{", new TypeReference<Person>() {}));
+		final var typeReference = new TypeReference<Person>() {
+		};
+
+		assertThatExceptionOfType(JacksonException.class)
+			.isThrownBy(() -> JsonUtils.fromJson("{", typeReference));
+	}
+
+	record Person(String name, String emailAddress) {
 	}
 }

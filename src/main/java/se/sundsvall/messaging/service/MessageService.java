@@ -14,9 +14,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.LinkedMultiValueMap;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.DigitalInvoiceRequest;
 import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
@@ -47,6 +46,7 @@ import se.sundsvall.messaging.service.mapper.RequestMapper;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.messaging.api.util.RequestCleaner.cleanSenderName;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.NO_CONTACT;
 import static se.sundsvall.messaging.integration.contactsettings.ContactDto.ContactMethod.UNKNOWN;
@@ -502,7 +502,7 @@ public class MessageService {
 			if (e instanceof final ThrowableProblem eAsThrowableProblem) {
 				throwableProblem = eAsThrowableProblem;
 			} else {
-				throwableProblem = Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
+				throwableProblem = Problem.valueOf(INTERNAL_SERVER_ERROR, "Unable to deliver " + delivery.type());
 			}
 
 			// Archive the message with FAILED status
