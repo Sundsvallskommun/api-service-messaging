@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>8.0.2</version>
+		<version>8.0.4</version>
 		<relativePath />
 	</parent>
 	<groupId>se.sundsvall.messaging</groupId>
@@ -30,13 +30,8 @@
 			<artifactId>dept44-models</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-testcontainers</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>testcontainers-mariadb</artifactId>
+			<groupId>se.sundsvall.dept44</groupId>
+			<artifactId>dept44-starter-jpa-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -54,15 +49,10 @@
 			<groupId>se.sundsvall.dept44</groupId>
 			<artifactId>dept44-common-validators</artifactId>
 		</dependency>
-		<!-- Spring Boot -->
+		<!-- Database -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.hypersistence</groupId>
-			<artifactId>hypersistence-utils-hibernate-70</artifactId>
-			<version>${hypersistence-utils.version}</version>
+			<groupId>se.sundsvall.dept44</groupId>
+			<artifactId>dept44-starter-jpa</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
@@ -70,16 +60,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-mysql</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-flyway</artifactId>
+			<groupId>io.hypersistence</groupId>
+			<artifactId>hypersistence-utils-hibernate-70</artifactId>
+			<version>${hypersistence-utils.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
