@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.MethodMode;
+
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageBatchResult;
@@ -89,7 +89,6 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test3_successfulBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
@@ -99,6 +98,7 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
+			.withMaxVerificationDelayInSeconds(10)
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -132,7 +132,6 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test4_internalServerErrorFromSmsSenderOnBatch() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
@@ -141,6 +140,7 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
+			.withMaxVerificationDelayInSeconds(10)
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -211,7 +211,6 @@ class SmsIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
-	@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
 		final var response = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
@@ -221,6 +220,7 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
+			.withMaxVerificationDelayInSeconds(10)
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
