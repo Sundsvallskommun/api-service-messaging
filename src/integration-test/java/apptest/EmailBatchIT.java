@@ -43,6 +43,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withExpectedResponse("response.json")
+			.withMaxVerificationDelayInSeconds(10)
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
@@ -82,6 +83,7 @@ class EmailBatchIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withExpectedResponse(RESPONSE_FILE)
+			.withMaxVerificationDelayInSeconds(10)
 			.sendRequestAndVerifyResponse()
 			.andReturnBody(MessageBatchResult.class);
 
