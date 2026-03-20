@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.response.Mailbox;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static java.util.Optional.ofNullable;
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
@@ -29,19 +29,21 @@ public class DigitalMailSenderIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendDigitalMail(final String municipalityId, final String organizationNumber, final DigitalMailDto dto) {
+	public MessageOutcome sendDigitalMail(final String municipalityId, final String organizationNumber, final DigitalMailDto dto) {
 		final var response = client.sendDigitalMail(municipalityId, organizationNumber, mapper.toDigitalMailRequest(dto));
 
-		final var success = response.getStatusCode().is2xxSuccessful() &&
-			ofNullable(response.getBody())
-				.map(DigitalMailResponse::getDeliveryStatus)
-				.map(DeliveryStatus::getDelivered)
-				.orElse(false);
+		final var body = ofNullable(response.getBody());
+		final var deliveryStatus = body.map(DigitalMailResponse::getDeliveryStatus);
 
-		return success ? SENT : NOT_SENT;
+		final var success = response.getStatusCode().is2xxSuccessful() &&
+			deliveryStatus.map(DeliveryStatus::getDelivered).orElse(false);
+
+		final var transactionId = deliveryStatus.map(DeliveryStatus::getTransactionId).orElse(null);
+
+		return new MessageOutcome(success ? SENT : NOT_SENT, transactionId);
 	}
 
-	public MessageStatus sendDigitalInvoice(final String municipalityId, final DigitalInvoiceDto dto) {
+	public MessageOutcome sendDigitalInvoice(final String municipalityId, final DigitalInvoiceDto dto) {
 		final var response = client.sendDigitalInvoice(municipalityId, mapper.toDigitalInvoiceRequest(dto));
 
 		final var success = response.getStatusCode().is2xxSuccessful() &&
@@ -49,7 +51,7 @@ public class DigitalMailSenderIntegration {
 				.map(DigitalInvoiceResponse::getSent)
 				.orElse(false);
 
-		return success ? SENT : NOT_SENT;
+		return new MessageOutcome(success ? SENT : NOT_SENT);
 	}
 
 	public List<Mailbox> getMailboxes(final String municipalityId, final String organizationNumber, final List<String> partyIds) {

@@ -18,6 +18,6 @@ public record History(
 	String issuer,
 	LocalDateTime createdAt,
 	String municipalityId,
-	String organizationNumber) {
-
+	String organizationNumber,
+	String digitalMailTransactionId) {
 }

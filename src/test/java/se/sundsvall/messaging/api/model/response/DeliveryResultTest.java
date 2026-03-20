@@ -16,7 +16,7 @@ class DeliveryResultTest {
 			.withStatus(SENT)
 			.build();
 
-		assertThat(deliveryResult).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(deliveryResult).isNotNull().hasNoNullFieldsOrPropertiesExcept("digitalMailTransactionId");
 		assertThat(deliveryResult.deliveryId()).isEqualTo("someDeliveryId");
 		assertThat(deliveryResult.messageType()).isEqualTo(SMS);
 		assertThat(deliveryResult.status()).isEqualTo(SENT);

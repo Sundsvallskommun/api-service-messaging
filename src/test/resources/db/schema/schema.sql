@@ -5,6 +5,7 @@ create table history (
                          organization_number varchar(12),
                          batch_id varchar(36),
                          delivery_id varchar(36),
+                         digital_mail_transaction_id varchar(36),
                          message_id varchar(36) not null,
                          party_id varchar(36),
                          content LONGTEXT,

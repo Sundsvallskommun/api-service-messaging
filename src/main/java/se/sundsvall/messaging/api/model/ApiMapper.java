@@ -57,6 +57,7 @@ public class ApiMapper {
 					.withDeliveryId(deliveryResult.deliveryId())
 					.withMessageType(deliveryResult.messageType())
 					.withStatus(deliveryResult.status())
+					.withDigitalMailTransactionId(deliveryResult.digitalMailTransactionId())
 					.build()))
 				.build());
 	}
@@ -81,6 +82,7 @@ public class ApiMapper {
 								.withDeliveryId(delivery.deliveryId())
 								.withMessageType(delivery.messageType())
 								.withStatus(delivery.status())
+								.withDigitalMailTransactionId(delivery.digitalMailTransactionId())
 								.build())
 							.toList())
 						.build())
@@ -93,6 +95,7 @@ public class ApiMapper {
 			.withDeliveryId(deliveryHistory.deliveryId())
 			.withMessageType(deliveryHistory.messageType())
 			.withStatus(deliveryHistory.status())
+			.withDigitalMailTransactionId(deliveryHistory.digitalMailTransactionId())
 			.build();
 	}
 

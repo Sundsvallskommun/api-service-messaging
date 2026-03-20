@@ -3,6 +3,7 @@ package se.sundsvall.messaging.integration.db.mapper;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.api.model.response.Batch;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
@@ -40,11 +41,11 @@ class HistoryMapperTest {
 			.withOriginalMessageType(DIGITAL_MAIL)
 			.withCreatedAt(LocalDateTime.now())
 			.withOrganizationNumber("1234567890")
+			.withDigitalMailTransactionId(UUID.randomUUID().toString())
 			.build();
 
 		final var history = HistoryMapper.mapToHistory(historyEntity);
 
-		assertThat(history).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(history.batchId()).isEqualTo(historyEntity.getBatchId());
 		assertThat(history.messageId()).isEqualTo(historyEntity.getMessageId());
 		assertThat(history.deliveryId()).isEqualTo(historyEntity.getDeliveryId());
@@ -57,6 +58,7 @@ class HistoryMapperTest {
 		assertThat(history.issuer()).isEqualTo(historyEntity.getIssuer());
 		assertThat(history.originalMessageType()).isEqualTo(historyEntity.getOriginalMessageType());
 		assertThat(history.organizationNumber()).isEqualTo(historyEntity.getOrganizationNumber());
+		assertThat(history.digitalMailTransactionId()).isEqualTo(historyEntity.getDigitalMailTransactionId());
 	}
 
 	@Test
@@ -82,6 +84,7 @@ class HistoryMapperTest {
 			.withMunicipalityId("someMunicipalityId")
 			.withAddress(address)
 			.withOrganizationNumber("1234567890")
+			.withDigitalMailTransactionId(UUID.randomUUID().toString())
 			.build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
@@ -103,6 +106,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 		assertThat(historyEntity.getDestinationAddress()).isEqualTo(address);
 		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
+		assertThat(historyEntity.getDigitalMailTransactionId()).isEqualTo(message.digitalMailTransactionId());
 	}
 
 	@Test
@@ -119,6 +123,7 @@ class HistoryMapperTest {
 			.withOrigin("someOrigin")
 			.withMunicipalityId("someMunicipalityId")
 			.withOrganizationNumber("1234567890")
+			.withDigitalMailTransactionId(UUID.randomUUID().toString())
 			.build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
@@ -136,6 +141,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getDepartment()).isNull();
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
 		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
+		assertThat(historyEntity.getDigitalMailTransactionId()).isEqualTo(message.digitalMailTransactionId());
 	}
 
 	@Test
@@ -150,6 +156,7 @@ class HistoryMapperTest {
 			.withStatus(FAILED)
 			.withOrigin("someOrigin")
 			.withMunicipalityId("someMunicipalityId")
+			.withDigitalMailTransactionId(UUID.randomUUID().toString())
 			.build();
 
 		final var historyEntity = HistoryMapper.mapToHistoryEntity(message, statusDetail);
@@ -166,6 +173,7 @@ class HistoryMapperTest {
 		assertThat(historyEntity.getCreatedAt()).isNotNull();
 		assertThat(historyEntity.getDepartment()).isNull();
 		assertThat(historyEntity.getMunicipalityId()).isEqualTo(message.municipalityId());
+		assertThat(historyEntity.getOrganizationNumber()).isEqualTo(message.organizationNumber());
 	}
 
 	@Test

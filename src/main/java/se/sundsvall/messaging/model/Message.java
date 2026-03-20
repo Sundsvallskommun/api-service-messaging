@@ -18,4 +18,5 @@ public record Message(
 	String origin,
 	String issuer,
 	String municipalityId,
-	String organizationNumber) {}
+	String organizationNumber,
+	String digitalMailTransactionId) {}

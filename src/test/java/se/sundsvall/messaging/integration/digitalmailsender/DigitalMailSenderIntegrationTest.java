@@ -7,6 +7,7 @@ import generated.se.sundsvall.digitalmailsender.DigitalMailRequest;
 import generated.se.sundsvall.digitalmailsender.DigitalMailResponse;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.response.Mailbox;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -65,16 +67,17 @@ class DigitalMailSenderIntegrationTest {
 
 	@Test
 	void test_sendDigitalMail() {
+		final var transactionId = UUID.randomUUID().toString();
 		when(mockMapper.toDigitalMailRequest(any(DigitalMailDto.class)))
 			.thenReturn(new DigitalMailRequest());
 		when(mockDigitalMailResponseEntity.getStatusCode()).thenReturn(OK);
 		when(mockDigitalMailResponseEntity.getBody()).thenReturn(new DigitalMailResponse()
-			.deliveryStatus(new DeliveryStatus().delivered(true)));
+			.deliveryStatus(new DeliveryStatus().delivered(true).transactionId(transactionId)));
 		when(mockClient.sendDigitalMail(anyString(), anyString(), any(DigitalMailRequest.class)))
 			.thenReturn(mockDigitalMailResponseEntity);
 
 		final var response = integration.sendDigitalMail(MUNICIPALITY_ID, ORGANIZATION_NUMBER, createDigitalMailDto());
-		assertThat(response).isEqualTo(SENT);
+		assertThat(response).isEqualTo(new MessageOutcome(SENT, transactionId));
 
 		verify(mockMapper, times(1)).toDigitalMailRequest(any(DigitalMailDto.class));
 		verify(mockClient, times(1)).sendDigitalMail(anyString(), eq(ORGANIZATION_NUMBER), any(DigitalMailRequest.class));
@@ -113,7 +116,7 @@ class DigitalMailSenderIntegrationTest {
 			.thenReturn(mockDigitalInvoiceResponseEntity);
 
 		final var response = integration.sendDigitalInvoice(MUNICIPALITY_ID, createDigitalInvoiceDto());
-		assertThat(response).isEqualTo(SENT);
+		assertThat(response).isEqualTo(new MessageOutcome(SENT));
 
 		verify(mockMapper, times(1)).toDigitalInvoiceRequest(any(DigitalInvoiceDto.class));
 		verify(mockClient, times(1)).sendDigitalInvoice(anyString(), any(DigitalInvoiceRequest.class));

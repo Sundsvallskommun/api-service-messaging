@@ -2,7 +2,7 @@ package se.sundsvall.messaging.integration.snailmailsender;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -22,10 +22,10 @@ public class SnailMailSenderIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendSnailMail(final String municipalityId, final SnailMailDto dto) {
-		var response = client.sendSnailmail(dto.sentBy(), dto.sentBy(), dto.origin(), municipalityId, mapper.toSendSnailmailRequest(dto));
+	public MessageOutcome sendSnailMail(final String municipalityId, final SnailMailDto dto) {
+		final var response = client.sendSnailmail(dto.sentBy(), dto.sentBy(), dto.origin(), municipalityId, mapper.toSendSnailmailRequest(dto));
 
-		return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
+		return new MessageOutcome(response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT);
 	}
 
 	public void sendBatch(final String municipalityId, final String batchId) {

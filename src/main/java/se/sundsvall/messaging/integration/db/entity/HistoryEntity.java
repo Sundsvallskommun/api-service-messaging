@@ -111,11 +111,14 @@ public class HistoryEntity {
 	@Column(name = "organization_number", length = 12)
 	private String organizationNumber;
 
+	@Column(name = "digital_mail_transaction_id", length = 36)
+	private String digitalMailTransactionId;
+
 	@Builder(setterPrefix = "with")
 	private HistoryEntity(final Long id, final String batchId, final String messageId, final String deliveryId, final String partyId,
 		final MessageType messageType, final MessageType originalMessageType, final MessageStatus status, final String statusDetail,
 		final String content, final String origin, final String issuer, final String department, final LocalDateTime createdAt,
-		final String municipalityId, final Address destinationAddress, final String organizationNumber) {
+		final String municipalityId, final Address destinationAddress, final String organizationNumber, final String digitalMailTransactionId) {
 		this.id = id;
 		this.batchId = batchId;
 		this.messageId = messageId;
@@ -133,6 +136,7 @@ public class HistoryEntity {
 		this.municipalityId = municipalityId;
 		this.destinationAddress = destinationAddress;
 		this.organizationNumber = organizationNumber;
+		this.digitalMailTransactionId = digitalMailTransactionId;
 	}
 
 	String getDestinationAddressJson() {

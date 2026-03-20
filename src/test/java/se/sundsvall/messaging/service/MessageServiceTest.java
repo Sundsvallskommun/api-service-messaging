@@ -43,6 +43,7 @@ import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ContentType;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
+import se.sundsvall.messaging.model.MessageOutcome;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.model.MessageType;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
@@ -147,7 +148,7 @@ class MessageServiceTest {
 			mockSnailMailSenderIntegration,
 			mockSlackIntegration);
 
-		when(mockTransactionTemplate.execute(any(TransactionCallbackWithoutResult.class)))
+		Mockito.lenient().when(mockTransactionTemplate.execute(any(TransactionCallbackWithoutResult.class)))
 			.then(invocationOnMock -> {
 				final var args = invocationOnMock.getArguments();
 				final var arg = (TransactionCallbackWithoutResult) args[0];
@@ -164,10 +165,10 @@ class MessageServiceTest {
 		var message = mockMessageMapper.toMessage(snailmailRequest, batchId);
 
 		var deliveryResult = new InternalDeliveryResult("messageId", "deliveryId", MessageType.SNAIL_MAIL,
-			MessageStatus.SENT, MUNICIPALITY_ID);
+			MessageStatus.SENT, MUNICIPALITY_ID, null);
 
 		when(mockDbIntegration.saveMessage(any())).thenReturn(message);
-		when(spy.deliver(message)).thenReturn(deliveryResult);
+		Mockito.doReturn(deliveryResult).when(spy).deliver(message);
 
 		var result = spy.sendSnailMail(snailmailRequest, batchId);
 
@@ -182,7 +183,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request, BATCH_ID);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockSmsSenderIntegration.sendSms(eq(request.municipalityId()), any(SmsDto.class))).thenReturn(SENT);
+		when(mockSmsSenderIntegration.sendSms(eq(request.municipalityId()), any(SmsDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendSms(request);
 
@@ -213,7 +214,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request, BATCH_ID);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockEmailSenderIntegration.sendEmail(eq(request.municipalityId()), any(EmailDto.class))).thenReturn(SENT);
+		when(mockEmailSenderIntegration.sendEmail(eq(request.municipalityId()), any(EmailDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendEmail(request);
 
@@ -244,7 +245,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request, BATCH_ID);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockOepIntegratorIntegration.sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class), anyList())).thenReturn(SENT);
+		when(mockOepIntegratorIntegration.sendWebMessage(eq(request.municipalityId()), any(WebMessageDto.class), anyList())).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendWebMessage(request);
 
@@ -275,7 +276,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request, BATCH_ID);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockSlackIntegration.sendMessage(any(SlackDto.class))).thenReturn(SENT);
+		when(mockSlackIntegration.sendMessage(any(SlackDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendToSlack(request);
 
@@ -306,7 +307,7 @@ class MessageServiceTest {
 		final var messages = mockMessageMapper.toMessages(request, BATCH_ID, ORGANIZATION_NUMBER);
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendDigitalMail(request, ORGANIZATION_NUMBER);
 
@@ -339,7 +340,7 @@ class MessageServiceTest {
 		final var message = mockMessageMapper.toMessage(request, BATCH_ID);
 
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenReturn(message);
-		when(mockDigitalMailSenderIntegration.sendDigitalInvoice(eq(request.municipalityId()), any(DigitalInvoiceDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalInvoice(eq(request.municipalityId()), any(DigitalInvoiceDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendDigitalInvoice(request);
 
@@ -371,8 +372,8 @@ class MessageServiceTest {
 
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(SENT);
-		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any(SnailMailDto.class))).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(new MessageOutcome(SENT));
+		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any(SnailMailDto.class))).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendLetter(request, ORGANIZATION_NUMBER);
 
@@ -417,8 +418,8 @@ class MessageServiceTest {
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
 		when(mockCitizenIntegration.getCitizenAddress(request.party().partyIds().getFirst(), request.municipalityId())).thenReturn(request.party().addresses().getFirst());
-		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(NOT_SENT);
-		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(SENT);
+		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenReturn(new MessageOutcome(NOT_SENT));
+		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendLetter(request, ORGANIZATION_NUMBER);
 
@@ -461,8 +462,8 @@ class MessageServiceTest {
 		when(mockDbIntegration.saveMessages(anyList())).thenReturn(messages);
 		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(i -> i.getArgument(0, Message.class));
 		when(mockDigitalMailSenderIntegration.sendDigitalMail(eq(request.municipalityId()), anyString(), any(DigitalMailDto.class))).thenThrow(new RuntimeException());
-		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(SENT);
-		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(SENT);
+		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(new MessageOutcome(SENT));
+		when(mockSnailMailSenderIntegration.sendSnailMail(eq(request.municipalityId()), any())).thenReturn(new MessageOutcome(SENT));
 
 		final var result = messageService.sendLetter(request, ORGANIZATION_NUMBER);
 
@@ -566,8 +567,8 @@ class MessageServiceTest {
 		when(mockContactSettingsIntegration.getContactSettings(eq("2281"), eq("partyId4"), any()))
 			.thenReturn(List.of());
 
-		when(mockSmsSenderIntegration.sendSms(anyString(), any(SmsDto.class))).thenReturn(SENT);
-		when(mockEmailSenderIntegration.sendEmail(anyString(), any(EmailDto.class))).thenReturn(FAILED);
+		when(mockSmsSenderIntegration.sendSms(anyString(), any(SmsDto.class))).thenReturn(new MessageOutcome(SENT));
+		when(mockEmailSenderIntegration.sendEmail(anyString(), any(EmailDto.class))).thenReturn(new MessageOutcome(FAILED));
 
 		final var result = messageService.sendMessages(request);
 
