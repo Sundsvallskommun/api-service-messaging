@@ -7,8 +7,7 @@
 				{
 					"deliveryId": "${json-unit.regex}^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$",
 					"messageType": "DIGITAL_MAIL",
-					"status": "SENT",
-					"digitalMailTransactionId": "${json-unit.regex}^[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$"
+					"status": "SENT"
 				}
 			]
 		}

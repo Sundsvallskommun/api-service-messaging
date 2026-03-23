@@ -1953,9 +1953,6 @@ components:
         status:
           $ref: "#/components/schemas/MessageStatus"
           description: Status
-        digitalMailTransactionId:
-          type: string
-          description: Transaction id from digital mail provider
     MessageBatchResult:
       type: object
       description: Message batch result

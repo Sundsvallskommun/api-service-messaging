@@ -49,8 +49,6 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 
 		final var messageId = response.messages().getFirst().messageId();
 		final var batchId = response.batchId();
-		final var digitalMailTransactionId = response.messages().getFirst().deliveries().getFirst().digitalMailTransactionId();
-
 		// Make sure we received a message id and a batch id as proper UUID:s
 		assertValidUuid(messageId);
 		assertValidUuid(batchId);
@@ -71,7 +69,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
 						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 						assertThat(historyEntry.getOrganizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
-						assertThat(historyEntry.getDigitalMailTransactionId()).isEqualTo(digitalMailTransactionId);
+						assertThat(historyEntry.getDigitalMailTransactionId()).isNotNull();
 					});
 
 				return true;

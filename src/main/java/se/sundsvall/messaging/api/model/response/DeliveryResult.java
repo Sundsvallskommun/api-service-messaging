@@ -13,6 +13,4 @@ public record DeliveryResult(
 
 	@Schema(description = "Message type", enumAsRef = true) MessageType messageType,
 
-	@Schema(description = "Status", enumAsRef = true) MessageStatus status,
-
-	@Schema(description = "Transaction id from digital mail provider") String digitalMailTransactionId) {}
+	@Schema(description = "Status", enumAsRef = true) MessageStatus status) {}
