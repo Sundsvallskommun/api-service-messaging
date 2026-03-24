@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.dept44.problem.ThrowableProblem;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,7 +39,7 @@ class SlackIntegrationTest {
 
 		var status = slackIntegration.sendMessage(slackDto);
 
-		assertThat(status).isEqualTo(SENT);
+		assertThat(status).isEqualTo(new MessageOutcome(SENT));
 
 		verify(mockMethodsClient, times(1)).chatPostMessage(any(ChatPostMessageRequest.class));
 	}

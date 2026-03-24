@@ -49,7 +49,7 @@ class MessageResourceSnailMailTest {
 
 		when(mockMessageService.sendSnailMail(any(), any()))
 			.thenReturn(new InternalDeliveryResult("messageId", "deliveryId", MessageType.SNAIL_MAIL,
-				MessageStatus.SENT, MUNICIPALITY_ID));
+				MessageStatus.SENT, MUNICIPALITY_ID, null));
 
 		var response = webTestClient.post()
 			.uri("/2281/snail-mail?batchId=f427952b-247c-4d3b-b081-675a467b3619")

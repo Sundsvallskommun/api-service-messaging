@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.model;
 
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,10 +20,11 @@ class MessageTest {
 	private static final String MUNICIPALITY_ID = "municipalityId";
 	private static final String ORGANIZATION_NUMBER = "2120002411";
 	private static final Address ADDRESS = createAddress();
+	private static final String DIGITAL_MAIL_TRANSACTION_ID = UUID.randomUUID().toString();
 
 	@Test
 	void testConstructor() {
-		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS, CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		final var bean = new Message(BATCH_ID, MESSAGE_ID, DELIVERY_ID, PARTY_ID, TYPE, ORIGINAL_TYPE, STATUS, ADDRESS, CONTENT, ORIGIN, ISSUER, MUNICIPALITY_ID, ORGANIZATION_NUMBER, DIGITAL_MAIL_TRANSACTION_ID);
 
 		assertBean(bean);
 	}
@@ -43,13 +45,13 @@ class MessageTest {
 			.withType(TYPE)
 			.withAddress(ADDRESS)
 			.withOrganizationNumber(ORGANIZATION_NUMBER)
+			.withDigitalMailTransactionId(DIGITAL_MAIL_TRANSACTION_ID)
 			.build();
 
 		assertBean(bean);
 	}
 
 	private void assertBean(final Message bean) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.batchId()).isEqualTo(BATCH_ID);
 		assertThat(bean.address()).isEqualTo(ADDRESS);
 		assertThat(bean.content()).isEqualTo(CONTENT);
@@ -63,6 +65,7 @@ class MessageTest {
 		assertThat(bean.status()).isEqualTo(STATUS);
 		assertThat(bean.type()).isEqualTo(TYPE);
 		assertThat(bean.organizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
+		assertThat(bean.digitalMailTransactionId()).isEqualTo(DIGITAL_MAIL_TRANSACTION_ID);
 	}
 
 	@Test

@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -23,7 +23,7 @@ public class SlackIntegration {
 		this.methodsClient = methodsClient;
 	}
 
-	public MessageStatus sendMessage(final SlackDto dto) {
+	public MessageOutcome sendMessage(final SlackDto dto) {
 		try {
 			var request = ChatPostMessageRequest.builder()
 				.token(dto.token())
@@ -39,7 +39,7 @@ public class SlackIntegration {
 			var response = methodsClient.chatPostMessage(request);
 
 			if (response.isOk()) {
-				return SENT;
+				return new MessageOutcome(SENT);
 			}
 
 			throw Problem.builder()

@@ -1,0 +1,5 @@
+{
+	"detail": "DigitalMailSender error: {detail=Couldn't send digital mail, status=500 Internal Server Error, title=Internal server error}",
+	"status": 502,
+	"title": "Bad Gateway"
+}

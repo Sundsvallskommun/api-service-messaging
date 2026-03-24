@@ -38,7 +38,7 @@ import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegra
 import se.sundsvall.messaging.model.InternalDeliveryBatchResult;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.Message;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageOutcome;
 import se.sundsvall.messaging.service.mapper.DtoMapper;
 import se.sundsvall.messaging.service.mapper.MessageMapper;
 import se.sundsvall.messaging.service.mapper.RequestMapper;
@@ -476,7 +476,7 @@ public class MessageService {
 		});
 
 		// Get the delivery attempt for the given message type
-		final Supplier<MessageStatus> deliveryAttempt = switch (delivery.type()) {
+		final Supplier<MessageOutcome> deliveryAttempt = switch (delivery.type()) {
 			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
 			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
 			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
@@ -489,11 +489,12 @@ public class MessageService {
 
 		try {
 			// Perform the attempt
-			final var status = deliveryAttempt.get();
+			final var outcome = deliveryAttempt.get();
 			// Archive the message
-			archiveMessage(delivery.withStatus(status));
+			final var deliveredMessage = delivery.withStatus(outcome.status()).withDigitalMailTransactionId(outcome.transactionId());
+			archiveMessage(deliveredMessage);
 
-			return new InternalDeliveryResult(delivery.messageId(), delivery.deliveryId(), delivery.type(), status, delivery.municipalityId());
+			return new InternalDeliveryResult(deliveredMessage);
 		} catch (final Exception e) {
 			LOG.info("Unable to deliver {}: {}", delivery.type(), e.getMessage());
 

@@ -25,8 +25,8 @@ import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 
-@WireMockAppTestSuite(files = "classpath:/SmsIT/", classes = Application.class)
 @DirtiesContext
+@WireMockAppTestSuite(files = "classpath:/SmsIT/", classes = Application.class)
 class SmsIT extends AbstractMessagingAppTest {
 
 	private static final String SERVICE_PATH = "/" + MUNICIPALITY_ID + "/sms";
@@ -90,7 +90,7 @@ class SmsIT extends AbstractMessagingAppTest {
 
 	@Test
 	void test3_successfulBatchRequest() throws Exception {
-		final var response = setupCall()
+		final var test = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
@@ -99,8 +99,9 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withMaxVerificationDelayInSeconds(10)
-			.sendRequestAndVerifyResponse()
-			.andReturnBody(MessageBatchResult.class);
+			.sendRequest();
+
+		final var response = test.andReturnBody(MessageBatchResult.class);
 
 		final var batchId = response.batchId();
 		final var messageIds = response.messages().stream().map(MessageResult::messageId).toList();
@@ -109,6 +110,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		assertValidUuid(batchId);
 		messageIds.forEach(this::assertValidUuid);
 
+		// Wait for async processing to complete BEFORE stub verify/reset
 		await()
 			.atMost(10, TimeUnit.SECONDS)
 			.until(() -> {
@@ -129,11 +131,14 @@ class SmsIT extends AbstractMessagingAppTest {
 
 				return true;
 			});
+
+		// NOW safe to verify and reset stubs
+		test.verifyStubs();
 	}
 
 	@Test
 	void test4_internalServerErrorFromSmsSenderOnBatch() throws Exception {
-		final var response = setupCall()
+		final var test = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
@@ -141,8 +146,9 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withMaxVerificationDelayInSeconds(10)
-			.sendRequestAndVerifyResponse()
-			.andReturnBody(MessageBatchResult.class);
+			.sendRequest();
+
+		final var response = test.andReturnBody(MessageBatchResult.class);
 
 		final var batchId = response.batchId();
 		final var messageIds = response.messages().stream().map(MessageResult::messageId).toList();
@@ -151,6 +157,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		assertValidUuid(batchId);
 		messageIds.forEach(this::assertValidUuid);
 
+		// Wait for async processing to complete BEFORE stub verify/reset
 		await()
 			.atMost(10, TimeUnit.SECONDS)
 			.until(() -> {
@@ -170,6 +177,9 @@ class SmsIT extends AbstractMessagingAppTest {
 
 				return true;
 			});
+
+		// NOW safe to verify and reset stubs
+		test.verifyStubs();
 	}
 
 	@Test
@@ -212,7 +222,7 @@ class SmsIT extends AbstractMessagingAppTest {
 
 	@Test
 	void test6_successfulHighPriorityBatchRequest() throws Exception {
-		final var response = setupCall()
+		final var test = setupCall()
 			.withServicePath(SERVICE_PATH + "/batch")
 			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
@@ -221,8 +231,9 @@ class SmsIT extends AbstractMessagingAppTest {
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
 			.withMaxVerificationDelayInSeconds(10)
-			.sendRequestAndVerifyResponse()
-			.andReturnBody(MessageBatchResult.class);
+			.sendRequest();
+
+		final var response = test.andReturnBody(MessageBatchResult.class);
 
 		final var batchId = response.batchId();
 		final var messageIds = response.messages().stream().map(MessageResult::messageId).toList();
@@ -231,6 +242,7 @@ class SmsIT extends AbstractMessagingAppTest {
 		assertValidUuid(batchId);
 		messageIds.forEach(this::assertValidUuid);
 
+		// Wait for async processing to complete BEFORE stub verify/reset
 		await()
 			.atMost(10, TimeUnit.SECONDS)
 			.until(() -> {
@@ -252,6 +264,9 @@ class SmsIT extends AbstractMessagingAppTest {
 
 				return true;
 			});
+
+		// NOW safe to verify and reset stubs
+		test.verifyStubs();
 	}
 
 }

@@ -35,6 +35,7 @@ public final class HistoryMapper {
 			.withIssuer(historyEntity.getIssuer())
 			.withMunicipalityId(historyEntity.getMunicipalityId())
 			.withOrganizationNumber(historyEntity.getOrganizationNumber())
+			.withDigitalMailTransactionId(historyEntity.getDigitalMailTransactionId())
 			.build()).orElse(null);
 	}
 
@@ -56,6 +57,7 @@ public final class HistoryMapper {
 			.withMunicipalityId(actualMessage.municipalityId())
 			.withDestinationAddress(actualMessage.address())
 			.withOrganizationNumber(actualMessage.organizationNumber())
+			.withDigitalMailTransactionId(actualMessage.digitalMailTransactionId())
 			.build()).orElse(null);
 	}
 

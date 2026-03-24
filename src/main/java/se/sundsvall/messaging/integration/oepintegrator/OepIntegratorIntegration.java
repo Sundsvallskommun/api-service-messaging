@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest.Attachment;
-import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageOutcome;
 
 import static se.sundsvall.messaging.model.MessageStatus.NOT_SENT;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
@@ -22,16 +22,16 @@ public class OepIntegratorIntegration {
 		this.mapper = mapper;
 	}
 
-	public MessageStatus sendWebMessage(final String municipalityId, final WebMessageDto webMessageDto, final List<Attachment> attachments) {
+	public MessageOutcome sendWebMessage(final String municipalityId, final WebMessageDto webMessageDto, final List<Attachment> attachments) {
 		final var request = mapper.toWebmessageRequest(webMessageDto);
 
-		var multipartFiles = Optional.ofNullable(attachments)
+		final var multipartFiles = Optional.ofNullable(attachments)
 			.map(mapper::toAttachmentMultipartFiles)
 			.orElse(null);
 
 		final var response = client.createWebmessage(municipalityId, webMessageDto.oepInstance(), request, multipartFiles);
 
-		return response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT;
+		return new MessageOutcome(response.getStatusCode().is2xxSuccessful() ? SENT : NOT_SENT);
 	}
 
 }

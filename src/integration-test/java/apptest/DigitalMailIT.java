@@ -38,6 +38,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
 			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
 			.withRequest(REQUEST_FILE)
+			.withExpectedResponse(RESPONSE_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/batch/(.*)$"))
@@ -48,7 +49,6 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 
 		final var messageId = response.messages().getFirst().messageId();
 		final var batchId = response.batchId();
-
 		// Make sure we received a message id and a batch id as proper UUID:s
 		assertValidUuid(messageId);
 		assertValidUuid(batchId);
@@ -69,6 +69,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 						assertThat(historyEntry.getOrigin()).isEqualTo(X_ORIGIN_HEADER_VALUE);
 						assertThat(historyEntry.getIssuer()).isEqualTo(X_SENT_BY_HEADER_USER_NAME);
 						assertThat(historyEntry.getOrganizationNumber()).isEqualTo(ORGANIZATION_NUMBER);
+						assertThat(historyEntry.getDigitalMailTransactionId()).isNotNull();
 					});
 
 				return true;
@@ -80,6 +81,7 @@ class DigitalMailIT extends AbstractMessagingAppTest {
 		setupCall()
 			.withServicePath(SERVICE_PATH)
 			.withRequest(REQUEST_FILE)
+			.withExpectedResponse(RESPONSE_FILE)
 			.withHttpMethod(POST)
 			.withExpectedResponseStatus(BAD_GATEWAY)
 			.sendRequestAndVerifyResponse();

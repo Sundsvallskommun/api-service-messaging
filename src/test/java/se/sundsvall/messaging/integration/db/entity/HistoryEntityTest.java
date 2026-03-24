@@ -1,6 +1,7 @@
 package se.sundsvall.messaging.integration.db.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.MessageStatus;
@@ -31,6 +32,7 @@ class HistoryEntityTest {
 		var municipalityId = "municipalityId";
 		var destinationAddress = Address.builder().withAddress("someStreet").build();
 		var organizationNumber = "1234567890";
+		var transactionId = UUID.randomUUID().toString();
 
 		var bean = HistoryEntity.builder()
 			.withBatchId(batchId)
@@ -50,6 +52,7 @@ class HistoryEntityTest {
 			.withStatusDetail(statusDetail)
 			.withDestinationAddress(destinationAddress)
 			.withOrganizationNumber(organizationNumber)
+			.withDigitalMailTransactionId(transactionId)
 			.build();
 
 		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("destinationAddressJson");
@@ -70,6 +73,7 @@ class HistoryEntityTest {
 		assertThat(bean.getStatusDetail()).isEqualTo(statusDetail);
 		assertThat(bean.getDestinationAddress()).isEqualTo(destinationAddress);
 		assertThat(bean.getOrganizationNumber()).isEqualTo(organizationNumber);
+		assertThat(bean.getDigitalMailTransactionId()).isEqualTo(transactionId);
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package se.sundsvall.messaging.model;
 
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,13 +21,14 @@ class InternalDeliveryResultTest {
 	private static final String MESSAGE_ID = "messageId";
 	private static final String DELIVERY_ID = "deliveryId";
 	private static final String MUNICIPALITY_ID = "municipalityId";
+	private static final String DIGITAL_MAIL_TRANSACTION_ID = UUID.randomUUID().toString();
 
 	@Mock
 	private Message mockMessage;
 
 	@Test
 	void testDefaultConstructor() {
-		final var bean = new InternalDeliveryResult(MESSAGE_ID, DELIVERY_ID, EMAIL, SENT, MUNICIPALITY_ID);
+		final var bean = new InternalDeliveryResult(MESSAGE_ID, DELIVERY_ID, EMAIL, SENT, MUNICIPALITY_ID, DIGITAL_MAIL_TRANSACTION_ID);
 
 		assertBean(bean, SENT);
 	}
@@ -39,6 +41,7 @@ class InternalDeliveryResultTest {
 			.withMessageType(EMAIL)
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.withStatus(FAILED)
+			.withDigitalMailTransactionId(DIGITAL_MAIL_TRANSACTION_ID)
 			.build();
 
 		assertBean(bean, FAILED);
@@ -51,6 +54,7 @@ class InternalDeliveryResultTest {
 		when(mockMessage.type()).thenReturn(EMAIL);
 		when(mockMessage.municipalityId()).thenReturn(MUNICIPALITY_ID);
 		when(mockMessage.status()).thenReturn(PENDING);
+		when(mockMessage.digitalMailTransactionId()).thenReturn(DIGITAL_MAIL_TRANSACTION_ID);
 
 		final var bean = new InternalDeliveryResult(mockMessage);
 
@@ -61,16 +65,18 @@ class InternalDeliveryResultTest {
 		verify(mockMessage).status();
 		verify(mockMessage).municipalityId();
 		verify(mockMessage).type();
+		verify(mockMessage).digitalMailTransactionId();
 		verifyNoMoreInteractions(mockMessage);
 	}
 
 	private void assertBean(final InternalDeliveryResult bean, MessageStatus expectedStatus) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("digitalMailTransactionId");
 		assertThat(bean.messageId()).isEqualTo(MESSAGE_ID);
 		assertThat(bean.deliveryId()).isEqualTo(DELIVERY_ID);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);
 		assertThat(bean.messageType()).isEqualTo(EMAIL);
 		assertThat(bean.status()).isEqualTo(expectedStatus);
+		assertThat(bean.digitalMailTransactionId()).isEqualTo(DIGITAL_MAIL_TRANSACTION_ID);
 	}
 
 	@Test
@@ -79,6 +85,7 @@ class InternalDeliveryResultTest {
 		when(mockMessage.deliveryId()).thenReturn(DELIVERY_ID);
 		when(mockMessage.type()).thenReturn(EMAIL);
 		when(mockMessage.municipalityId()).thenReturn(MUNICIPALITY_ID);
+		when(mockMessage.digitalMailTransactionId()).thenReturn(DIGITAL_MAIL_TRANSACTION_ID);
 
 		final var bean = new InternalDeliveryResult(mockMessage, SENT);
 
@@ -88,6 +95,7 @@ class InternalDeliveryResultTest {
 		verify(mockMessage).deliveryId();
 		verify(mockMessage).municipalityId();
 		verify(mockMessage).type();
+		verify(mockMessage).digitalMailTransactionId();
 		verifyNoMoreInteractions(mockMessage);
 	}
 
@@ -103,7 +111,7 @@ class InternalDeliveryResultTest {
 	void testConstructorAcceptingAllButStatus() {
 		final var bean = new InternalDeliveryResult(MESSAGE_ID, DELIVERY_ID, EMAIL, MUNICIPALITY_ID);
 
-		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("status");
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("status", "digitalMailTransactionId");
 		assertThat(bean.messageId()).isEqualTo(MESSAGE_ID);
 		assertThat(bean.deliveryId()).isEqualTo(DELIVERY_ID);
 		assertThat(bean.municipalityId()).isEqualTo(MUNICIPALITY_ID);

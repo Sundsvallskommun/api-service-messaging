@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import se.sundsvall.messaging.api.model.request.WebMessageRequest;
 import se.sundsvall.messaging.model.ExternalReference;
+import se.sundsvall.messaging.model.MessageOutcome;
 import se.sundsvall.messaging.model.MessageStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +56,7 @@ class OepIntegratorIntegrationTest {
 
 		final var result = integration.sendWebMessage(municipalityId, webMessageDto, attachments);
 
-		assertThat(result).isNotNull().isEqualTo(expected);
+		assertThat(result).isNotNull().isEqualTo(new MessageOutcome(expected));
 	}
 
 	private static Stream<Arguments> argumentsProvider() {

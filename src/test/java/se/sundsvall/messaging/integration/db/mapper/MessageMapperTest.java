@@ -51,7 +51,7 @@ class MessageMapperTest {
 
 		var message = MessageMapper.mapToMessage(messageEntity);
 
-		assertThat(message).isNotNull().hasNoNullFieldsOrPropertiesExcept("address");
+		assertThat(message).isNotNull().hasNoNullFieldsOrPropertiesExcept("address", "digitalMailTransactionId");
 		assertThat(message.batchId()).isEqualTo(BATCH_ID);
 		assertThat(message.messageId()).isEqualTo(MESSAGE_ID);
 		assertThat(message.deliveryId()).isEqualTo(DELIVERY_ID);
