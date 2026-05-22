@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.2"
+  version: "3.3"
 servers:
   - url: http://localhost:59141
     description: Generated server url
@@ -121,12 +121,16 @@ components:
       properties:
         firstName:
           type: string
-          description: The first name of the recipient
+          description: The first name of the recipient. Required together with lastName if organizationName is not provided.
           example: John
         lastName:
           type: string
-          description: The last name of the recipient
+          description: The last name of the recipient. Required together with firstName if organizationName is not provided.
           example: Doe
+        organizationName:
+          type: string
+          description: The organization name of the recipient. Required if firstName and lastName are not provided.
+          example: Acme AB
         address:
           type: string
           description: The address

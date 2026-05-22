@@ -32,6 +32,7 @@ class SnailMailSenderIntegrationMapper {
 		return Optional.ofNullable(address).map(notNull -> new generated.se.sundsvall.snailmail.Address()
 			.firstName(address.firstName())
 			.lastName(address.lastName())
+			.organizationName(address.organizationName())
 			.city(address.city())
 			.apartmentNumber(address.apartmentNumber())
 			.address(address.address())

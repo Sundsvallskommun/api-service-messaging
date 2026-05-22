@@ -64,6 +64,7 @@ public record UserMessage(
 		@Schema(description = "The country", examples = "Sweden") String country,
 		@Schema(description = "The first name", examples = "Kalle") String firstName,
 		@Schema(description = "The last name", examples = "Kula") String lastName,
+		@Schema(description = "The organization name", examples = "Acme AB") String organizationName,
 		@Schema(description = "The care of", examples = "c/o Name Namesson") String careOf,
 		@Schema(description = "The zip code", examples = "123 45") String zipCode) {
 	}
