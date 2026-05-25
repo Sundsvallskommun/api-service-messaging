@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "3.2"
+  version: "3.3"
 servers:
   - url: http://localhost:59141
     description: Generated server url
@@ -127,6 +127,10 @@ components:
           type: string
           description: The last name of the recipient
           example: Doe
+        organizationName:
+          type: string
+          description: The organization name of the recipient
+          example: Acme AB
         address:
           type: string
           description: The address

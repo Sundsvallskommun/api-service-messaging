@@ -87,6 +87,7 @@ public class MessageMapper {
 			.withAddress(Optional.ofNullable(request.address()).map(address -> Address.builder()
 				.withFirstName(address.firstName())
 				.withLastName(address.lastName())
+				.withOrganizationName(address.organizationName())
 				.withApartmentNumber(address.apartmentNumber())
 				.withAddress(address.address())
 				.withZipCode(address.zipCode())

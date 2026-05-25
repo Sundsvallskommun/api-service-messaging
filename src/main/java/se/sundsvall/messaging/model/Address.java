@@ -13,6 +13,8 @@ public record Address(
 
 	@Schema(description = "The last name of the recipient", examples = "Doe") String lastName,
 
+	@Schema(description = "The organization name of the recipient", examples = "Acme AB") String organizationName,
+
 	@Schema(description = "The address", examples = "Main Street 1") String address,
 
 	@Schema(description = "The apartment number", examples = "1101") String apartmentNumber,

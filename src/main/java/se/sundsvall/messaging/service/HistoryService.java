@@ -297,6 +297,7 @@ public class HistoryService {
 				.withCountry(addr.country())
 				.withFirstName(addr.firstName())
 				.withLastName(addr.lastName())
+				.withOrganizationName(addr.organizationName())
 				.withCareOf(addr.careOf())
 				.withZipCode(addr.zipCode())
 				.build())
