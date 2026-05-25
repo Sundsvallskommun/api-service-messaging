@@ -121,15 +121,15 @@ components:
       properties:
         firstName:
           type: string
-          description: The first name of the recipient. Required together with lastName if organizationName is not provided.
+          description: The first name of the recipient
           example: John
         lastName:
           type: string
-          description: The last name of the recipient. Required together with firstName if organizationName is not provided.
+          description: The last name of the recipient
           example: Doe
         organizationName:
           type: string
-          description: The organization name of the recipient. Required if firstName and lastName are not provided.
+          description: The organization name of the recipient
           example: Acme AB
         address:
           type: string
