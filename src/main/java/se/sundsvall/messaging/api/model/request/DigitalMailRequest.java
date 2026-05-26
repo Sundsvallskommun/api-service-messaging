@@ -48,7 +48,7 @@ public record DigitalMailRequest(
 
 	@Schema(description = "Attachments") List<@Valid Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")
@@ -93,6 +93,6 @@ public record DigitalMailRequest(
 
 		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content,
 
-		@NotBlank @Schema(description = "Filename") String filename){
+		@NotBlank @Schema(description = "Filename") String filename) {
 	}
 }

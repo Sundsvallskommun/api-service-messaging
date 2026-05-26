@@ -45,7 +45,7 @@ public record DigitalInvoiceRequest(
 
 	@Schema(description = "Files") List<@Valid File> files,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")
@@ -86,6 +86,6 @@ public record DigitalInvoiceRequest(
 
 		@ValidBase64 @Schema(description = "Content (BASE64-encoded)", requiredMode = REQUIRED) String content,
 
-		@NotBlank @Schema(description = "Filename", requiredMode = REQUIRED) String filename){
+		@NotBlank @Schema(description = "Filename", requiredMode = REQUIRED) String filename) {
 	}
 }

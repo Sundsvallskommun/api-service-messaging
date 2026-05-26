@@ -48,7 +48,7 @@ public record WebMessageRequest(
 	// but if provided, must contain at least one item (or 10).
 	@Size(min = 1, max = 10, message = "Attachments must contain 1-10 items when provided, or be null/omitted") @ArraySchema(schema = @Schema(implementation = Attachment.class), maxItems = 10, minItems = 1) List<Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")
