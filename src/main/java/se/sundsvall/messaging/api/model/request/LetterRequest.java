@@ -27,7 +27,7 @@ public record LetterRequest(
 
 	@Valid @Schema(description = "Sender") Sender sender,
 
-	@OneOf( {
+	@OneOf({
 		"text/plain", "text/html"
 	}) @Schema(description = "Content type", allowableValues = {
 		"text/plain", "text/html"
@@ -45,7 +45,7 @@ public record LetterRequest(
 
 	@NotEmpty @ArraySchema(schema = @Schema(description = "Attachments"), minItems = 1) List<@Valid Attachment> attachments,
 
-	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId){
+	@Schema(description = "Municipality Id", hidden = true) @JsonIgnore String municipalityId) {
 
 	@With
 	@Builder(setterPrefix = "with")
@@ -94,7 +94,7 @@ public record LetterRequest(
 			"application/pdf"
 		}) String contentType,
 
-		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content){
+		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content) {
 
 		@JsonIgnore
 		public boolean isIntendedForDigitalMail() {
