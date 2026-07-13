@@ -13,18 +13,24 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidEmailRequest;
 import se.sundsvall.messaging.api.validation.ValidHeaders;
 import se.sundsvall.messaging.model.ExternalReference;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @With
+@ValidEmailRequest
 @Builder(setterPrefix = "with")
 public record EmailRequest(
 
 	@Valid @Schema(description = "Party") Party party,
 
-	@Email @NotBlank @Schema(description = "Recipient e-mail address", requiredMode = REQUIRED) String emailAddress,
+	@Deprecated(forRemoval = true) @Email @Schema(description = "Recipient e-mail address. Deprecated, use 'recipients' instead", deprecated = true) String emailAddress,
+
+	@ArraySchema(schema = @Schema(description = "Recipient (To) e-mail address", format = "email", examples = "recipient@recipient.se")) List<@Email String> recipients,
+
+	@ArraySchema(schema = @Schema(description = "Carbon-copy (CC) e-mail address", format = "email", examples = "cc-recipient@recipient.se")) List<@Email String> cc,
 
 	@NotBlank @Schema(description = "E-mail subject", requiredMode = REQUIRED) String subject,
 

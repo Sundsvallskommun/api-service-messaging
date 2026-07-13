@@ -14,6 +14,8 @@ class EmailRequestTest {
 
 	private static final Party PARTY = Party.builder().build();
 	private static final String EMAIL_ADDRESS = "emailAddress";
+	private static final List<String> RECIPIENTS = List.of("recipient1", "recipient2");
+	private static final List<String> CC = List.of("cc1", "cc2");
 	private static final String SUBJECT = "subject";
 	private static final String MESSAGE = "message";
 	private static final String HTML_MESSAGE = "htmlMessage";
@@ -34,7 +36,7 @@ class EmailRequestTest {
 	// EmailRequest
 	@Test
 	void testEmailRequestConstructor() {
-		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
+		final var bean = new EmailRequest(PARTY, EMAIL_ADDRESS, RECIPIENTS, CC, SUBJECT, MESSAGE, HTML_MESSAGE, SENDER, ORIGIN, ISSUER, ATTACHMENTS, HEADERS, MUNICIPALITY_ID);
 
 		assertEmailRequest(bean);
 	}
@@ -44,6 +46,8 @@ class EmailRequestTest {
 		final var bean = EmailRequest.builder()
 			.withAttachments(ATTACHMENTS)
 			.withEmailAddress(EMAIL_ADDRESS)
+			.withRecipients(RECIPIENTS)
+			.withCc(CC)
 			.withHeaders(HEADERS)
 			.withHtmlMessage(HTML_MESSAGE)
 			.withIssuer(ISSUER)
@@ -62,6 +66,8 @@ class EmailRequestTest {
 		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
 		assertThat(bean.party()).isEqualTo(PARTY);
 		assertThat(bean.emailAddress()).isEqualTo(EMAIL_ADDRESS);
+		assertThat(bean.recipients()).isEqualTo(RECIPIENTS);
+		assertThat(bean.cc()).isEqualTo(CC);
 		assertThat(bean.subject()).isEqualTo(SUBJECT);
 		assertThat(bean.message()).isEqualTo(MESSAGE);
 		assertThat(bean.htmlMessage()).isEqualTo(HTML_MESSAGE);

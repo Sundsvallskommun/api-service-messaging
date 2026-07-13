@@ -8,6 +8,8 @@ import lombok.Builder;
 public record EmailDto(
 	Sender sender,
 	String emailAddress,
+	List<String> recipients,
+	List<String> cc,
 	String subject,
 	String message,
 	String htmlMessage,

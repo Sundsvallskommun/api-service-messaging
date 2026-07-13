@@ -20,6 +20,8 @@ class EmailSenderIntegrationMapper {
 				.address(dto.sender().address())
 				.replyTo(dto.sender().replyTo()))
 			.emailAddress(dto.emailAddress())
+			.recipients(dto.recipients())
+			.cc(dto.cc())
 			.subject(dto.subject())
 			.message(dto.message())
 			.htmlMessage(dto.htmlMessage())
