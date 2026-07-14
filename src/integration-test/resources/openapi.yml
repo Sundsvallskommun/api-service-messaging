@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "7.11"
+  version: "7.12"
 servers:
 - url: http://localhost:64409
   description: Generated server url
@@ -2551,8 +2551,24 @@ components:
         emailAddress:
           type: string
           format: email
-          description: Recipient e-mail address
-          minLength: 1
+          description: Recipient e-mail address. Deprecated, use 'recipients' instead
+          deprecated: true
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+            description: Recipient (To) e-mail address
+            examples:
+            - recipient@recipient.se
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+            description: Carbon-copy (CC) e-mail address
+            examples:
+            - cc-recipient@recipient.se
         subject:
           type: string
           description: E-mail subject
@@ -2578,7 +2594,6 @@ components:
               type: string
           description: Headers
       required:
-      - emailAddress
       - subject
     EmailRequestParty:
       type: object

@@ -72,6 +72,8 @@ public class DtoMapper {
 					.build())
 				.orElse(defaultEmailDtoSender))
 			.withEmailAddress(request.emailAddress())
+			.withRecipients(request.recipients())
+			.withCc(request.cc())
 			.withSubject(request.subject())
 			.withMessage(request.message())
 			.withHtmlMessage(request.htmlMessage())

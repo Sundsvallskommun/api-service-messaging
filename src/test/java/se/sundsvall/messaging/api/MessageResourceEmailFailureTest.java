@@ -139,8 +139,7 @@ class MessageResourceEmailFailureTest {
 	@ValueSource(strings = {
 		"not-an-email-address", " "
 	})
-	@NullAndEmptySource
-	void shouldFailWithNullOrInvalidEmailAddress(String value) {
+	void shouldFailWithInvalidEmailAddress(String value) {
 		final var request = validRequest.withEmailAddress(value);
 
 		final var response = webTestClient.post()
@@ -158,8 +157,53 @@ class MessageResourceEmailFailureTest {
 		assertThat(response.getViolations())
 			.extracting(Violation::field, Violation::message)
 			.containsAnyOf(
-				tuple("emailAddress", "must not be blank"),
 				tuple("emailAddress", "must be a well-formed email address"));
+
+		verifyNoInteractions(mockMessageService, mockEventDispatcher);
+	}
+
+	@Test
+	void shouldFailWithInvalidRecipient() {
+		final var request = validRequest.withRecipients(List.of("not-an-email-address"));
+
+		final var response = webTestClient.post()
+			.uri(URL)
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::message)
+			.contains("must be a well-formed email address");
+
+		verifyNoInteractions(mockMessageService, mockEventDispatcher);
+	}
+
+	@Test
+	void shouldFailWithNoRecipients() {
+		final var request = validRequest.withEmailAddress(null).withRecipients(null);
+
+		final var response = webTestClient.post()
+			.uri(URL)
+			.contentType(APPLICATION_JSON)
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectHeader().contentType(APPLICATION_PROBLEM_JSON)
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::message)
+			.contains("at least one recipient must be provided in 'emailAddress' or 'recipients'");
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}

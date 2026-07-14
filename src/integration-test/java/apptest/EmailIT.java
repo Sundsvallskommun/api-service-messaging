@@ -71,6 +71,43 @@ class EmailIT extends AbstractMessagingAppTest {
 	}
 
 	@Test
+	void test3_successfulRequestWithRecipientsAndCc() throws Exception {
+		final var response = setupCall()
+			.withServicePath(SERVICE_PATH)
+			.withHeader(X_ORIGIN_HEADER, X_ORIGIN_HEADER_VALUE)
+			.withHeader(X_SENT_BY_HEADER, X_SENT_BY_HEADER_VALUE)
+			.withRequest(REQUEST_FILE)
+			.withHttpMethod(POST)
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader(LOCATION, List.of("^/" + MUNICIPALITY_ID + "/status/messages/(.*)$"))
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(MessageResult.class);
+
+		final var messageId = response.messageId();
+
+		// Make sure we received a message id as a proper UUID
+		assertValidUuid(messageId);
+
+		await()
+			.atMost(10, TimeUnit.SECONDS)
+			.until(() -> {
+				// Make sure that there doesn't exist a message entity
+				assertThat(messageRepository.existsByMessageId(messageId)).isFalse();
+				// Make sure that there exists a history entry with the correct id and status
+				assertThat(historyRepository.findByMunicipalityIdAndMessageId(MUNICIPALITY_ID, messageId))
+					.isNotNull()
+					.isNotEmpty()
+					.allSatisfy(historyEntry -> {
+						assertValidUuid(historyEntry.getBatchId());
+						assertThat(historyEntry.getMessageId()).isEqualTo(messageId);
+						assertThat(historyEntry.getStatus()).isEqualTo(SENT);
+					});
+
+				return true;
+			});
+	}
+
+	@Test
 	void test2_internalServerErrorFromEmailSender() {
 		setupCall()
 			.withServicePath(SERVICE_PATH)

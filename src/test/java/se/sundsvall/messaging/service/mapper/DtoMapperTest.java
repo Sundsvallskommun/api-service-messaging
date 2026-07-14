@@ -49,6 +49,8 @@ class DtoMapperTest {
 		final var emailDto = dtoMapper.toEmailDto(emailRequest);
 
 		assertThat(emailDto.emailAddress()).isEqualTo(emailRequest.emailAddress());
+		assertThat(emailDto.recipients()).isEqualTo(emailRequest.recipients());
+		assertThat(emailDto.cc()).isEqualTo(emailRequest.cc());
 		assertThat(emailDto.sender().name()).isEqualTo(emailRequest.sender().name());
 		assertThat(emailDto.sender().address()).isEqualTo(emailRequest.sender().address());
 		assertThat(emailDto.sender().replyTo()).isEqualTo(emailRequest.sender().replyTo());

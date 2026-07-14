@@ -27,6 +27,8 @@ class EmailSenderIntegrationMapperTest {
 		assertThat(mappedRequest.getSender().getAddress()).isEqualTo("noreply@somehost.com");
 		assertThat(mappedRequest.getSender().getReplyTo()).isEqualTo("someReplyTo");
 		assertThat(mappedRequest.getEmailAddress()).isEqualTo("someone@somehost.com");
+		assertThat(mappedRequest.getRecipients()).containsExactly("recipient1@somehost.com", "recipient2@somehost.com");
+		assertThat(mappedRequest.getCc()).containsExactly("cc1@somehost.com", "cc2@somehost.com");
 		assertThat(mappedRequest.getSubject()).isEqualTo("someSubject");
 		assertThat(mappedRequest.getMessage()).isEqualTo("someMessage");
 		assertThat(mappedRequest.getHtmlMessage()).isEqualTo("someHtmlMessage");
