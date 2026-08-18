@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -124,7 +125,7 @@ public class HistoryService {
 	}
 
 	public UserBatches getUserBatches(final String municipalityId, final String issuer, final Integer page, final Integer limit) {
-		final var thirtyDaysAgo = LocalDate.now().minusDays(30).atStartOfDay();
+		final var thirtyDaysAgo = LocalDate.now(ZoneId.systemDefault()).minusDays(30).atStartOfDay();
 		final var batches = dbIntegration.getBatchHistoryMessagesForUser(municipalityId, issuer, thirtyDaysAgo).stream() // Fetch batchprojections for all messages sent the 30 last day for issuer
 			.collect(groupingBy(BatchHistoryProjection::getBatchId)).entrySet().stream() // Group result by batch id and stream result (Map<batchId, List<BatchHistoryProjection>>)
 			.map(entry -> createBatch(municipalityId, entry)) // To map each entry to a Batch object
@@ -156,7 +157,7 @@ public class HistoryService {
 	}
 
 	public UserMessages getUserMessages(final String municipalityId, final String userId, String batchId, final Integer page, final Integer limit) {
-		final var thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+		final var thirtyDaysAgo = LocalDateTime.now(ZoneId.systemDefault()).minusDays(30);
 		final var pageRequest = PageRequest.of(page - 1, limit);
 		final var messageIdPage = isNull(batchId) ? dbIntegration.getUniqueMessageIds(municipalityId, userId, thirtyDaysAgo, pageRequest)
 			: dbIntegration.getUniqueMessageIds(municipalityId, batchId, userId, thirtyDaysAgo, pageRequest);

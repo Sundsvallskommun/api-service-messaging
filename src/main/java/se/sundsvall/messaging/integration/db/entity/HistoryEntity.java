@@ -13,6 +13,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -149,7 +150,7 @@ public class HistoryEntity {
 
 	@PrePersist
 	void prePersist() {
-		createdAt = LocalDateTime.now();
+		createdAt = LocalDateTime.now(ZoneId.systemDefault());
 
 		destinationAddressJson = toJson(destinationAddress);
 	}
