@@ -2,6 +2,7 @@ package se.sundsvall.messaging.integration.db.mapper;
 
 import com.google.gson.JsonParser;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import org.springframework.data.domain.Page;
 import se.sundsvall.dept44.models.api.paging.PagingAndSortingMetaData;
@@ -53,7 +54,7 @@ public final class HistoryMapper {
 			.withOrigin(actualMessage.origin())
 			.withIssuer(actualMessage.issuer())
 			.withDepartment(toDepartment(actualMessage.content()))
-			.withCreatedAt(LocalDateTime.now())
+			.withCreatedAt(LocalDateTime.now(ZoneId.systemDefault()))
 			.withMunicipalityId(actualMessage.municipalityId())
 			.withDestinationAddress(actualMessage.address())
 			.withOrganizationNumber(actualMessage.organizationNumber())
