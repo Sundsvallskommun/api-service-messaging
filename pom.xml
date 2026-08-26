@@ -49,6 +49,11 @@
 			<groupId>se.sundsvall.dept44</groupId>
 			<artifactId>dept44-common-validators</artifactId>
 		</dependency>
+		<!-- Messaging -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
 		<!-- Database -->
 		<dependency>
 			<groupId>se.sundsvall.dept44</groupId>

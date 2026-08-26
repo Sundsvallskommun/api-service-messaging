@@ -17,6 +17,22 @@ spring:
       hibernate:
         integrator_provider: se.sundsvall.messaging.integration.db.projection.support.ClassImportIntegratorIntegratorProvider
 
+# RabbitMQ SMS mirror (fire-and-forget side channel).
+# Connection settings (spring.rabbitmq.host/port/virtual-host/username/password) are supplied
+# per environment (secrets / cluster env), not committed here. Enable per environment.
+# The AMQP user has no configure permission: never declare queues/exchanges/bindings.
+rabbitmq:
+  producer:
+    enabled: false
+    exchange: api-fabriken.messaging
+    routing-key: sms
+
+# Do not let the broker's reachability gate service health - publishing is fire-and-forget.
+management:
+  health:
+    rabbit:
+      enabled: false
+
 # OpenAPI
 openapi:
   title: Messaging
