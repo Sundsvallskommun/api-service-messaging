@@ -7,11 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.ResponseEntity;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
-import se.sundsvall.messaging.integration.rabbitmq.SmsQueuePublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -19,7 +17,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -33,17 +30,11 @@ class SmsSenderIntegrationTest {
 	@Mock
 	private SmsSenderClient mockClient;
 
-	@Mock
-	private ObjectProvider<SmsQueuePublisher> mockSmsQueuePublisherProvider;
-
-	@Mock
-	private SmsQueuePublisher mockSmsQueuePublisher;
-
 	private SmsSenderIntegration integration;
 
 	@BeforeEach
 	void setUp() {
-		integration = new SmsSenderIntegration(mockClient, mockMapper, mockSmsQueuePublisherProvider);
+		integration = new SmsSenderIntegration(mockClient, mockMapper);
 	}
 
 	@Test
@@ -78,33 +69,6 @@ class SmsSenderIntegrationTest {
 			});
 
 		verify(mockMapper, times(1)).toSendSmsRequest(any(SmsDto.class));
-		verify(mockClient, times(1)).sendSms(anyString(), any(SendSmsRequest.class));
-	}
-
-	@Test
-	void test_sendSms_alsoPublishesToQueueWhenPublisherAvailable() {
-		when(mockSmsQueuePublisherProvider.getIfAvailable()).thenReturn(mockSmsQueuePublisher);
-		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class)))
-			.thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
-
-		final var dto = SmsDto.builder().build();
-		integration.sendSms("2281", dto);
-
-		verify(mockSmsQueuePublisher, times(1)).publish("2281", dto);
-		verify(mockClient, times(1)).sendSms(anyString(), any(SendSmsRequest.class));
-	}
-
-	@Test
-	void test_sendSms_whenPublisherNotAvailable() {
-		when(mockSmsQueuePublisherProvider.getIfAvailable()).thenReturn(null);
-		when(mockMapper.toSendSmsRequest(any(SmsDto.class))).thenReturn(new SendSmsRequest());
-		when(mockClient.sendSms(anyString(), any(SendSmsRequest.class)))
-			.thenReturn(ResponseEntity.ok(new SendSmsResponse().sent(true)));
-
-		integration.sendSms("2281", SmsDto.builder().build());
-
-		verifyNoInteractions(mockSmsQueuePublisher);
 		verify(mockClient, times(1)).sendSms(anyString(), any(SendSmsRequest.class));
 	}
 

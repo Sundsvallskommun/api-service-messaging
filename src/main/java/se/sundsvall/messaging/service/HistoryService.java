@@ -7,6 +7,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -37,10 +41,14 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -48,6 +56,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
 import static se.sundsvall.messaging.util.PagingUtil.toPage;
 
@@ -191,7 +201,13 @@ public class HistoryService {
 			.withMessageId(messageId)
 			.withIssuer(history.getIssuer())
 			.withOrigin(history.getOrigin())
-			.withSent(history.getCreatedAt())
+			// The earliest row, not whichever the query returned first: when a delivery was retried, the message was
+			// sent when the first attempt was made, not when the last one gave up.
+			.withSent(histories.stream()
+				.map(HistoryEntity::getCreatedAt)
+				.filter(Objects::nonNull)
+				.min(naturalOrder())
+				.orElse(history.getCreatedAt()))
 			.withRecipients(recipients)
 			.withSubject(extractSubject(history))
 			.withAttachments(extractAttachment(history))
@@ -261,7 +277,7 @@ public class HistoryService {
 	}
 
 	List<UserMessage.Recipient> createRecipients(final String municipalityId, final List<HistoryEntity> histories) {
-		final var recipients = histories.stream()
+		final var recipients = collapseDeliveryAttempts(histories).stream()
 			.map(history -> createRecipient(municipalityId, history))
 			.collect(toCollection(ArrayList::new));
 
@@ -274,6 +290,49 @@ public class HistoryService {
 				.toList());
 
 		return recipients;
+	}
+
+	/**
+	 * Reduces repeated delivery attempts at one recipient to the single attempt worth reporting.
+	 * <p>
+	 * A queued SMS that failed and was retried leaves one history row per attempt, all sharing a message id. Reporting
+	 * each of them would show one SMS as having been sent to four people. A successful attempt is what happened;
+	 * failing that, the last attempt is.
+	 * <p>
+	 * Only SMS is considered, because only SMS has a retry ladder - so only SMS can produce several rows that are
+	 * attempts at one delivery rather than separate deliveries. Two identical snail mails under one message id are two
+	 * real deliveries and are left alone. Within SMS the mobile number is the discriminator, since a MESSAGE request
+	 * fans out to one delivery per contact setting under a single message id, and those are genuinely different
+	 * recipients.
+	 */
+	List<HistoryEntity> collapseDeliveryAttempts(final List<HistoryEntity> histories) {
+		final var reported = Collections.newSetFromMap(new IdentityHashMap<HistoryEntity, Boolean>());
+
+		histories.stream()
+			.filter(history -> history.getMessageType() == SMS)
+			.collect(groupingBy(this::smsRecipientKey, LinkedHashMap::new, toList()))
+			.values()
+			.forEach(attempts -> reported.add(attemptToReport(attempts)));
+
+		// Filtering the original list rather than rebuilding it keeps the recipients in the order they arrived.
+		return histories.stream()
+			.filter(history -> history.getMessageType() != SMS || reported.contains(history))
+			.toList();
+	}
+
+	private static HistoryEntity attemptToReport(final List<HistoryEntity> attempts) {
+		return attempts.stream()
+			.filter(attempt -> attempt.getStatus() == SENT)
+			.findFirst()
+			.orElseGet(() -> attempts.stream()
+				.max(comparing(HistoryEntity::getCreatedAt, nullsFirst(naturalOrder())))
+				.orElseThrow());
+	}
+
+	private List<Object> smsRecipientKey(final HistoryEntity history) {
+		// Nulls are expected - an SMS need not carry a party id - so the key is an Arrays.asList rather than a record,
+		// which keeps null handling out of it.
+		return Arrays.asList(history.getPartyId(), extractMobileNumber(history));
 	}
 
 	UserMessage.Recipient createRecipient(final String municipalityId, final HistoryEntity history) {

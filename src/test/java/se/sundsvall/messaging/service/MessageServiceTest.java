@@ -198,14 +198,32 @@ class MessageServiceTest {
 		verifyNoExternalIntegrationInteractionsExcept(mockSmsSenderIntegration);
 		// Verify db integration interactions
 		verifyDbIntegrationInteractions();
-		// Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
-		verify(mockMessageMapper, times(1 + 1)).toMessage(any(SmsRequest.class), any(String.class));
+		// Verify mapper interactions. The two-argument form is called once, by this test building its own expectation,
+		// and it delegates; the service calls the three-argument overload directly. Hence one and two, both with a null
+		// message id because both are first attempts.
+		verify(mockMessageMapper, times(1)).toMessage(any(SmsRequest.class), any(String.class));
+		verify(mockMessageMapper, times(2)).toMessage(any(SmsRequest.class), any(String.class), isNull());
 		verifyNoMoreInteractions(mockMessageMapper);
 		verify(mockDtoMapper).toSmsDto(any(SmsRequest.class));
 		verifyNoMoreInteractions(mockDtoMapper);
 		verifyNoInteractions(mockRequestMapper);
 		// Verify transaction template interaction
 		verifyTransactionTemplateInteractions();
+	}
+
+	@Test
+	void sendSms_reusesTheGivenIdsForARedeliveryAttempt() {
+		final var request = createValidSmsRequest();
+
+		// Let the real mapper build the message, so the ids on the result are the ones it actually assigned.
+		when(mockDbIntegration.saveMessage(any(Message.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(mockSmsSenderIntegration.sendSms(eq(request.municipalityId()), any(SmsDto.class))).thenReturn(new MessageOutcome(SENT));
+
+		final var result = messageService.sendSms(request, "an-existing-batch-id", "an-existing-message-id");
+
+		// Every attempt at one SMS shares its message and batch id, so history shows one message tried more than once.
+		assertThat(result.messageId()).isEqualTo("an-existing-message-id");
+		verify(mockMessageMapper).toMessage(any(SmsRequest.class), eq("an-existing-batch-id"), eq("an-existing-message-id"));
 	}
 
 	@Test

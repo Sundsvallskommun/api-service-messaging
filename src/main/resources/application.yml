@@ -8,6 +8,14 @@ spring:
     enabled: true
     group: true
 
+  # RabbitMQ. Correlated confirms and returns are what let a publish be waited on, which the whole path depends on:
+  # nothing is acked until the broker has taken responsibility for what was published in its place.
+  rabbitmq:
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+
   # JPA
   jpa:
     hibernate:
@@ -17,17 +25,26 @@ spring:
       hibernate:
         integrator_provider: se.sundsvall.messaging.integration.db.projection.support.ClassImportIntegratorIntegratorProvider
 
-# RabbitMQ SMS mirror (fire-and-forget side channel).
-# Connection settings (spring.rabbitmq.host/port/virtual-host/username/password) are supplied
-# per environment (secrets / cluster env), not committed here. Enable per environment.
-# The AMQP user has no configure permission: never declare queues/exchanges/bindings.
+# SMS over RabbitMQ: requests in from postportal, one terminal outcome back out.
+# Connection settings (spring.rabbitmq.host/port/virtual-host/username/password) are supplied per environment and are
+# not committed here. Object names are the contract with postportal and are declared by the messaging-topology-operator
+# via GitOps - the AMQP user has an empty configure permission, so this service must never declare any of them.
+#
+# retry-tiers is the one genuinely local setting: it decides which wait queue a failed attempt goes to. Three tiers
+# means four delivery attempts in total, after which the request is routed to `dead`.
 rabbitmq:
-  producer:
-    enabled: false
-    exchange: api-fabriken.messaging
-    routing-key: sms
+  enabled: false
+  work-queue: api-fabriken.messaging.sms
+  give-up-queue: api-fabriken.messaging.sms.giveup
+  retry-exchange: api-fabriken.messaging.retry
+  dead-routing-key: dead
+  status-exchange: api-fabriken.messaging.status
+  sent-routing-key: sms.sent
+  failed-routing-key: sms.failed
+  retry-tiers: 5s,30s,5m
+  publish-confirm-timeout-seconds: 5
 
-# Do not let the broker's reachability gate service health - publishing is fire-and-forget.
+# Do not let the broker's reachability gate service health; an unreachable broker shows up as unacked messages.
 management:
   health:
     rabbit:

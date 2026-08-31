@@ -52,9 +52,22 @@ public class MessageMapper {
 	}
 
 	public Message toMessage(final SmsRequest request, final String batchId) {
+		return toMessage(request, batchId, null);
+	}
+
+	/**
+	 * Builds an SMS message, optionally reusing an existing message id.
+	 * <p>
+	 * A redelivery attempt reuses the id so that every attempt at the same SMS is one message in history rather than
+	 * several unrelated ones - which is what {@code messageId} already means here, since a message has always been
+	 * allowed several deliveries. The delivery id is always fresh: that is the per-attempt identity.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} to mint one
+	 */
+	public Message toMessage(final SmsRequest request, final String batchId, final String messageId) {
 		return Message.builder()
 			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+			.withMessageId(ofNullable(messageId).orElseGet(() -> UUID.randomUUID().toString()))
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
 				.map(SmsRequest.Party::partyId)

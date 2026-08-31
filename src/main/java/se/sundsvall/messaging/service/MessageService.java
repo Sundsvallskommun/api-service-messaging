@@ -120,11 +120,23 @@ public class MessageService {
 
 	public InternalDeliveryResult sendSms(final SmsRequest request) {
 		// Create batchId as history resource depends on it being instantiated
-		final var batchId = UUID.randomUUID().toString();
+		return sendSms(request, UUID.randomUUID().toString(), null);
+	}
+
+	/**
+	 * Sends an SMS under a caller-supplied batch id, and optionally an existing message id.
+	 * <p>
+	 * A redelivery attempt passes both back in, so every attempt at the same SMS shares one message id and one batch
+	 * id and is reported as a single message that was tried more than once, rather than as several unrelated ones. Each
+	 * attempt still gets its own delivery id and its own history row.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} for a first attempt
+	 */
+	public InternalDeliveryResult sendSms(final SmsRequest request, final String batchId, final String messageId) {
 		final var cleanedRequest = request.withSender(cleanSenderName(request.sender()));
 
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest, batchId)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(cleanedRequest, batchId, messageId)));
 	}
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {

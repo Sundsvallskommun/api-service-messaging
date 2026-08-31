@@ -415,6 +415,85 @@ class HistoryServiceTest {
 	}
 
 	@Test
+	void collapseDeliveryAttempts_keepsTheSuccessfulAttempt() {
+		// One SMS retried three times leaves four rows under one message id. Reporting all four would show a single
+		// SMS as having gone to four people.
+		stubMobileNumber("+46701740605");
+		final var attempts = List.of(
+			smsAttempt(MessageStatus.FAILED, LocalDateTime.of(2026, 8, 28, 15, 7, 13)),
+			smsAttempt(MessageStatus.FAILED, LocalDateTime.of(2026, 8, 28, 15, 7, 18)),
+			smsAttempt(MessageStatus.SENT, LocalDateTime.of(2026, 8, 28, 15, 7, 48)),
+			smsAttempt(MessageStatus.FAILED, LocalDateTime.of(2026, 8, 28, 15, 12, 49)));
+
+		final var result = historyService.collapseDeliveryAttempts(attempts);
+
+		assertThat(result).hasSize(1);
+		assertThat(result.getFirst().getStatus()).isEqualTo(MessageStatus.SENT);
+	}
+
+	@Test
+	void collapseDeliveryAttempts_fallsBackToTheLastAttempt() {
+		// The give-up case: every attempt failed, so the last one is what happened.
+		stubMobileNumber("+46701740605");
+		final var attempts = List.of(
+			smsAttempt(MessageStatus.FAILED, LocalDateTime.of(2026, 8, 28, 15, 7, 13)),
+			smsAttempt(MessageStatus.FAILED, LocalDateTime.of(2026, 8, 28, 15, 12, 49)));
+
+		final var result = historyService.collapseDeliveryAttempts(attempts);
+
+		assertThat(result).hasSize(1);
+		assertThat(result.getFirst().getCreatedAt()).isEqualTo(LocalDateTime.of(2026, 8, 28, 15, 12, 49));
+	}
+
+	@Test
+	void collapseDeliveryAttempts_leavesDifferentNumbersAlone() {
+		// A MESSAGE request fans out to one SMS delivery per contact setting, under one message id. Those are two
+		// recipients, not two attempts.
+		final var jsonNodeMock = mock(JsonNode.class);
+		final var firstNumber = mock(JsonNode.class);
+		final var secondNumber = mock(JsonNode.class);
+		when(objectMapperMock.readTree(any(String.class))).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("mobileNumber")).thenReturn(firstNumber, secondNumber);
+		when(firstNumber.asText()).thenReturn("+46701740605");
+		when(secondNumber.asText()).thenReturn("+46701740606");
+
+		final var attempts = List.of(
+			smsAttempt(MessageStatus.SENT, LocalDateTime.of(2026, 8, 28, 15, 7, 13)),
+			smsAttempt(MessageStatus.SENT, LocalDateTime.of(2026, 8, 28, 15, 7, 14)));
+
+		assertThat(historyService.collapseDeliveryAttempts(attempts)).hasSize(2);
+	}
+
+	@Test
+	void collapseDeliveryAttempts_leavesEverythingThatIsNotSmsAlone() {
+		// Only SMS has a retry ladder. Two identical snail mails under one message id are two real deliveries.
+		final var first = HistoryEntity.builder()
+			.withPartyId("partyId").withMessageType(MessageType.SNAIL_MAIL).withStatus(MessageStatus.SENT).build();
+		final var second = HistoryEntity.builder()
+			.withPartyId("partyId").withMessageType(MessageType.SNAIL_MAIL).withStatus(MessageStatus.SENT).build();
+
+		assertThat(historyService.collapseDeliveryAttempts(List.of(first, second))).hasSize(2);
+	}
+
+	private void stubMobileNumber(final String mobileNumber) {
+		final var jsonNodeMock = mock(JsonNode.class);
+		final var numberNode = mock(JsonNode.class);
+		when(objectMapperMock.readTree(any(String.class))).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("mobileNumber")).thenReturn(numberNode);
+		when(numberNode.asText()).thenReturn(mobileNumber);
+	}
+
+	private HistoryEntity smsAttempt(final MessageStatus status, final LocalDateTime createdAt) {
+		return HistoryEntity.builder()
+			.withPartyId("partyId")
+			.withMessageType(MessageType.SMS)
+			.withStatus(status)
+			.withContent("{}")
+			.withCreatedAt(createdAt)
+			.build();
+	}
+
+	@Test
 	void createRecipientTest_nullPartyId() throws JacksonException {
 		final var municipalityId = "2281";
 		final var history = HistoryEntity.builder()
