@@ -10,11 +10,19 @@ spring:
 
   # RabbitMQ. Correlated confirms and returns are what let a publish be waited on, which the whole path depends on:
   # nothing is acked until the broker has taken responsibility for what was published in its place.
+  # observation-enabled feeds Actuator's timer metrics for publish and receive. Instrumentation is not environment
+  # config - only the exporter is - and the path is hardest to follow in the environments where it cannot be watched
+  # in a terminal. Nothing in dept44 wires a tracer, so this yields metrics, not spans linking a request to the
+  # outcome it produced.
   rabbitmq:
     publisher-confirm-type: correlated
     publisher-returns: true
     template:
       mandatory: true
+      observation-enabled: true
+    listener:
+      simple:
+        observation-enabled: true
 
   # JPA
   jpa:
@@ -30,8 +38,9 @@ spring:
 # not committed here. Object names are the contract with postportal and are declared by the messaging-topology-operator
 # via GitOps - the AMQP user has an empty configure permission, so this service must never declare any of them.
 #
-# retry-tiers is the one genuinely local setting: it decides which wait queue a failed attempt goes to. Three tiers
-# means four delivery attempts in total, after which the request is routed to `dead`.
+# retry-tiers is the one name here that is not part of that contract - postportal waits for a terminal outcome and
+# never sees the ladder that produced it, so the timing is messaging's alone. It decides which wait queue a failed
+# attempt goes to; three tiers means four delivery attempts in total, after which the request is routed to `dead`.
 rabbitmq:
   enabled: false
   work-queue: api-fabriken.messaging.sms
