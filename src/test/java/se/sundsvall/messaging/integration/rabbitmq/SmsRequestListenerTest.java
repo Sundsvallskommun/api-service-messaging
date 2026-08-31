@@ -5,17 +5,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.AmqpException;
 import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.MessageIds;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.MessageService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -44,10 +49,18 @@ class SmsRequestListenerTest {
 		return new SmsRequestListener(mockMessageService, mockOutcomePublisher, mockRetryPublisher);
 	}
 
+	private void whenSendSmsReturns(final MessageStatus status, final String messageId) {
+		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
+			.thenReturn(InternalDeliveryResult.builder().withMessageId(messageId).withStatus(status).build());
+	}
+
+	private void whenSendSmsThrows(final ThrowableProblem problem) {
+		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString())).thenThrow(problem);
+	}
+
 	@Test
 	void receive_sent() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withMessageId(MESSAGE_ID).withStatus(MessageStatus.SENT).build());
+		whenSendSmsReturns(MessageStatus.SENT, MESSAGE_ID);
 
 		listener().receive(smsQueueMessage(), null, null, null);
 
@@ -57,8 +70,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_passesTheContractThroughToTheOrdinaryDeliveryPath() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withMessageId(MESSAGE_ID).withStatus(MessageStatus.SENT).build());
+		whenSendSmsReturns(MessageStatus.SENT, MESSAGE_ID);
 
 		listener().receive(smsQueueMessage(), null, null, null);
 
@@ -70,8 +82,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_notSentGoesToTheLadder() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withStatus(MessageStatus.NOT_SENT).build());
+		whenSendSmsReturns(MessageStatus.NOT_SENT, null);
 		when(mockRetryPublisher.hasTierFor(2)).thenReturn(true);
 
 		listener().receive(smsQueueMessage(), null, null, null);
@@ -82,7 +93,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_serverErrorIsTransient() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString())).thenThrow(Problem.valueOf(BAD_GATEWAY, "sms-sender is down"));
+		whenSendSmsThrows(Problem.valueOf(BAD_GATEWAY, "sms-sender is down"));
 		when(mockRetryPublisher.hasTierFor(3)).thenReturn(true);
 
 		listener().receive(smsQueueMessage(), 2, MESSAGING_MESSAGE_ID, BATCH_ID);
@@ -93,7 +104,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_clientErrorSkipsTheLadderEntirely() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString())).thenThrow(Problem.valueOf(BAD_REQUEST, "invalid mobile number"));
+		whenSendSmsThrows(Problem.valueOf(BAD_REQUEST, "invalid mobile number"));
 
 		listener().receive(smsQueueMessage(), null, null, null);
 
@@ -104,7 +115,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_exhaustedLadderGivesUp() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString())).thenThrow(Problem.valueOf(BAD_GATEWAY, "still down"));
+		whenSendSmsThrows(Problem.valueOf(BAD_GATEWAY, "still down"));
 		when(mockRetryPublisher.hasTierFor(5)).thenReturn(false);
 
 		listener().receive(smsQueueMessage(), 4, MESSAGING_MESSAGE_ID, BATCH_ID);
@@ -116,13 +127,12 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_firstAttemptMintsIdsAndPassesThemOn() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withStatus(MessageStatus.NOT_SENT).build());
+		whenSendSmsReturns(MessageStatus.NOT_SENT, null);
 		when(mockRetryPublisher.hasTierFor(2)).thenReturn(true);
 
 		listener().receive(smsQueueMessage(), null, null, null);
 
-		final var idsCaptor = ArgumentCaptor.forClass(SmsRetryPublisher.MessageIds.class);
+		final var idsCaptor = ArgumentCaptor.forClass(MessageIds.class);
 		verify(mockRetryPublisher).publishRetry(any(SmsQueueMessage.class), eq(2), anyString(), idsCaptor.capture());
 
 		// Minted here rather than inside the service, so a failed attempt still knows what to hand to the next one.
@@ -135,8 +145,7 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_retryReusesTheIdsItWasGiven() {
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withMessageId(MESSAGING_MESSAGE_ID).withStatus(MessageStatus.SENT).build());
+		whenSendSmsReturns(MessageStatus.SENT, MESSAGING_MESSAGE_ID);
 
 		listener().receive(smsQueueMessage(), 2, MESSAGING_MESSAGE_ID, BATCH_ID);
 
@@ -148,12 +157,10 @@ class SmsRequestListenerTest {
 	void receive_publishFailureIsNotSwallowed() {
 		// An unacked message is what lets the broker's delivery limit route it to dead, where it still becomes an
 		// outcome. Swallowing this would ack a request whose outcome no longer exists anywhere.
-		when(mockMessageService.sendSms(any(SmsRequest.class), anyString(), anyString()))
-			.thenReturn(InternalDeliveryResult.builder().withMessageId(MESSAGE_ID).withStatus(MessageStatus.SENT).build());
-		final var boom = new org.springframework.amqp.AmqpException("no confirmation");
-		org.mockito.Mockito.doThrow(boom).when(mockOutcomePublisher).publishSent(anyString(), anyString());
+		whenSendSmsReturns(MessageStatus.SENT, MESSAGE_ID);
+		doThrow(new AmqpException("no confirmation")).when(mockOutcomePublisher).publishSent(anyString(), anyString());
 
-		org.assertj.core.api.Assertions.assertThatExceptionOfType(org.springframework.amqp.AmqpException.class)
+		assertThatExceptionOfType(AmqpException.class)
 			.isThrownBy(() -> listener().receive(smsQueueMessage(), null, null, null));
 	}
 }

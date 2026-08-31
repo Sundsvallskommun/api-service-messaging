@@ -1,10 +1,10 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,10 +29,10 @@ class ConfirmedPublisher {
 		this.confirmTimeoutSeconds = confirmTimeoutSeconds;
 	}
 
-	void publish(final String exchange, final String routingKey, final Object payload, final String correlationId, final MessagePostProcessor postProcessor) {
+	void publish(final String exchange, final String routingKey, final Object payload, final String correlationId, final Map<String, Object> headers) {
 		final var correlationData = new CorrelationData(correlationId);
 
-		rabbitTemplate.convertAndSend(exchange, routingKey, payload, postProcessor, correlationData);
+		rabbitTemplate.convertAndSend(exchange, routingKey, payload, withHeaders(headers), correlationData);
 
 		final var confirm = awaitConfirm(correlationData, exchange, routingKey);
 
@@ -60,8 +60,8 @@ class ConfirmedPublisher {
 		}
 	}
 
-	static MessagePostProcessor withHeaders(final java.util.Map<String, Object> headers) {
-		return (final Message message) -> {
+	private static MessagePostProcessor withHeaders(final Map<String, Object> headers) {
+		return message -> {
 			headers.forEach(message.getMessageProperties()::setHeader);
 			return message;
 		};

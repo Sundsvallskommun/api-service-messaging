@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -48,7 +47,6 @@ import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -201,18 +199,24 @@ public class HistoryService {
 			.withMessageId(messageId)
 			.withIssuer(history.getIssuer())
 			.withOrigin(history.getOrigin())
-			// The earliest row, not whichever the query returned first: when a delivery was retried, the message was
-			// sent when the first attempt was made, not when the last one gave up.
-			.withSent(histories.stream()
-				.map(HistoryEntity::getCreatedAt)
-				.filter(Objects::nonNull)
-				.min(naturalOrder())
-				.orElse(history.getCreatedAt()))
+			.withSent(firstAttemptedAt(histories))
 			.withRecipients(recipients)
 			.withSubject(extractSubject(history))
 			.withAttachments(extractAttachment(history))
 			.withBody(extractMessage(history))
 			.build();
+	}
+
+	/**
+	 * The earliest row rather than whichever the query returned first: when a delivery was retried, the message was
+	 * sent when the first attempt was made, not when the last one gave up.
+	 */
+	private static LocalDateTime firstAttemptedAt(final List<HistoryEntity> histories) {
+		return histories.stream()
+			.map(HistoryEntity::getCreatedAt)
+			.filter(Objects::nonNull)
+			.min(naturalOrder())
+			.orElse(null);
 	}
 
 	private String extractMessage(final HistoryEntity history) {
@@ -310,7 +314,7 @@ public class HistoryService {
 
 		histories.stream()
 			.filter(history -> history.getMessageType() == SMS)
-			.collect(groupingBy(this::smsRecipientKey, LinkedHashMap::new, toList()))
+			.collect(groupingBy(this::smsRecipientKey))
 			.values()
 			.forEach(attempts -> reported.add(attemptToReport(attempts)));
 

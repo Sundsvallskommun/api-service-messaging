@@ -17,8 +17,7 @@ import static se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.FAIL
  * Everything routed {@code dead} is copied here as well as to the parking lot, whether this application put it there or
  * the broker did after unacknowledged redeliveries. That second case is the reason this queue exists: no application
  * code runs on it, so without a consumer here a crash mid-process would emit no {@code sms.failed} at all and
- * postportal
- * would wait on an outcome nobody was going to send.
+ * postportal would wait on an outcome nobody was going to send.
  * <p>
  * The queue has its delivery limit disabled on purpose. If the outcome cannot be published, blocking this queue's head
  * is loud, and dropping the message would be silent.

@@ -1,10 +1,10 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpException;
@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static se.sundsvall.messaging.integration.rabbitmq.ConfirmedPublisher.withHeaders;
+import static org.mockito.Mockito.verify;
+import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.stubAck;
 
 @ExtendWith(MockitoExtension.class)
 class ConfirmedPublisherTest {
@@ -35,29 +35,20 @@ class ConfirmedPublisherTest {
 
 	@Test
 	void publish_returnsQuietlyOnAck() {
-		doAnswer(invocation -> {
-			final var correlationData = invocation.getArgument(4, CorrelationData.class);
-			((CompletableFuture<CorrelationData.Confirm>) correlationData.getFuture())
-				.complete(new CorrelationData.Confirm(true, null));
-			return null;
-		}).when(mockRabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class),
-			any(MessagePostProcessor.class), any(CorrelationData.class));
+		stubAck(mockRabbitTemplate);
 
 		assertThatNoException().isThrownBy(() -> new ConfirmedPublisher(mockRabbitTemplate, 1)
-			.publish("exchange", "rk", "payload", "correlation", withHeaders(Map.of())));
+			.publish("exchange", "rk", "payload", "correlation", Map.of()));
 	}
 
 	@Test
 	void publish_restoresTheInterruptFlagAndRaises() {
-		doAnswer(invocation -> null).when(mockRabbitTemplate).convertAndSend(any(String.class), any(String.class),
-			any(Object.class), any(MessagePostProcessor.class), any(CorrelationData.class));
-
-		// An interrupted thread makes the wait for a confirm throw immediately.
+		// Unstubbed, so no confirm ever arrives. An interrupted thread makes the wait throw immediately.
 		Thread.currentThread().interrupt();
 
 		assertThatExceptionOfType(AmqpException.class)
 			.isThrownBy(() -> new ConfirmedPublisher(mockRabbitTemplate, 1)
-				.publish("exchange", "rk", "payload", "correlation", withHeaders(Map.of())))
+				.publish("exchange", "rk", "payload", "correlation", Map.of()))
 			.withMessageContaining("Interrupted");
 
 		// Swallowing the interrupt would leave the listener container unable to shut down cleanly.
@@ -65,12 +56,18 @@ class ConfirmedPublisherTest {
 	}
 
 	@Test
-	void withHeaders_setsEveryHeaderOnTheOutgoingMessage() {
-		final var message = new Message("{}".getBytes(), new MessageProperties());
+	void publish_setsEveryHeaderOnTheOutgoingMessage() {
+		stubAck(mockRabbitTemplate);
 
-		final var result = withHeaders(Map.of("x-attempt", 3, "x-failure-reason", "boom")).postProcessMessage(message);
+		new ConfirmedPublisher(mockRabbitTemplate, 1)
+			.publish("exchange", "rk", "payload", "correlation", Map.of("x-attempt", 3, "x-failure-reason", "boom"));
 
-		assertThat(result.getMessageProperties().getHeaders())
+		final var captor = ArgumentCaptor.forClass(MessagePostProcessor.class);
+		verify(mockRabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class),
+			captor.capture(), any(CorrelationData.class));
+
+		final var processed = captor.getValue().postProcessMessage(new Message("{}".getBytes(), new MessageProperties()));
+		assertThat(processed.getMessageProperties().getHeaders())
 			.containsEntry("x-attempt", 3)
 			.containsEntry("x-failure-reason", "boom");
 	}

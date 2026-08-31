@@ -7,8 +7,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import static se.sundsvall.messaging.integration.rabbitmq.ConfirmedPublisher.withHeaders;
-
 /**
  * Routes a failed request onto the failure hub - either to a wait queue that will hand it back after its TTL, or to the
  * {@code dead} key, which a direct exchange copies to both the parking lot and the give-up queue.
@@ -42,32 +40,36 @@ public class SmsRetryPublisher {
 	 * @param nextAttempt the attempt number this republish is for, 1-based and already incremented by the caller
 	 */
 	public void publishRetry(final SmsQueueMessage message, final int nextAttempt, final String reason, final MessageIds messageIds) {
-		// Tier N carries attempt N+1: the first republish waits the shortest tier.
-		final var tier = properties.getRetryTiers().get(nextAttempt - 2);
+		final var tier = properties.getRetryTiers().get(tierIndex(nextAttempt));
 
 		publisher.publish(properties.getRetryExchange(), tier, message, message.recipientId(),
-			withHeaders(Map.of(
+			Map.of(
 				ATTEMPT_HEADER, nextAttempt,
 				FAILURE_REASON_HEADER, reason,
 				MESSAGE_ID_HEADER, messageIds.messageId(),
-				BATCH_ID_HEADER, messageIds.batchId())));
+				BATCH_ID_HEADER, messageIds.batchId()));
 
 		LOG.info("Republished SMS for recipient {} on tier {} as attempt {}: {}", message.recipientId(), tier, nextAttempt, reason);
 	}
 
 	public void publishGiveUp(final SmsQueueMessage message, final String reason) {
 		publisher.publish(properties.getRetryExchange(), properties.getDeadRoutingKey(), message, message.recipientId(),
-			withHeaders(Map.of(FAILURE_REASON_HEADER, reason)));
+			Map.of(FAILURE_REASON_HEADER, reason));
 
 		LOG.info("Gave up on SMS for recipient {}: {}", message.recipientId(), reason);
+	}
+
+	public boolean hasTierFor(final int nextAttempt) {
+		return tierIndex(nextAttempt) < properties.getRetryTiers().size();
+	}
+
+	private static int tierIndex(final int nextAttempt) {
+		// Tier 0 carries attempt 2: the first republish waits the shortest tier.
+		return nextAttempt - 2;
 	}
 
 	/**
 	 * Messaging's own message and batch ids for one logical SMS, held together so an attempt can hand them to the next.
 	 */
 	public record MessageIds(String messageId, String batchId) {}
-
-	public boolean hasTierFor(final int nextAttempt) {
-		return nextAttempt - 2 < properties.getRetryTiers().size();
-	}
 }

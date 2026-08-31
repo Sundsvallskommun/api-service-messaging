@@ -7,8 +7,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import static se.sundsvall.messaging.integration.rabbitmq.ConfirmedPublisher.withHeaders;
-
 /**
  * Publishes the one terminal outcome per send request onto the outcome hub.
  * <p>
@@ -41,7 +39,7 @@ public class SmsOutcomePublisher {
 	}
 
 	private void publish(final String routingKey, final SmsStatusMessage outcome) {
-		publisher.publish(properties.getStatusExchange(), routingKey, outcome, outcome.recipientId(), withHeaders(Map.of()));
+		publisher.publish(properties.getStatusExchange(), routingKey, outcome, outcome.recipientId(), Map.of());
 
 		LOG.info("Published outcome {} for recipient {} (exchange={}, routingKey={})",
 			outcome.status(), outcome.recipientId(), properties.getStatusExchange(), routingKey);

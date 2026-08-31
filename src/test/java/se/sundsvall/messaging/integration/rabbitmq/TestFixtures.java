@@ -1,5 +1,13 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.ReturnedMessage;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+
 final class TestFixtures {
 
 	static final String RECIPIENT_ID = "1f2f1ca3-d963-4cce-8c40-4a820b8758ee";
@@ -28,5 +36,23 @@ final class TestFixtures {
 		final var properties = new RabbitIntegrationProperties();
 		properties.setEnabled(true);
 		return properties;
+	}
+
+	/**
+	 * Makes the template behave like a broker that accepted the publish. Without a stub the mock does nothing, which
+	 * leaves the confirm future uncompleted - that is what the timeout and interrupt tests rely on.
+	 */
+	static void stubAck(final RabbitTemplate rabbitTemplate) {
+		stubConfirm(rabbitTemplate, new CorrelationData.Confirm(true, null), null);
+	}
+
+	static void stubConfirm(final RabbitTemplate rabbitTemplate, final CorrelationData.Confirm confirm, final ReturnedMessage returned) {
+		doAnswer(invocation -> {
+			final var correlationData = invocation.getArgument(4, CorrelationData.class);
+			correlationData.setReturned(returned);
+			correlationData.getFuture().complete(confirm);
+			return null;
+		}).when(rabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class),
+			any(MessagePostProcessor.class), any(CorrelationData.class));
 	}
 }
