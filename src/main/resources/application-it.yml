@@ -52,6 +52,14 @@ integration:
     client-id: someClientId
     client-secret: someClientSecret
 
+  # ObjectStore integration
+  object-store:
+    base-url: http://localhost:${wiremock.server.port}/object-store
+    token-url: http://localhost:${wiremock.server.port}/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    bucket: messaging-attachments
+
   # WebMessageSender integration
   web-message-sender:
     base-url: http://localhost:${wiremock.server.port}/web-message-sender

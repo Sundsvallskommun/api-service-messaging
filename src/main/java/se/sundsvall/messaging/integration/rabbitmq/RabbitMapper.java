@@ -1,6 +1,8 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
+import java.util.List;
 import se.sundsvall.dept44.support.Identifier;
+import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
 
@@ -53,5 +55,45 @@ final class RabbitMapper {
 			.withIssuer(toIssuer(message.sentBy()))
 			.withPriority(Priority.NORMAL)
 			.build();
+	}
+
+	/**
+	 * The e-mail counterpart of {@link #toSmsRequest}. Attachments keep their references rather than being fetched here:
+	 * resolution belongs in the delivery attempt, where a failure to read an object is classified alongside a failure to
+	 * reach email-sender instead of escaping past the ladder.
+	 */
+	static EmailRequest toEmailRequest(final EmailQueueMessage message) {
+		if (message == null) {
+			return null;
+		}
+
+		return EmailRequest.builder()
+			.withParty(EmailRequest.Party.builder()
+				.withPartyId(message.partyId())
+				.build())
+			.withEmailAddress(message.emailAddress())
+			.withSubject(message.subject())
+			.withMessage(message.message())
+			.withHtmlMessage(message.htmlMessage())
+			.withSender(EmailRequest.Sender.builder()
+				.withName(message.senderName())
+				.withAddress(message.senderAddress())
+				.withReplyTo(message.replyTo())
+				.build())
+			.withAttachments(toAttachments(message.attachments()))
+			.withMunicipalityId(message.municipalityId())
+			.withOrigin(message.origin())
+			.withIssuer(toIssuer(message.sentBy()))
+			.build();
+	}
+
+	private static List<EmailRequest.Attachment> toAttachments(final List<EmailQueueMessage.Attachment> attachments) {
+		return ofNullable(attachments).orElse(List.of()).stream()
+			.map(attachment -> EmailRequest.Attachment.builder()
+				.withName(attachment.name())
+				.withContentType(attachment.contentType())
+				.withObjectId(attachment.objectId())
+				.build())
+			.toList();
 	}
 }

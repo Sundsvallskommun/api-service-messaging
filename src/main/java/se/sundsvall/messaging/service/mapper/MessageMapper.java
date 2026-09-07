@@ -34,9 +34,22 @@ import static se.sundsvall.messaging.util.JsonUtils.toJson;
 public class MessageMapper {
 
 	public Message toMessage(final EmailRequest request, final String batchId) {
+		return toMessage(request, batchId, null);
+	}
+
+	/**
+	 * Maps an e-mail under a caller-supplied batch id, and optionally an existing message id.
+	 * <p>
+	 * A redelivery reuses both, so history shows one message that was tried more than once rather than several
+	 * unrelated ones - the message id is the identity a batch is allowed several deliveries under. The delivery id is
+	 * always fresh: that is the per-attempt identity.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} to mint one
+	 */
+	public Message toMessage(final EmailRequest request, final String batchId, final String messageId) {
 		return Message.builder()
 			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+			.withMessageId(ofNullable(messageId).orElseGet(() -> UUID.randomUUID().toString()))
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
 				.map(EmailRequest.Party::partyId)

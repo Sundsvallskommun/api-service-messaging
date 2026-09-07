@@ -16,9 +16,12 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.utils.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
+import se.sundsvall.dept44.exception.ClientProblem;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.messaging.api.model.response.Batch;
@@ -29,6 +32,7 @@ import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
 import se.sundsvall.messaging.integration.db.projection.BatchHistoryProjection;
 import se.sundsvall.messaging.integration.db.projection.MessageIdProjection;
+import se.sundsvall.messaging.integration.objectstore.ObjectStoreIntegration;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.History;
@@ -55,12 +59,15 @@ import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toBatch
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toStatus;
 import static se.sundsvall.messaging.integration.db.mapper.HistoryMapper.toUserBatches;
 import static se.sundsvall.messaging.model.MessageStatus.SENT;
+import static se.sundsvall.messaging.model.MessageType.EMAIL;
 import static se.sundsvall.messaging.model.MessageType.SMS;
 import static se.sundsvall.messaging.util.FilterUtils.isSnailMailSuccessful;
 import static se.sundsvall.messaging.util.PagingUtil.toPage;
 
 @Service
 public class HistoryService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(HistoryService.class);
 
 	private final DbIntegration dbIntegration;
 
@@ -70,11 +77,15 @@ public class HistoryService {
 
 	private final BatchExtractor batchExtractor;
 
-	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration, final ObjectMapper objectMapper, BatchExtractor batchDecorator) {
+	private final ObjectStoreIntegration objectStoreIntegration;
+
+	public HistoryService(final DbIntegration dbIntegration, final PartyIntegration partyIntegration, final ObjectMapper objectMapper, BatchExtractor batchDecorator,
+		final ObjectStoreIntegration objectStoreIntegration) {
 		this.dbIntegration = dbIntegration;
 		this.partyIntegration = partyIntegration;
 		this.objectMapper = objectMapper;
 		this.batchExtractor = batchDecorator;
+		this.objectStoreIntegration = objectStoreIntegration;
 	}
 
 	public List<History> getHistoryByMunicipalityIdAndMessageId(final String municipalityId, final String messageId) {
@@ -109,16 +120,54 @@ public class HistoryService {
 			throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " not found");
 		}
 		for (final var attachment : attachments) {
-			final var name = attachment.get(nameField).asText();
+			// Every field is read through ofNullable rather than dereferenced. JsonNode.get returns null for an absent
+			// field, and absent is ordinary here: contentType has always been optional and the mapper omits nulls, so
+			// dereferencing it turned any mail sent without one into a 500 on this endpoint. An attachment stored as a
+			// reference has no content node at all, for the same reason.
+			final var name = text(attachment, nameField);
 			if (fileName.equals(name)) {
 				return Attachment.builder()
 					.withName(name)
-					.withContent(attachment.get("content").asText())
-					.withContentType(attachment.get("contentType").asText())
+					.withContent(contentOf(attachment, fileName))
+					.withContentType(text(attachment, "contentType"))
 					.build();
 			}
 		}
 		throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " not found");
+	}
+
+	private static String text(final JsonNode node, final String field) {
+		return ofNullable(field)
+			.map(node::get)
+			.map(JsonNode::asText)
+			.orElse(null);
+	}
+
+	/**
+	 * The attachment's bytes, base64-encoded, whether they were archived inline or left in the object store.
+	 * <p>
+	 * History keeps an attachment's metadata for as long as the message is kept, but a referenced attachment's bytes
+	 * only live as long as the object store's time to live. That asymmetry is deliberate - the alternative puts the
+	 * bytes back into the message row, which is the cost this whole arrangement exists to avoid - and it is why an
+	 * expired object is answered with a plain 404 saying so rather than with a stack trace or a bad gateway.
+	 */
+	private String contentOf(final JsonNode attachment, final String fileName) {
+		final var inlineContent = text(attachment, "content");
+		if (StringUtils.isNotBlank(inlineContent)) {
+			return inlineContent;
+		}
+
+		final var objectId = text(attachment, "objectId");
+		if (StringUtils.isBlank(objectId)) {
+			throw Problem.valueOf(NOT_FOUND, "Attachment with name " + fileName + " has no retained content");
+		}
+
+		try {
+			return Base64.encodeBase64String(objectStoreIntegration.fetch(objectId).content());
+		} catch (final ClientProblem e) {
+			LOG.info("Attachment object {} is no longer available: {}", objectId, e.getMessage());
+			throw Problem.valueOf(NOT_FOUND, "The content of attachment " + fileName + " is no longer retained");
+		}
 	}
 
 	private void setupResponse(final HttpServletResponse response, final Attachment attachment) throws IOException {
@@ -303,24 +352,24 @@ public class HistoryService {
 	 * each of them would show one SMS as having been sent to four people. A successful attempt is what happened;
 	 * failing that, the last attempt is.
 	 * <p>
-	 * Only SMS is considered, because only SMS has a retry ladder - so only SMS can produce several rows that are
-	 * attempts at one delivery rather than separate deliveries. Two identical snail mails under one message id are two
-	 * real deliveries and are left alone. Within SMS the mobile number is the discriminator, since a MESSAGE request
-	 * fans out to one delivery per contact setting under a single message id, and those are genuinely different
-	 * recipients.
+	 * Only the channels that have a retry ladder are considered - SMS and e-mail - since only those can produce several
+	 * rows that are attempts at one delivery rather than separate deliveries. Two identical snail mails under one
+	 * message id are two real deliveries and are left alone. Within a channel the destination is the discriminator,
+	 * since a MESSAGE request fans out to one delivery per contact setting under a single message id, and those are
+	 * genuinely different recipients.
 	 */
 	List<HistoryEntity> collapseDeliveryAttempts(final List<HistoryEntity> histories) {
 		final var reported = Collections.newSetFromMap(new IdentityHashMap<HistoryEntity, Boolean>());
 
 		histories.stream()
-			.filter(history -> history.getMessageType() == SMS)
-			.collect(groupingBy(this::smsRecipientKey))
+			.filter(HistoryService::hasRetryLadder)
+			.collect(groupingBy(this::recipientKey))
 			.values()
 			.forEach(attempts -> reported.add(attemptToReport(attempts)));
 
 		// Filtering the original list rather than rebuilding it keeps the recipients in the order they arrived.
 		return histories.stream()
-			.filter(history -> history.getMessageType() != SMS || reported.contains(history))
+			.filter(history -> !hasRetryLadder(history) || reported.contains(history))
 			.toList();
 	}
 
@@ -333,10 +382,45 @@ public class HistoryService {
 				.orElseThrow());
 	}
 
-	private List<Object> smsRecipientKey(final HistoryEntity history) {
-		// Nulls are expected - an SMS need not carry a party id - so the key is an Arrays.asList rather than a record,
-		// which keeps null handling out of it.
-		return Arrays.asList(history.getPartyId(), extractMobileNumber(history));
+	private static boolean hasRetryLadder(final HistoryEntity history) {
+		return history.getMessageType() == SMS || history.getMessageType() == EMAIL;
+	}
+
+	private List<Object> recipientKey(final HistoryEntity history) {
+		// Nulls are expected - neither channel need carry a party id - so the key is an Arrays.asList rather than a
+		// record, which keeps null handling out of it. The message type is part of the key so that a party reached on
+		// both channels under one message id is not collapsed into one recipient.
+		return Arrays.asList(history.getMessageType(), history.getPartyId(), extractDestination(history));
+	}
+
+	/**
+	 * The address an attempt was made against: a mobile number for SMS, a recipient address for e-mail. It is read out
+	 * of the stored request rather than off the row, because that is where the value a retry shares with its earlier
+	 * attempts lives.
+	 */
+	private String extractDestination(final HistoryEntity history) {
+		if (history.getMessageType() == EMAIL) {
+			return extractEmailAddress(history);
+		}
+		return extractMobileNumber(history);
+	}
+
+	private String extractEmailAddress(final HistoryEntity history) {
+		JsonNode content;
+		try {
+			content = objectMapper.readTree(history.getContent());
+		} catch (final JacksonException ignored) {
+			return null;
+		}
+		// A queued e-mail carries a single address on emailAddress; one submitted over HTTP may instead carry a
+		// recipients list, and its first entry is what a retry would repeat.
+		return ofNullable(content.get("emailAddress"))
+			.map(JsonNode::asText)
+			.orElseGet(() -> ofNullable(content.get("recipients"))
+				.filter(JsonNode::isArray)
+				.filter(recipients -> !recipients.isEmpty())
+				.map(recipients -> recipients.get(0).asText())
+				.orElse(null));
 	}
 
 	UserMessage.Recipient createRecipient(final String municipalityId, final HistoryEntity history) {

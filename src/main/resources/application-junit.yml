@@ -76,6 +76,14 @@ integration:
     client-id: someClientId
     client-secret: someClientSecret
 
+  # ObjectStore integration
+  object-store:
+    base-url: http://object-store/api
+    token-url: http://object-store/token
+    client-id: someClientId
+    client-secret: someClientSecret
+    bucket: messaging-attachments
+
   # WebMessageSender integration
   web-message-sender:
     base-url: http://web-message-sender/api

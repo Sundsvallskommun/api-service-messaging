@@ -8,29 +8,30 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Routes a failed request onto the failure hub - either to a wait queue that will hand it back after its TTL, or to the
- * {@code dead} key, which a direct exchange copies to both the parking lot and the give-up queue.
+ * Routes a failed e-mail request onto this channel's failure hub - either to a wait queue that hands it back after its
+ * TTL, or to the dead key, which a direct exchange copies to both the parking lot and the give-up queue.
  * <p>
- * The attempt counter rides on the message as a header, so it survives the trip through a wait queue and back.
+ * Both the exchange and the dead key belong to e-mail alone. Sharing SMS's would put a copy of every SMS retry in this
+ * channel's wait queues, and would hand this channel's give-up events to a listener that reports them as SMS failures.
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
-public class SmsRetryPublisher {
+public class EmailRetryPublisher {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SmsRetryPublisher.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EmailRetryPublisher.class);
 
 	private final ConfirmedPublisher publisher;
 	private final RabbitIntegrationProperties.Flow flow;
 
-	SmsRetryPublisher(final RabbitTemplate rabbitTemplate, final RabbitIntegrationProperties properties) {
+	EmailRetryPublisher(final RabbitTemplate rabbitTemplate, final RabbitIntegrationProperties properties) {
 		this.publisher = new ConfirmedPublisher(rabbitTemplate, properties.publishConfirmTimeoutSeconds());
-		this.flow = properties.sms();
+		this.flow = properties.email();
 	}
 
 	/**
 	 * @param nextAttempt the attempt number this republish is for, 1-based and already incremented by the caller
 	 */
-	public void publishRetry(final SmsQueueMessage message, final int nextAttempt, final String reason, final MessageIds messageIds) {
+	public void publishRetry(final EmailQueueMessage message, final int nextAttempt, final String reason, final MessageIds messageIds) {
 		final var tier = flow.retryTiers().get(tierIndex(nextAttempt));
 
 		publisher.publish(flow.retryExchange(), tier, message, message.recipientId(),
@@ -40,14 +41,14 @@ public class SmsRetryPublisher {
 				RetryHeaders.MESSAGE_ID, messageIds.messageId(),
 				RetryHeaders.BATCH_ID, messageIds.batchId()));
 
-		LOG.info("Republished SMS for recipient {} on tier {} as attempt {}: {}", message.recipientId(), tier, nextAttempt, reason);
+		LOG.info("Republished e-mail for recipient {} on tier {} as attempt {}: {}", message.recipientId(), tier, nextAttempt, reason);
 	}
 
-	public void publishGiveUp(final SmsQueueMessage message, final String reason) {
+	public void publishGiveUp(final EmailQueueMessage message, final String reason) {
 		publisher.publish(flow.retryExchange(), flow.deadRoutingKey(), message, message.recipientId(),
 			Map.of(RetryHeaders.FAILURE_REASON, reason));
 
-		LOG.info("Gave up on SMS for recipient {}: {}", message.recipientId(), reason);
+		LOG.info("Gave up on e-mail for recipient {}: {}", message.recipientId(), reason);
 	}
 
 	public boolean hasTierFor(final int nextAttempt) {

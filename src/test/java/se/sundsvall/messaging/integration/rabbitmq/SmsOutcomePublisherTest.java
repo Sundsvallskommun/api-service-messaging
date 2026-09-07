@@ -72,8 +72,7 @@ class SmsOutcomePublisherTest {
 
 	@Test
 	void publish_raisesWhenNoConfirmArrives() {
-		final var properties = properties();
-		properties.setPublishConfirmTimeoutSeconds(1);
+		final var properties = properties(1);
 		// Unstubbed, so the confirm future stays uncompleted and the wait runs into the timeout.
 
 		assertThatExceptionOfType(AmqpException.class)

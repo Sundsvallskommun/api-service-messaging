@@ -24,6 +24,7 @@ class EmailBatchRequestTest {
 	private static final String ATTACHMENT_NAME = "attachmentName";
 	private static final String CONTENT = "content";
 	private static final String CONTENT_TYPE = "contentType";
+	private static final String OBJECT_ID = "f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58";
 	private static final EmailBatchRequest.Sender SENDER = EmailBatchRequest.Sender.builder().build();
 	private static final List<EmailBatchRequest.Attachment> ATTACHMENTS = List.of(EmailBatchRequest.Attachment.builder().build());
 	private static final List<EmailBatchRequest.Party> PARTIES = List.of(EmailBatchRequest.Party.builder().build());
@@ -123,7 +124,7 @@ class EmailBatchRequestTest {
 	// EmailBatchRequest.Attachment
 	@Test
 	void testEmailBatchRequestAttachmentConstructor() {
-		final var bean = new EmailBatchRequest.Attachment(ATTACHMENT_NAME, CONTENT_TYPE, CONTENT);
+		final var bean = new EmailBatchRequest.Attachment(ATTACHMENT_NAME, CONTENT_TYPE, CONTENT, null);
 
 		assertEmailBatchRequestAttachment(bean);
 	}
@@ -139,8 +140,23 @@ class EmailBatchRequestTest {
 		assertEmailBatchRequestAttachment(bean);
 	}
 
+	@Test
+	void testEmailBatchRequestAttachmentAsObjectReference() {
+		final var bean = EmailBatchRequest.Attachment.builder()
+			.withName(ATTACHMENT_NAME)
+			.withContentType(CONTENT_TYPE)
+			.withObjectId(OBJECT_ID)
+			.build();
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("content");
+		assertThat(bean.objectId()).isEqualTo(OBJECT_ID);
+		assertThat(bean.content()).isNull();
+	}
+
 	private void assertEmailBatchRequestAttachment(final Attachment bean) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		// objectId is excepted rather than populated: it and content are mutually exclusive, so a bean carrying both
+		// would be one the API rejects, and asserting on it would be asserting on a shape that cannot occur.
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("objectId");
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
 		assertThat(bean.name()).isEqualTo(ATTACHMENT_NAME);

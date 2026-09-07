@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.messaging.integration.db.DbIntegration;
 import se.sundsvall.messaging.integration.db.entity.HistoryEntity;
+import se.sundsvall.messaging.integration.objectstore.ObjectStoreIntegration;
 import se.sundsvall.messaging.integration.party.PartyIntegration;
 import se.sundsvall.messaging.model.MessageType;
 import tools.jackson.databind.ObjectMapper;
@@ -44,6 +45,9 @@ class HistoryServiceAttachmentTest {
 	@Mock
 	private BatchExtractor batchExtractorMock;
 
+	@Mock
+	private ObjectStoreIntegration objectStoreIntegrationMock;
+
 	private HistoryService historyService;
 
 	private static final String EMPTY_ATTACHMENT = """
@@ -60,7 +64,7 @@ class HistoryServiceAttachmentTest {
 	@BeforeEach
 	void setUp() {
 		final var objectMapper = new ObjectMapper();
-		historyService = new HistoryService(mockDbIntegration, partyIntegrationMock, objectMapper, batchExtractorMock);
+		historyService = new HistoryService(mockDbIntegration, partyIntegrationMock, objectMapper, batchExtractorMock, objectStoreIntegrationMock);
 	}
 
 	@AfterEach

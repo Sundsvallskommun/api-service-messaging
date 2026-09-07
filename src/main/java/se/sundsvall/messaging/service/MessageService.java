@@ -82,6 +82,8 @@ public class MessageService {
 	private final RequestMapper requestMapper;
 	private final DtoMapper dtoMapper;
 
+	private final AttachmentResolver attachmentResolver;
+
 	public MessageService(final TransactionTemplate transactionTemplate,
 		final DbIntegration dbIntegration,
 		final CitizenIntegration citizenIntegration,
@@ -94,7 +96,8 @@ public class MessageService {
 		final OepIntegratorIntegration oepIntegration,
 		final MessageMapper messageMapper,
 		final RequestMapper requestMapper,
-		final DtoMapper dtoMapper) {
+		final DtoMapper dtoMapper,
+		final AttachmentResolver attachmentResolver) {
 		this.transactionTemplate = transactionTemplate;
 		this.dbIntegration = dbIntegration;
 		this.citizenIntegration = citizenIntegration;
@@ -108,6 +111,7 @@ public class MessageService {
 		this.messageMapper = messageMapper;
 		this.requestMapper = requestMapper;
 		this.dtoMapper = dtoMapper;
+		this.attachmentResolver = attachmentResolver;
 	}
 
 	public InternalDeliveryResult sendSnailMail(final SnailMailRequest request, final String batchId) {
@@ -141,10 +145,21 @@ public class MessageService {
 
 	public InternalDeliveryResult sendEmail(final EmailRequest request) {
 		// Create batchId as history resource depends on it being instantiated
-		final var batchId = UUID.randomUUID().toString();
+		return sendEmail(request, UUID.randomUUID().toString(), null);
+	}
 
+	/**
+	 * Sends an e-mail under a caller-supplied batch id, and optionally an existing message id.
+	 * <p>
+	 * A redelivery attempt passes both back in, so every attempt at the same e-mail shares one message id and one batch
+	 * id and is reported as a single message that was tried more than once, rather than as several unrelated ones. Each
+	 * attempt still gets its own delivery id and its own history row.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} for a first attempt
+	 */
+	public InternalDeliveryResult sendEmail(final EmailRequest request, final String batchId, final String messageId) {
 		// Save the message and (try to) deliver it
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId, messageId)));
 	}
 
 	public InternalDeliveryResult sendWebMessage(final WebMessageRequest request) {
@@ -490,7 +505,13 @@ public class MessageService {
 		// Get the delivery attempt for the given message type
 		final Supplier<MessageOutcome> deliveryAttempt = switch (delivery.type()) {
 			case SMS -> () -> smsSenderIntegration.sendSms(delivery.municipalityId(), dtoMapper.toSmsDto((SmsRequest) request));
-			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto((EmailRequest) request));
+			// Attachment references are resolved inside the supplier, so the fetch happens within the try below. That
+			// placement is the difference between the object store being a dependency the retry ladder covers and one
+			// it does not: a raw Feign or circuit-breaker exception escaping from outside this block is not the
+			// ThrowableProblem the queue listener catches, so the message would never be acked, the broker would
+			// redeliver it as fast as it can, and the delivery limit would be spent in milliseconds - straight to the
+			// dead-letter queue with no backoff at all.
+			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto(attachmentResolver.resolve((EmailRequest) request)));
 			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
 			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
 			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request), ((WebMessageRequest) request).attachments());

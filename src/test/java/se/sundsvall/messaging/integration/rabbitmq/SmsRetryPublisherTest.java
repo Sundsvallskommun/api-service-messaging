@@ -1,6 +1,5 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -11,16 +10,11 @@ import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.MessageIds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.ATTEMPT_HEADER;
-import static se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.BATCH_ID_HEADER;
-import static se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.FAILURE_REASON_HEADER;
-import static se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.MESSAGE_ID_HEADER;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.BATCH_ID;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.MESSAGING_MESSAGE_ID;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.RECIPIENT_ID;
@@ -87,16 +81,16 @@ class SmsRetryPublisherTest {
 
 		final var processed = captor.getValue().postProcessMessage(new Message("{}".getBytes(), new MessageProperties()));
 		assertThat(processed.getMessageProperties().getHeaders())
-			.containsEntry(ATTEMPT_HEADER, 2)
-			.containsEntry(FAILURE_REASON_HEADER, "boom")
-			.containsEntry(MESSAGE_ID_HEADER, MESSAGING_MESSAGE_ID)
-			.containsEntry(BATCH_ID_HEADER, BATCH_ID);
+			.containsEntry(RetryHeaders.ATTEMPT, 2)
+			.containsEntry(RetryHeaders.FAILURE_REASON, "boom")
+			.containsEntry(RetryHeaders.MESSAGE_ID, MESSAGING_MESSAGE_ID)
+			.containsEntry(RetryHeaders.BATCH_ID, BATCH_ID);
 	}
 
 	@Test
 	void hasTierFor_runsOutAfterTheConfiguredTiers() {
+		// The three tiers the fixture carries are the three committed in application.yml.
 		final var properties = properties();
-		properties.setRetryTiers(List.of("5s", "30s", "5m"));
 		final var publisher = new SmsRetryPublisher(mockRabbitTemplate, properties);
 
 		// Three tiers means attempts 2, 3 and 4 are republished, and attempt 5 does not exist.

@@ -57,6 +57,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -132,6 +133,9 @@ class MessageServiceTest {
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private DtoMapper mockDtoMapper;
 
+	@Mock
+	private AttachmentResolver mockAttachmentResolver;
+
 	private List<Object> integrations;
 
 	@InjectMocks
@@ -139,6 +143,10 @@ class MessageServiceTest {
 
 	@BeforeEach
 	void setUp() {
+		// Attachments without an object reference are handed back untouched, which is what every test here sends. A test
+		// that cares about resolution overrides this.
+		lenient().when(mockAttachmentResolver.resolve(any(EmailRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
 		integrations = List.of(
 			mockCitizenIntegration,
 			mockContactSettingsIntegration,
@@ -247,8 +255,10 @@ class MessageServiceTest {
 		verifyNoExternalIntegrationInteractionsExcept(mockEmailSenderIntegration);
 		// Verify db integration interactions
 		verifyDbIntegrationInteractions();
-		// Verify mapper interactions (1 + 1 on mockMessageMapper since one is in the actual test)
-		verify(mockMessageMapper, times(1 + 1)).toMessage(any(EmailRequest.class), any(String.class));
+		// The two-argument overload is called only by this test now: the service goes straight to the three-argument
+		// one, which is the overload a retry reuses to keep every attempt under a single message id.
+		verify(mockMessageMapper, times(1)).toMessage(any(EmailRequest.class), any(String.class));
+		verify(mockMessageMapper, times(2)).toMessage(any(EmailRequest.class), any(String.class), isNull());
 		verifyNoMoreInteractions(mockMessageMapper);
 		verify(mockDtoMapper).toEmailDto(any(EmailRequest.class));
 		verifyNoMoreInteractions(mockDtoMapper);

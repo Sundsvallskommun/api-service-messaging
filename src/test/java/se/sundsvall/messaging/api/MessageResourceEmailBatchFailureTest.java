@@ -44,6 +44,8 @@ class MessageResourceEmailBatchFailureTest {
 
 	private static final EmailBatchRequest.Sender SENDER = createValidEmailBatchRequestSender();
 
+	private static final String OBJECT_ID = "f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58";
+
 	private static final EmailBatchRequest.Attachment ATTACHMENT = createValidEmailBatchRequestAttachment();
 
 	@MockitoBean
@@ -71,7 +73,11 @@ class MessageResourceEmailBatchFailureTest {
 			Arguments.of(REQUEST.withSender(SENDER.withAddress(null)), "sender.address", "must not be blank"),
 			Arguments.of(REQUEST.withSender(SENDER.withAddress("")), "sender.address", "must not be blank"),
 			Arguments.of(REQUEST.withSender(SENDER.withAddress("not an email")), "sender.address", "must be a well-formed email address"),
-			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withContent(null))), "attachments[0].content", "not a valid BASE64-encoded string"),
+			// An attachment with neither content nor a reference still fails on attachments[0].content, which is where it
+			// failed when content was simply mandatory. The message is new, the field a caller has to look at is not.
+			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withContent(null))), "attachments[0].content", "either content or objectId must be set"),
+			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withObjectId(OBJECT_ID))), "attachments[0].objectId", "content and objectId are mutually exclusive"),
+			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withContent(null).withObjectId("not a uuid"))), "attachments[0].objectId", "not a valid UUID"),
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withContent("not base64"))), "attachments[0].content", "not a valid BASE64-encoded string"),
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withName(null))), "attachments[0].name", "must not be blank"),
 			Arguments.of(REQUEST.withAttachments(List.of(ATTACHMENT.withName(""))), "attachments[0].name", "must not be blank"),

@@ -17,12 +17,23 @@ spring:
   rabbitmq:
     publisher-confirm-type: correlated
     publisher-returns: true
+    # No RabbitAdmin, and never a Declarable bean. The AMQP user has an empty configure permission by design, so an
+    # attempt to declare a queue fails with ACCESS_REFUSED and the listener container never starts - while
+    # /actuator/health stays green, because the Rabbit health indicator below is deliberately off. That combination is
+    # a consumer that is silently not consuming, with messages piling up and nothing saying so.
+    dynamic: false
     template:
       mandatory: true
       observation-enabled: true
     listener:
       simple:
         observation-enabled: true
+        # An e-mail in flight holds its attachment in memory for the length of the delivery, so heap here is bounded by
+        # concurrency multiplied by the attachment cap rather than by anything the broker does. Boot's default prefetch
+        # is 250, which would also charge 250 messages a delivery-limit count each on a single crash.
+        prefetch: 1
+        concurrency: 2
+        max-concurrency: 4
 
   # JPA
   jpa:
@@ -33,24 +44,37 @@ spring:
       hibernate:
         integrator_provider: se.sundsvall.messaging.integration.db.projection.support.ClassImportIntegratorIntegratorProvider
 
-# SMS over RabbitMQ: requests in from postportal, one terminal outcome back out.
+# SMS and e-mail over RabbitMQ: requests in from postportal, one terminal outcome back out.
 # Connection settings (spring.rabbitmq.host/port/virtual-host/username/password) are supplied per environment and are
 # not committed here. Object names are the contract with postportal and are declared by the messaging-topology-operator
 # via GitOps - the AMQP user has an empty configure permission, so this service must never declare any of them.
-#
-# retry-tiers is the one name here that is not part of that contract - postportal waits for a terminal outcome and
-# never sees the ladder that produced it, so the timing is messaging's alone. It decides which wait queue a failed
-# attempt goes to; three tiers means four delivery attempts in total, after which the request is routed to `dead`.
 rabbitmq:
   enabled: false
-  work-queue: api-fabriken.messaging.sms
-  give-up-queue: api-fabriken.messaging.sms.giveup
-  retry-exchange: api-fabriken.messaging.retry
-  dead-routing-key: dead
-  status-exchange: api-fabriken.messaging.status
-  sent-routing-key: sms.sent
-  failed-routing-key: sms.failed
-  retry-tiers: 5s,30s,5m
+  # One block per channel. The object names are the contract with postportal; retry-tiers is not - postportal waits for
+  # a terminal outcome and never sees the ladder that produced it, so the timing is messaging's alone. Three tiers means
+  # four delivery attempts, after which the request is routed to the channel's dead key.
+  sms:
+    work-queue: api-fabriken.messaging.sms
+    give-up-queue: api-fabriken.messaging.sms.giveup
+    retry-exchange: api-fabriken.messaging.retry
+    dead-routing-key: dead
+    status-exchange: api-fabriken.messaging.status
+    sent-routing-key: sms.sent
+    failed-routing-key: sms.failed
+    retry-tiers: 5s,30s,5m
+  email:
+    work-queue: api-fabriken.messaging.email
+    # A separate exchange rather than more keys on the SMS one: that exchange is direct, so tiers bound on the same
+    # 5s/30s/5m keys would each receive a copy of the other channel's retries.
+    retry-exchange: api-fabriken.messaging.email.retry
+    give-up-queue: api-fabriken.messaging.email.giveup
+    # Likewise its own dead key - SMS's give-up queue is consumed, so a shared key would have that listener eat this
+    # channel's give-up event and report it as an SMS failure.
+    dead-routing-key: email.dead
+    status-exchange: api-fabriken.messaging.status
+    sent-routing-key: email.sent
+    failed-routing-key: email.failed
+    retry-tiers: 5s,30s,5m
   publish-confirm-timeout-seconds: 5
 
 # Do not let the broker's reachability gate service health; an unreachable broker shows up as unacked messages.
@@ -78,6 +102,24 @@ logbook:
       - key: '$..files[*].body'
         value: '[base64]'
 
+# Attachment handling
+messaging:
+  attachment:
+    # Matches object store's own per-object ceiling, so there is one number to remember rather than two: a request may
+    # carry one full-size attachment, or several smaller ones adding up to the same.
+    max-total-size: 15MB
+
+resilience4j.bulkhead:
+  instances:
+    attachmentResolver:
+      # Four at a time, because each one in flight costs several times its own size in transient heap. Multiply this by
+      # max-total-size to get the memory this service can be holding in attachments, and size the pod against that.
+      # Tomcat's two hundred threads are what this exists to stop from all fetching at once.
+      max-concurrent-calls: 4
+      # Fail rather than queue. A caller waiting on a full bulkhead is a thread held open, which is the resource being
+      # protected in the first place.
+      max-wait-duration: 0
+
 resilience4j.circuitbreaker:
   instances:
     DigitalMailSender:
@@ -89,4 +131,14 @@ resilience4j.circuitbreaker:
     ContactSettings:
       ignore-exceptions:
         - se.sundsvall.dept44.exception.ClientProblem
+    ObjectStore:
+      # An unknown or expired object is ordinary traffic against a store whose objects have a time to live, not a sign
+      # the store is unwell. Without this a handful of expired attachments trips the breaker for everyone.
+      ignore-exceptions:
+        - se.sundsvall.dept44.exception.ClientProblem
+      # The default breaker counts exceptions only, so a call that returns 200 after fourteen seconds is recorded as a
+      # success and the breaker stays shut - blind to the failure that actually takes this service down, since every
+      # attachment read holds a Tomcat thread for its duration. These two lines are what make "slow" openable.
+      slow-call-duration-threshold: 2s
+      slow-call-rate-threshold: 50
  

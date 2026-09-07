@@ -1,41 +1,53 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
  * Object names are the contract with postportal and are declared by the messaging-topology-operator via GitOps - this
  * service never declares them. The backoff schedule is the one thing here that is genuinely ours: it drives which
  * routing key a failed attempt is republished on, so changing it needs an application deploy and no topology sync.
+ * <p>
+ * One block per channel, because the two cannot share their failure path. The retry exchange is direct, so a queue
+ * bound on a matching key receives a copy of everything published on it: e-mail tiers bound on the same keys as SMS
+ * would each be handed a copy of every SMS retry, and after the wait queue's TTL that copy re-enters the other
+ * channel's work queue. Separate exchanges make the leak impossible rather than merely unlikely, and are why
+ * {@code retryTiers} can hold the same three values in both blocks without them meaning the same queues.
  */
-@Getter
-@Setter
 @ConfigurationProperties(prefix = "rabbitmq")
-public class RabbitIntegrationProperties {
+public record RabbitIntegrationProperties(
 
-	private boolean enabled;
+	@DefaultValue("false") boolean enabled,
 
-	private String workQueue = "api-fabriken.messaging.sms";
+	@DefaultValue("5") int publishConfirmTimeoutSeconds,
 
-	private String giveUpQueue = "api-fabriken.messaging.sms.giveup";
+	@DefaultValue Flow sms,
 
-	private String retryExchange = "api-fabriken.messaging.retry";
+	@DefaultValue Flow email) {
 
-	private String deadRoutingKey = "dead";
+	public record Flow(
 
-	private String statusExchange = "api-fabriken.messaging.status";
+		String workQueue,
 
-	private String sentRoutingKey = "sms.sent";
+		String giveUpQueue,
 
-	private String failedRoutingKey = "sms.failed";
+		String retryExchange,
 
-	/**
-	 * One routing key per backoff tier, in order. Attempt N that fails is republished on tier N; once the tiers run out
-	 * the request is given up on. Three tiers therefore means four delivery attempts in total.
-	 */
-	private List<String> retryTiers = List.of("5s", "30s", "5m");
+		String deadRoutingKey,
 
-	private int publishConfirmTimeoutSeconds = 5;
+		String statusExchange,
+
+		String sentRoutingKey,
+
+		String failedRoutingKey,
+
+		/**
+		 * One routing key per backoff tier, in order. Attempt N that fails is republished on tier N; once the tiers run
+		 * out the request is given up on. Three tiers therefore means four delivery attempts in total.
+		 */
+		@DefaultValue({
+			"5s", "30s", "5m"
+		}) List<String> retryTiers) {
+	}
 }

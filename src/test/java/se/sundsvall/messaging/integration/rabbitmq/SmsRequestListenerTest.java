@@ -6,10 +6,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpException;
+import se.sundsvall.dept44.exception.ClientProblem;
+import se.sundsvall.dept44.exception.ServerProblem;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
-import se.sundsvall.messaging.integration.rabbitmq.SmsRetryPublisher.MessageIds;
 import se.sundsvall.messaging.model.InternalDeliveryResult;
 import se.sundsvall.messaging.model.MessageStatus;
 import se.sundsvall.messaging.service.MessageService;
@@ -26,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.BATCH_ID;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.MESSAGE_ID;
 import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.MESSAGING_MESSAGE_ID;
@@ -104,13 +104,34 @@ class SmsRequestListenerTest {
 
 	@Test
 	void receive_clientErrorSkipsTheLadderEntirely() {
-		whenSendSmsThrows(Problem.valueOf(BAD_REQUEST, "invalid mobile number"));
+		// BAD_GATEWAY, not BAD_REQUEST, is what a 400 from sms-sender actually looks like by the time it gets here:
+		// dept44's error decoder rewrites the status of every response it is not told to bypass, and sms-sender's
+		// decoder is built without bypass codes. Only the ClientProblem type survives to say the request was at fault.
+		// Asserting on a plain Problem with a genuine 4xx status passes while production does the opposite.
+		whenSendSmsThrows(new ClientProblem(BAD_GATEWAY, "invalid mobile number"));
 
 		listener().receive(smsQueueMessage(), null, null, null);
 
-		// No amount of waiting fixes a malformed request, so it goes straight to dead.
-		verify(mockRetryPublisher).publishGiveUp(any(SmsQueueMessage.class), anyString());
+		// No amount of waiting fixes a malformed request, so it goes straight to dead. Asserting on the reason rather
+		// than merely on publishGiveUp having been called is what makes this a real test: the exhausted-ladder branch
+		// ends in the same call, so a bare verify() passes even when the classification never happened.
+		final var captor = ArgumentCaptor.forClass(String.class);
+		verify(mockRetryPublisher).publishGiveUp(any(SmsQueueMessage.class), captor.capture());
+		assertThat(captor.getValue()).contains("rejected the request");
 		verify(mockRetryPublisher, never()).publishRetry(any(), anyInt(), anyString(), any());
+	}
+
+	@Test
+	void receive_serverProblemRunsTheLadderDespiteCarryingTheSameStatusAsAClientProblem() {
+		// The counterpart to the test above, and the reason the classification cannot be made on the status: both
+		// arrive as BAD_GATEWAY, and only the type says which of them is worth another attempt.
+		whenSendSmsThrows(new ServerProblem(BAD_GATEWAY, "sms-sender is down"));
+		when(mockRetryPublisher.hasTierFor(2)).thenReturn(true);
+
+		listener().receive(smsQueueMessage(), null, null, null);
+
+		verify(mockRetryPublisher).publishRetry(any(SmsQueueMessage.class), eq(2), anyString(), any());
+		verify(mockRetryPublisher, never()).publishGiveUp(any(), anyString());
 	}
 
 	@Test

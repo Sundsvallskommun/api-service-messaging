@@ -26,6 +26,7 @@ class EmailRequestTest {
 	private static final Map<String, List<String>> HEADERS = Map.of(Header.REFERENCES.name(), List.of("value"));
 	private static final String CONTENT = "content";
 	private static final String CONTENT_TYPE = "contentType";
+	private static final String OBJECT_ID = "f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58";
 	private static final String NAME = "name";
 	private static final String PARTY_ID = "partyId";
 	private static final List<ExternalReference> EXTERNAL_REFERENCES = List.of(ExternalReference.builder().build());
@@ -82,7 +83,7 @@ class EmailRequestTest {
 	// EmailRequest.Attachment
 	@Test
 	void testEmailRequestAttachmentConstructor() {
-		final var bean = new EmailRequest.Attachment(NAME, CONTENT_TYPE, CONTENT);
+		final var bean = new EmailRequest.Attachment(NAME, CONTENT_TYPE, CONTENT, null);
 
 		assertEmailRequestAttachment(bean);
 	}
@@ -98,8 +99,23 @@ class EmailRequestTest {
 		assertEmailRequestAttachment(bean);
 	}
 
+	@Test
+	void testEmailRequestAttachmentAsObjectReference() {
+		final var bean = EmailRequest.Attachment.builder()
+			.withName(NAME)
+			.withContentType(CONTENT_TYPE)
+			.withObjectId(OBJECT_ID)
+			.build();
+
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("content");
+		assertThat(bean.objectId()).isEqualTo(OBJECT_ID);
+		assertThat(bean.content()).isNull();
+	}
+
 	private void assertEmailRequestAttachment(final Attachment bean) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		// objectId is excepted rather than populated: it and content are mutually exclusive, so a bean carrying both
+		// would be one the API rejects, and asserting on it would be asserting on a shape that cannot occur.
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("objectId");
 		assertThat(bean.name()).isEqualTo(NAME);
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
