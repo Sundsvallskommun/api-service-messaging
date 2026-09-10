@@ -1,10 +1,13 @@
 package se.sundsvall.messaging.integration.objectstore;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 import se.sundsvall.messaging.integration.AbstractRestIntegrationProperties;
 
 import static java.time.Duration.ofSeconds;
 
+@Validated
 @ConfigurationProperties(prefix = "integration.object-store")
 class ObjectStoreIntegrationProperties extends AbstractRestIntegrationProperties {
 
@@ -24,7 +27,13 @@ class ObjectStoreIntegrationProperties extends AbstractRestIntegrationProperties
 	 * the request: object store has no municipality id and no authorization, so a caller-supplied bucket would turn this
 	 * service into a confused deputy - anyone allowed to send an e-mail could read any object in any bucket using
 	 * messaging's credentials.
+	 * <p>
+	 * Required, because there is no sensible default: postportalservice writes objects to a bucket of its own choosing
+	 * and the reference on the queue carries only an object id, so the two services have to be told the same name. Left
+	 * unset it binds to null and Feign renders {@code /objects//{objectId}} - an empty path segment that object store
+	 * answers as a plain 404, which reads as an expired attachment rather than as the misconfiguration it is.
 	 */
+	@NotBlank
 	private String bucket;
 
 	String getBucket() {
