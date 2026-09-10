@@ -68,7 +68,7 @@ class SnailMailRequestTest {
 	// SnailMailRequest.Attachment
 	@Test
 	void testSnailMailRequestAttachmentConstructor() {
-		final var bean = new SnailMailRequest.Attachment(NAME, CONTENT_TYPE, CONTENT);
+		final var bean = new SnailMailRequest.Attachment(NAME, CONTENT_TYPE, CONTENT, null);
 
 		assertSnailMailRequestAttachment(bean);
 	}
@@ -85,7 +85,9 @@ class SnailMailRequestTest {
 	}
 
 	private void assertSnailMailRequestAttachment(final Attachment bean) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		// objectId is excluded rather than populated: it and content are mutually exclusive, so a valid attachment
+		// can never carry both, and asserting that it does would assert something the validator forbids.
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("objectId");
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
 		assertThat(bean.filename()).isEqualTo(NAME);

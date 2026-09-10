@@ -96,9 +96,21 @@ public class MessageMapper {
 	}
 
 	public Message toMessage(final SnailMailRequest request, final String batchId) {
+		return toMessage(request, batchId, null);
+	}
+
+	/**
+	 * Builds a snail mail message, optionally reusing an existing message id.
+	 * <p>
+	 * Same reasoning as the SMS overload above: a redelivery attempt reuses the id so that every attempt at the same
+	 * letter is one message in history rather than several unrelated ones. The delivery id is always fresh.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} to mint one
+	 */
+	public Message toMessage(final SnailMailRequest request, final String batchId, final String messageId) {
 		return Message.builder()
 			.withBatchId(batchId)
-			.withMessageId(UUID.randomUUID().toString())
+			.withMessageId(ofNullable(messageId).orElseGet(() -> UUID.randomUUID().toString()))
 			.withDeliveryId(UUID.randomUUID().toString())
 			.withPartyId(ofNullable(request.party())
 				.map(SnailMailRequest.Party::partyId)
@@ -140,6 +152,32 @@ public class MessageMapper {
 			.withOrigin(request.origin())
 			.withIssuer(request.issuer())
 			.withMunicipalityId(request.municipalityId())
+			.build();
+	}
+
+	/**
+	 * Builds a digital mail message for a single party, optionally reusing an existing message id.
+	 * <p>
+	 * The batch-shaped {@link #toMessages} below is what the REST endpoint uses, where one call carries a list of
+	 * parties. A queued request carries exactly one recipient, so this is the honest signature for that path - and,
+	 * like the SMS and snail mail overloads, it lets every attempt at the same letter share one message id.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} to mint one
+	 */
+	public Message toMessage(final DigitalMailRequest request, final String batchId, final String messageId, final String organizationNumber) {
+		return Message.builder()
+			.withBatchId(batchId)
+			.withMessageId(ofNullable(messageId).orElseGet(() -> UUID.randomUUID().toString()))
+			.withDeliveryId(UUID.randomUUID().toString())
+			.withPartyId(request.party().partyIds().getFirst())
+			.withType(DIGITAL_MAIL)
+			.withOriginalType(DIGITAL_MAIL)
+			.withStatus(PENDING)
+			.withContent(toJson(request))
+			.withOrigin(request.origin())
+			.withIssuer(request.issuer())
+			.withMunicipalityId(request.municipalityId())
+			.withOrganizationNumber(organizationNumber)
 			.build();
 	}
 

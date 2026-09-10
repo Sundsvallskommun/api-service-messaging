@@ -115,7 +115,20 @@ public class MessageService {
 	}
 
 	public InternalDeliveryResult sendSnailMail(final SnailMailRequest request, final String batchId) {
-		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
+		return sendSnailMail(request, batchId, null);
+	}
+
+	/**
+	 * Sends snail mail under a caller-supplied batch id, and optionally an existing message id.
+	 * <p>
+	 * A redelivery attempt passes both back in, so every attempt at the same letter shares one message id and one
+	 * batch id and is reported as a single message that was tried more than once. Each attempt still gets its own
+	 * delivery id and its own history row.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} for a first attempt
+	 */
+	public InternalDeliveryResult sendSnailMail(final SnailMailRequest request, final String batchId, final String messageId) {
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId, messageId)));
 	}
 
 	public void sendSnailMailBatch(final String municipalityId, final String batchId) {
@@ -168,6 +181,19 @@ public class MessageService {
 
 		// Save the message and (try to) deliver it
 		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId)));
+	}
+
+	/**
+	 * Sends digital mail to a single party, under a caller-supplied batch id and optionally an existing message id.
+	 * <p>
+	 * The batch-shaped overload below stays the REST endpoint's, where one call carries a list of parties and answers
+	 * with a batch result. A queued request carries exactly one recipient and wants one delivery back, so that every
+	 * attempt at the same letter can share the ids the previous attempt used.
+	 *
+	 * @param messageId an existing message id to reuse, or {@code null} for a first attempt
+	 */
+	public InternalDeliveryResult sendDigitalMail(final DigitalMailRequest request, final String organizationNumber, final String batchId, final String messageId) {
+		return deliver(dbIntegration.saveMessage(messageMapper.toMessage(request, batchId, messageId, organizationNumber)));
 	}
 
 	public InternalDeliveryBatchResult sendDigitalMail(final DigitalMailRequest request, String organizationNumber) {
@@ -512,10 +538,12 @@ public class MessageService {
 			// redeliver it as fast as it can, and the delivery limit would be spent in milliseconds - straight to the
 			// dead-letter queue with no backoff at all.
 			case EMAIL -> () -> emailSenderIntegration.sendEmail(delivery.municipalityId(), dtoMapper.toEmailDto(attachmentResolver.resolve((EmailRequest) request)));
-			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(), dtoMapper.toDigitalMailDto((DigitalMailRequest) request, delivery.partyId()));
+			case DIGITAL_MAIL -> () -> digitalMailSenderIntegration.sendDigitalMail(delivery.municipalityId(), delivery.organizationNumber(),
+				dtoMapper.toDigitalMailDto(attachmentResolver.resolve((DigitalMailRequest) request), delivery.partyId()));
 			case DIGITAL_INVOICE -> () -> digitalMailSenderIntegration.sendDigitalInvoice(delivery.municipalityId(), dtoMapper.toDigitalInvoiceDto((DigitalInvoiceRequest) request));
 			case WEB_MESSAGE -> () -> oepIntegration.sendWebMessage(delivery.municipalityId(), dtoMapper.toWebMessageDto((WebMessageRequest) request), ((WebMessageRequest) request).attachments());
-			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(), dtoMapper.toSnailMailDto((SnailMailRequest) request, delivery.batchId(), delivery.address()));
+			case SNAIL_MAIL -> () -> snailMailSenderIntegration.sendSnailMail(delivery.municipalityId(),
+				dtoMapper.toSnailMailDto(attachmentResolver.resolve((SnailMailRequest) request), delivery.batchId(), delivery.address()));
 			case SLACK -> () -> slackIntegration.sendMessage(dtoMapper.toSlackDto((SlackRequest) request));
 			default -> throw new IllegalArgumentException("Unknown delivery type: " + delivery.type());
 		};

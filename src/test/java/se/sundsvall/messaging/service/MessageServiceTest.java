@@ -146,6 +146,8 @@ class MessageServiceTest {
 		// Attachments without an object reference are handed back untouched, which is what every test here sends. A test
 		// that cares about resolution overrides this.
 		lenient().when(mockAttachmentResolver.resolve(any(EmailRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		lenient().when(mockAttachmentResolver.resolve(any(DigitalMailRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		lenient().when(mockAttachmentResolver.resolve(any(SnailMailRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		integrations = List.of(
 			mockCitizenIntegration,
@@ -170,7 +172,9 @@ class MessageServiceTest {
 		var spy = Mockito.spy(messageService);
 		var snailmailRequest = createValidSnailMailRequest();
 		var batchId = UUID.randomUUID().toString();
-		var message = mockMessageMapper.toMessage(snailmailRequest, batchId);
+		// The three-argument form is what the service reaches now: the two-argument one delegates to it, passing a null
+		// message id for a first attempt, so that a redelivery can pass a real one back in.
+		var message = mockMessageMapper.toMessage(snailmailRequest, batchId, null);
 
 		var deliveryResult = new InternalDeliveryResult("messageId", "deliveryId", MessageType.SNAIL_MAIL,
 			MessageStatus.SENT, MUNICIPALITY_ID, null);
@@ -181,7 +185,7 @@ class MessageServiceTest {
 		var result = spy.sendSnailMail(snailmailRequest, batchId);
 
 		assertThat(result).isNotNull().isEqualTo(deliveryResult);
-		verify(mockMessageMapper, times(2)).toMessage(snailmailRequest, batchId);
+		verify(mockMessageMapper, times(2)).toMessage(snailmailRequest, batchId, null);
 		verify(mockDbIntegration).saveMessage(any());
 	}
 

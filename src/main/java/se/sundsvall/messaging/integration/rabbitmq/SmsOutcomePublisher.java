@@ -1,47 +1,23 @@
 package se.sundsvall.messaging.integration.rabbitmq;
 
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Publishes the one terminal outcome per send request onto the outcome hub.
- * <p>
- * {@code sms.sent} means sms-sender accepted the request - accepted by the gateway, not delivered to a handset.
- * {@code sms.failed} means the request has been given up on and nothing further will be attempted.
+ * Publishes SMS outcomes on {@code sms.sent} and {@code sms.failed}. Behaviour lives in
+ * {@link OutcomePublisher}; this names the channel's block and its payload record.
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
-public class SmsOutcomePublisher {
-
-	static final String SENT = "SENT";
-	static final String FAILED = "FAILED";
-
-	private static final Logger LOG = LoggerFactory.getLogger(SmsOutcomePublisher.class);
-
-	private final ConfirmedPublisher publisher;
-	private final RabbitIntegrationProperties.Flow flow;
+public class SmsOutcomePublisher extends OutcomePublisher {
 
 	SmsOutcomePublisher(final RabbitTemplate rabbitTemplate, final RabbitIntegrationProperties properties) {
-		this.publisher = new ConfirmedPublisher(rabbitTemplate, properties.publishConfirmTimeoutSeconds());
-		this.flow = properties.sms();
+		super(rabbitTemplate, properties, properties.sms());
 	}
 
-	public void publishSent(final String recipientId, final String messageId) {
-		publish(flow.sentRoutingKey(), new SmsStatusMessage(recipientId, SENT, messageId, null));
-	}
-
-	public void publishFailed(final String recipientId, final String statusDetail) {
-		publish(flow.failedRoutingKey(), new SmsStatusMessage(recipientId, FAILED, null, statusDetail));
-	}
-
-	private void publish(final String routingKey, final SmsStatusMessage outcome) {
-		publisher.publish(flow.statusExchange(), routingKey, outcome, outcome.recipientId(), Map.of());
-
-		LOG.info("Published outcome {} for recipient {} (exchange={}, routingKey={})",
-			outcome.status(), outcome.recipientId(), flow.statusExchange(), routingKey);
+	@Override
+	protected SmsStatusMessage toStatusMessage(final String recipientId, final String status, final String externalId, final String statusDetail) {
+		return new SmsStatusMessage(recipientId, status, externalId, statusDetail);
 	}
 }

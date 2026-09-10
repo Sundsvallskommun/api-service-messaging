@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "7.12"
 servers:
-- url: http://localhost:51445
+- url: http://localhost:61510
   description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/mailboxes:
@@ -1830,14 +1830,19 @@ components:
           - application/pdf
         content:
           type: string
-          description: Content (BASE64-encoded)
-          minLength: 1
+          description: Content (BASE64-encoded). Mutually exclusive with objectId
         filename:
           type: string
           description: Filename
           minLength: 1
+        objectId:
+          type: string
+          description: "Id of an object holding the attachment content. The bucket\
+            \ is server configuration, not the caller's to choose. Mutually exclusive\
+            \ with content"
+          examples:
+          - f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58
       required:
-      - content
       - filename
     DigitalMailParty:
       type: object
@@ -2135,11 +2140,18 @@ components:
           - text/plain
         content:
           type: string
-          description: The attachment (file) content as a BASE64-encoded string
+          description: The attachment (file) content as a BASE64-encoded string. Mutually
+            exclusive with objectId
           examples:
           - aGVsbG8gd29ybGQK
+        objectId:
+          type: string
+          description: "Id of an object holding the attachment content. The bucket\
+            \ is server configuration, not the caller's to choose. Mutually exclusive\
+            \ with content"
+          examples:
+          - f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58
       required:
-      - content
       - filename
     SnailmailParty:
       type: object

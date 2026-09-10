@@ -28,9 +28,11 @@ spring:
     listener:
       simple:
         observation-enabled: true
-        # An e-mail in flight holds its attachment in memory for the length of the delivery, so heap here is bounded by
-        # concurrency multiplied by the attachment cap rather than by anything the broker does. Boot's default prefetch
-        # is 250, which would also charge 250 messages a delivery-limit count each on a single crash.
+        # A message in flight holds its attachments in memory for the length of the delivery, so heap here is bounded
+        # by concurrency multiplied by the attachment cap rather than by anything the broker does. Boot's default
+        # prefetch is 250, which would also charge 250 messages a delivery-limit count each on a single crash.
+        # This applies per listener container, and there are now eight of them - four work queues and four give-up
+        # queues - so the ceiling is that much higher than when only SMS and e-mail were queued.
         prefetch: 1
         concurrency: 2
         max-concurrency: 4
@@ -44,7 +46,7 @@ spring:
       hibernate:
         integrator_provider: se.sundsvall.messaging.integration.db.projection.support.ClassImportIntegratorIntegratorProvider
 
-# SMS and e-mail over RabbitMQ: requests in from postportal, one terminal outcome back out.
+# Postportal's outgoing channels over RabbitMQ: requests in from postportal, one terminal outcome back out.
 # Connection settings (spring.rabbitmq.host/port/virtual-host/username/password) are supplied per environment and are
 # not committed here. Object names are the contract with postportal and are declared by the messaging-topology-operator
 # via GitOps - the AMQP user has an empty configure permission, so this service must never declare any of them.
@@ -74,6 +76,26 @@ rabbitmq:
     status-exchange: api-fabriken.messaging.status
     sent-routing-key: email.sent
     failed-routing-key: email.failed
+    retry-tiers: 5s,30s,5m
+  digital-mail:
+    work-queue: api-fabriken.messaging.digital-mail
+    retry-exchange: api-fabriken.messaging.digital-mail.retry
+    give-up-queue: api-fabriken.messaging.digital-mail.giveup
+    # Hyphen, never a dot. The status exchange is a topic exchange where "." separates words and "*" matches exactly
+    # one of them, so "digital.mail.sent" would be three words and the bindings would start matching the wrong things.
+    dead-routing-key: digital-mail.dead
+    status-exchange: api-fabriken.messaging.status
+    sent-routing-key: digital-mail.sent
+    failed-routing-key: digital-mail.failed
+    retry-tiers: 5s,30s,5m
+  snail-mail:
+    work-queue: api-fabriken.messaging.snail-mail
+    retry-exchange: api-fabriken.messaging.snail-mail.retry
+    give-up-queue: api-fabriken.messaging.snail-mail.giveup
+    dead-routing-key: snail-mail.dead
+    status-exchange: api-fabriken.messaging.status
+    sent-routing-key: snail-mail.sent
+    failed-routing-key: snail-mail.failed
     retry-tiers: 5s,30s,5m
   publish-confirm-timeout-seconds: 5
 

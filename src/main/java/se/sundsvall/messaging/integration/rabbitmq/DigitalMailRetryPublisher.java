@@ -5,14 +5,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * The SMS channel's failure hub. Behaviour lives in {@link RetryPublisher}; this binds it to the SMS block of
+ * The digital mail channel's failure hub. Behaviour lives in {@link RetryPublisher}; this binds it to the digital mail
+ * block of
  * {@link RabbitIntegrationProperties}, which is what keeps the channel's wait queues and dead key its own.
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
-public class SmsRetryPublisher extends RetryPublisher<SmsQueueMessage> {
+public class DigitalMailRetryPublisher extends RetryPublisher<DigitalMailQueueMessage> {
 
-	SmsRetryPublisher(final RabbitTemplate rabbitTemplate, final RabbitIntegrationProperties properties) {
-		super(rabbitTemplate, properties, properties.sms(), "SMS");
+	DigitalMailRetryPublisher(final RabbitTemplate rabbitTemplate, final RabbitIntegrationProperties properties) {
+		super(rabbitTemplate, properties, properties.digitalMail(), "digital mail");
 	}
 }

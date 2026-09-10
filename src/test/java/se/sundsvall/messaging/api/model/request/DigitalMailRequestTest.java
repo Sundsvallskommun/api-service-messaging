@@ -149,7 +149,7 @@ class DigitalMailRequestTest {
 	// DigitalMailRequest.Attachment
 	@Test
 	void testDigitalMailRequestAttachmentConstructor() {
-		final var bean = new DigitalMailRequest.Attachment(CONTENT_TYPE, CONTENT, FILENAME);
+		final var bean = new DigitalMailRequest.Attachment(CONTENT_TYPE, CONTENT, FILENAME, null);
 
 		assertDigitalMailRequestAttachment(bean);
 	}
@@ -166,7 +166,9 @@ class DigitalMailRequestTest {
 	}
 
 	private void assertDigitalMailRequestAttachment(final Attachment bean) {
-		assertThat(bean).isNotNull().hasNoNullFieldsOrProperties();
+		// objectId is excluded rather than populated: it and content are mutually exclusive, so a valid attachment
+		// can never carry both, and asserting that it does would assert something the validator forbids.
+		assertThat(bean).isNotNull().hasNoNullFieldsOrPropertiesExcept("objectId");
 		assertThat(bean.content()).isEqualTo(CONTENT);
 		assertThat(bean.contentType()).isEqualTo(CONTENT_TYPE);
 		assertThat(bean.filename()).isEqualTo(FILENAME);

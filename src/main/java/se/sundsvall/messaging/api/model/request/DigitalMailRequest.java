@@ -11,7 +11,9 @@ import java.util.List;
 import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.OneOf;
+import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidAttachment;
 import se.sundsvall.messaging.api.validation.ValidDigitalMailRequest;
 import se.sundsvall.messaging.model.ExternalReference;
 
@@ -84,15 +86,24 @@ public record DigitalMailRequest(
 
 	@With
 	@Builder(setterPrefix = "with")
+	@ValidAttachment
 	@Schema(name = "DigitalMailAttachment", description = "Attachment")
 	public record Attachment(
 
+		// Deliberately still required, and still exactly one value. A reference does not need this relaxed the way
+		// content does: the caller has only ever been allowed to say application/pdf here, so saying it costs them
+		// nothing, and leaving the constraint alone keeps the reference from widening a second part of the contract.
 		@OneOf("application/pdf") @Schema(description = "Content type", allowableValues = {
 			"application/pdf"
 		}) String contentType,
 
-		@NotBlank @Schema(description = "Content (BASE64-encoded)") String content,
+		@ValidBase64(nullable = true) @Schema(description = "Content (BASE64-encoded). Mutually exclusive with objectId") String content,
 
-		@NotBlank @Schema(description = "Filename") String filename) {
+		@NotBlank @Schema(description = "Filename") String filename,
+
+		@ValidUuid(nullable = true) @Schema(description = "Id of an object holding the attachment content. The bucket is server configuration, not the caller's to choose. Mutually exclusive with content",
+			examples = "f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58") String objectId)
+		implements
+		ReferenceableAttachment {
 	}
 }

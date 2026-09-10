@@ -9,11 +9,11 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * service never declares them. The backoff schedule is the one thing here that is genuinely ours: it drives which
  * routing key a failed attempt is republished on, so changing it needs an application deploy and no topology sync.
  * <p>
- * One block per channel, because the two cannot share their failure path. The retry exchange is direct, so a queue
+ * One block per channel, because no two of them can share a failure path. The retry exchange is direct, so a queue
  * bound on a matching key receives a copy of everything published on it: e-mail tiers bound on the same keys as SMS
  * would each be handed a copy of every SMS retry, and after the wait queue's TTL that copy re-enters the other
  * channel's work queue. Separate exchanges make the leak impossible rather than merely unlikely, and are why
- * {@code retryTiers} can hold the same three values in both blocks without them meaning the same queues.
+ * {@code retryTiers} can hold the same three values in every block without them meaning the same queues.
  */
 @ConfigurationProperties(prefix = "rabbitmq")
 public record RabbitIntegrationProperties(
@@ -24,7 +24,11 @@ public record RabbitIntegrationProperties(
 
 	@DefaultValue Flow sms,
 
-	@DefaultValue Flow email) {
+	@DefaultValue Flow email,
+
+	@DefaultValue Flow digitalMail,
+
+	@DefaultValue Flow snailMail) {
 
 	public record Flow(
 

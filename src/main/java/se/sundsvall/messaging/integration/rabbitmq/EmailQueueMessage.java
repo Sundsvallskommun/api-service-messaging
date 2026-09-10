@@ -28,7 +28,9 @@ public record EmailQueueMessage(
 	String replyTo,
 	List<Attachment> attachments,
 	String sentBy,
-	String origin) {
+	String origin)
+	implements
+	QueueMessage {
 
 	public record Attachment(String name, String contentType, String objectId) {
 	}

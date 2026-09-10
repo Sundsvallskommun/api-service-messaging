@@ -7,19 +7,19 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
- * Reports e-mail requests that were given up on. Behaviour lives in {@link GiveUpListener}.
+ * Reports digital mail requests that were given up on. Behaviour lives in {@link GiveUpListener}.
  */
 @Component
 @ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
-class EmailGiveUpListener extends GiveUpListener<EmailQueueMessage> {
+class DigitalMailGiveUpListener extends GiveUpListener<DigitalMailQueueMessage> {
 
-	EmailGiveUpListener(final EmailOutcomePublisher outcomePublisher) {
+	DigitalMailGiveUpListener(final DigitalMailOutcomePublisher outcomePublisher) {
 		super(outcomePublisher);
 	}
 
-	@RabbitListener(queues = "${rabbitmq.email.give-up-queue}")
+	@RabbitListener(queues = "${rabbitmq.digital-mail.give-up-queue}")
 	void receive(
-		@Payload final EmailQueueMessage message,
+		@Payload final DigitalMailQueueMessage message,
 		@Header(name = RetryHeaders.FAILURE_REASON, required = false) final String failureReason) {
 
 		handle(message, failureReason);

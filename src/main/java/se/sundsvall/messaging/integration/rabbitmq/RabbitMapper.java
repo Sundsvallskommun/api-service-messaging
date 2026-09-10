@@ -2,9 +2,12 @@ package se.sundsvall.messaging.integration.rabbitmq;
 
 import java.util.List;
 import se.sundsvall.dept44.support.Identifier;
+import se.sundsvall.messaging.api.model.request.DigitalMailRequest;
 import se.sundsvall.messaging.api.model.request.EmailRequest;
 import se.sundsvall.messaging.api.model.request.Priority;
 import se.sundsvall.messaging.api.model.request.SmsRequest;
+import se.sundsvall.messaging.api.model.request.SnailMailRequest;
+import se.sundsvall.messaging.model.Address;
 
 import static java.util.Optional.ofNullable;
 
@@ -91,6 +94,105 @@ final class RabbitMapper {
 		return ofNullable(attachments).orElse(List.of()).stream()
 			.map(attachment -> EmailRequest.Attachment.builder()
 				.withName(attachment.name())
+				.withContentType(attachment.contentType())
+				.withObjectId(attachment.objectId())
+				.build())
+			.toList();
+	}
+
+	/**
+	 * The digital mail counterpart of {@link #toSmsRequest}. Built with a single-element party list, because a queued
+	 * request is one recipient's worth of work - the list exists for the REST endpoint, where one call may name many.
+	 * <p>
+	 * Attachments keep their references rather than being fetched here: resolution belongs in the delivery attempt,
+	 * where a failure to read an object is classified alongside a failure to reach the sender instead of escaping past
+	 * the ladder.
+	 */
+	static DigitalMailRequest toDigitalMailRequest(final DigitalMailQueueMessage message) {
+		if (message == null) {
+			return null;
+		}
+
+		return DigitalMailRequest.builder()
+			.withParty(DigitalMailRequest.Party.builder()
+				.withPartyIds(List.of(message.partyId()))
+				.build())
+			.withSender(DigitalMailRequest.Sender.builder()
+				.withSupportInfo(DigitalMailRequest.Sender.SupportInfo.builder()
+					.withText(message.supportText())
+					.withEmailAddress(message.supportEmailAddress())
+					.withPhoneNumber(message.supportPhoneNumber())
+					.withUrl(message.supportUrl())
+					.build())
+				.build())
+			.withSubject(message.subject())
+			.withBody(message.body())
+			.withContentType(message.contentType())
+			.withDepartment(message.department())
+			.withAttachments(toDigitalMailAttachments(message.attachments()))
+			.withMunicipalityId(message.municipalityId())
+			.withOrigin(message.origin())
+			.withIssuer(toIssuer(message.sentBy()))
+			.build();
+	}
+
+	private static List<DigitalMailRequest.Attachment> toDigitalMailAttachments(final List<DigitalMailQueueMessage.Attachment> attachments) {
+		return ofNullable(attachments).orElse(List.of()).stream()
+			.map(attachment -> DigitalMailRequest.Attachment.builder()
+				.withFilename(attachment.filename())
+				.withContentType(attachment.contentType())
+				.withObjectId(attachment.objectId())
+				.build())
+			.toList();
+	}
+
+	/**
+	 * The snail mail counterpart of {@link #toSmsRequest}.
+	 * <p>
+	 * The batch id is deliberately absent from the request: it is not part of the snail mail body over HTTP either, and
+	 * travels as a separate argument to {@code sendSnailMail} because snailmail-sender treats it as the grouping key
+	 * for a letter's recipients rather than as a property of any one of them.
+	 */
+	static SnailMailRequest toSnailMailRequest(final SnailMailQueueMessage message) {
+		if (message == null) {
+			return null;
+		}
+
+		return SnailMailRequest.builder()
+			.withParty(SnailMailRequest.Party.builder()
+				.withPartyId(message.partyId())
+				.build())
+			.withAddress(toAddress(message.address()))
+			.withDepartment(message.department())
+			.withDeviation(message.deviation())
+			.withFolderName(message.folderName())
+			.withAttachments(toSnailMailAttachments(message.attachments()))
+			.withMunicipalityId(message.municipalityId())
+			.withOrigin(message.origin())
+			.withIssuer(toIssuer(message.sentBy()))
+			.build();
+	}
+
+	private static Address toAddress(final SnailMailQueueMessage.Address address) {
+		return ofNullable(address)
+			.map(present -> Address.builder()
+				.withFirstName(present.firstName())
+				.withLastName(present.lastName())
+				.withOrganizationName(present.organizationName())
+				.withAddress(present.address())
+				.withApartmentNumber(present.apartmentNumber())
+				.withCareOf(present.careOf())
+				.withZipCode(present.zipCode())
+				.withCity(present.city())
+				.withCountry(present.country())
+				.build())
+			.orElse(null);
+	}
+
+	private static List<SnailMailRequest.Attachment> toSnailMailAttachments(final List<SnailMailQueueMessage.Attachment> attachments) {
+		return ofNullable(attachments).orElse(List.of()).stream()
+			.map(attachment -> SnailMailRequest.Attachment.builder()
+				.withFilename(attachment.filename())
 				.withContentType(attachment.contentType())
 				.withObjectId(attachment.objectId())
 				.build())

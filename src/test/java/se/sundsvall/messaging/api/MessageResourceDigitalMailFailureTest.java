@@ -355,9 +355,13 @@ class MessageResourceDigitalMailFailureTest {
 
 		// Assert & verify
 		assertThat(response).isNotNull();
+		// The message changed when objectId arrived: content stopped being mandatory on its own and became one half
+		// of an exactly-one-of rule. Still a 400, and still reported against attachments[0].content rather than
+		// against the attachment - which is the part existing callers actually parse. Blank content also trips the
+		// base64 check, so this asserts on the violation that matters rather than on the whole set.
 		assertThat(response.getViolations())
 			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("attachments[0].content", "must not be blank"));
+			.contains(tuple("attachments[0].content", "either content or objectId must be set"));
 
 		verifyNoInteractions(mockMessageService, mockEventDispatcher);
 	}

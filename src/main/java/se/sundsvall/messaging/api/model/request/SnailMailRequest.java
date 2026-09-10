@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.With;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
+import se.sundsvall.messaging.api.validation.ValidAttachment;
 import se.sundsvall.messaging.api.validation.ValidFolderName;
 import se.sundsvall.messaging.model.Address;
 import se.sundsvall.messaging.model.ExternalReference;
@@ -52,6 +53,7 @@ public record SnailMailRequest(
 
 	@With
 	@Builder(setterPrefix = "with")
+	@ValidAttachment
 	@Schema(name = "SnailmailAttachment", description = "Attachment")
 	public record Attachment(
 
@@ -59,6 +61,12 @@ public record SnailMailRequest(
 
 		@Schema(description = "The attachment content type", examples = "text/plain") String contentType,
 
-		@ValidBase64 @Schema(description = "The attachment (file) content as a BASE64-encoded string", examples = "aGVsbG8gd29ybGQK", requiredMode = REQUIRED) String content) {
+		@ValidBase64(nullable = true) @Schema(description = "The attachment (file) content as a BASE64-encoded string. Mutually exclusive with objectId",
+			examples = "aGVsbG8gd29ybGQK") String content,
+
+		@ValidUuid(nullable = true) @Schema(description = "Id of an object holding the attachment content. The bucket is server configuration, not the caller's to choose. Mutually exclusive with content",
+			examples = "f8e2bd3c-1a6b-4f5e-9d0a-2c7b1e4f6a58") String objectId)
+		implements
+		ReferenceableAttachment {
 	}
 }

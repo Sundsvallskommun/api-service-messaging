@@ -52,12 +52,49 @@ final class TestFixtures {
 			"PostPortalService");
 	}
 
+	static DigitalMailQueueMessage digitalMailQueueMessage() {
+		return new DigitalMailQueueMessage(
+			"2281",
+			MESSAGE_ID,
+			RECIPIENT_ID,
+			"97edca90-7fa8-457e-8223-aa078055465c",
+			"162021005489",
+			"This is the subject",
+			"This is the body",
+			"text/plain",
+			"Kommunstyrelsekontoret",
+			"Support text",
+			"support@sundsvall.se",
+			"+46701740605",
+			"https://sundsvall.se/support",
+			List.of(new DigitalMailQueueMessage.Attachment("file.pdf", "application/pdf", OBJECT_ID)),
+			"mar14han; type=adAccount",
+			"PostPortalService");
+	}
+
+	static SnailMailQueueMessage snailMailQueueMessage() {
+		return new SnailMailQueueMessage(
+			"2281",
+			MESSAGE_ID,
+			RECIPIENT_ID,
+			BATCH_ID,
+			"97edca90-7fa8-457e-8223-aa078055465c",
+			"Kommunstyrelsekontoret",
+			"Sundsvalls Kommun",
+			"A3 Ritning",
+			new SnailMailQueueMessage.Address("John", "Doe", "Acme AB", "Main Street 1", "1101", "c/o Jane Doe", "12345", "Sundsvall", "Sweden"),
+			List.of(new SnailMailQueueMessage.Attachment("file.pdf", "application/pdf", OBJECT_ID)),
+			"mar14han; type=adAccount",
+			"PostPortalService");
+	}
+
 	static RabbitIntegrationProperties properties() {
 		return properties(5);
 	}
 
 	static RabbitIntegrationProperties properties(final int publishConfirmTimeoutSeconds) {
-		return new RabbitIntegrationProperties(true, publishConfirmTimeoutSeconds, flow("sms"), flow("email"));
+		return new RabbitIntegrationProperties(true, publishConfirmTimeoutSeconds,
+			flow("sms"), flow("email"), flow("digital-mail"), flow("snail-mail"));
 	}
 
 	/**
@@ -76,18 +113,23 @@ final class TestFixtures {
 			List.of("5s", "30s", "5m"));
 	}
 
+	/**
+	 * SMS is the odd one out: it was the first channel, so it took the unqualified exchange and dead key before there
+	 * was anything to be qualified against. Every channel added since has its own, which is what keeps a direct
+	 * exchange from handing one channel's retries to another's wait queues.
+	 */
 	private static String retryExchange(final String channel) {
-		if ("email".equals(channel)) {
-			return "api-fabriken.messaging.email.retry";
+		if ("sms".equals(channel)) {
+			return "api-fabriken.messaging.retry";
 		}
-		return "api-fabriken.messaging.retry";
+		return "api-fabriken.messaging." + channel + ".retry";
 	}
 
 	private static String deadRoutingKey(final String channel) {
-		if ("email".equals(channel)) {
-			return "email.dead";
+		if ("sms".equals(channel)) {
+			return "dead";
 		}
-		return "dead";
+		return channel + ".dead";
 	}
 
 	/**
