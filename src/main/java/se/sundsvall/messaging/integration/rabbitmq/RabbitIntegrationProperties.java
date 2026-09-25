@@ -13,7 +13,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * bound on a matching key receives a copy of everything published on it: e-mail tiers bound on the same keys as SMS
  * would each be handed a copy of every SMS retry, and after the wait queue's TTL that copy re-enters the other
  * channel's work queue. Separate exchanges make the leak impossible rather than merely unlikely, and are why
- * {@code retryTiers} can hold the same three values in every block without them meaning the same queues.
+ * {@code retryTiers} can hold the same values in every block without them meaning the same queues.
  */
 @ConfigurationProperties(prefix = "rabbitmq")
 public record RabbitIntegrationProperties(
@@ -48,10 +48,10 @@ public record RabbitIntegrationProperties(
 
 		/**
 		 * One routing key per backoff tier, in order. Attempt N that fails is republished on tier N; once the tiers run
-		 * out the request is given up on. Three tiers therefore means four delivery attempts in total.
+		 * out the request is given up on. Two tiers therefore means three delivery attempts in total.
 		 */
 		@DefaultValue({
-			"5s", "30s", "5m"
+			"30s", "5m"
 		}) List<String> retryTiers) {
 	}
 }

@@ -25,7 +25,7 @@ import static se.sundsvall.messaging.integration.rabbitmq.TestFixtures.stubAck;
 @ExtendWith(MockitoExtension.class)
 class SmsRetryPublisherTest {
 
-	private static final String RETRY_EXCHANGE = "api-fabriken.messaging.retry";
+	private static final String RETRY_EXCHANGE = "api-fabriken.messaging.sms.retry";
 	private static final MessageIds MESSAGE_IDS = new MessageIds(MESSAGING_MESSAGE_ID, BATCH_ID);
 
 	@Mock
@@ -40,13 +40,13 @@ class SmsRetryPublisherTest {
 	void publishRetry_firstRepublishTakesTheShortestTier() {
 		publisher().publishRetry(smsQueueMessage(), 2, "boom", MESSAGE_IDS);
 
-		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5s"), any(Object.class),
+		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("30s"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
 	}
 
 	@Test
-	void publishRetry_thirdRepublishTakesTheLongestTier() {
-		publisher().publishRetry(smsQueueMessage(), 4, "boom", MESSAGE_IDS);
+	void publishRetry_secondRepublishTakesTheLongestTier() {
+		publisher().publishRetry(smsQueueMessage(), 3, "boom", MESSAGE_IDS);
 
 		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5m"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
@@ -56,7 +56,7 @@ class SmsRetryPublisherTest {
 	void publishGiveUp_usesTheDeadKey() {
 		publisher().publishGiveUp(smsQueueMessage(), "no more tries");
 
-		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("dead"), any(Object.class),
+		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("sms.dead"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
 	}
 
@@ -89,13 +89,13 @@ class SmsRetryPublisherTest {
 
 	@Test
 	void hasTierFor_runsOutAfterTheConfiguredTiers() {
-		// The three tiers the fixture carries are the three committed in application.yml.
+		// The two tiers the fixture carries are the two committed in application.yml.
 		final var properties = properties();
 		final var publisher = new SmsRetryPublisher(mockRabbitTemplate, properties);
 
-		// Three tiers means attempts 2, 3 and 4 are republished, and attempt 5 does not exist.
+		// Two tiers means attempts 2 and 3 are republished, and attempt 4 does not exist.
 		assertThat(publisher.hasTierFor(2)).isTrue();
-		assertThat(publisher.hasTierFor(4)).isTrue();
-		assertThat(publisher.hasTierFor(5)).isFalse();
+		assertThat(publisher.hasTierFor(3)).isTrue();
+		assertThat(publisher.hasTierFor(4)).isFalse();
 	}
 }

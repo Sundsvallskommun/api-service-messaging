@@ -53,30 +53,28 @@ spring:
 rabbitmq:
   enabled: false
   # One block per channel. The object names are the contract with postportal; retry-tiers is not - postportal waits for
-  # a terminal outcome and never sees the ladder that produced it, so the timing is messaging's alone. Three tiers means
-  # four delivery attempts, after which the request is routed to the channel's dead key.
+  # a terminal outcome and never sees the ladder that produced it, so the timing is messaging's alone. Two tiers means
+  # three delivery attempts, after which the request is routed to the channel's dead key.
+  # Every channel has its own retry exchange. The exchange is direct, so if two channels shared one, the wait queues
+  # bound on the same 30s/5m keys would each receive a copy of the other channel's retries.
   sms:
     work-queue: api-fabriken.messaging.sms
     give-up-queue: api-fabriken.messaging.sms.giveup
-    retry-exchange: api-fabriken.messaging.retry
-    dead-routing-key: dead
+    retry-exchange: api-fabriken.messaging.sms.retry
+    dead-routing-key: sms.dead
     status-exchange: api-fabriken.messaging.status
     sent-routing-key: sms.sent
     failed-routing-key: sms.failed
-    retry-tiers: 5s,30s,5m
+    retry-tiers: 30s,5m
   email:
     work-queue: api-fabriken.messaging.email
-    # A separate exchange rather than more keys on the SMS one: that exchange is direct, so tiers bound on the same
-    # 5s/30s/5m keys would each receive a copy of the other channel's retries.
     retry-exchange: api-fabriken.messaging.email.retry
     give-up-queue: api-fabriken.messaging.email.giveup
-    # Likewise its own dead key - SMS's give-up queue is consumed, so a shared key would have that listener eat this
-    # channel's give-up event and report it as an SMS failure.
     dead-routing-key: email.dead
     status-exchange: api-fabriken.messaging.status
     sent-routing-key: email.sent
     failed-routing-key: email.failed
-    retry-tiers: 5s,30s,5m
+    retry-tiers: 30s,5m
   digital-mail:
     work-queue: api-fabriken.messaging.digital-mail
     retry-exchange: api-fabriken.messaging.digital-mail.retry
@@ -87,7 +85,7 @@ rabbitmq:
     status-exchange: api-fabriken.messaging.status
     sent-routing-key: digital-mail.sent
     failed-routing-key: digital-mail.failed
-    retry-tiers: 5s,30s,5m
+    retry-tiers: 30s,5m
   snail-mail:
     work-queue: api-fabriken.messaging.snail-mail
     retry-exchange: api-fabriken.messaging.snail-mail.retry
@@ -96,7 +94,7 @@ rabbitmq:
     status-exchange: api-fabriken.messaging.status
     sent-routing-key: snail-mail.sent
     failed-routing-key: snail-mail.failed
-    retry-tiers: 5s,30s,5m
+    retry-tiers: 30s,5m
   publish-confirm-timeout-seconds: 5
 
 # Do not let the broker's reachability gate service health; an unreachable broker shows up as unacked messages.

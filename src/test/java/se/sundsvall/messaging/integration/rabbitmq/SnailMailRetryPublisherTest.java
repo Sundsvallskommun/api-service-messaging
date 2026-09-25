@@ -40,13 +40,13 @@ class SnailMailRetryPublisherTest {
 	void publishRetry_firstRepublishTakesTheShortestTier() {
 		publisher().publishRetry(snailMailQueueMessage(), 2, "boom", MESSAGE_IDS);
 
-		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5s"), any(Object.class),
+		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("30s"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
 	}
 
 	@Test
-	void publishRetry_thirdRepublishTakesTheLongestTier() {
-		publisher().publishRetry(snailMailQueueMessage(), 4, "boom", MESSAGE_IDS);
+	void publishRetry_secondRepublishTakesTheLongestTier() {
+		publisher().publishRetry(snailMailQueueMessage(), 3, "boom", MESSAGE_IDS);
 
 		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5m"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
@@ -54,9 +54,6 @@ class SnailMailRetryPublisherTest {
 
 	@Test
 	void publishGiveUp_usesThisChannelsOwnDeadKey() {
-		// Not the bare "dead" key SMS uses. That one feeds a consumed give-up queue, so sharing it would have the SMS
-		// listener eat this channel's give-up event and report it as an SMS failure - the event is gone and postportal
-		// waits forever.
 		publisher().publishGiveUp(snailMailQueueMessage(), "no more tries");
 
 		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("snail-mail.dead"), any(Object.class),
@@ -94,9 +91,9 @@ class SnailMailRetryPublisherTest {
 	void hasTierFor_runsOutAfterTheConfiguredTiers() {
 		final var publisher = new SnailMailRetryPublisher(mockRabbitTemplate, properties());
 
-		// Three tiers means attempts 2, 3 and 4 are republished, and attempt 5 does not exist.
+		// Two tiers means attempts 2 and 3 are republished, and attempt 4 does not exist.
 		assertThat(publisher.hasTierFor(2)).isTrue();
-		assertThat(publisher.hasTierFor(4)).isTrue();
-		assertThat(publisher.hasTierFor(5)).isFalse();
+		assertThat(publisher.hasTierFor(3)).isTrue();
+		assertThat(publisher.hasTierFor(4)).isFalse();
 	}
 }

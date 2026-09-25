@@ -40,13 +40,13 @@ class EmailRetryPublisherTest {
 	void publishRetry_firstRepublishTakesTheShortestTier() {
 		publisher().publishRetry(emailQueueMessage(), 2, "boom", MESSAGE_IDS);
 
-		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5s"), any(Object.class),
+		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("30s"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
 	}
 
 	@Test
-	void publishRetry_thirdRepublishTakesTheLongestTier() {
-		publisher().publishRetry(emailQueueMessage(), 4, "boom", MESSAGE_IDS);
+	void publishRetry_secondRepublishTakesTheLongestTier() {
+		publisher().publishRetry(emailQueueMessage(), 3, "boom", MESSAGE_IDS);
 
 		verify(mockRabbitTemplate).convertAndSend(eq(RETRY_EXCHANGE), eq("5m"), any(Object.class),
 			any(MessagePostProcessor.class), any(CorrelationData.class));
@@ -89,13 +89,13 @@ class EmailRetryPublisherTest {
 
 	@Test
 	void hasTierFor_runsOutAfterTheConfiguredTiers() {
-		// The three tiers the fixture carries are the three committed in application.yml.
+		// The two tiers the fixture carries are the two committed in application.yml.
 		final var properties = properties();
 		final var publisher = new EmailRetryPublisher(mockRabbitTemplate, properties);
 
-		// Three tiers means attempts 2, 3 and 4 are republished, and attempt 5 does not exist.
+		// Two tiers means attempts 2 and 3 are republished, and attempt 4 does not exist.
 		assertThat(publisher.hasTierFor(2)).isTrue();
-		assertThat(publisher.hasTierFor(4)).isTrue();
-		assertThat(publisher.hasTierFor(5)).isFalse();
+		assertThat(publisher.hasTierFor(3)).isTrue();
+		assertThat(publisher.hasTierFor(4)).isFalse();
 	}
 }

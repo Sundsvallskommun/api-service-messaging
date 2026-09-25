@@ -105,31 +105,12 @@ final class TestFixtures {
 		return new RabbitIntegrationProperties.Flow(
 			"api-fabriken.messaging." + channel,
 			"api-fabriken.messaging." + channel + ".giveup",
-			retryExchange(channel),
-			deadRoutingKey(channel),
+			"api-fabriken.messaging." + channel + ".retry",
+			channel + ".dead",
 			"api-fabriken.messaging.status",
 			channel + ".sent",
 			channel + ".failed",
-			List.of("5s", "30s", "5m"));
-	}
-
-	/**
-	 * SMS is the odd one out: it was the first channel, so it took the unqualified exchange and dead key before there
-	 * was anything to be qualified against. Every channel added since has its own, which is what keeps a direct
-	 * exchange from handing one channel's retries to another's wait queues.
-	 */
-	private static String retryExchange(final String channel) {
-		if ("sms".equals(channel)) {
-			return "api-fabriken.messaging.retry";
-		}
-		return "api-fabriken.messaging." + channel + ".retry";
-	}
-
-	private static String deadRoutingKey(final String channel) {
-		if ("sms".equals(channel)) {
-			return "dead";
-		}
-		return channel + ".dead";
+			List.of("30s", "5m"));
 	}
 
 	/**
