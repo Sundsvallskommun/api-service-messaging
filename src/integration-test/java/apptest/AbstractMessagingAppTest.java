@@ -1,12 +1,12 @@
 package apptest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import se.sundsvall.dept44.common.validators.annotation.impl.ValidUuidConstraintValidator;
 import se.sundsvall.dept44.test.AbstractAppTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 abstract class AbstractMessagingAppTest extends AbstractAppTest {
 
@@ -25,7 +25,7 @@ abstract class AbstractMessagingAppTest extends AbstractAppTest {
 
 	protected static final String X_ORIGIN_HEADER = "x-origin";
 	protected static final String X_ORIGIN_HEADER_VALUE = "Test-origin";
-	
+
 	protected static final String MUNICIPALITY_ID = "2281";
 	protected static final String ORGANIZATION_NUMBER = "2120002411";
 	protected static final String REQUEST_FILE = "request.json";

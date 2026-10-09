@@ -1,5 +1,19 @@
 package apptest;
 
+import java.time.Duration;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import se.sundsvall.messaging.Application;
+import se.sundsvall.messaging.api.model.response.DeliveryResult;
+import se.sundsvall.messaging.api.model.response.MessageBatchResult;
+import se.sundsvall.messaging.api.model.response.MessageResult;
+import se.sundsvall.messaging.integration.db.HistoryRepository;
+import se.sundsvall.messaging.integration.db.MessageRepository;
+import se.sundsvall.messaging.model.MessageStatus;
+import se.sundsvall.messaging.model.MessageType;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,22 +27,6 @@ import static se.sundsvall.messaging.model.MessageStatus.SENT;
 import static se.sundsvall.messaging.model.MessageType.DIGITAL_MAIL;
 import static se.sundsvall.messaging.model.MessageType.LETTER;
 import static se.sundsvall.messaging.model.MessageType.SNAIL_MAIL;
-
-import java.time.Duration;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.messaging.Application;
-import se.sundsvall.messaging.api.model.response.DeliveryResult;
-import se.sundsvall.messaging.api.model.response.MessageBatchResult;
-import se.sundsvall.messaging.api.model.response.MessageResult;
-import se.sundsvall.messaging.integration.db.HistoryRepository;
-import se.sundsvall.messaging.integration.db.MessageRepository;
-import se.sundsvall.messaging.model.MessageStatus;
-import se.sundsvall.messaging.model.MessageType;
 
 @WireMockAppTestSuite(files = "classpath:/LetterIT/", classes = Application.class)
 class LetterIT extends AbstractMessagingAppTest {

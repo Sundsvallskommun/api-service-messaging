@@ -1,13 +1,5 @@
 package apptest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.springframework.http.HttpHeaders.LOCATION;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-import static se.sundsvall.messaging.model.MessageStatus.SENT;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
@@ -19,6 +11,14 @@ import se.sundsvall.messaging.Application;
 import se.sundsvall.messaging.api.model.response.MessageResult;
 import se.sundsvall.messaging.integration.db.HistoryRepository;
 import se.sundsvall.messaging.integration.db.MessageRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.messaging.model.MessageStatus.SENT;
 
 @WireMockAppTestSuite(files = "classpath:/SnailMailIT/", classes = Application.class)
 @DirtiesContext
