@@ -1,7 +1,5 @@
 package archunit;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -24,89 +22,82 @@ import se.sundsvall.messaging.integration.smssender.SmsSenderIntegration;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailDto;
 import se.sundsvall.messaging.integration.snailmailsender.SnailMailSenderIntegration;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+
 @AnalyzeClasses(
 	packagesOf = Application.class,
-	importOptions = ImportOption.DoNotIncludeTests.class
-)
+	importOptions = ImportOption.DoNotIncludeTests.class)
 class BoundaryArchTest {
 
 	@ArchTest
-	static final ArchRule verifyContactSettingsIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(ContactSettingsIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(ContactSettingsIntegration.class, ContactDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifyContactSettingsIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(ContactSettingsIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(ContactSettingsIntegration.class, ContactDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifyDigitalMailSenderIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(DigitalMailSenderIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(DigitalMailSenderIntegration.class, DigitalMailDto.class, DigitalInvoiceDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifyDigitalMailSenderIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(DigitalMailSenderIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(DigitalMailSenderIntegration.class, DigitalMailDto.class, DigitalInvoiceDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifyEmailSenderIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(EmailSenderIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(EmailSenderIntegration.class, EmailDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifyEmailSenderIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(EmailSenderIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(EmailSenderIntegration.class, EmailDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifyPartyIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(PartyIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(PartyIntegration.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifyPartyIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(PartyIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(PartyIntegration.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifySlackIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(SlackIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(SlackIntegration.class, SlackDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifySlackIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(SlackIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(SlackIntegration.class, SlackDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifySmsSenderIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(SmsSenderIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(SmsSenderIntegration.class, SmsDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifySmsSenderIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(SmsSenderIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(SmsSenderIntegration.class, SmsDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifySnailmailSenderIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(SnailMailSenderIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(SnailMailSenderIntegration.class, SnailMailDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifySnailmailSenderIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(SnailMailSenderIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(SnailMailSenderIntegration.class, SnailMailDto.class)
+		.should()
+		.bePackagePrivate();
 
 	@ArchTest
-	static final ArchRule verifyOepIntegrationExposure =
-		classes()
-			.that()
-			.resideInAPackage(OepIntegratorIntegration.class.getPackageName())
-			.and()
-			.doNotBelongToAnyOf(OepIntegratorIntegration.class, WebMessageDto.class)
-			.should()
-			.bePackagePrivate();
+	static final ArchRule verifyOepIntegrationExposure = classes()
+		.that()
+		.resideInAPackage(OepIntegratorIntegration.class.getPackageName())
+		.and()
+		.doNotBelongToAnyOf(OepIntegratorIntegration.class, WebMessageDto.class)
+		.should()
+		.bePackagePrivate();
 }
